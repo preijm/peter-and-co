@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Peter & Co. — Logo Variations</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0a0a0a; color: #fff; font-family: 'JetBrains Mono', monospace; padding: 48px 32px; }
+  h1 { font-family: 'DM Serif Display', serif; font-size: 28px; font-weight: 400; margin-bottom: 8px; color: #fff; }
+  .subtitle { font-size: 11px; color: #4a4a4a; letter-spacing: 0.1em; margin-bottom: 64px; }
+  .section-label { font-size: 10px; color: #3a3a3a; letter-spacing: 0.15em; margin-bottom: 24px; border-bottom: 1px solid #1e1e1e; padding-bottom: 12px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1px; background: #1a1a1a; margin-bottom: 64px; }
+  .card { background: #0a0a0a; padding: 40px 32px; display: flex; flex-direction: column; gap: 20px; }
+  .card.light { background: #ffffff; }
+  .card-label { font-size: 10px; color: #3a3a3a; letter-spacing: 0.1em; margin-top: 16px; }
+  .card.light .card-label { color: #aaaaaa; }
+  .copy-btn {
+    align-self: flex-start; font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.08em; color: #3a3a3a;
+    background: none; border: 1px solid #1e1e1e; padding: 4px 10px;
+    cursor: pointer; transition: all 150ms ease; border-radius: 2px;
+  }
+  .copy-btn:hover { color: #fff; border-color: #3a3a3a; }
+  svg text { font-family: 'DM Serif Display', Georgia, serif; }
+</style>
+</head>
+<body>
+
+<h1>Peter & Co.</h1>
+<p class="subtitle">LOGO VARIATIONS · SVG · CLICK COPY TO GET THE CODE</p>
+
+<!-- WORDMARKS -->
+<div class="section-label">WORDMARKS</div>
+<div class="grid">
+
+  <!-- 1. Stacked, equal size -->
+  <div class="card">
+    <svg id="s1" width="160" height="88" viewBox="0 0 160 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <text x="0" y="44" font-size="44" fill="#ffffff" letter-spacing="-1.5">Peter</text>
+      <text x="2" y="86" font-size="44" fill="#ffffff" letter-spacing="-1.5">&amp; Co.</text>
+    </svg>
+    <span class="card-label">01 — Stacked, equal</span>
+    <button class="copy-btn" onclick="copySVG('s1')">copy svg</button>
+  </div>
+
+  <!-- 2. Stacked, &Co. muted -->
+  <div class="card">
+    <svg id="s2" width="160" height="88" viewBox="0 0 160 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <text x="0" y="44" font-size="44" fill="#ffffff" letter-spacing="-1.5">Peter</text>
+      <text x="2" y="86" font-size="44" fill="#4a4a4a" letter-spacing="-1.5">&amp; Co.</text>
+    </svg>
+    <span class="card-label">02 — Stacked, &amp; Co. muted</span>
+    <button class="copy-btn" onclick="copySVG('s2')">copy svg</button>
+  </div>
+
+  <!-- 3. Stacked, &Co. smaller -->
+  <div class="card">
+    <svg id="s3" width="160" height="80" viewBox="0 0 160 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <text x="0" y="44" font-size="44" fill="#ffffff" letter-spacing="-1.5">Peter</text>
+      <text x="3" y="74" font-size="28" fill="#6b6b6b" letter-spacing="-0.5">&amp; Co.</text>
+    </svg>
+    <span class="card-label">03 — Stacked, &amp; Co. smaller + muted</span>
+    <button class="copy-btn" onclick="copySVG('s3')">copy svg</button>
+  </div>
+
+  <!-- 4. Inline, equal -->
+  <div class="card">
+    <svg id="s4" width="240" height="48" viewBox="0 0 240 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <text x="0" y="42" font-size="42" fill="#ffffff" letter-spacing="-1.5">Peter &amp; Co.</text>
+    </svg>
+    <span class="card-label">04 — Inline, single line</span>
+    <button class="copy-btn" onclick="copySVG('s4')">copy svg</button>
+  </div>
+
+  <!-- 5. Inline, &Co. smaller -->
+  <div class="card">
+    <svg id="s5" width="220" height="48" viewBox="0 0 220 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <text x="0" y="42" font-size="42" fill="#ffffff" letter-spacing="-1.5">Peter</text>
+      <text x="122" y="42" font-size="26" fill="#6b6b6b" letter-spacing="-0.5">&amp; Co.</text>
+    </svg>
+    <span class="card-label">05 — Inline, &amp; Co. smaller</span>
+    <button class="copy-btn" onclick="copySVG('s5')">copy svg</button>
+  </div>
+
+  <!-- 6. Italic -->
+  <div class="card">
+    <svg id="s6" width="160" height="88" viewBox="0 0 160 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <text x="0" y="44" font-size="44" fill="#ffffff" letter-spacing="-1.5" font-style="italic">Peter</text>
+      <text x="2" y="86" font-size="44" fill="#ffffff" letter-spacing="-1.5" font-style="italic">&amp; Co.</text>
+    </svg>
+    <span class="card-label">06 — Stacked, italic</span>
+    <button class="copy-btn" onclick="copySVG('s6')">copy svg</button>
+  </div>
+
+</div>
+
+<!-- ICONS / MARKS -->
+<div class="section-label">ICONS &amp; MARKS</div>
+<div class="grid">
+
+  <!-- 7. P monogram square -->
+  <div class="card">
+    <svg id="i1" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="64" height="64" fill="#ffffff"/>
+      <text x="10" y="52" font-size="52" fill="#0a0a0a" letter-spacing="-2">P</text>
+    </svg>
+    <span class="card-label">07 — P mark, white square</span>
+    <button class="copy-btn" onclick="copySVG('i1')">copy svg</button>
+  </div>
+
+  <!-- 8. P&C compact -->
+  <div class="card">
+    <svg id="i2" width="80" height="64" viewBox="0 0 80 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="80" height="64" fill="#ffffff"/>
+      <text x="4" y="52" font-size="48" fill="#0a0a0a" letter-spacing="-2">P&amp;C</text>
+    </svg>
+    <span class="card-label">08 — P&amp;C mark, white</span>
+    <button class="copy-btn" onclick="copySVG('i2')">copy svg</button>
+  </div>
+
+  <!-- 9. Circle mark -->
+  <div class="card">
+    <svg id="i3" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="32" r="32" fill="#ffffff"/>
+      <text x="8" y="50" font-size="46" fill="#0a0a0a" letter-spacing="-2">P</text>
+    </svg>
+    <span class="card-label">09 — P mark, circle</span>
+    <button class="copy-btn" onclick="copySVG('i3')">copy svg</button>
+  </div>
+
+  <!-- 10. Bordered square -->
+  <div class="card">
+    <svg id="i4" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="1" y="1" width="62" height="62" fill="none" stroke="#ffffff" stroke-width="1.5"/>
+      <text x="10" y="52" font-size="52" fill="#ffffff" letter-spacing="-2">P</text>
+    </svg>
+    <span class="card-label">10 — P mark, outlined square</span>
+    <button class="copy-btn" onclick="copySVG('i4')">copy svg</button>
+  </div>
+
+  <!-- 11. Stacked compact square -->
+  <div class="card">
+    <svg id="i5" width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="72" height="72" fill="#ffffff"/>
+      <text x="4" y="38" font-size="34" fill="#0a0a0a" letter-spacing="-1">Peter</text>
+      <text x="5" y="66" font-size="22" fill="#6b6b6b" letter-spacing="-0.5">&amp; Co.</text>
+    </svg>
+    <span class="card-label">11 — Stacked square mark</span>
+    <button class="copy-btn" onclick="copySVG('i5')">copy svg</button>
+  </div>
+
+  <!-- 12. Minimal dot mark -->
+  <div class="card">
+    <svg id="i6" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <text x="4" y="44" font-size="38" fill="#ffffff" letter-spacing="-1">P.</text>
+    </svg>
+    <span class="card-label">12 — P. minimal mark</span>
+    <button class="copy-btn" onclick="copySVG('i6')">copy svg</button>
+  </div>
+
+</div>
+
+<!-- ON LIGHT BACKGROUND -->
+<div class="section-label">ON LIGHT BACKGROUND</div>
+<div class="grid">
+
+  <div class="card light">
+    <svg id="l1" width="160" height="88" viewBox="0 0 160 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <text x="0" y="44" font-size="44" fill="#0a0a0a" letter-spacing="-1.5">Peter</text>
+      <text x="2" y="86" font-size="44" fill="#0a0a0a" letter-spacing="-1.5">&amp; Co.</text>
+    </svg>
+    <span class="card-label">01L — Stacked on light</span>
+    <button class="copy-btn" onclick="copySVG('l1')">copy svg</button>
+  </div>
+
+  <div class="card light">
+    <svg id="l2" width="160" height="88" viewBox="0 0 160 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <text x="0" y="44" font-size="44" fill="#0a0a0a" letter-spacing="-1.5">Peter</text>
+      <text x="2" y="86" font-size="44" fill="#a8a8a8" letter-spacing="-1.5">&amp; Co.</text>
+    </svg>
+    <span class="card-label">02L — Stacked, &amp; Co. muted on light</span>
+    <button class="copy-btn" onclick="copySVG('l2')">copy svg</button>
+  </div>
+
+  <div class="card light">
+    <svg id="l3" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="1" y="1" width="62" height="62" fill="none" stroke="#0a0a0a" stroke-width="1.5"/>
+      <text x="10" y="52" font-size="52" fill="#0a0a0a" letter-spacing="-2">P</text>
+    </svg>
+    <span class="card-label">10L — P mark outlined on light</span>
+    <button class="copy-btn" onclick="copySVG('l3')">copy svg</button>
+  </div>
+
+</div>
+
+<script>
+function copySVG(id) {
+  const svg = document.getElementById(id);
+  const serializer = new XMLSerializer();
+  let str = serializer.serializeToString(svg);
+  // Inject the font-family into text elements for standalone use
+  str = str.replace(/<text /g, '<text font-family="\'DM Serif Display\', Georgia, serif" ');
+  navigator.clipboard.writeText(str).then(() => {
+    const btn = svg.parentElement.querySelector('.copy-btn');
+    const original = btn.textContent;
+    btn.textContent = 'copied!';
+    setTimeout(() => btn.textContent = original, 1500);
+  });
+}
+</script>
+</body>
+</html>
