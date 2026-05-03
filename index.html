@@ -264,9 +264,10 @@ function ProjectGrid({ onSelect }) {
 
 // ── Footer ─────────────────────────────────────────────────
 function Footer() {
+  const mobile = useMobile();
   return (
     <footer style={{ borderTop: '1px solid #1e1e1e', padding: '20px 32px' }}>
-      <div style={{ maxWidth: '1080px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ maxWidth: '1080px', margin: '0 auto', display: 'flex', flexDirection: mobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: mobile ? 'flex-start' : 'center', gap: mobile ? '12px' : '0' }}>
         <span style={{ fontFamily: PCo.fonts.mono, fontSize: '10px', color: '#3a3a3a', letterSpacing: '0.06em' }}>
           © 2026 Peter &amp; Co. · this is a playground, not a business. yet.
         </span>
