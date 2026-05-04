@@ -191,15 +191,6 @@ function ThemeDropdown() {
               {i === themeIdx ? '● ' : '○ '}{t.name} {t.version}
             </button>
           ))}
-          <button onClick={() => { pickRandom(); setOpen(false); }} style={{
-            display: 'block', width: '100%', textAlign: 'left',
-            fontFamily: theme.fonts.mono, fontSize: '11px', letterSpacing: '0.06em',
-            color: theme.colors.textFaint, background: 'none', border: 'none',
-            cursor: 'pointer', padding: '10px 14px', fontStyle: 'italic',
-          }}
-          onMouseEnter={e => e.currentTarget.style.color = theme.colors.textMuted}
-          onMouseLeave={e => e.currentTarget.style.color = theme.colors.textFaint}
-          >random →</button>
         </div>
       )}
     </div>
@@ -236,7 +227,7 @@ function Tag({ children, filled, muted }) {
 function SiteHeader({ activePage, onNavigate }) {
   const mobile = useMobile();
   const { theme } = useTheme();
-  const links = ['work', 'about', 'tools', 'contact'];
+  const links = ['work', 'tools', 'about', 'contact'];
   return (
     <div style={{ maxWidth: '1080px', margin: '0 auto', padding: '48px 32px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: mobile ? 'wrap' : 'nowrap', gap: mobile ? '12px' : '0' }}>
       <button onClick={() => onNavigate('home')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'baseline', gap: '5px' }}>
@@ -366,32 +357,34 @@ function ProjectStrip({ onSelect, projects, onViewAll }) {
               onMouseEnter={() => setHovered(true)}
               onMouseLeave={() => setHovered(false)}
               style={{
-                display: 'flex', alignItems: 'center', gap: '24px',
-                padding: '18px 0',
+                display: 'grid',
+                gridTemplateColumns: '28px 1fr 72px 44px 180px 20px',
+                alignItems: 'center',
+                padding: '18px 32px',
                 borderBottom: `1px solid ${theme.colors.borderSubtle}`,
                 cursor: 'pointer',
                 background: hovered ? theme.colors.surface : 'transparent',
-                margin: '0 -32px', paddingLeft: '32px', paddingRight: '32px',
+                margin: '0 -32px',
                 transition: 'background 120ms ease',
               }}
             >
-              <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.1em', width: '20px', flexShrink: 0 }}>
+              <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.1em' }}>
                 {String(i + 1).padStart(2, '0')}
               </span>
-              <span style={{ fontFamily: theme.fonts.serif, fontSize: '22px', color: theme.colors.text, letterSpacing: '-0.02em', flex: 1 }}>
+              <span style={{ fontFamily: theme.fonts.serif, fontSize: '22px', color: theme.colors.text, letterSpacing: '-0.02em' }}>
                 {p.title}
               </span>
-              <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textDim, letterSpacing: '0.08em', width: '48px', flexShrink: 0 }}>
+              <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textDim, letterSpacing: '0.08em' }}>
                 {p.tags[0]}
               </span>
-              <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.06em', width: '32px', flexShrink: 0 }}>
+              <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.06em' }}>
                 {p.year}
               </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: accent, display: 'inline-block' }} />
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: accent, display: 'inline-block', flexShrink: 0 }} />
                 <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: accent, letterSpacing: '0.04em' }}>{p.url}</span>
               </span>
-              <span style={{ fontFamily: theme.fonts.mono, fontSize: '13px', color: hovered ? theme.colors.text : theme.colors.textGhost, transition: 'color 150ms ease', flexShrink: 0 }}>→</span>
+              <span style={{ fontFamily: theme.fonts.mono, fontSize: '13px', color: hovered ? theme.colors.text : theme.colors.textGhost, transition: 'color 150ms ease', textAlign: 'right' }}>→</span>
             </div>
           );
         })}
@@ -539,8 +532,7 @@ function About() {
     <section style={{ maxWidth: '1080px', margin: '0 auto', padding: '80px 32px' }}>
       <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1fr 1fr', gap: mobile ? '40px' : '64px', alignItems: 'start' }}>
         <div>
-          <div style={{ fontFamily: theme.fonts.mono, fontSize: '10px', letterSpacing: '0.12em', color: theme.colors.textFaint, marginBottom: '6px' }}>about</div>
-          <div style={{ fontFamily: theme.fonts.mono, fontSize: '11px', letterSpacing: '0.08em', color: theme.colors.textDim, marginBottom: '20px' }}>Rotterdam, NL</div>
+          <div style={{ fontFamily: theme.fonts.mono, fontSize: '10px', letterSpacing: '0.12em', color: theme.colors.textFaint, marginBottom: '24px' }}>about</div>
           <h1 style={{ fontFamily: theme.fonts.serif, fontSize: '44px', fontWeight: 400, color: theme.colors.text, lineHeight: 1.05, letterSpacing: '-0.02em', marginBottom: '32px' }}>
             One person.<br />No office.<br />Real output.
           </h1>
@@ -804,7 +796,9 @@ function App() {
         {page === 'work' && !selectedProject && (
           <>
             <SiteHeader activePage={activePage} onNavigate={navigate} />
-            <div id="projects"><ProjectGrid onSelect={selectProject} /></div>
+            <div style={{ paddingTop: '80px' }}>
+              <ProjectStrip projects={PROJECTS} onSelect={selectProject} />
+            </div>
           </>
         )}
         {(page === 'about' || page === 'tools' || page === 'contact' || page === 'project') && (
