@@ -457,37 +457,41 @@ const PROJECTS = [
   },
 ];
 
-function ProjectGrid({ onSelect }) {
+function ProjectGrid({ onSelect, featured }) {
   const { theme } = useTheme();
   const [filter, setFilter] = React.useState('all');
 
-  // Primary category = first tag on each project
+  const pool = featured ? PROJECTS.filter(p => p.featured) : PROJECTS;
   const categories = ['all', ...new Set(PROJECTS.map(p => p.tags[0]))];
-  const visible = filter === 'all' ? PROJECTS : PROJECTS.filter(p => p.tags[0] === filter);
+  const visible = (!featured && filter !== 'all') ? pool.filter(p => p.tags[0] === filter) : pool;
 
   return (
     <section style={{ maxWidth: '1080px', margin: '0 auto', padding: '80px 32px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-        <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.15em' }}>SELECTED PROJECTS</span>
+        <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.15em' }}>
+          {featured ? 'FEATURED WORK' : 'SELECTED PROJECTS'}
+        </span>
         <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.1em' }}>
           {String(visible.length).padStart(2, '0')} projects
         </span>
       </div>
-      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '32px' }}>
-        {categories.map(cat => (
-          <button key={cat} onClick={() => setFilter(cat)} style={{
-            fontFamily: theme.fonts.mono, fontSize: '10px', letterSpacing: '0.08em',
-            padding: '4px 12px', borderRadius: '2px', cursor: 'pointer',
-            background: filter === cat ? theme.colors.btnBg : 'transparent',
-            color: filter === cat ? theme.colors.btnText : theme.colors.textDim,
-            border: `1px solid ${filter === cat ? theme.colors.btnBg : theme.colors.border}`,
-            transition: 'all 150ms ease',
-          }}
-          onMouseEnter={e => { if (filter !== cat) { e.currentTarget.style.borderColor = theme.colors.textDim; e.currentTarget.style.color = theme.colors.text; }}}
-          onMouseLeave={e => { if (filter !== cat) { e.currentTarget.style.borderColor = theme.colors.border; e.currentTarget.style.color = theme.colors.textDim; }}}
-          >{cat}</button>
-        ))}
-      </div>
+      {!featured && (
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '32px' }}>
+          {categories.map(cat => (
+            <button key={cat} onClick={() => setFilter(cat)} style={{
+              fontFamily: theme.fonts.mono, fontSize: '10px', letterSpacing: '0.08em',
+              padding: '4px 12px', borderRadius: '2px', cursor: 'pointer',
+              background: filter === cat ? theme.colors.btnBg : 'transparent',
+              color: filter === cat ? theme.colors.btnText : theme.colors.textDim,
+              border: `1px solid ${filter === cat ? theme.colors.btnBg : theme.colors.border}`,
+              transition: 'all 150ms ease',
+            }}
+            onMouseEnter={e => { if (filter !== cat) { e.currentTarget.style.borderColor = theme.colors.textDim; e.currentTarget.style.color = theme.colors.text; }}}
+            onMouseLeave={e => { if (filter !== cat) { e.currentTarget.style.borderColor = theme.colors.border; e.currentTarget.style.color = theme.colors.textDim; }}}
+            >{cat}</button>
+          ))}
+        </div>
+      )}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1px', background: visible.length ? theme.colors.borderSubtle : 'transparent' }}>
         {visible.map((p, i) => <ProjectCard key={p.id} project={p} index={i} onClick={onSelect} />)}
       </div>
@@ -794,11 +798,7 @@ function App() {
         {page === 'home' && !selectedProject && (
           <>
             <Hero activePage={activePage} onNavigate={navigate} />
-            <ProjectStrip
-              projects={PROJECTS.filter(p => p.featured)}
-              onSelect={selectProject}
-              onViewAll={() => navigate('work')}
-            />
+            <ProjectGrid featured onSelect={selectProject} />
           </>
         )}
         {page === 'work' && !selectedProject && (
