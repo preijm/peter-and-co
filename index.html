@@ -356,7 +356,7 @@ const PROJECTS = [
     id: 'milk-me-not',
     title: 'Milk Me Not',
     description: 'Rate and discover plant-based milks. Find your oat. Judge every blend.',
-    tags: ['app', 'consumer', 'ratings'],
+    tags: ['app', 'food', 'ratings'],
     year: '2025',
     url: 'milkmenot.com',
     href: 'https://milkmenot.com',
@@ -370,7 +370,7 @@ const PROJECTS = [
     id: 'folio',
     title: 'Folio',
     description: 'Personal finance — crypto, gold & ETFs in one local-first view.',
-    tags: ['dashboard', 'finance', 'data'],
+    tags: ['tool', 'finance', 'data'],
     year: '2026',
     url: 'folio.local',
     accent: '#f59e0b',
@@ -383,7 +383,7 @@ const PROJECTS = [
     id: 'experiment-03',
     title: 'Peter & Co.',
     description: 'This site. A self-contained React portfolio with a live theme switcher.',
-    tags: ['portfolio', 'react', 'themes'],
+    tags: ['site', 'react', 'themes'],
     year: '2026',
     url: 'peterandco.nl',
     href: 'https://peterandco.nl',
@@ -397,16 +397,37 @@ const PROJECTS = [
 
 function ProjectGrid({ onSelect }) {
   const { theme } = useTheme();
+  const [filter, setFilter] = React.useState('all');
+
+  // Primary category = first tag on each project
+  const categories = ['all', ...new Set(PROJECTS.map(p => p.tags[0]))];
+  const visible = filter === 'all' ? PROJECTS : PROJECTS.filter(p => p.tags[0] === filter);
+
   return (
     <section style={{ maxWidth: '1080px', margin: '0 auto', padding: '80px 32px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.15em' }}>SELECTED PROJECTS</span>
         <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.1em' }}>
-          {String(PROJECTS.length).padStart(2, '0')} projects
+          {String(visible.length).padStart(2, '0')} projects
         </span>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1px', background: theme.colors.borderSubtle }}>
-        {PROJECTS.map((p, i) => <ProjectCard key={p.id} project={p} index={i} onClick={onSelect} />)}
+      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '32px' }}>
+        {categories.map(cat => (
+          <button key={cat} onClick={() => setFilter(cat)} style={{
+            fontFamily: theme.fonts.mono, fontSize: '10px', letterSpacing: '0.08em',
+            padding: '4px 12px', borderRadius: '2px', cursor: 'pointer',
+            background: filter === cat ? theme.colors.btnBg : 'transparent',
+            color: filter === cat ? theme.colors.btnText : theme.colors.textDim,
+            border: `1px solid ${filter === cat ? theme.colors.btnBg : theme.colors.border}`,
+            transition: 'all 150ms ease',
+          }}
+          onMouseEnter={e => { if (filter !== cat) { e.currentTarget.style.borderColor = theme.colors.textDim; e.currentTarget.style.color = theme.colors.text; }}}
+          onMouseLeave={e => { if (filter !== cat) { e.currentTarget.style.borderColor = theme.colors.border; e.currentTarget.style.color = theme.colors.textDim; }}}
+          >{cat}</button>
+        ))}
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1px', background: visible.length ? theme.colors.borderSubtle : 'transparent' }}>
+        {visible.map((p, i) => <ProjectCard key={p.id} project={p} index={i} onClick={onSelect} />)}
       </div>
     </section>
   );
