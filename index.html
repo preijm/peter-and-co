@@ -191,15 +191,6 @@ function ThemeDropdown() {
               {i === themeIdx ? '● ' : '○ '}{t.name} {t.version}
             </button>
           ))}
-          <button onClick={() => { pickRandom(); setOpen(false); }} style={{
-            display: 'block', width: '100%', textAlign: 'left',
-            fontFamily: theme.fonts.mono, fontSize: '11px', letterSpacing: '0.06em',
-            color: theme.colors.textFaint, background: 'none', border: 'none',
-            cursor: 'pointer', padding: '10px 14px', fontStyle: 'italic',
-          }}
-          onMouseEnter={e => e.currentTarget.style.color = theme.colors.textMuted}
-          onMouseLeave={e => e.currentTarget.style.color = theme.colors.textFaint}
-          >random →</button>
         </div>
       )}
     </div>
@@ -804,7 +795,9 @@ function App() {
         {page === 'work' && !selectedProject && (
           <>
             <SiteHeader activePage={activePage} onNavigate={navigate} />
-            <ProjectStrip projects={PROJECTS} onSelect={selectProject} />
+            <div style={{ paddingTop: '48px' }}>
+              <ProjectStrip projects={PROJECTS} onSelect={selectProject} />
+            </div>
           </>
         )}
         {(page === 'about' || page === 'tools' || page === 'contact' || page === 'project') && (
