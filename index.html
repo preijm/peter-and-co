@@ -113,10 +113,19 @@ function ThemeProvider({ children }) {
   });
   const theme = THEMES[themeIdx];
 
-  const cycleTheme = () => {
-    const next = (themeIdx + 1) % THEMES.length;
-    setThemeIdx(next);
-    try { localStorage.setItem('pco-theme', THEMES[next].id); } catch {}
+  const setThemeById = (id) => {
+    const idx = THEMES.findIndex(t => t.id === id);
+    if (idx >= 0) {
+      setThemeIdx(idx);
+      try { localStorage.setItem('pco-theme', id); } catch {}
+    }
+  };
+
+  const pickRandom = () => {
+    const others = THEMES.filter((_, i) => i !== themeIdx);
+    const pool = others.length > 0 ? others : THEMES;
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    setThemeById(pick.id);
   };
 
   React.useEffect(() => {
@@ -128,35 +137,72 @@ function ThemeProvider({ children }) {
   }, [theme]);
 
   return (
-    <ThemeContext.Provider value={{ theme, themes: THEMES, themeIdx, cycleTheme }}>
+    <ThemeContext.Provider value={{ theme, themes: THEMES, themeIdx, setThemeById, pickRandom }}>
       {children}
     </ThemeContext.Provider>
   );
 }
 
-// ── ThemeSwitcher ──────────────────────────────────────────
-function ThemeSwitcher() {
-  const { theme, themes, cycleTheme } = useTheme();
-  const canSwitch = themes.length > 1;
-  const [hovered, setHovered] = React.useState(false);
+// ── ThemeDropdown ──────────────────────────────────────────
+function ThemeDropdown() {
+  const { theme, themes, themeIdx, setThemeById, pickRandom } = useTheme();
+  const [open, setOpen] = React.useState(false);
+  const ref = React.useRef();
+
+  React.useEffect(() => {
+    if (!open) return;
+    const handler = e => { if (!ref.current?.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
   return (
-    <button
-      onClick={canSwitch ? cycleTheme : undefined}
-      title={canSwitch ? 'Switch theme' : theme.name + ' ' + theme.version}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        position: 'fixed', bottom: '20px', right: '20px',
-        fontFamily: theme.fonts.mono, fontSize: '9px', letterSpacing: '0.12em',
-        color: hovered && canSwitch ? theme.colors.textMuted : theme.colors.textGhost,
-        background: theme.colors.bgDark,
-        border: `1px solid ${hovered && canSwitch ? theme.colors.border : theme.colors.borderSubtle}`,
-        padding: '5px 10px', borderRadius: '2px',
-        cursor: canSwitch ? 'pointer' : 'default',
-        zIndex: 1000, transition: 'color 150ms ease, border-color 150ms ease',
-        userSelect: 'none',
-      }}
-    >{theme.name} {theme.version}</button>
+    <div ref={ref} style={{ position: 'relative', paddingTop: '8px' }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          fontFamily: theme.fonts.mono, fontSize: '11px', letterSpacing: '0.08em',
+          color: open ? theme.colors.text : theme.colors.textDim,
+          background: 'none', border: 'none', cursor: 'pointer',
+          borderBottom: `1px solid ${open ? theme.colors.textDim : 'transparent'}`,
+          paddingBottom: '2px', transition: 'color 150ms ease',
+          display: 'flex', alignItems: 'center', gap: '4px',
+        }}
+        onMouseEnter={e => e.currentTarget.style.color = theme.colors.text}
+        onMouseLeave={e => { if (!open) e.currentTarget.style.color = theme.colors.textDim; }}
+      >
+        theme <span style={{ fontSize: '9px', opacity: 0.6 }}>{open ? '▲' : '▼'}</span>
+      </button>
+      {open && (
+        <div style={{
+          position: 'absolute', top: 'calc(100% + 8px)', right: 0,
+          background: theme.colors.bgDark, border: `1px solid ${theme.colors.border}`,
+          borderRadius: '2px', minWidth: '160px', zIndex: 200,
+        }}>
+          {themes.map((t, i) => (
+            <button key={t.id} onClick={() => { setThemeById(t.id); setOpen(false); }} style={{
+              display: 'block', width: '100%', textAlign: 'left',
+              fontFamily: theme.fonts.mono, fontSize: '11px', letterSpacing: '0.06em',
+              color: i === themeIdx ? theme.colors.text : theme.colors.textDim,
+              background: 'none', border: 'none', cursor: 'pointer',
+              padding: '10px 14px',
+              borderBottom: `1px solid ${theme.colors.borderSubtle}`,
+            }}>
+              {i === themeIdx ? '● ' : '○ '}{t.name} {t.version}
+            </button>
+          ))}
+          <button onClick={() => { pickRandom(); setOpen(false); }} style={{
+            display: 'block', width: '100%', textAlign: 'left',
+            fontFamily: theme.fonts.mono, fontSize: '11px', letterSpacing: '0.06em',
+            color: theme.colors.textFaint, background: 'none', border: 'none',
+            cursor: 'pointer', padding: '10px 14px', fontStyle: 'italic',
+          }}
+          onMouseEnter={e => e.currentTarget.style.color = theme.colors.textMuted}
+          onMouseLeave={e => e.currentTarget.style.color = theme.colors.textFaint}
+          >random →</button>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -197,20 +243,23 @@ function SiteHeader({ activePage, onNavigate }) {
         <span style={{ fontFamily: theme.fonts.serif, fontSize: mobile ? '26px' : '36px', color: theme.colors.text, letterSpacing: '-0.03em', lineHeight: 1.0 }}>Peter</span>
         <span style={{ fontFamily: theme.fonts.serif, fontSize: mobile ? '16px' : '22px', color: theme.colors.textDim, letterSpacing: '-0.02em', lineHeight: 1.0 }}>&amp; Co.</span>
       </button>
-      <nav style={{ display: 'flex', gap: mobile ? '16px' : '28px', paddingTop: '8px', flexShrink: 0 }}>
-        {links.map(l => (
-          <button key={l} onClick={() => onNavigate(l)} style={{
-            fontFamily: theme.fonts.mono, fontSize: '11px', letterSpacing: '0.08em',
-            color: activePage === l ? theme.colors.text : theme.colors.textDim,
-            background: 'none', border: 'none', cursor: 'pointer',
-            borderBottom: activePage === l ? `1px solid ${theme.colors.text}` : '1px solid transparent',
-            paddingBottom: '2px', transition: 'color 150ms ease',
-          }}
-          onMouseEnter={e => e.currentTarget.style.color = theme.colors.text}
-          onMouseLeave={e => e.currentTarget.style.color = activePage === l ? theme.colors.text : theme.colors.textDim}
-          >{l}</button>
-        ))}
-      </nav>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: mobile ? '16px' : '28px', flexShrink: 0 }}>
+        <nav style={{ display: 'flex', gap: mobile ? '16px' : '28px', paddingTop: '8px' }}>
+          {links.map(l => (
+            <button key={l} onClick={() => onNavigate(l)} style={{
+              fontFamily: theme.fonts.mono, fontSize: '11px', letterSpacing: '0.08em',
+              color: activePage === l ? theme.colors.text : theme.colors.textDim,
+              background: 'none', border: 'none', cursor: 'pointer',
+              borderBottom: activePage === l ? `1px solid ${theme.colors.text}` : '1px solid transparent',
+              paddingBottom: '2px', transition: 'color 150ms ease',
+            }}
+            onMouseEnter={e => e.currentTarget.style.color = theme.colors.text}
+            onMouseLeave={e => e.currentTarget.style.color = activePage === l ? theme.colors.text : theme.colors.textDim}
+            >{l}</button>
+          ))}
+        </nav>
+        {!mobile && <ThemeDropdown />}
+      </div>
     </div>
   );
 }
@@ -365,9 +414,14 @@ function Footer() {
   return (
     <footer style={{ borderTop: `1px solid ${theme.colors.borderSubtle}`, padding: '20px 32px' }}>
       <div style={{ maxWidth: '1080px', margin: '0 auto', display: 'flex', flexDirection: mobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: mobile ? 'flex-start' : 'center', gap: mobile ? '12px' : '0' }}>
-        <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.06em' }}>
-          © 2026 Peter &amp; Co. · this is a playground, not a business. yet.
-        </span>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.06em' }}>
+            © 2026 Peter &amp; Co. · this is a playground, not a business. yet.
+          </span>
+          <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textFaint, letterSpacing: '0.06em' }}>
+            now viewing: {theme.name} {theme.version}
+          </span>
+        </div>
         <div style={{ display: 'flex', gap: '24px' }}>
           {[
             { label: 'github',   href: 'https://github.com/preijm' },
@@ -647,7 +701,6 @@ function App() {
   return (
     <ThemeProvider>
     <div>
-      <ThemeSwitcher />
       <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <main style={{ flex: 1 }}>
         {page === 'work' && !selectedProject && (
