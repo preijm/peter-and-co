@@ -804,7 +804,7 @@ function App() {
         {page === 'work' && !selectedProject && (
           <>
             <SiteHeader activePage={activePage} onNavigate={navigate} />
-            <div id="projects"><ProjectGrid onSelect={selectProject} /></div>
+            <ProjectStrip projects={PROJECTS} onSelect={selectProject} />
           </>
         )}
         {(page === 'about' || page === 'tools' || page === 'contact' || page === 'project') && (
