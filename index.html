@@ -239,7 +239,7 @@ function SiteHeader({ activePage, onNavigate }) {
   const links = ['work', 'about', 'tools', 'contact'];
   return (
     <div style={{ maxWidth: '1080px', margin: '0 auto', padding: '48px 32px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: mobile ? 'wrap' : 'nowrap', gap: mobile ? '12px' : '0' }}>
-      <button onClick={() => onNavigate('work')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'baseline', gap: '5px' }}>
+      <button onClick={() => onNavigate('home')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'baseline', gap: '5px' }}>
         <span style={{ fontFamily: theme.fonts.serif, fontSize: mobile ? '26px' : '36px', color: theme.colors.text, letterSpacing: '-0.03em', lineHeight: 1.0 }}>Peter</span>
         <span style={{ fontFamily: theme.fonts.serif, fontSize: mobile ? '16px' : '22px', color: theme.colors.textDim, letterSpacing: '-0.02em', lineHeight: 1.0 }}>&amp; Co.</span>
       </button>
@@ -350,10 +350,72 @@ function ProjectCard({ project, index, onClick }) {
   );
 }
 
+// ── ProjectStrip ───────────────────────────────────────────
+function ProjectStrip({ onSelect, projects, onViewAll }) {
+  const { theme } = useTheme();
+  const list = projects || PROJECTS;
+  return (
+    <div style={{ borderTop: `1px solid ${theme.colors.borderSubtle}` }}>
+      <div style={{ maxWidth: '1080px', margin: '0 auto', padding: '0 32px' }}>
+        {list.map((p, i) => {
+          const [hovered, setHovered] = React.useState(false);
+          const accent = p.accent || theme.colors.text;
+          return (
+            <div key={p.id}
+              onClick={() => onSelect(p)}
+              onMouseEnter={() => setHovered(true)}
+              onMouseLeave={() => setHovered(false)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '24px',
+                padding: '18px 0',
+                borderBottom: `1px solid ${theme.colors.borderSubtle}`,
+                cursor: 'pointer',
+                background: hovered ? theme.colors.surface : 'transparent',
+                margin: '0 -32px', paddingLeft: '32px', paddingRight: '32px',
+                transition: 'background 120ms ease',
+              }}
+            >
+              <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.1em', width: '20px', flexShrink: 0 }}>
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <span style={{ fontFamily: theme.fonts.serif, fontSize: '22px', color: theme.colors.text, letterSpacing: '-0.02em', flex: 1 }}>
+                {p.title}
+              </span>
+              <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textDim, letterSpacing: '0.08em', width: '48px', flexShrink: 0 }}>
+                {p.tags[0]}
+              </span>
+              <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.06em', width: '32px', flexShrink: 0 }}>
+                {p.year}
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: accent, display: 'inline-block' }} />
+                <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: accent, letterSpacing: '0.04em' }}>{p.url}</span>
+              </span>
+              <span style={{ fontFamily: theme.fonts.mono, fontSize: '13px', color: hovered ? theme.colors.text : theme.colors.textGhost, transition: 'color 150ms ease', flexShrink: 0 }}>→</span>
+            </div>
+          );
+        })}
+        {onViewAll && (
+          <div style={{ padding: '16px 0' }}>
+            <button onClick={onViewAll} style={{
+              fontFamily: theme.fonts.mono, fontSize: '10px', letterSpacing: '0.08em',
+              color: theme.colors.textFaint, background: 'none', border: 'none',
+              cursor: 'pointer', padding: 0, transition: 'color 150ms ease',
+            }}
+            onMouseEnter={e => e.currentTarget.style.color = theme.colors.text}
+            onMouseLeave={e => e.currentTarget.style.color = theme.colors.textFaint}
+            >all projects →</button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ── ProjectGrid ────────────────────────────────────────────
 const PROJECTS = [
   {
-    id: 'milk-me-not',
+    id: 'milk-me-not', featured: true,
     title: 'Milk Me Not',
     description: 'Rate and discover plant-based milks. Find your oat. Judge every blend.',
     tags: ['app', 'food', 'ratings'],
@@ -367,7 +429,7 @@ const PROJECTS = [
     stack: ['Lovable', 'Supabase', 'Median'],
   },
   {
-    id: 'folio',
+    id: 'folio', featured: true,
     title: 'Folio',
     description: 'Personal finance — crypto, gold & ETFs in one local-first view.',
     tags: ['tool', 'finance', 'data'],
@@ -380,7 +442,7 @@ const PROJECTS = [
     stack: ['Claude', 'APIs', 'Backblaze'],
   },
   {
-    id: 'experiment-03',
+    id: 'experiment-03', featured: true,
     title: 'Peter & Co.',
     description: 'This site. A self-contained React portfolio with a live theme switcher.',
     tags: ['site', 'react', 'themes'],
@@ -707,7 +769,7 @@ function ProjectDetail({ project, onBack }) {
 
 // ── App ────────────────────────────────────────────────────
 function App() {
-  const [page, setPage] = React.useState('work');
+  const [page, setPage] = React.useState('home');
   const [selectedProject, setSelectedProject] = React.useState(null);
 
   const navigate = (p) => {
@@ -729,16 +791,19 @@ function App() {
     <div>
       <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <main style={{ flex: 1 }}>
+        {page === 'home' && !selectedProject && (
+          <>
+            <Hero activePage={activePage} onNavigate={navigate} />
+            <ProjectStrip
+              projects={PROJECTS.filter(p => p.featured)}
+              onSelect={selectProject}
+              onViewAll={() => navigate('work')}
+            />
+          </>
+        )}
         {page === 'work' && !selectedProject && (
           <>
-            <Hero
-              activePage={activePage}
-              onNavigate={navigate}
-              onCTA={() => {
-                const el = document.getElementById('projects');
-                if (el) window.scrollTo({ top: el.offsetTop, behavior: 'smooth' });
-              }}
-            />
+            <SiteHeader activePage={activePage} onNavigate={navigate} />
             <div id="projects"><ProjectGrid onSelect={selectProject} /></div>
           </>
         )}
