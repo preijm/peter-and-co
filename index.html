@@ -15,6 +15,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' fill='%230a0a0a'/><text x='7' y='52' font-size='52' fill='%23ffffff' font-family='Georgia,serif' letter-spacing='-2'>P</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link id="theme-fonts" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
@@ -51,6 +52,7 @@ const THEMES = [
     id: 'ink-v1',
     name: 'Ink',
     version: 'v1',
+    tagline: 'dark · minimal · no noise',
     fonts: {
       serif: "'DM Serif Display', Georgia, serif",
       mono:  "'JetBrains Mono', 'Fira Code', monospace",
@@ -76,6 +78,7 @@ const THEMES = [
     id: 'chalk-v1',
     name: 'Chalk',
     version: 'v1',
+    tagline: 'light · open · breathing room',
     fonts: {
       serif: "'DM Serif Display', Georgia, serif",
       mono:  "'JetBrains Mono', 'Fira Code', monospace",
@@ -97,6 +100,40 @@ const THEMES = [
       btnText:     '#f2f0eb',
     },
   },
+  {
+    id: 'mondriaan-v1',
+    name: 'Mondriaan',
+    version: 'v1',
+    tagline: 'primary colours · thick lines · De Stijl',
+    mondriaan: true,
+    fonts: {
+      display: "'Archivo Black', 'Helvetica Neue', sans-serif",
+      sans:    "'Space Grotesk', 'Helvetica Neue', sans-serif",
+      mono:    "'Space Mono', 'JetBrains Mono', monospace",
+      serif:   "'Archivo Black', 'Helvetica Neue', sans-serif",
+    },
+    googleFonts: 'https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap',
+    colors: {
+      bg:          '#ffffff',
+      bgDark:      '#ffffff',
+      bgInput:     '#ffffff',
+      surface:     '#ffffff',
+      border:      '#0a0a0a',
+      borderSubtle:'#0a0a0a',
+      text:        '#0a0a0a',
+      textMuted:   '#1a1a1a',
+      textDim:     '#3a3a3a',
+      textFaint:   '#5a5a5a',
+      textGhost:   '#8a8a8a',
+      btnBg:       '#d72027',
+      btnText:     '#ffffff',
+      red:    '#d72027',
+      blue:   '#1d4ed8',
+      yellow: '#fcc60b',
+      black:  '#0a0a0a',
+      white:  '#ffffff',
+    },
+  },
 ];
 
 // ── Theme Context ──────────────────────────────────────────
@@ -104,6 +141,7 @@ const ThemeContext = React.createContext();
 const useTheme = () => React.useContext(ThemeContext);
 
 function ThemeProvider({ children }) {
+  const [editionsOpen, setEditionsOpen] = React.useState(false);
   const [themeIdx, setThemeIdx] = React.useState(() => {
     try {
       const saved = localStorage.getItem('pco-theme');
@@ -137,7 +175,7 @@ function ThemeProvider({ children }) {
   }, [theme]);
 
   return (
-    <ThemeContext.Provider value={{ theme, themes: THEMES, themeIdx, setThemeById, pickRandom }}>
+    <ThemeContext.Provider value={{ theme, themes: THEMES, themeIdx, setThemeById, pickRandom, editionsOpen, openEditions: () => setEditionsOpen(true), closeEditions: () => setEditionsOpen(false) }}>
       {children}
     </ThemeContext.Provider>
   );
@@ -145,54 +183,151 @@ function ThemeProvider({ children }) {
 
 // ── ThemeDropdown ──────────────────────────────────────────
 function ThemeDropdown() {
-  const { theme, themes, themeIdx, setThemeById, pickRandom } = useTheme();
-  const [open, setOpen] = React.useState(false);
-  const ref = React.useRef();
+  const { theme, openEditions } = useTheme();
+  return (
+    <button
+      onClick={openEditions}
+      style={{
+        fontFamily: theme.fonts.mono, fontSize: '11px', letterSpacing: '0.08em',
+        color: theme.colors.textDim, background: 'none', border: 'none', cursor: 'pointer',
+        borderBottom: '1px solid transparent', paddingBottom: '2px', paddingTop: '8px',
+        transition: 'color 150ms ease',
+      }}
+      onMouseEnter={e => { e.currentTarget.style.color = theme.colors.text; e.currentTarget.style.borderBottomColor = theme.colors.textDim; }}
+      onMouseLeave={e => { e.currentTarget.style.color = theme.colors.textDim; e.currentTarget.style.borderBottomColor = 'transparent'; }}
+    >
+      edition
+    </button>
+  );
+}
+
+// ── ThemeSwatch ────────────────────────────────────────────
+function ThemeSwatch({ themeId }) {
+  if (themeId === 'ink-v1') return (
+    <div style={{ width:'100%', aspectRatio:'16/9', background:'#0a0a0a', position:'relative', overflow:'hidden' }}>
+      <div style={{ position:'absolute', top:'18%', left:'10%', width:'58%', height:'13%', background:'#ffffff' }} />
+      <div style={{ position:'absolute', top:'36%', left:'10%', width:'72%', height:'13%', background:'#ffffff' }} />
+      <div style={{ position:'absolute', top:'54%', left:'10%', width:'44%', height:'13%', background:'#ffffff' }} />
+      <div style={{ position:'absolute', bottom:'10%', left:'10%', width:'28%', height:'7%', background:'#2a2a2a' }} />
+    </div>
+  );
+  if (themeId === 'chalk-v1') return (
+    <div style={{ width:'100%', aspectRatio:'16/9', background:'#f2f0eb', position:'relative', overflow:'hidden' }}>
+      <div style={{ position:'absolute', top:'18%', left:'10%', width:'58%', height:'13%', background:'#0a0a0a' }} />
+      <div style={{ position:'absolute', top:'36%', left:'10%', width:'72%', height:'13%', background:'#0a0a0a' }} />
+      <div style={{ position:'absolute', top:'54%', left:'10%', width:'44%', height:'13%', background:'#0a0a0a' }} />
+      <div style={{ position:'absolute', top:'73%', left:'10%', right:'10%', height:'1px', background:'#c8c6c1' }} />
+      <div style={{ position:'absolute', bottom:'8%', left:'10%', width:'26%', height:'7%', background:'#aaaaaa' }} />
+    </div>
+  );
+  return (
+    <div style={{ width:'100%', aspectRatio:'16/9', background:'#0a0a0a', display:'grid', gap:'3px', gridTemplateColumns:'2fr 1fr 0.8fr', gridTemplateRows:'3fr 2fr', overflow:'hidden' }}>
+      <div style={{ background:'#ffffff', gridColumn:'1', gridRow:'1/3' }} />
+      <div style={{ background:'#d72027', gridColumn:'2', gridRow:'1' }} />
+      <div style={{ background:'#ffffff', gridColumn:'3', gridRow:'1' }} />
+      <div style={{ background:'#fcc60b', gridColumn:'2', gridRow:'2' }} />
+      <div style={{ background:'#1d4ed8', gridColumn:'3', gridRow:'2' }} />
+    </div>
+  );
+}
+
+// ── EditionModal ───────────────────────────────────────────
+function EditionModal() {
+  const { theme, themes, themeIdx, setThemeById, pickRandom, closeEditions } = useTheme();
+  const MONO = "'JetBrains Mono','Space Mono',monospace";
+  const dark = theme.id === 'ink-v1';
+
+  const c = dark ? {
+    overlay:      'rgba(0,0,0,0.88)',
+    panel:        '#1e1e1e',
+    panelBorder:  '#3a3a3a',
+    label:        '#6b6b6b',
+    cardName:     '#ffffff',
+    cardActive:   '#ffffff',
+    cardInactive: '#3a3a3a',
+    cardHover:    '#6b6b6b',
+    tagline:      '#6b6b6b',
+    divider:      '#3a3a3a',
+    randomColor:  '#a8a8a8',
+    randomHover:  '#ffffff',
+    closeColor:   '#6b6b6b',
+    closeHover:   '#a8a8a8',
+  } : {
+    overlay:      'rgba(0,0,0,0.75)',
+    panel:        '#ffffff',
+    panelBorder:  '#0a0a0a',
+    label:        '#8a8a8a',
+    cardName:     '#0a0a0a',
+    cardActive:   '#0a0a0a',
+    cardInactive: '#e0e0e0',
+    cardHover:    '#a0a0a0',
+    tagline:      '#8a8a8a',
+    divider:      '#e8e8e8',
+    randomColor:  '#6b6b6b',
+    randomHover:  '#0a0a0a',
+    closeColor:   '#aaaaaa',
+    closeHover:   '#6b6b6b',
+  };
 
   React.useEffect(() => {
-    if (!open) return;
-    const handler = e => { if (!ref.current?.contains(e.target)) setOpen(false); };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [open]);
+    const handler = e => { if (e.key === 'Escape') closeEditions(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, []);
 
   return (
-    <div ref={ref} style={{ position: 'relative', paddingTop: '8px' }}>
-      <button
-        onClick={() => setOpen(o => !o)}
-        style={{
-          fontFamily: theme.fonts.mono, fontSize: '11px', letterSpacing: '0.08em',
-          color: open ? theme.colors.text : theme.colors.textDim,
-          background: 'none', border: 'none', cursor: 'pointer',
-          borderBottom: `1px solid ${open ? theme.colors.textDim : 'transparent'}`,
-          paddingBottom: '2px', transition: 'color 150ms ease',
-          display: 'flex', alignItems: 'center', gap: '4px',
-        }}
-        onMouseEnter={e => e.currentTarget.style.color = theme.colors.text}
-        onMouseLeave={e => { if (!open) e.currentTarget.style.color = theme.colors.textDim; }}
+    <div
+      onClick={closeEditions}
+      style={{ position:'fixed', inset:0, background:c.overlay, zIndex:1000, display:'flex', alignItems:'center', justifyContent:'center', padding:'24px' }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{ background:c.panel, border:`2px solid ${c.panelBorder}`, maxWidth:'860px', width:'100%', padding:'36px' }}
       >
-        theme <span style={{ fontSize: '9px', opacity: 0.6 }}>{open ? '▲' : '▼'}</span>
-      </button>
-      {open && (
-        <div style={{
-          position: 'absolute', top: 'calc(100% + 8px)', right: 0,
-          background: theme.colors.bgDark, border: `1px solid ${theme.colors.border}`,
-          borderRadius: '2px', minWidth: '160px', zIndex: 200,
-        }}>
-          {themes.map((t, i) => (
-            <button key={t.id} onClick={() => { setThemeById(t.id); setOpen(false); }} style={{
-              display: 'block', width: '100%', textAlign: 'left',
-              fontFamily: theme.fonts.mono, fontSize: '11px', letterSpacing: '0.06em',
-              color: i === themeIdx ? theme.colors.text : theme.colors.textDim,
-              background: 'none', border: 'none', cursor: 'pointer',
-              padding: '10px 14px',
-              borderBottom: `1px solid ${theme.colors.borderSubtle}`,
-            }}>
-              {i === themeIdx ? '● ' : '○ '}{t.name} {t.version}
-            </button>
-          ))}
+        <div style={{ fontFamily:MONO, fontSize:'10px', letterSpacing:'0.14em', color:c.label, marginBottom:'28px', textTransform:'uppercase' }}>
+          choose edition
         </div>
-      )}
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'16px', marginBottom:'28px' }}>
+          {themes.map((t, i) => {
+            const isActive = i === themeIdx;
+            return (
+              <button
+                key={t.id}
+                onClick={() => { setThemeById(t.id); closeEditions(); }}
+                style={{
+                  background:'none', border:`2px solid ${isActive ? c.cardActive : c.cardInactive}`,
+                  cursor:'pointer', padding:'0', textAlign:'left', display:'block', width:'100%',
+                }}
+                onMouseEnter={e => { if (!isActive) e.currentTarget.style.borderColor = c.cardHover; }}
+                onMouseLeave={e => { if (!isActive) e.currentTarget.style.borderColor = c.cardInactive; }}
+              >
+                <ThemeSwatch themeId={t.id} />
+                <div style={{ padding:'14px 16px' }}>
+                  <div style={{ display:'flex', alignItems:'baseline', gap:'8px', marginBottom:'4px' }}>
+                    <span style={{ fontFamily:MONO, fontSize:'14px', fontWeight:600, color:c.cardName, letterSpacing:'-0.01em' }}>{t.name}</span>
+                    {isActive && <span style={{ fontFamily:MONO, fontSize:'9px', letterSpacing:'0.1em', color:c.tagline, textTransform:'uppercase' }}>current</span>}
+                  </div>
+                  <div style={{ fontFamily:MONO, fontSize:'10px', color:c.tagline, letterSpacing:'0.04em', lineHeight:1.5, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{t.tagline}</div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+        <div style={{ borderTop:`1px solid ${c.divider}`, paddingTop:'20px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+          <button
+            onClick={() => { pickRandom(); closeEditions(); }}
+            style={{ fontFamily:MONO, fontSize:'11px', color:c.randomColor, background:'none', border:'none', cursor:'pointer', letterSpacing:'0.06em' }}
+            onMouseEnter={e => e.currentTarget.style.color = c.randomHover}
+            onMouseLeave={e => e.currentTarget.style.color = c.randomColor}
+          >random edition →</button>
+          <button
+            onClick={closeEditions}
+            style={{ fontFamily:MONO, fontSize:'10px', color:c.closeColor, background:'none', border:'none', cursor:'pointer', letterSpacing:'0.1em', textTransform:'uppercase' }}
+            onMouseEnter={e => e.currentTarget.style.color = c.closeHover}
+            onMouseLeave={e => e.currentTarget.style.color = c.closeColor}
+          >esc to close</button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -513,7 +648,7 @@ function Footer() {
             © 2026 Peter &amp; Co. · this is a playground, not a business. yet.
           </span>
           <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textFaint, letterSpacing: '0.06em' }}>
-            now viewing: {theme.name} {theme.version}
+            edition: {theme.name}
           </span>
         </div>
         <div style={{ display: 'flex', gap: '24px' }}>
@@ -543,7 +678,7 @@ function About() {
         <div>
           <div style={{ fontFamily: theme.fonts.mono, fontSize: '10px', letterSpacing: '0.12em', color: theme.colors.textFaint, marginBottom: '24px' }}>about</div>
           <h1 style={{ fontFamily: theme.fonts.serif, fontSize: '44px', fontWeight: 400, color: theme.colors.text, lineHeight: 1.05, letterSpacing: '-0.02em', marginBottom: '32px' }}>
-            One person.<br />No office.<br />Real output.
+            Not a studio.<br />Just me.<br />Peter.
           </h1>
           <p style={{ fontFamily: theme.fonts.mono, fontSize: '13px', color: theme.colors.textMuted, lineHeight: 1.8, maxWidth: '44ch', marginBottom: '24px' }}>
             Background in plant science. Ended up in data. Now doing product. None of it was planned — just curiosity pointing in the right direction.
@@ -772,7 +907,670 @@ function ProjectDetail({ project, onBack }) {
   );
 }
 
+// ─────────────────────────────────────────────────────────
+// MONDRIAAN MODE — De Stijl-inspired full reimagining
+// ─────────────────────────────────────────────────────────
+const M_RED    = '#d72027';
+const M_BLUE   = '#1d4ed8';
+const M_YELLOW = '#fcc60b';
+const M_BLACK  = '#0a0a0a';
+const M_WHITE  = '#ffffff';
+const M_LINE   = 6;
+
+const M_DISPLAY = "'Archivo Black', 'Helvetica Neue', sans-serif";
+const M_SANS    = "'Space Grotesk', 'Helvetica Neue', sans-serif";
+const M_MONO    = "'Space Mono', 'JetBrains Mono', monospace";
+
+function MLabel({ children, color, size, style }) {
+  return (
+    <span style={{
+      fontFamily: M_MONO, fontSize: size || '10px', letterSpacing: '0.18em',
+      textTransform: 'uppercase', color: color || M_BLACK, fontWeight: 700,
+      ...style,
+    }}>{children}</span>
+  );
+}
+
+function MLogo({ onClick, size }) {
+  const sz = size || 56;
+  return (
+    <button onClick={onClick} aria-label="Peter & Co." style={{
+      background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+      display: 'flex', alignItems: 'stretch', gap: 0, height: `${sz}px`,
+    }}>
+      <div style={{
+        width: `${sz}px`, height: `${sz}px`, background: M_RED,
+        border: `${M_LINE/2 + 1}px solid ${M_BLACK}`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontFamily: M_DISPLAY, fontSize: `${sz*0.6}px`, color: M_WHITE,
+        lineHeight: 1, paddingTop: 4,
+      }}>P</div>
+      <div style={{
+        display: 'flex', flexDirection: 'column',
+        borderTop: `${M_LINE/2 + 1}px solid ${M_BLACK}`,
+        borderRight: `${M_LINE/2 + 1}px solid ${M_BLACK}`,
+        borderBottom: `${M_LINE/2 + 1}px solid ${M_BLACK}`,
+        borderLeft: 'none',
+      }}>
+        <div style={{
+          flex: 1, padding: '0 14px', display: 'flex', alignItems: 'center',
+          fontFamily: M_DISPLAY, fontSize: `${sz*0.32}px`, color: M_BLACK,
+          background: M_WHITE, borderBottom: `${M_LINE/2}px solid ${M_BLACK}`,
+          letterSpacing: '-0.02em',
+        }}>Peter</div>
+        <div style={{
+          flex: 1, padding: '0 14px', display: 'flex', alignItems: 'center',
+          fontFamily: M_SANS, fontWeight: 700, fontSize: `${sz*0.26}px`,
+          color: M_BLACK, background: M_YELLOW, letterSpacing: '0.02em',
+        }}>&amp; Co.</div>
+      </div>
+    </button>
+  );
+}
+
+function MNav({ activePage, onNavigate, themeDropdown }) {
+  const links = [
+    { id: 'work',    color: M_RED },
+    { id: 'about',   color: M_BLUE },
+    { id: 'tools',   color: M_YELLOW },
+    { id: 'contact', color: M_WHITE },
+  ];
+  return (
+    <div style={{ display: 'flex', alignItems: 'stretch', gap: 0, height: '56px',
+      border: `${M_LINE/2 + 1}px solid ${M_BLACK}` }}>
+      {links.map((l, i) => {
+        const active = activePage === l.id;
+        const fg = (l.color === M_YELLOW || l.color === M_WHITE) ? M_BLACK : M_WHITE;
+        return (
+          <button key={l.id} onClick={() => onNavigate(l.id)} style={{
+            background: active ? l.color : M_WHITE,
+            color: active ? fg : M_BLACK,
+            border: 'none',
+            borderRight: i < links.length - 1 ? `${M_LINE/2}px solid ${M_BLACK}` : 'none',
+            padding: '0 22px', cursor: 'pointer',
+            fontFamily: M_SANS, fontWeight: 700, fontSize: '13px',
+            letterSpacing: '0.08em', textTransform: 'uppercase',
+            transition: 'background 150ms ease, color 150ms ease',
+          }}
+          onMouseEnter={e => { if (!active) { e.currentTarget.style.background = l.color; e.currentTarget.style.color = fg; } }}
+          onMouseLeave={e => { if (!active) { e.currentTarget.style.background = M_WHITE; e.currentTarget.style.color = M_BLACK; } }}
+          >{l.id}</button>
+        );
+      })}
+      <div style={{ borderLeft: `${M_LINE/2}px solid ${M_BLACK}`, display: 'flex', alignItems: 'center', padding: '0 16px', background: M_BLACK }}>
+        {themeDropdown}
+      </div>
+    </div>
+  );
+}
+
+function MThemeDropdown() {
+  const { openEditions } = useTheme();
+  return (
+    <div style={{ position: 'relative' }}>
+      <button onClick={openEditions} style={{
+        background: 'none', border: 'none', cursor: 'pointer',
+        fontFamily: M_MONO, fontSize: '11px', color: M_WHITE,
+        letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 700,
+        padding: '4px 0',
+      }}>
+        EDITION
+      </button>
+    </div>
+  );
+}
+
+function MHeader({ activePage, onNavigate }) {
+  return (
+    <header style={{
+      maxWidth: '1280px', margin: '0 auto', width: '100%', padding: '24px 24px 0',
+      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+      flexWrap: 'wrap', gap: '20px', background: M_WHITE,
+    }}>
+      <MLogo onClick={() => onNavigate('home')} />
+      <MNav activePage={activePage} onNavigate={onNavigate} themeDropdown={<MThemeDropdown />} />
+    </header>
+  );
+}
+
+function MHomeComposition({ onNavigate, onSelect }) {
+  return (
+    <div style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '24px' }}>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 0.7fr) minmax(0, 0.5fr) 80px',
+        gridTemplateRows: '480px 70px 110px 90px',
+        gap: `${M_LINE}px`,
+        background: M_BLACK,
+        border: `${M_LINE}px solid ${M_BLACK}`,
+      }}>
+        {/* RED accent top-right */}
+        <div style={{ background: M_RED, gridColumn: '4', gridRow: '1' }} />
+        {/* Hero text block — spans cols 1-3 */}
+        <div style={{ background: M_WHITE, gridColumn: '1 / 4', gridRow: '1', padding: '24px 40px 16px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', gap: '20px' }}>
+          <MLabel size="11px">Rotterdam, NL · Digital Studio</MLabel>
+          <h1 style={{
+            fontFamily: M_DISPLAY, fontSize: 'clamp(44px, 5.6vw, 88px)',
+            color: M_BLACK, lineHeight: 0.9, letterSpacing: '-0.04em', textTransform: 'uppercase',
+          }}>
+            I build<br/>things.<br/>Sometimes<br/><span style={{ color: M_RED }}>they're useful.</span>
+          </h1>
+        </div>
+        {/* Selected work label */}
+        <div style={{ background: M_WHITE, gridColumn: '1 / 3', gridRow: '2', padding: '0 40px', display: 'flex', alignItems: 'center' }}>
+          <MLabel>Selected Work · {String(PROJECTS.filter(p => p.featured).length).padStart(2,'0')} projects</MLabel>
+        </div>
+        <div style={{ background: M_BLACK, gridColumn: '3', gridRow: '2' }} />
+        <div style={{ background: M_YELLOW, gridColumn: '4', gridRow: '2' }} />
+        {/* Project cards */}
+        <div style={{ gridColumn: '1', gridRow: '3 / 5', display: 'flex' }}>
+          <MMiniProjectCard project={PROJECTS.filter(p => p.featured)[0]} index={0} onClick={() => onSelect(PROJECTS.filter(p => p.featured)[0])} />
+        </div>
+        <div style={{ gridColumn: '2', gridRow: '3', display: 'flex' }}>
+          <MMiniProjectCard project={PROJECTS.filter(p => p.featured)[1]} index={1} onClick={() => onSelect(PROJECTS.filter(p => p.featured)[1])} />
+        </div>
+        <div style={{ gridColumn: '2 / 4', gridRow: '4', display: 'flex' }}>
+          <MMiniProjectCard project={PROJECTS.filter(p => p.featured)[2]} index={2} compact onClick={() => onSelect(PROJECTS.filter(p => p.featured)[2])} />
+        </div>
+        <div style={{ background: M_BLUE, gridColumn: '3', gridRow: '3' }} />
+        <div style={{ background: M_WHITE, gridColumn: '4', gridRow: '3 / 5' }} />
+      </div>
+    </div>
+  );
+}
+
+function MMiniProjectCard({ project, index, onClick, compact }) {
+  if (!project) return null;
+  const colors = [M_RED, M_BLUE, M_YELLOW];
+  const fill = colors[index % colors.length];
+  const fg = fill === M_YELLOW ? M_BLACK : M_WHITE;
+  const [h, setH] = React.useState(false);
+  if (compact) {
+    return (
+      <div onClick={onClick} onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)} style={{
+        background: fill, cursor: 'pointer',
+        display: 'flex', flexDirection: 'row', alignItems: 'center', padding: '0 22px',
+        gap: '20px', width: '100%', flex: 1, overflow: 'hidden',
+        transition: 'transform 200ms cubic-bezier(.2,.8,.2,1)',
+        transform: h ? 'translateY(-4px)' : 'none',
+      }}>
+        <span style={{ fontFamily: M_DISPLAY, fontSize: '36px', color: fg, lineHeight: 1, letterSpacing: '-0.03em' }}>{String(index + 1).padStart(2, '0')}</span>
+        <h3 style={{ fontFamily: M_DISPLAY, fontSize: '22px', color: fg, letterSpacing: '-0.025em', lineHeight: 1, textTransform: 'uppercase', flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{project.title}</h3>
+        <MLabel color={fg} size="10px">{(project.tags[0] || 'project').toUpperCase()} →</MLabel>
+      </div>
+    );
+  }
+  return (
+    <div onClick={onClick} onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)} style={{
+      background: fill, cursor: 'pointer',
+      display: 'flex', flexDirection: 'column', padding: '20px 22px',
+      gap: '20px', justifyContent: 'space-between',
+      width: '100%', flex: 1, overflow: 'hidden',
+      transition: 'transform 200ms cubic-bezier(.2,.8,.2,1)',
+      transform: h ? 'translateY(-4px)' : 'none',
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+        <span style={{ fontFamily: M_DISPLAY, fontSize: '44px', color: fg, lineHeight: 1, letterSpacing: '-0.03em' }}>{String(index + 1).padStart(2, '0')}</span>
+        <MLabel color={fg} size="10px">{(project.tags[0] || 'project').toUpperCase()}</MLabel>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <h3 style={{ fontFamily: M_DISPLAY, fontSize: '26px', color: fg, letterSpacing: '-0.025em', lineHeight: 0.95, textTransform: 'uppercase' }}>{project.title}</h3>
+        <div style={{ fontFamily: M_MONO, fontSize: '11px', color: fg, fontWeight: 700, letterSpacing: '0.04em', opacity: 0.85 }}>{project.url} →</div>
+      </div>
+    </div>
+  );
+}
+
+function MProjectGrid({ onSelect }) {
+  const palette = [
+    { fill: M_RED,    fg: M_WHITE, label: M_WHITE },
+    { fill: M_YELLOW, fg: M_BLACK, label: M_BLACK },
+    { fill: M_BLUE,   fg: M_WHITE, label: M_WHITE },
+  ];
+  return (
+    <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '24px' }}>
+      <div style={{
+        display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between',
+        marginBottom: '24px', paddingBottom: '16px',
+        borderBottom: `${M_LINE}px solid ${M_BLACK}`,
+      }}>
+        <div>
+          <MLabel>Featured Work</MLabel>
+          <h2 style={{ fontFamily: M_DISPLAY, fontSize: '64px', color: M_BLACK, letterSpacing: '-0.03em', lineHeight: 1.0, marginTop: 8, textTransform: 'uppercase' }}>Selected.</h2>
+        </div>
+        <MLabel size="12px">{String(PROJECTS.length).padStart(2,'0')} / {String(PROJECTS.length).padStart(2,'0')}</MLabel>
+      </div>
+      <div style={{
+        display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: `${M_LINE}px`,
+        background: M_BLACK, border: `${M_LINE}px solid ${M_BLACK}`,
+      }}>
+        {PROJECTS.map((p, i) => {
+          const c = palette[i % palette.length];
+          return <MProjectCard key={p.id} project={p} index={i} color={c} onClick={() => onSelect(p)} />;
+        })}
+      </div>
+    </section>
+  );
+}
+
+function MProjectCard({ project, index, color, onClick }) {
+  const [h, setH] = React.useState(false);
+  return (
+    <div onClick={onClick} onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)} style={{
+      background: M_WHITE, cursor: 'pointer',
+      display: 'grid', gridTemplateRows: '90px 1fr 70px',
+      transition: 'transform 200ms cubic-bezier(.2,.8,.2,1)',
+      transform: h ? 'translateY(-4px)' : 'none',
+    }}>
+      <div style={{
+        background: color.fill, borderBottom: `${M_LINE}px solid ${M_BLACK}`,
+        padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+      }}>
+        <span style={{ fontFamily: M_DISPLAY, fontSize: '36px', color: color.fg, lineHeight: 1, letterSpacing: '-0.02em' }}>{String(index + 1).padStart(2, '0')}</span>
+        <MLabel color={color.label} size="10px">{(project.tags[0] || 'project').toUpperCase()}</MLabel>
+      </div>
+      <div style={{ padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <h3 style={{ fontFamily: M_DISPLAY, fontSize: '34px', color: M_BLACK, letterSpacing: '-0.025em', lineHeight: 0.95, textTransform: 'uppercase' }}>{project.title}</h3>
+        <p style={{ fontFamily: M_SANS, fontSize: '14px', color: M_BLACK, lineHeight: 1.5, fontWeight: 500 }}>{project.description}</p>
+      </div>
+      <div style={{
+        borderTop: `${M_LINE}px solid ${M_BLACK}`, padding: '0 20px',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        background: h ? M_YELLOW : M_WHITE, transition: 'background 150ms ease',
+      }}>
+        <span style={{ fontFamily: M_MONO, fontSize: '12px', color: M_BLACK, fontWeight: 700, letterSpacing: '0.04em' }}>{project.url}</span>
+        <span style={{ fontFamily: M_DISPLAY, fontSize: '24px', color: M_BLACK }}>→</span>
+      </div>
+    </div>
+  );
+}
+
+function MAbout() {
+  return (
+    <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '24px' }}>
+      <div style={{
+        display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1.4fr)', gridTemplateRows: 'auto auto',
+        gap: 0, border: `${M_LINE}px solid ${M_BLACK}`, background: M_BLACK,
+      }}>
+        <div style={{ gridRow: '1 / 3', background: M_YELLOW, borderRight: `${M_LINE}px solid ${M_BLACK}`, padding: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '600px' }}>
+          <MLabel>Subject</MLabel>
+          <div>
+            <div style={{ width: '100%', aspectRatio: '3/4', background: M_WHITE, border: `${M_LINE/2 + 1}px solid ${M_BLACK}`, position: 'relative', overflow: 'hidden' }}>
+              <div style={{ position: 'absolute', inset: 0, background: M_WHITE }} />
+              <div style={{ position: 'absolute', top: '8%', left: '14%', width: '72%', height: '46%', background: M_WHITE, border: `${M_LINE/2}px solid ${M_BLACK}`, borderRadius: '50% 50% 45% 45%' }} />
+              <div style={{ position: 'absolute', top: '54%', left: '8%', width: '84%', height: '46%', background: M_BLUE, borderTop: `${M_LINE/2}px solid ${M_BLACK}` }} />
+              <div style={{ position: 'absolute', top: '20%', left: '36%', width: '8%', height: '5%', background: M_BLACK, borderRadius: '50%' }} />
+              <div style={{ position: 'absolute', top: '20%', left: '56%', width: '8%', height: '5%', background: M_BLACK, borderRadius: '50%' }} />
+              <div style={{ position: 'absolute', top: '36%', left: '44%', width: '12%', height: '4%', background: M_RED }} />
+            </div>
+            <MLabel size="10px" style={{ marginTop: 12, display: 'block' }}>Cârțișoara, 2025</MLabel>
+          </div>
+        </div>
+        <div style={{ background: M_WHITE, borderBottom: `${M_LINE}px solid ${M_BLACK}`, padding: '40px' }}>
+          <h1 style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(48px, 6vw, 88px)', color: M_BLACK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase', marginBottom: 24 }}>
+            Not a studio.<br/><span style={{ color: M_RED }}>Just me.</span><br/>
+            <span style={{ background: M_YELLOW, padding: '0 8px', boxShadow: `inset 0 0 0 ${M_LINE/2}px ${M_BLACK}` }}>Peter.</span>
+          </h1>
+        </div>
+        <div style={{ background: M_WHITE, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }}>
+          <div style={{ padding: '32px 32px 32px 40px', borderRight: `${M_LINE/2 + 1}px solid ${M_BLACK}` }}>
+            <MLabel size="10px">Origin</MLabel>
+            <p style={{ fontFamily: M_SANS, fontSize: '15px', fontWeight: 500, color: M_BLACK, lineHeight: 1.6, marginTop: 12 }}>Background in plant science. Ended up in data. Now doing product. None of it was planned — just curiosity pointing in the right direction.</p>
+          </div>
+          <div style={{ padding: '32px 40px 32px 32px' }}>
+            <MLabel size="10px">Method</MLabel>
+            <p style={{ fontFamily: M_SANS, fontSize: '15px', fontWeight: 500, color: M_BLACK, lineHeight: 1.6, marginTop: 12 }}>I explore ideas by building them. Curious about the tech, focused on the output. These projects are the ones that wouldn't leave me alone.</p>
+          </div>
+          <div style={{ padding: '32px 32px 40px 40px', borderTop: `${M_LINE/2 + 1}px solid ${M_BLACK}`, borderRight: `${M_LINE/2 + 1}px solid ${M_BLACK}`, background: M_RED }}>
+            <MLabel size="10px" color={M_WHITE}>Off-screen</MLabel>
+            <p style={{ fontFamily: M_SANS, fontSize: '15px', fontWeight: 500, color: M_WHITE, lineHeight: 1.6, marginTop: 12 }}>Running roads, mountain biking trails, keeping plants alive, tracking down rare draft beers one check-in at a time.</p>
+          </div>
+          <div style={{ padding: '32px 40px 40px 32px', borderTop: `${M_LINE/2 + 1}px solid ${M_BLACK}` }}>
+            <MLabel size="10px">Tagline</MLabel>
+            <p style={{ fontFamily: M_DISPLAY, fontSize: '32px', color: M_BLACK, lineHeight: 0.95, marginTop: 12, letterSpacing: '-0.02em' }}>Sometimes<br/>something useful<br/>comes out.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function MTools() {
+  const cats = [
+    { label: 'build', color: M_RED, fg: M_WHITE, tools: [
+      { name: 'Lovable',  desc: 'Prototype to product, fast.' },
+      { name: 'Claude',   desc: "The whole suite. It's become the default." },
+      { name: 'Stitch',   desc: 'Connecting data without the plumbing.' },
+      { name: 'GitHub',   desc: 'Version control. Public record of trying.' },
+      { name: 'APIs',     desc: 'First thing I check: does it have one.' },
+      { name: 'Median',   desc: 'Web app to native, no native overhead.' },
+    ]},
+    { label: 'infrastructure', color: M_BLUE, fg: M_WHITE, tools: [
+      { name: 'Supabase',  desc: 'Backend without the backend work.' },
+      { name: 'Backblaze', desc: 'Cheap, reliable storage. No drama.' },
+      { name: 'IONOS',     desc: 'Domains and hosting, doing its job.' },
+      { name: 'Mapbox',    desc: "Maps that don't look like Google Maps." },
+    ]},
+    { label: 'daily', color: M_YELLOW, fg: M_BLACK, tools: [
+      { name: 'Remember the Milk', desc: 'Task management that stuck.' },
+      { name: 'Markpad',   desc: 'Notes in plain text, the way it should be.' },
+      { name: 'Bitwarden', desc: 'One password to rule them all.' },
+    ]},
+  ];
+  return (
+    <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 0, border: `${M_LINE}px solid ${M_BLACK}`, marginBottom: `${M_LINE}px` }}>
+        <div style={{ background: M_WHITE, padding: '40px' }}>
+          <h1 style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(56px, 8vw, 112px)', color: M_BLACK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase' }}>
+            How <span style={{ color: M_BLUE }}>I</span> work.
+          </h1>
+          <p style={{ fontFamily: M_SANS, fontSize: '16px', fontWeight: 500, color: M_BLACK, lineHeight: 1.6, marginTop: 20, maxWidth: '52ch' }}>No strong opinions on tools. Strong opinions on outcomes.<br/>These just happen to be what's in the stack right now.</p>
+        </div>
+        <div style={{ background: M_RED, borderLeft: `${M_LINE}px solid ${M_BLACK}`, padding: '24px 32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minWidth: '180px' }}>
+          <MLabel color={M_WHITE}>Total</MLabel>
+          <div style={{ fontFamily: M_DISPLAY, fontSize: '88px', color: M_WHITE, lineHeight: 1.0, letterSpacing: '-0.04em' }}>13</div>
+        </div>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: `${M_LINE}px`, background: M_BLACK, border: `${M_LINE}px solid ${M_BLACK}` }}>
+        {cats.map(cat => (
+          <div key={cat.label} style={{ background: M_WHITE, display: 'flex', flexDirection: 'column' }}>
+            <div style={{ background: cat.color, borderBottom: `${M_LINE}px solid ${M_BLACK}`, padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+              <h3 style={{ fontFamily: M_DISPLAY, fontSize: '24px', color: cat.fg, letterSpacing: '-0.02em', textTransform: 'uppercase' }}>{cat.label}</h3>
+              <MLabel color={cat.fg} size="10px">{String(cat.tools.length).padStart(2,'0')}</MLabel>
+            </div>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+              {cat.tools.map((t, i) => (
+                <li key={t.name} style={{ padding: '18px 24px', borderBottom: i < cat.tools.length - 1 ? `2px solid ${M_BLACK}` : 'none' }}>
+                  <div style={{ fontFamily: M_DISPLAY, fontSize: '20px', color: M_BLACK, letterSpacing: '-0.015em', marginBottom: 4 }}>{t.name}</div>
+                  <div style={{ fontFamily: M_SANS, fontSize: '13px', color: M_BLACK, fontWeight: 500, lineHeight: 1.5, opacity: 0.75 }}>{t.desc}</div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function MContact() {
+  const [sent, setSent] = React.useState(false);
+  const inp = {
+    width: '100%', padding: '14px 16px', fontFamily: M_SANS, fontWeight: 500,
+    fontSize: '16px', color: M_BLACK, background: M_WHITE,
+    border: `${M_LINE/2 + 1}px solid ${M_BLACK}`, outline: 'none',
+  };
+  return (
+    <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 1fr)', gap: 0, border: `${M_LINE}px solid ${M_BLACK}`, background: M_BLACK }}>
+        <div style={{ background: M_WHITE, padding: '40px', borderRight: `${M_LINE}px solid ${M_BLACK}` }}>
+          <h1 style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(56px, 8vw, 112px)', color: M_BLACK, lineHeight: 0.92, letterSpacing: '-0.035em', marginBottom: 36, textTransform: 'uppercase' }}>
+            Say <span style={{ color: M_RED }}>hello.</span>
+          </h1>
+          {!sent ? (
+            <form onSubmit={e => {
+              e.preventDefault();
+              const data = new FormData(e.target);
+              const name = data.get('name') || '';
+              const msg = data.get('message') || '';
+              window.location.href = `mailto:peterreijm@live.nl?subject=Hello from ${encodeURIComponent(name)}&body=${encodeURIComponent(msg)}`;
+              setSent(true);
+            }} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              {[{ id: 'name', label: 'Name', type: 'text', ph: 'your name' }, { id: 'email', label: 'Email', type: 'email', ph: 'your@email.com' }].map(f => (
+                <div key={f.id}>
+                  <label htmlFor={f.id} style={{ display: 'block', marginBottom: 8 }}><MLabel size="11px">{f.label}</MLabel></label>
+                  <input id={f.id} name={f.id} type={f.type} placeholder={f.ph} style={inp}
+                    onFocus={e => e.target.style.background = M_YELLOW}
+                    onBlur={e => e.target.style.background = M_WHITE} />
+                </div>
+              ))}
+              <div>
+                <label htmlFor="message" style={{ display: 'block', marginBottom: 8 }}><MLabel size="11px">Message</MLabel></label>
+                <textarea id="message" name="message" rows={5} placeholder="what's on your mind?" style={{ ...inp, resize: 'vertical' }}
+                  onFocus={e => e.target.style.background = M_YELLOW}
+                  onBlur={e => e.target.style.background = M_WHITE} />
+              </div>
+              <button type="submit" style={{
+                alignSelf: 'flex-start', fontFamily: M_SANS, fontWeight: 700, fontSize: '15px',
+                letterSpacing: '0.08em', textTransform: 'uppercase',
+                color: M_WHITE, background: M_RED,
+                border: `${M_LINE/2 + 1}px solid ${M_BLACK}`,
+                padding: '14px 32px', cursor: 'pointer',
+                boxShadow: `6px 6px 0 0 ${M_BLACK}`, transition: 'transform 150ms ease',
+              }}
+              onMouseEnter={e => e.currentTarget.style.transform = 'translate(-2px,-2px)'}
+              onMouseLeave={e => e.currentTarget.style.transform = 'none'}
+              >Send →</button>
+            </form>
+          ) : (
+            <div>
+              <p style={{ fontFamily: M_DISPLAY, fontSize: '52px', color: M_BLACK, letterSpacing: '-0.03em', textTransform: 'uppercase', lineHeight: 1.0 }}>Got it.</p>
+              <p style={{ fontFamily: M_SANS, fontSize: '16px', fontWeight: 500, color: M_BLACK, marginTop: 16 }}>I'll be in touch. Usually within a day or two.</p>
+            </div>
+          )}
+        </div>
+        <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr 1fr', gap: 0 }}>
+          {[
+            { label: 'Email',    href: 'mailto:peterreijm@live.nl',                                  bg: M_RED,    fg: M_WHITE, text: 'peterreijm\n@live.nl' },
+            { label: 'LinkedIn', href: 'https://www.linkedin.com/in/peter-reijm-47165b5b/',          bg: M_BLUE,   fg: M_WHITE, text: 'Peter Reijm →' },
+            { label: 'GitHub',   href: 'https://github.com/preijm',                                  bg: M_YELLOW, fg: M_BLACK, text: '@preijm →' },
+          ].map((l, i, arr) => (
+            <a key={l.label} href={l.href} target={l.href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer" style={{
+              background: l.bg, padding: '28px 32px', textDecoration: 'none',
+              borderBottom: i < arr.length - 1 ? `${M_LINE}px solid ${M_BLACK}` : 'none',
+              display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+            }}>
+              <MLabel color={l.fg}>{l.label}</MLabel>
+              <div style={{ fontFamily: M_DISPLAY, fontSize: '28px', color: l.fg, letterSpacing: '-0.02em', lineHeight: 1.05, whiteSpace: 'pre-line' }}>{l.text}</div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function MProjectDetail({ project, onBack }) {
+  const accent = project.accent === '#22c55e' ? M_BLUE
+    : project.accent === '#f59e0b' ? M_YELLOW
+    : project.accent === '#818cf8' ? M_BLUE
+    : M_RED;
+  const accentFg = accent === M_YELLOW ? M_BLACK : M_WHITE;
+  return (
+    <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '24px' }}>
+      <button onClick={onBack} style={{
+        fontFamily: M_MONO, fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em',
+        textTransform: 'uppercase', color: M_BLACK, background: M_WHITE,
+        border: `${M_LINE/2 + 1}px solid ${M_BLACK}`, padding: '10px 18px',
+        cursor: 'pointer', marginBottom: '24px', boxShadow: `4px 4px 0 0 ${M_BLACK}`,
+      }}>← back to work</button>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr)', gridTemplateRows: 'auto auto', gap: 0, border: `${M_LINE}px solid ${M_BLACK}`, background: M_BLACK }}>
+        <div style={{ background: accent, padding: '40px', borderRight: `${M_LINE}px solid ${M_BLACK}`, borderBottom: `${M_LINE}px solid ${M_BLACK}` }}>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
+            {project.tags.map(t => (
+              <span key={t} style={{ fontFamily: M_MONO, fontSize: '11px', fontWeight: 700, color: accentFg, padding: '4px 10px', border: `2px solid ${accentFg}`, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{t}</span>
+            ))}
+          </div>
+          <h1 style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(56px, 9vw, 132px)', color: accentFg, lineHeight: 0.9, letterSpacing: '-0.04em', textTransform: 'uppercase' }}>{project.title}</h1>
+          {project.tagline && <p style={{ fontFamily: M_SANS, fontWeight: 700, fontSize: '20px', color: accentFg, marginTop: 16, letterSpacing: '-0.01em' }}>{project.tagline}</p>}
+        </div>
+        <div style={{ background: M_BLACK, padding: '40px', borderBottom: `${M_LINE}px solid ${M_BLACK}`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <MLabel color={M_WHITE}>Year</MLabel>
+          <div style={{ fontFamily: M_DISPLAY, fontSize: '88px', color: M_WHITE, lineHeight: 1.0, letterSpacing: '-0.04em' }}>{project.year}</div>
+        </div>
+        <div style={{ background: M_WHITE, padding: '40px', borderRight: `${M_LINE}px solid ${M_BLACK}` }}>
+          <MLabel>Brief</MLabel>
+          <p style={{ fontFamily: M_SANS, fontSize: '17px', fontWeight: 500, color: M_BLACK, lineHeight: 1.65, marginTop: 16 }}>{project.detail || project.description}</p>
+        </div>
+        <div style={{ background: M_WHITE, padding: '40px', display: 'flex', flexDirection: 'column', gap: 24 }}>
+          {project.role && <div><MLabel size="10px">Role</MLabel><div style={{ fontFamily: M_SANS, fontWeight: 500, fontSize: '15px', color: M_BLACK, marginTop: 6 }}>{project.role}</div></div>}
+          {project.stack && (
+            <div>
+              <MLabel size="10px">Stack</MLabel>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+                {project.stack.map(s => <span key={s} style={{ fontFamily: M_MONO, fontSize: '11px', fontWeight: 700, color: M_BLACK, background: M_YELLOW, padding: '4px 8px', border: `2px solid ${M_BLACK}` }}>{s}</span>)}
+              </div>
+            </div>
+          )}
+          {project.href && (
+            <div>
+              <MLabel size="10px">Live at</MLabel>
+              <a href={project.href} target="_blank" rel="noopener noreferrer" style={{ fontFamily: M_DISPLAY, fontSize: '22px', color: M_RED, textDecoration: 'none', letterSpacing: '-0.02em', display: 'block', marginTop: 6 }}>{project.url} ↗</a>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function MWorkTable({ onSelect }) {
+  const ROW_BORDER = `${M_LINE}px solid ${M_BLACK}`;
+  const CELL = { borderRight: ROW_BORDER, padding: '28px 24px', display: 'flex', alignItems: 'center' };
+  return (
+    <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '24px' }}>
+      {/* header row */}
+      <div style={{ border: ROW_BORDER, borderBottom: 'none', display: 'grid', gridTemplateColumns: '40px 1fr 120px 80px 180px 48px', background: M_BLACK, gap: 0 }}>
+        {['#', 'PROJECT', 'TYPE', 'YEAR', 'URL', ''].map((h, i, arr) => (
+          <div key={h + i} style={{
+            ...CELL,
+            borderRight: i < arr.length - 1 ? ROW_BORDER : 'none',
+            background: M_BLACK, color: M_WHITE,
+            fontFamily: M_MONO, fontSize: '10px', letterSpacing: '0.12em',
+            padding: '14px 24px',
+          }}>{h}</div>
+        ))}
+      </div>
+      {/* rows */}
+      {PROJECTS.map((p, idx) => {
+        const isClickable = !!p.detail;
+        const accentCol = [M_RED, M_BLUE, M_YELLOW, M_BLACK][idx % 4];
+        return (
+          <div
+            key={p.id}
+            onClick={isClickable ? () => onSelect(p) : undefined}
+            style={{
+              border: ROW_BORDER, borderBottom: idx === PROJECTS.length - 1 ? ROW_BORDER : 'none',
+              display: 'grid', gridTemplateColumns: '40px 1fr 120px 80px 180px 48px',
+              background: M_WHITE, cursor: isClickable ? 'pointer' : 'default',
+            }}
+            onMouseEnter={e => { if (isClickable) e.currentTarget.style.background = '#f5f5f5'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = M_WHITE; }}
+          >
+            {/* index */}
+            <div style={{ ...CELL, borderRight: ROW_BORDER, background: accentCol, justifyContent: 'center', padding: '28px 0' }}>
+              <span style={{ fontFamily: M_MONO, fontSize: '11px', color: accentCol === M_BLACK || accentCol === M_RED || accentCol === M_BLUE ? M_WHITE : M_BLACK, letterSpacing: '0.04em' }}>
+                {String(idx + 1).padStart(2, '0')}
+              </span>
+            </div>
+            {/* title + description */}
+            <div style={{ ...CELL, borderRight: ROW_BORDER, flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
+              <span style={{ fontFamily: M_DISPLAY, fontSize: '22px', color: M_BLACK, letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1 }}>{p.title}</span>
+              {p.description && <span style={{ fontFamily: M_MONO, fontSize: '11px', color: '#5a5a5a', letterSpacing: '0.02em', lineHeight: 1.4 }}>{p.description}</span>}
+            </div>
+            {/* type */}
+            <div style={{ ...CELL, borderRight: ROW_BORDER }}>
+              <span style={{ fontFamily: M_MONO, fontSize: '11px', color: M_BLACK, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{p.tags[0]}</span>
+            </div>
+            {/* year */}
+            <div style={{ ...CELL, borderRight: ROW_BORDER }}>
+              <span style={{ fontFamily: M_MONO, fontSize: '11px', color: '#5a5a5a', letterSpacing: '0.04em' }}>{p.year}</span>
+            </div>
+            {/* url */}
+            <div style={{ ...CELL, borderRight: ROW_BORDER }}>
+              <span style={{ fontFamily: M_MONO, fontSize: '11px', color: M_BLACK, letterSpacing: '0.02em' }}>{p.url}</span>
+            </div>
+            {/* arrow */}
+            <div style={{ ...CELL, borderRight: 'none', justifyContent: 'center', padding: '28px 0' }}>
+              {isClickable && <span style={{ fontFamily: M_MONO, fontSize: '16px', color: M_BLACK }}>→</span>}
+            </div>
+          </div>
+        );
+      })}
+    </section>
+  );
+}
+
+function MFooter() {
+  return (
+    <footer style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '24px 24px 32px' }}>
+      <div style={{ border: `${M_LINE}px solid ${M_BLACK}`, display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', background: M_BLACK }}>
+        <div style={{ background: M_WHITE, padding: '20px 24px', borderRight: `${M_LINE}px solid ${M_BLACK}` }}>
+          <MLabel size="10px">© 2026 Peter &amp; Co.</MLabel>
+          <div style={{ fontFamily: M_MONO, fontSize: '11px', color: M_BLACK, marginTop: 6, letterSpacing: '0.04em' }}>this is a playground, not a business. yet.</div>
+        </div>
+        {[
+          { label: 'github',   href: 'https://github.com/preijm',                                 bg: M_RED,    fg: M_WHITE },
+          { label: 'linkedin', href: 'https://www.linkedin.com/in/peter-reijm-47165b5b/',         bg: M_BLUE,   fg: M_WHITE },
+          { label: 'email',    href: 'mailto:peterreijm@live.nl',                                 bg: M_YELLOW, fg: M_BLACK },
+        ].map((l, i, arr) => (
+          <a key={l.label} href={l.href} target={l.href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer" style={{
+            background: l.bg, padding: '20px 24px', textDecoration: 'none',
+            borderRight: i < arr.length - 1 ? `${M_LINE}px solid ${M_BLACK}` : 'none',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            fontFamily: M_DISPLAY, fontSize: '20px', color: l.fg,
+            letterSpacing: '-0.02em', textTransform: 'uppercase',
+          }}>{l.label} <span>→</span></a>
+        ))}
+      </div>
+    </footer>
+  );
+}
+
+function MondriaanApp({ page, selectedProject, navigate, selectProject, activePage }) {
+  return (
+    <div style={{ background: M_WHITE, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <MHeader activePage={activePage} onNavigate={navigate} />
+      <main style={{ flex: 1 }}>
+        {page === 'home' && !selectedProject && <MHomeComposition activePage={activePage} onNavigate={navigate} onSelect={selectProject} />}
+        {page === 'work' && !selectedProject && <MWorkTable onSelect={selectProject} />}
+        {page === 'about'   && <MAbout />}
+        {page === 'tools'   && <MTools />}
+        {page === 'contact' && <MContact />}
+        {page === 'project' && selectedProject && <MProjectDetail project={selectedProject} onBack={() => navigate('work')} />}
+      </main>
+      <MFooter />
+    </div>
+  );
+}
+
 // ── App ────────────────────────────────────────────────────
+function AppShell({ page, selectedProject, activePage, navigate, selectProject }) {
+  const { theme, editionsOpen } = useTheme();
+  const modal = editionsOpen ? <EditionModal /> : null;
+  if (theme.mondriaan) {
+    return <>{modal}<MondriaanApp page={page} selectedProject={selectedProject} navigate={navigate} selectProject={selectProject} activePage={activePage} /></>;
+  }
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>{modal}
+      <main style={{ flex: 1 }}>
+        {page === 'home' && !selectedProject && (
+          <>
+            <Hero activePage={activePage} onNavigate={navigate} />
+            <ProjectGrid featured onSelect={selectProject} />
+          </>
+        )}
+        {page === 'work' && !selectedProject && (
+          <>
+            <SiteHeader activePage={activePage} onNavigate={navigate} />
+            <div style={{ paddingTop: '80px' }}>
+              <ProjectStrip projects={PROJECTS} onSelect={selectProject} />
+            </div>
+          </>
+        )}
+        {(page === 'about' || page === 'tools' || page === 'contact' || page === 'project') && (
+          <SiteHeader activePage={activePage} onNavigate={navigate} />
+        )}
+        {page === 'about'   && <About />}
+        {page === 'tools'   && <Tools />}
+        {page === 'contact' && <Contact />}
+        {page === 'project' && selectedProject && <ProjectDetail project={selectedProject} onBack={() => navigate('work')} />}
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
 function App() {
   const [page, setPage] = React.useState('home');
   const [selectedProject, setSelectedProject] = React.useState(null);
@@ -793,34 +1591,7 @@ function App() {
 
   return (
     <ThemeProvider>
-    <div>
-      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-        <main style={{ flex: 1 }}>
-        {page === 'home' && !selectedProject && (
-          <>
-            <Hero activePage={activePage} onNavigate={navigate} />
-            <ProjectGrid featured onSelect={selectProject} />
-          </>
-        )}
-        {page === 'work' && !selectedProject && (
-          <>
-            <SiteHeader activePage={activePage} onNavigate={navigate} />
-            <div style={{ paddingTop: '80px' }}>
-              <ProjectStrip projects={PROJECTS} onSelect={selectProject} />
-            </div>
-          </>
-        )}
-        {(page === 'about' || page === 'tools' || page === 'contact' || page === 'project') && (
-          <SiteHeader activePage={activePage} onNavigate={navigate} />
-        )}
-        {page === 'about' && <About />}
-        {page === 'tools' && <Tools />}
-        {page === 'contact' && <Contact />}
-        {page === 'project' && selectedProject && <ProjectDetail project={selectedProject} onBack={() => navigate('work')} />}
-        </main>
-        <Footer />
-      </div>
-    </div>
+      <AppShell page={page} selectedProject={selectedProject} activePage={activePage} navigate={navigate} selectProject={selectProject} />
     </ThemeProvider>
   );
 }
