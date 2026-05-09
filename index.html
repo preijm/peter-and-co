@@ -40,6 +40,10 @@
     outline-offset: 3px;
     border-radius: 2px;
   }
+  @keyframes m-paint-r { from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)} }
+  @keyframes m-paint-d { from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0 0 0 0)} }
+  @keyframes m-paint-u { from{clip-path:inset(100% 0 0 0)}to{clip-path:inset(0 0 0 0)} }
+  @keyframes m-paint-l { from{clip-path:inset(0 0 0 100%)}to{clip-path:inset(0 0 0 0)} }
 </style>
 </head>
 <body>
@@ -104,7 +108,7 @@ const THEMES = [
     id: 'mondriaan-v1',
     name: 'Mondriaan',
     version: 'v1',
-    tagline: 'primary colours · thick lines · De Stijl',
+    tagline: 'primary · geometric · De Stijl',
     mondriaan: true,
     fonts: {
       display: "'Archivo Black', 'Helvetica Neue', sans-serif",
@@ -287,7 +291,7 @@ function EditionModal() {
         <div style={{ fontFamily:MONO, fontSize:'10px', letterSpacing:'0.14em', color:c.label, marginBottom:'28px', textTransform:'uppercase' }}>
           choose edition
         </div>
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'16px', marginBottom:'28px' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'16px', marginBottom:'28px', alignItems:'stretch' }}>
           {themes.map((t, i) => {
             const isActive = i === themeIdx;
             return (
@@ -296,7 +300,7 @@ function EditionModal() {
                 onClick={() => { setThemeById(t.id); closeEditions(); }}
                 style={{
                   background:'none', border:`2px solid ${isActive ? c.cardActive : c.cardInactive}`,
-                  cursor:'pointer', padding:'0', textAlign:'left', display:'block', width:'100%',
+                  cursor:'pointer', padding:'0', textAlign:'left', display:'flex', flexDirection:'column', width:'100%',
                 }}
                 onMouseEnter={e => { if (!isActive) e.currentTarget.style.borderColor = c.cardHover; }}
                 onMouseLeave={e => { if (!isActive) e.currentTarget.style.borderColor = c.cardInactive; }}
@@ -971,8 +975,8 @@ function MLogo({ onClick, size }) {
 function MNav({ activePage, onNavigate, themeDropdown }) {
   const links = [
     { id: 'work',    color: M_RED },
-    { id: 'about',   color: M_BLUE },
     { id: 'tools',   color: M_YELLOW },
+    { id: 'about',   color: M_BLUE },
     { id: 'contact', color: M_WHITE },
   ];
   return (
@@ -1034,46 +1038,55 @@ function MHeader({ activePage, onNavigate }) {
 }
 
 function MHomeComposition({ onNavigate, onSelect }) {
+  const ease = 'cubic-bezier(0.25,0.46,0.45,0.94)';
+  const pnt = (dir, delay, dur = 900) => ({
+    animation: `m-paint-${dir} ${dur}ms ${ease} ${delay}ms both`,
+  });
+
   return (
     <div style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '24px' }}>
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 0.7fr) minmax(0, 0.5fr) 80px',
+        gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 0.3fr) minmax(0, 0.9fr) 80px',
         gridTemplateRows: '480px 70px 110px 90px',
         gap: `${M_LINE}px`,
         background: M_BLACK,
         border: `${M_LINE}px solid ${M_BLACK}`,
+        position: 'relative',
+        overflow: 'hidden',
       }}>
         {/* RED accent top-right */}
-        <div style={{ background: M_RED, gridColumn: '4', gridRow: '1' }} />
+        <div style={{ background: M_RED, gridColumn: '4', gridRow: '1', ...pnt('d', 250, 650) }} />
+
         {/* Hero text block — spans cols 1-3 */}
-        <div style={{ background: M_WHITE, gridColumn: '1 / 4', gridRow: '1', padding: '24px 40px 16px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', gap: '20px' }}>
+        <div style={{ background: M_WHITE, gridColumn: '1 / 4', gridRow: '1', padding: '24px 40px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '20px', ...pnt('r', 0, 1000) }}>
           <MLabel size="11px">Rotterdam, NL · Digital Studio</MLabel>
           <h1 style={{
             fontFamily: M_DISPLAY, fontSize: 'clamp(44px, 5.6vw, 88px)',
             color: M_BLACK, lineHeight: 0.9, letterSpacing: '-0.04em', textTransform: 'uppercase',
           }}>
-            I build<br/>things.<br/>Sometimes<br/><span style={{ color: M_RED }}>they're useful.</span>
+            I build<br/>things.<br/>Sometimes<br/><span style={{ color: M_BLUE }}>they're useful.</span>
           </h1>
         </div>
-        {/* Selected work label */}
-        <div style={{ background: M_WHITE, gridColumn: '1 / 3', gridRow: '2', padding: '0 40px', display: 'flex', alignItems: 'center' }}>
+
+        {/* Selected work label — spans cols 1–2, ending at black square */}
+        <div style={{ background: M_WHITE, gridColumn: '1 / 3', gridRow: '2', padding: '0 40px', display: 'flex', alignItems: 'center', ...pnt('r', 880, 620) }}>
           <MLabel>Selected Work · {String(PROJECTS.filter(p => p.featured).length).padStart(2,'0')} projects</MLabel>
         </div>
-        <div style={{ background: M_BLACK, gridColumn: '3', gridRow: '2' }} />
-        <div style={{ background: M_YELLOW, gridColumn: '4', gridRow: '2' }} />
+        <div style={{ background: M_YELLOW, gridColumn: '4', gridRow: '2', ...pnt('d', 960, 500) }} />
+
         {/* Project cards */}
-        <div style={{ gridColumn: '1', gridRow: '3 / 5', display: 'flex' }}>
+        <div style={{ gridColumn: '1', gridRow: '3 / 5', display: 'flex', ...pnt('u', 1200, 750) }}>
           <MMiniProjectCard project={PROJECTS.filter(p => p.featured)[0]} index={0} onClick={() => onSelect(PROJECTS.filter(p => p.featured)[0])} />
         </div>
-        <div style={{ gridColumn: '2', gridRow: '3', display: 'flex' }}>
+        <a href="https://en.wikipedia.org/wiki/Piet_Mondrian" target="_blank" rel="noopener noreferrer" style={{ background: M_BLACK, gridColumn: '2', gridRow: '3', display: 'block', cursor: 'pointer', ...pnt('d', 1280, 500) }} />
+        <div style={{ gridColumn: '3', gridRow: '2 / 4', display: 'flex', ...pnt('u', 1380, 680) }}>
           <MMiniProjectCard project={PROJECTS.filter(p => p.featured)[1]} index={1} onClick={() => onSelect(PROJECTS.filter(p => p.featured)[1])} />
         </div>
-        <div style={{ gridColumn: '2 / 4', gridRow: '4', display: 'flex' }}>
+        <div style={{ gridColumn: '2 / 4', gridRow: '4', display: 'flex', ...pnt('r', 1520, 620) }}>
           <MMiniProjectCard project={PROJECTS.filter(p => p.featured)[2]} index={2} compact onClick={() => onSelect(PROJECTS.filter(p => p.featured)[2])} />
         </div>
-        <div style={{ background: M_BLUE, gridColumn: '3', gridRow: '3' }} />
-        <div style={{ background: M_WHITE, gridColumn: '4', gridRow: '3 / 5' }} />
+        <div style={{ background: M_WHITE, gridColumn: '4', gridRow: '3 / 5', ...pnt('l', 1560, 600) }} />
       </div>
     </div>
   );
@@ -1208,22 +1221,21 @@ function MAbout() {
         </div>
         <div style={{ background: M_WHITE, borderBottom: `${M_LINE}px solid ${M_BLACK}`, padding: '40px' }}>
           <h1 style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(48px, 6vw, 88px)', color: M_BLACK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase', marginBottom: 24 }}>
-            Not a studio.<br/><span style={{ color: M_RED }}>Just me.</span><br/>
-            <span style={{ background: M_YELLOW, padding: '0 8px', boxShadow: `inset 0 0 0 ${M_LINE/2}px ${M_BLACK}` }}>Peter.</span>
+            Not a studio.<br/><span style={{ color: M_RED }}>Just me.</span><br/><span style={{ color: M_BLUE }}>Peter.</span>
           </h1>
         </div>
         <div style={{ background: M_WHITE, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }}>
           <div style={{ padding: '32px 32px 32px 40px', borderRight: `${M_LINE/2 + 1}px solid ${M_BLACK}` }}>
             <MLabel size="10px">Origin</MLabel>
-            <p style={{ fontFamily: M_SANS, fontSize: '15px', fontWeight: 500, color: M_BLACK, lineHeight: 1.6, marginTop: 12 }}>Background in plant science. Ended up in data. Now doing product. None of it was planned — just curiosity pointing in the right direction.</p>
+            <p style={{ fontFamily: M_SANS, fontSize: '15px', fontWeight: 500, color: M_BLACK, lineHeight: 1.5, marginTop: 12 }}>Plant science → data → product. Curiosity doing the navigation.</p>
           </div>
           <div style={{ padding: '32px 40px 32px 32px' }}>
             <MLabel size="10px">Method</MLabel>
-            <p style={{ fontFamily: M_SANS, fontSize: '15px', fontWeight: 500, color: M_BLACK, lineHeight: 1.6, marginTop: 12 }}>I explore ideas by building them. Curious about the tech, focused on the output. These projects are the ones that wouldn't leave me alone.</p>
+            <p style={{ fontFamily: M_SANS, fontSize: '15px', fontWeight: 500, color: M_BLACK, lineHeight: 1.5, marginTop: 12 }}>Build first, explain later.</p>
           </div>
           <div style={{ padding: '32px 32px 40px 40px', borderTop: `${M_LINE/2 + 1}px solid ${M_BLACK}`, borderRight: `${M_LINE/2 + 1}px solid ${M_BLACK}`, background: M_RED }}>
             <MLabel size="10px" color={M_WHITE}>Off-screen</MLabel>
-            <p style={{ fontFamily: M_SANS, fontSize: '15px', fontWeight: 500, color: M_WHITE, lineHeight: 1.6, marginTop: 12 }}>Running roads, mountain biking trails, keeping plants alive, tracking down rare draft beers one check-in at a time.</p>
+            <p style={{ fontFamily: M_SANS, fontSize: '15px', fontWeight: 500, color: M_WHITE, lineHeight: 1.5, marginTop: 12 }}>Running, biking, plants, rare beers.</p>
           </div>
           <div style={{ padding: '32px 40px 40px 32px', borderTop: `${M_LINE/2 + 1}px solid ${M_BLACK}` }}>
             <MLabel size="10px">Tagline</MLabel>
@@ -1351,18 +1363,18 @@ function MContact() {
         </div>
         <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr 1fr', gap: 0 }}>
           {[
-            { label: 'Email',    href: 'mailto:peterreijm@live.nl',                                  bg: M_RED,    fg: M_WHITE, text: 'peterreijm\n@live.nl' },
-            { label: 'LinkedIn', href: 'https://www.linkedin.com/in/peter-reijm-47165b5b/',          bg: M_BLUE,   fg: M_WHITE, text: 'Peter Reijm →' },
-            { label: 'GitHub',   href: 'https://github.com/preijm',                                  bg: M_YELLOW, fg: M_BLACK, text: '@preijm →' },
+            { label: 'Response time', bg: M_RED,    fg: M_WHITE, text: 'Usually within\na day or two.' },
+            { label: 'Open to',       bg: M_BLUE,   fg: M_WHITE, text: 'Product work,\nside projects,\ninteresting ideas.' },
+            { label: 'Location',      bg: M_YELLOW, fg: M_BLACK, text: 'Rotterdam,\nthe Netherlands.' },
           ].map((l, i, arr) => (
-            <a key={l.label} href={l.href} target={l.href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer" style={{
-              background: l.bg, padding: '28px 32px', textDecoration: 'none',
+            <div key={l.label} style={{
+              background: l.bg, padding: '28px 32px',
               borderBottom: i < arr.length - 1 ? `${M_LINE}px solid ${M_BLACK}` : 'none',
               display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
             }}>
               <MLabel color={l.fg}>{l.label}</MLabel>
-              <div style={{ fontFamily: M_DISPLAY, fontSize: '28px', color: l.fg, letterSpacing: '-0.02em', lineHeight: 1.05, whiteSpace: 'pre-line' }}>{l.text}</div>
-            </a>
+              <div style={{ fontFamily: M_DISPLAY, fontSize: '26px', color: l.fg, letterSpacing: '-0.02em', lineHeight: 1.1, whiteSpace: 'pre-line' }}>{l.text}</div>
+            </div>
           ))}
         </div>
       </div>
