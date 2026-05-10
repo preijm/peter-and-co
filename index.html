@@ -719,40 +719,43 @@ function About() {
   );
 }
 
+// ── Tool Categories (shared across all themes) ─────────────
+const TOOL_CATEGORIES = [
+  {
+    label: 'build',
+    tools: [
+      { name: 'Lovable',       desc: 'Prototype to product, fast.' },
+      { name: 'Claude',        desc: "The whole suite. Design, code, research. It's become the default." },
+      { name: 'Stitch',        desc: 'Connecting data without the plumbing.' },
+      { name: 'GitHub',        desc: 'Version control and a public record of trying.' },
+      { name: 'APIs',          desc: 'First thing I check: does it have one.' },
+      { name: 'Median',        desc: 'Web app to native mobile, without the native overhead.' },
+    ],
+  },
+  {
+    label: 'infrastructure',
+    tools: [
+      { name: 'Supabase',      desc: 'Backend without the backend work.' },
+      { name: 'Backblaze',     desc: 'Cheap, reliable storage. No drama.' },
+      { name: 'IONOS',         desc: 'Domains and hosting, quietly doing its job.' },
+      { name: 'Mapbox',        desc: 'Maps that don\'t look like Google Maps.' },
+      { name: 'Counterscale',  desc: 'Self-hosted analytics on Cloudflare Workers. No cookies, no nonsense.' },
+      { name: 'Formspree',     desc: 'Form submissions without the backend.' },
+    ],
+  },
+  {
+    label: 'daily',
+    tools: [
+      { name: 'Remember the Milk', desc: 'Task management that actually stuck.' },
+      { name: 'Markpad',           desc: 'Notes in plain text, the way it should be.' },
+      { name: 'Bitwarden',         desc: 'One password to rule them all. Safely.' },
+    ],
+  },
+];
+
 // ── Tools ──────────────────────────────────────────────────
 function Tools() {
-  const categories = [
-    {
-      label: 'build',
-      tools: [
-        { name: 'Lovable',       desc: 'Prototype to product, fast.' },
-        { name: 'Claude',        desc: "The whole suite. Design, code, research. It's become the default." },
-        { name: 'Stitch',        desc: 'Connecting data without the plumbing.' },
-        { name: 'GitHub',        desc: 'Version control and a public record of trying.' },
-        { name: 'APIs',          desc: 'First thing I check: does it have one.' },
-        { name: 'Median',        desc: 'Web app to native mobile, without the native overhead.' },
-      ],
-    },
-    {
-      label: 'infrastructure',
-      tools: [
-        { name: 'Supabase',      desc: 'Backend without the backend work.' },
-        { name: 'Backblaze',     desc: 'Cheap, reliable storage. No drama.' },
-        { name: 'IONOS',         desc: 'Domains and hosting, quietly doing its job.' },
-        { name: 'Mapbox',        desc: 'Maps that don\'t look like Google Maps.' },
-        { name: 'Counterscale',  desc: 'Self-hosted analytics on Cloudflare Workers. No cookies, no nonsense.' },
-        { name: 'Formspree',     desc: 'Form submissions without the backend.' },
-      ],
-    },
-    {
-      label: 'daily',
-      tools: [
-        { name: 'Remember the Milk', desc: 'Task management that actually stuck.' },
-        { name: 'Markpad',           desc: 'Notes in plain text, the way it should be.' },
-        { name: 'Bitwarden',         desc: 'One password to rule them all. Safely.' },
-      ],
-    },
-  ];
+  const categories = TOOL_CATEGORIES;
 
   const { theme } = useTheme();
   return (
@@ -1274,27 +1277,8 @@ function MAbout() {
 }
 
 function MTools() {
-  const cats = [
-    { label: 'build', color: M_RED, fg: M_WHITE, tools: [
-      { name: 'Lovable',  desc: 'Prototype to product, fast.' },
-      { name: 'Claude',   desc: "The whole suite. It's become the default." },
-      { name: 'Stitch',   desc: 'Connecting data without the plumbing.' },
-      { name: 'GitHub',   desc: 'Version control. Public record of trying.' },
-      { name: 'APIs',     desc: 'First thing I check: does it have one.' },
-      { name: 'Median',   desc: 'Web app to native, no native overhead.' },
-    ]},
-    { label: 'infrastructure', color: M_BLUE, fg: M_WHITE, tools: [
-      { name: 'Supabase',  desc: 'Backend without the backend work.' },
-      { name: 'Backblaze', desc: 'Cheap, reliable storage. No drama.' },
-      { name: 'IONOS',     desc: 'Domains and hosting, doing its job.' },
-      { name: 'Mapbox',    desc: "Maps that don't look like Google Maps." },
-    ]},
-    { label: 'daily', color: M_YELLOW, fg: M_BLACK, tools: [
-      { name: 'Remember the Milk', desc: 'Task management that stuck.' },
-      { name: 'Markpad',   desc: 'Notes in plain text, the way it should be.' },
-      { name: 'Bitwarden', desc: 'One password to rule them all.' },
-    ]},
-  ];
+  const M_CAT_COLORS = { build: [M_RED, M_WHITE], infrastructure: [M_BLUE, M_WHITE], daily: [M_YELLOW, M_BLACK] };
+  const cats = TOOL_CATEGORIES.map(cat => ({ ...cat, color: M_CAT_COLORS[cat.label][0], fg: M_CAT_COLORS[cat.label][1] }));
   return (
     <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '24px' }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 0, border: `${M_LINE}px solid ${M_BLACK}`, marginBottom: `${M_LINE}px` }}>
@@ -1306,7 +1290,7 @@ function MTools() {
         </div>
         <div style={{ background: M_RED, borderLeft: `${M_LINE}px solid ${M_BLACK}`, padding: '24px 32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minWidth: '180px' }}>
           <MLabel color={M_WHITE}>Total</MLabel>
-          <div style={{ fontFamily: M_DISPLAY, fontSize: '88px', color: M_WHITE, lineHeight: 1.0, letterSpacing: '-0.04em' }}>13</div>
+          <div style={{ fontFamily: M_DISPLAY, fontSize: '88px', color: M_WHITE, lineHeight: 1.0, letterSpacing: '-0.04em' }}>{TOOL_CATEGORIES.reduce((n, c) => n + c.tools.length, 0)}</div>
         </div>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: `${M_LINE}px`, background: M_BLACK, border: `${M_LINE}px solid ${M_BLACK}` }}>
