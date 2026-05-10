@@ -432,11 +432,19 @@ function Hero({ onCTA, activePage, onNavigate }) {
   );
 }
 
+// ── resolveAccent ──────────────────────────────────────────
+function resolveAccent(project, themeId) {
+  const a = project.accent;
+  if (!a) return null;
+  if (typeof a === 'string') return a;
+  return a[themeId] || a.default || null;
+}
+
 // ── ProjectCard ────────────────────────────────────────────
 function ProjectCard({ project, index, onClick }) {
   const [hovered, setHovered] = React.useState(false);
   const { theme } = useTheme();
-  const accent = project.accent || theme.colors.text;
+  const accent = resolveAccent(project, theme.id) || theme.colors.text;
   return (
     <div
       onClick={() => onClick(project)}
@@ -492,7 +500,7 @@ function ProjectStrip({ onSelect, projects, onViewAll }) {
       <div style={{ maxWidth: '1080px', margin: '0 auto', padding: '0 32px' }}>
         {list.map((p, i) => {
           const [hovered, setHovered] = React.useState(false);
-          const accent = p.accent || theme.colors.text;
+          const accent = resolveAccent(p, theme.id) || theme.colors.text;
           return (
             <div key={p.id}
               onClick={() => onSelect(p)}
@@ -557,11 +565,11 @@ const PROJECTS = [
     year: '2025',
     url: 'milkmenot.com',
     href: 'https://milkmenot.com',
-    accent: '#22c55e',
+    accent: { default: '#22c55e', 'mondriaan-v1': '#fcc60b' },
     tagline: 'Ditch the Moo. Find Your New.',
     detail: 'A plant-based milk review app built for people who take oat milk seriously. Browse ratings, compare blends, and figure out which milk actually belongs in your coffee. Built because the answer to "which oat milk is best" shouldn\'t require a Reddit deep-dive.',
     role: 'Idea, design, build, ship.',
-    stack: ['Lovable', 'Supabase', 'Median'],
+    stack: ['React', 'Supabase', 'Capacitor', 'GitHub Actions'],
   },
   {
     id: 'folio', featured: true,
@@ -570,11 +578,11 @@ const PROJECTS = [
     tags: ['tool', 'finance', 'data'],
     year: '2026',
     url: 'folio.local',
-    accent: '#f59e0b',
+    accent: { default: '#f59e0b', 'mondriaan-v1': '#1d4ed8' },
     tagline: 'Your money. Your numbers. No subscriptions.',
     detail: 'A personal finance dashboard built for people who want to see everything in one place without handing over bank credentials. Crypto, gold, ETFs — tracked and backed up to your own Backblaze bucket. No third-party accounts, no monthly fee, no dark patterns. Just a clean view of where things stand.',
     role: 'Idea, design, build.',
-    stack: ['Claude', 'APIs', 'Backblaze'],
+    stack: ['FastAPI', 'Alpine.js', 'Backblaze', 'APIs'],
   },
   {
     id: 'experiment-03', featured: true,
@@ -584,11 +592,11 @@ const PROJECTS = [
     year: '2026',
     url: 'peterandco.nl',
     href: 'https://peterandco.nl',
-    accent: '#818cf8',
+    accent: { default: '#818cf8', 'mondriaan-v1': '#d72027' },
     tagline: 'A playground, not a business. Yet.',
     detail: 'A single-file React app built as a hub for experiments and side projects. No build step, no framework overhead — just Babel in the browser, inline styles, and a theme system that lets you flip between named, versioned looks at runtime. The whole thing is a side project about side projects.',
     role: 'Idea, design, build, ship.',
-    stack: ['React', 'Claude', 'GitHub Pages'],
+    stack: ['React', 'GitHub Pages', 'Counterscale', 'Formspree'],
   },
   {
     id: 'experiment-04', featured: false,
@@ -597,7 +605,7 @@ const PROJECTS = [
     tags: ['experiment'],
     year: '2026',
     url: 'tbd',
-    accent: '#f43f5e',
+    accent: { default: '#f43f5e', 'mondriaan-v1': '#d72027' },
   },
 ];
 
@@ -728,10 +736,12 @@ function Tools() {
     {
       label: 'infrastructure',
       tools: [
-        { name: 'Supabase',  desc: 'Backend without the backend work.' },
-        { name: 'Backblaze', desc: 'Cheap, reliable storage. No drama.' },
-        { name: 'IONOS',     desc: 'Domains and hosting, quietly doing its job.' },
-        { name: 'Mapbox',    desc: 'Maps that don\'t look like Google Maps.' },
+        { name: 'Supabase',      desc: 'Backend without the backend work.' },
+        { name: 'Backblaze',     desc: 'Cheap, reliable storage. No drama.' },
+        { name: 'IONOS',         desc: 'Domains and hosting, quietly doing its job.' },
+        { name: 'Mapbox',        desc: 'Maps that don\'t look like Google Maps.' },
+        { name: 'Counterscale',  desc: 'Self-hosted analytics on Cloudflare Workers. No cookies, no nonsense.' },
+        { name: 'Formspree',     desc: 'Form submissions without the backend.' },
       ],
     },
     {
@@ -847,7 +857,7 @@ function Contact() {
 // ── Project Detail ─────────────────────────────────────────
 function ProjectDetail({ project, onBack }) {
   const { theme } = useTheme();
-  const accent = project.accent || theme.colors.text;
+  const accent = resolveAccent(project, theme.id) || theme.colors.text;
   return (
     <section style={{ maxWidth: '1080px', margin: '0 auto', padding: '80px 32px' }}>
       <button onClick={onBack} style={{
@@ -1412,10 +1422,7 @@ function MContact() {
 }
 
 function MProjectDetail({ project, onBack }) {
-  const accent = project.accent === '#22c55e' ? M_BLUE
-    : project.accent === '#f59e0b' ? M_YELLOW
-    : project.accent === '#818cf8' ? M_BLUE
-    : M_RED;
+  const accent = resolveAccent(project, 'mondriaan-v1') || M_RED;
   const accentFg = accent === M_YELLOW ? M_BLACK : M_WHITE;
   return (
     <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '24px' }}>
