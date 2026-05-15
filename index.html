@@ -1643,6 +1643,11 @@ function App() {
 
   const activePage = selectedProject ? 'work' : page;
 
+  React.useEffect(() => {
+    const titles = { home: 'Peter & Co.', work: 'Work — Peter & Co.', tools: 'Tools — Peter & Co.', about: 'About — Peter & Co.', contact: 'Contact — Peter & Co.' };
+    document.title = selectedProject ? `${selectedProject.title} — Peter & Co.` : (titles[page] || 'Peter & Co.');
+  }, [page, selectedProject]);
+
   return (
     <ThemeProvider>
       <AppShell page={page} selectedProject={selectedProject} activePage={activePage} navigate={navigate} selectProject={selectProject} />
