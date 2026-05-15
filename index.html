@@ -60,6 +60,7 @@ const THEMES = [
     name: 'Ink',
     version: 'v1',
     tagline: 'dark · minimal · no noise',
+    mobileOptimized: true,
     fonts: {
       serif: "'DM Serif Display', Georgia, serif",
       mono:  "'JetBrains Mono', 'Fira Code', monospace",
@@ -86,6 +87,7 @@ const THEMES = [
     name: 'Chalk',
     version: 'v1',
     tagline: 'light · open · breathing room',
+    mobileOptimized: true,
     fonts: {
       serif: "'DM Serif Display', Georgia, serif",
       mono:  "'JetBrains Mono', 'Fira Code', monospace",
@@ -468,7 +470,7 @@ function ProjectCard({ project, index, onClick }) {
         </span>
       </div>
       <h3 style={{
-        fontFamily: theme.fonts.serif, fontWeight: 400, fontSize: '36px',
+        fontFamily: theme.fonts.serif, fontWeight: 400, fontSize: 'clamp(26px, 8vw, 36px)',
         lineHeight: 0.95, color: theme.colors.text, letterSpacing: '-0.02em',
         marginBottom: '24px', flex: 1,
       }}>{project.title}</h3>
@@ -494,13 +496,43 @@ function ProjectCard({ project, index, onClick }) {
 // ── ProjectStrip ───────────────────────────────────────────
 function ProjectStrip({ onSelect, projects, onViewAll }) {
   const { theme } = useTheme();
+  const mobile = useMobile();
   const list = projects || PROJECTS;
   return (
     <div style={{ borderTop: `1px solid ${theme.colors.borderSubtle}` }}>
-      <div style={{ maxWidth: '1080px', margin: '0 auto', padding: '0 32px' }}>
+      <div style={{ maxWidth: '1080px', margin: '0 auto', padding: mobile ? '0 20px' : '0 32px' }}>
         {list.map((p, i) => {
           const [hovered, setHovered] = React.useState(false);
           const accent = resolveAccent(p, theme.id) || theme.colors.text;
+          if (mobile) {
+            return (
+              <div key={p.id}
+                onClick={() => onSelect(p)}
+                onMouseEnter={() => setHovered(true)}
+                onMouseLeave={() => setHovered(false)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '12px',
+                  padding: '18px 0',
+                  borderBottom: `1px solid ${theme.colors.borderSubtle}`,
+                  cursor: 'pointer',
+                  background: hovered ? theme.colors.surface : 'transparent',
+                  transition: 'background 120ms ease',
+                }}
+              >
+                <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.1em', flexShrink: 0 }}>
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontFamily: theme.fonts.serif, fontSize: '22px', color: theme.colors.text, letterSpacing: '-0.02em' }}>{p.title}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
+                    <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: accent, display: 'inline-block', flexShrink: 0 }} />
+                    <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: accent, letterSpacing: '0.04em' }}>{p.url}</span>
+                  </div>
+                </div>
+                <span style={{ fontFamily: theme.fonts.mono, fontSize: '13px', color: hovered ? theme.colors.text : theme.colors.textGhost, transition: 'color 150ms ease', flexShrink: 0 }}>→</span>
+              </div>
+            );
+          }
           return (
             <div key={p.id}
               onClick={() => onSelect(p)}
@@ -611,6 +643,7 @@ const PROJECTS = [
 
 function ProjectGrid({ onSelect, featured }) {
   const { theme } = useTheme();
+  const mobile = useMobile();
   const [filter, setFilter] = React.useState('all');
 
   const pool = featured ? PROJECTS.filter(p => p.featured) : PROJECTS;
@@ -618,7 +651,7 @@ function ProjectGrid({ onSelect, featured }) {
   const visible = (!featured && filter !== 'all') ? pool.filter(p => p.tags[0] === filter) : pool;
 
   return (
-    <section style={{ maxWidth: '1080px', margin: '0 auto', padding: '80px 32px' }}>
+    <section style={{ maxWidth: '1080px', margin: '0 auto', padding: mobile ? '48px 20px' : '80px 32px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.15em' }}>
           {featured ? 'FEATURED WORK' : 'SELECTED PROJECTS'}
@@ -665,6 +698,11 @@ function Footer() {
           <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textFaint, letterSpacing: '0.06em' }}>
             edition: {theme.name}
           </span>
+          {mobile && !theme.mobileOptimized && (
+            <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textFaint, letterSpacing: '0.06em' }}>
+              best viewed on desktop
+            </span>
+          )}
         </div>
         <div style={{ display: 'flex', gap: '24px' }}>
           {[
@@ -688,7 +726,7 @@ function About() {
   const mobile = useMobile();
   const { theme } = useTheme();
   return (
-    <section style={{ maxWidth: '1080px', margin: '0 auto', padding: '80px 32px' }}>
+    <section style={{ maxWidth: '1080px', margin: '0 auto', padding: mobile ? '48px 20px' : '80px 32px' }}>
       <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1fr 1fr', gap: mobile ? '40px' : '64px', alignItems: 'start' }}>
         <div>
           <div style={{ fontFamily: theme.fonts.mono, fontSize: '10px', letterSpacing: '0.12em', color: theme.colors.textFaint, marginBottom: '24px' }}>about</div>
@@ -756,40 +794,57 @@ const TOOL_CATEGORIES = [
 // ── Tools ──────────────────────────────────────────────────
 function Tools() {
   const categories = TOOL_CATEGORIES;
-
+  const mobile = useMobile();
   const { theme } = useTheme();
+  const pad = mobile ? '48px 20px' : '80px 32px';
   return (
-    <section style={{ maxWidth: '1080px', margin: '0 auto', padding: '80px 32px' }}>
+    <section style={{ maxWidth: '1080px', margin: '0 auto', padding: pad }}>
       <div style={{ fontFamily: theme.fonts.mono, fontSize: '10px', letterSpacing: '0.12em', color: theme.colors.textFaint, marginBottom: '20px' }}>tools</div>
-      <h1 style={{ fontFamily: theme.fonts.serif, fontSize: '44px', fontWeight: 400, color: theme.colors.text, lineHeight: 1.05, letterSpacing: '-0.02em', marginBottom: '16px' }}>
+      <h1 style={{ fontFamily: theme.fonts.serif, fontSize: mobile ? '32px' : '44px', fontWeight: 400, color: theme.colors.text, lineHeight: 1.05, letterSpacing: '-0.02em', marginBottom: '16px' }}>
         How I work.
       </h1>
-      <p style={{ fontFamily: theme.fonts.mono, fontSize: '13px', color: theme.colors.textDim, lineHeight: 1.8, maxWidth: '48ch', marginBottom: '64px' }}>
+      <p style={{ fontFamily: theme.fonts.mono, fontSize: '13px', color: theme.colors.textDim, lineHeight: 1.8, maxWidth: '48ch', marginBottom: mobile ? '40px' : '64px' }}>
         No strong opinions on tools. Strong opinions on outcomes. These just happen to be what's in the stack right now.
       </p>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', columnGap: '1px', rowGap: 0, background: theme.colors.borderSubtle }}>
-        {categories.map(cat => (
-          <div key={`h-${cat.label}`} style={{ background: theme.colors.bg, padding: '32px 28px 20px' }}>
-            <div style={{ fontFamily: theme.fonts.mono, fontSize: '10px', letterSpacing: '0.12em', color: theme.colors.textFaint }}>{cat.label}</div>
-          </div>
-        ))}
-        {Array.from({ length: Math.max(...categories.map(c => c.tools.length)) }, (_, rowIdx) =>
-          categories.map(cat => {
-            const t = cat.tools[rowIdx];
-            const isLast = rowIdx === Math.max(...categories.map(c => c.tools.length)) - 1;
-            return (
-              <div key={`${cat.label}-${rowIdx}`} style={{ background: theme.colors.bg, padding: `0 28px ${isLast ? '32px' : '20px'}` }}>
-                {t && (
-                  <>
-                    <div style={{ fontFamily: theme.fonts.serif, fontSize: '20px', color: theme.colors.text, letterSpacing: '-0.01em', marginBottom: '4px' }}>{t.name}</div>
-                    <div style={{ fontFamily: theme.fonts.mono, fontSize: '11px', color: theme.colors.textFaint, lineHeight: 1.6 }}>{t.desc}</div>
-                  </>
-                )}
-              </div>
-            );
-          })
-        )}
-      </div>
+      {mobile ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', background: theme.colors.borderSubtle }}>
+          {categories.map(cat => (
+            <div key={cat.label} style={{ background: theme.colors.bg, padding: '20px 20px 4px' }}>
+              <div style={{ fontFamily: theme.fonts.mono, fontSize: '10px', letterSpacing: '0.12em', color: theme.colors.textFaint, marginBottom: '16px' }}>{cat.label}</div>
+              {cat.tools.map(t => (
+                <div key={t.name} style={{ paddingBottom: '20px' }}>
+                  <div style={{ fontFamily: theme.fonts.serif, fontSize: '20px', color: theme.colors.text, letterSpacing: '-0.01em', marginBottom: '4px' }}>{t.name}</div>
+                  <div style={{ fontFamily: theme.fonts.mono, fontSize: '11px', color: theme.colors.textFaint, lineHeight: 1.6 }}>{t.desc}</div>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', columnGap: '1px', rowGap: 0, background: theme.colors.borderSubtle }}>
+          {categories.map(cat => (
+            <div key={`h-${cat.label}`} style={{ background: theme.colors.bg, padding: '32px 28px 20px' }}>
+              <div style={{ fontFamily: theme.fonts.mono, fontSize: '10px', letterSpacing: '0.12em', color: theme.colors.textFaint }}>{cat.label}</div>
+            </div>
+          ))}
+          {Array.from({ length: Math.max(...categories.map(c => c.tools.length)) }, (_, rowIdx) =>
+            categories.map(cat => {
+              const t = cat.tools[rowIdx];
+              const isLast = rowIdx === Math.max(...categories.map(c => c.tools.length)) - 1;
+              return (
+                <div key={`${cat.label}-${rowIdx}`} style={{ background: theme.colors.bg, padding: `0 28px ${isLast ? '32px' : '20px'}` }}>
+                  {t && (
+                    <>
+                      <div style={{ fontFamily: theme.fonts.serif, fontSize: '20px', color: theme.colors.text, letterSpacing: '-0.01em', marginBottom: '4px' }}>{t.name}</div>
+                      <div style={{ fontFamily: theme.fonts.mono, fontSize: '11px', color: theme.colors.textFaint, lineHeight: 1.6 }}>{t.desc}</div>
+                    </>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
     </section>
   );
 }
@@ -799,14 +854,16 @@ function Contact() {
   const [sent, setSent] = React.useState(false);
   const [error, setError] = React.useState(false);
   const [sending, setSending] = React.useState(false);
+  const mobile = useMobile();
   const { theme } = useTheme();
   const inputStyle = {
     width: '100%', padding: '10px 12px', fontFamily: theme.fonts.mono,
     fontSize: '13px', color: theme.colors.text, background: theme.colors.bgInput,
     border: `1px solid ${theme.colors.border}`, borderRadius: '2px', outline: 'none',
+    boxSizing: 'border-box',
   };
   return (
-    <section style={{ maxWidth: '640px', margin: '0 auto', padding: '80px 32px' }}>
+    <section style={{ maxWidth: '640px', margin: '0 auto', padding: mobile ? '48px 20px' : '80px 32px' }}>
       <div style={{ fontFamily: theme.fonts.mono, fontSize: '10px', letterSpacing: '0.12em', color: theme.colors.textFaint, marginBottom: '20px' }}>contact</div>
       <h1 style={{ fontFamily: theme.fonts.serif, fontSize: '44px', fontWeight: 400, color: theme.colors.text, lineHeight: 1.05, letterSpacing: '-0.02em', marginBottom: '48px' }}>Say hello.</h1>
       {!sent ? (
@@ -867,10 +924,11 @@ function Contact() {
 
 // ── Project Detail ─────────────────────────────────────────
 function ProjectDetail({ project, onBack }) {
+  const mobile = useMobile();
   const { theme } = useTheme();
   const accent = resolveAccent(project, theme.id) || theme.colors.text;
   return (
-    <section style={{ maxWidth: '1080px', margin: '0 auto', padding: '80px 32px' }}>
+    <section style={{ maxWidth: '1080px', margin: '0 auto', padding: mobile ? '48px 20px' : '80px 32px' }}>
       <button onClick={onBack} style={{
         fontFamily: theme.fonts.mono, fontSize: '11px', letterSpacing: '0.08em',
         color: theme.colors.textFaint, background: 'none', border: 'none', cursor: 'pointer',
@@ -885,7 +943,7 @@ function ProjectDetail({ project, onBack }) {
         <Tag filled>{project.year}</Tag>
       </div>
 
-      <h1 style={{ fontFamily: theme.fonts.serif, fontSize: '52px', fontWeight: 400, color: theme.colors.text, lineHeight: 1.0, letterSpacing: '-0.02em', marginBottom: '12px' }}>
+      <h1 style={{ fontFamily: theme.fonts.serif, fontSize: mobile ? '36px' : '52px', fontWeight: 400, color: theme.colors.text, lineHeight: 1.0, letterSpacing: '-0.02em', marginBottom: '12px' }}>
         {project.title}
       </h1>
       {project.tagline && (
@@ -894,7 +952,7 @@ function ProjectDetail({ project, onBack }) {
         </p>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 260px', gap: '64px', marginBottom: '48px', alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1fr 260px', gap: mobile ? '32px' : '64px', marginBottom: '48px', alignItems: 'start' }}>
         <p style={{ fontFamily: theme.fonts.mono, fontSize: '14px', color: theme.colors.textMuted, lineHeight: 1.8, margin: 0 }}>
           {project.detail || project.description}
         </p>
@@ -1285,66 +1343,89 @@ function MAbout() {
 }
 
 function MTools() {
+  const mobile = useMobile();
   const M_CAT_COLORS = { build: [M_RED, M_WHITE], infrastructure: [M_BLUE, M_WHITE], daily: [M_YELLOW, M_BLACK] };
   const cats = TOOL_CATEGORIES.map(cat => ({ ...cat, color: M_CAT_COLORS[cat.label][0], fg: M_CAT_COLORS[cat.label][1] }));
   return (
-    <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '24px' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 0, border: `${M_LINE}px solid ${M_BLACK}`, marginBottom: `${M_LINE}px` }}>
-        <div style={{ background: M_WHITE, padding: '40px' }}>
-          <h1 style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(56px, 8vw, 112px)', color: M_BLACK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase' }}>
+    <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: mobile ? '12px' : '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1fr auto', gap: 0, border: `${M_LINE}px solid ${M_BLACK}`, marginBottom: `${M_LINE}px` }}>
+        <div style={{ background: M_WHITE, padding: mobile ? '24px' : '40px' }}>
+          <h1 style={{ fontFamily: M_DISPLAY, fontSize: mobile ? '52px' : 'clamp(56px, 8vw, 112px)', color: M_BLACK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase' }}>
             How <span style={{ color: M_BLUE }}>I</span> work.
           </h1>
           <p style={{ fontFamily: M_SANS, fontSize: '16px', fontWeight: 500, color: M_BLACK, lineHeight: 1.6, marginTop: 20, maxWidth: '52ch' }}>No strong opinions on tools. Strong opinions on outcomes.<br/>These just happen to be what's in the stack right now.</p>
         </div>
-        <div style={{ background: M_RED, borderLeft: `${M_LINE}px solid ${M_BLACK}`, padding: '24px 32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minWidth: '180px' }}>
-          <MLabel color={M_WHITE}>Total</MLabel>
-          <div style={{ fontFamily: M_DISPLAY, fontSize: '88px', color: M_WHITE, lineHeight: 1.0, letterSpacing: '-0.04em' }}>{TOOL_CATEGORIES.reduce((n, c) => n + c.tools.length, 0)}</div>
-        </div>
+        {!mobile && (
+          <div style={{ background: M_RED, borderLeft: `${M_LINE}px solid ${M_BLACK}`, padding: '24px 32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minWidth: '180px' }}>
+            <MLabel color={M_WHITE}>Total</MLabel>
+            <div style={{ fontFamily: M_DISPLAY, fontSize: '88px', color: M_WHITE, lineHeight: 1.0, letterSpacing: '-0.04em' }}>{TOOL_CATEGORIES.reduce((n, c) => n + c.tools.length, 0)}</div>
+          </div>
+        )}
       </div>
-      {(() => {
-        const maxTools = Math.max(...cats.map(c => c.tools.length));
-        return (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: `${M_LINE}px`, background: M_BLACK, border: `${M_LINE}px solid ${M_BLACK}` }}>
-            {cats.map(cat => (
-              <div key={`h-${cat.label}`} style={{ background: cat.color, padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                <h3 style={{ fontFamily: M_DISPLAY, fontSize: '24px', color: cat.fg, letterSpacing: '-0.02em', textTransform: 'uppercase' }}>{cat.label}</h3>
+      {mobile ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: `${M_LINE}px`, background: M_BLACK }}>
+          {cats.map(cat => (
+            <div key={cat.label} style={{ background: M_WHITE }}>
+              <div style={{ background: cat.color, padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                <h3 style={{ fontFamily: M_DISPLAY, fontSize: '22px', color: cat.fg, letterSpacing: '-0.02em', textTransform: 'uppercase' }}>{cat.label}</h3>
                 <MLabel color={cat.fg} size="10px">{String(cat.tools.length).padStart(2,'0')}</MLabel>
               </div>
-            ))}
-            {Array.from({ length: maxTools }, (_, rowIdx) =>
-              cats.map(cat => {
-                const t = cat.tools[rowIdx];
-                return (
-                  <div key={`${cat.label}-${rowIdx}`} style={{ background: M_WHITE, padding: '18px 24px' }}>
-                    {t && (
-                      <>
-                        <div style={{ fontFamily: M_DISPLAY, fontSize: '20px', color: M_BLACK, letterSpacing: '-0.015em', marginBottom: 4 }}>{t.name}</div>
-                        <div style={{ fontFamily: M_SANS, fontSize: '13px', color: M_BLACK, fontWeight: 500, lineHeight: 1.5, opacity: 0.75 }}>{t.desc}</div>
-                      </>
-                    )}
-                  </div>
-                );
-              })
-            )}
-          </div>
-        );
-      })()}
+              {cat.tools.map(t => (
+                <div key={t.name} style={{ padding: '14px 20px', borderTop: `${M_LINE}px solid ${M_BLACK}` }}>
+                  <div style={{ fontFamily: M_DISPLAY, fontSize: '18px', color: M_BLACK, letterSpacing: '-0.015em', marginBottom: 4 }}>{t.name}</div>
+                  <div style={{ fontFamily: M_SANS, fontSize: '13px', color: M_BLACK, fontWeight: 500, lineHeight: 1.5, opacity: 0.75 }}>{t.desc}</div>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      ) : (
+        (() => {
+          const maxTools = Math.max(...cats.map(c => c.tools.length));
+          return (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: `${M_LINE}px`, background: M_BLACK, border: `${M_LINE}px solid ${M_BLACK}` }}>
+              {cats.map(cat => (
+                <div key={`h-${cat.label}`} style={{ background: cat.color, padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                  <h3 style={{ fontFamily: M_DISPLAY, fontSize: '24px', color: cat.fg, letterSpacing: '-0.02em', textTransform: 'uppercase' }}>{cat.label}</h3>
+                  <MLabel color={cat.fg} size="10px">{String(cat.tools.length).padStart(2,'0')}</MLabel>
+                </div>
+              ))}
+              {Array.from({ length: maxTools }, (_, rowIdx) =>
+                cats.map(cat => {
+                  const t = cat.tools[rowIdx];
+                  return (
+                    <div key={`${cat.label}-${rowIdx}`} style={{ background: M_WHITE, padding: '18px 24px' }}>
+                      {t && (
+                        <>
+                          <div style={{ fontFamily: M_DISPLAY, fontSize: '20px', color: M_BLACK, letterSpacing: '-0.015em', marginBottom: 4 }}>{t.name}</div>
+                          <div style={{ fontFamily: M_SANS, fontSize: '13px', color: M_BLACK, fontWeight: 500, lineHeight: 1.5, opacity: 0.75 }}>{t.desc}</div>
+                        </>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          );
+        })()
+      )}
     </section>
   );
 }
 
 function MContact() {
+  const mobile = useMobile();
   const [sent, setSent] = React.useState(false);
   const [error, setError] = React.useState(false);
   const [sending, setSending] = React.useState(false);
   const inp = {
     width: '100%', padding: '14px 16px', fontFamily: M_SANS, fontWeight: 500,
     fontSize: '16px', color: M_BLACK, background: M_WHITE,
-    border: `${M_LINE/2 + 1}px solid ${M_BLACK}`, outline: 'none',
+    border: `${M_LINE/2 + 1}px solid ${M_BLACK}`, outline: 'none', boxSizing: 'border-box',
   };
   return (
-    <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '24px' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 1fr)', gridTemplateRows: '1fr', gap: 0, border: `${M_LINE}px solid ${M_BLACK}`, background: M_BLACK, minHeight: '600px' }}>
+    <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: mobile ? '12px' : '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : 'minmax(0, 1.2fr) minmax(0, 1fr)', gridTemplateRows: '1fr', gap: 0, border: `${M_LINE}px solid ${M_BLACK}`, background: M_BLACK, minHeight: mobile ? 'auto' : '600px' }}>
         <div style={{ background: M_WHITE, padding: '40px', borderRight: `${M_LINE}px solid ${M_BLACK}` }}>
           <h1 style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(56px, 8vw, 112px)', color: M_BLACK, lineHeight: 0.92, letterSpacing: '-0.035em', marginBottom: 36, textTransform: 'uppercase' }}>
             Say <span style={{ color: M_RED }}>hello.</span>
@@ -1402,40 +1483,43 @@ function MContact() {
             </div>
           )}
         </div>
-        <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr 1fr', gap: 0 }}>
-          {[
-            { label: 'Response time', bg: M_RED,    fg: M_WHITE, text: 'Usually within\na day or two.' },
-            { label: 'Open to',       bg: M_BLUE,   fg: M_WHITE, text: 'Product work,\nside projects,\ninteresting ideas.' },
-            { label: 'Location',      bg: M_YELLOW, fg: M_BLACK, text: 'Rotterdam,\nthe Netherlands.' },
-          ].map((l, i, arr) => (
-            <div key={l.label} style={{
-              background: l.bg, padding: '28px 32px',
-              borderBottom: i < arr.length - 1 ? `${M_LINE}px solid ${M_BLACK}` : 'none',
-              display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-            }}>
-              <MLabel color={l.fg}>{l.label}</MLabel>
-              <div style={{ fontFamily: M_DISPLAY, fontSize: '26px', color: l.fg, letterSpacing: '-0.02em', lineHeight: 1.1, whiteSpace: 'pre-line' }}>{l.text}</div>
-            </div>
-          ))}
-        </div>
+        {!mobile && (
+          <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr 1fr', gap: 0 }}>
+            {[
+              { label: 'Response time', bg: M_RED,    fg: M_WHITE, text: 'Usually within\na day or two.' },
+              { label: 'Open to',       bg: M_BLUE,   fg: M_WHITE, text: 'Product work,\nside projects,\ninteresting ideas.' },
+              { label: 'Location',      bg: M_YELLOW, fg: M_BLACK, text: 'Rotterdam,\nthe Netherlands.' },
+            ].map((l, i, arr) => (
+              <div key={l.label} style={{
+                background: l.bg, padding: '28px 32px',
+                borderBottom: i < arr.length - 1 ? `${M_LINE}px solid ${M_BLACK}` : 'none',
+                display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+              }}>
+                <MLabel color={l.fg}>{l.label}</MLabel>
+                <div style={{ fontFamily: M_DISPLAY, fontSize: '26px', color: l.fg, letterSpacing: '-0.02em', lineHeight: 1.1, whiteSpace: 'pre-line' }}>{l.text}</div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
 }
 
 function MProjectDetail({ project, onBack }) {
+  const mobile = useMobile();
   const accent = resolveAccent(project, 'mondriaan-v1') || M_RED;
   const accentFg = accent === M_YELLOW ? M_BLACK : M_WHITE;
   return (
-    <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '24px' }}>
+    <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: mobile ? '12px' : '24px' }}>
       <button onClick={onBack} style={{
         fontFamily: M_MONO, fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em',
         textTransform: 'uppercase', color: M_BLACK, background: M_WHITE,
         border: `${M_LINE/2 + 1}px solid ${M_BLACK}`, padding: '10px 18px',
         cursor: 'pointer', marginBottom: '24px', boxShadow: `4px 4px 0 0 ${M_BLACK}`,
       }}>← back to work</button>
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr)', gridTemplateRows: 'auto auto', gap: 0, border: `${M_LINE}px solid ${M_BLACK}`, background: M_BLACK }}>
-        <div style={{ background: accent, padding: '40px', borderRight: `${M_LINE}px solid ${M_BLACK}`, borderBottom: `${M_LINE}px solid ${M_BLACK}` }}>
+      <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : 'minmax(0, 2fr) minmax(0, 1fr)', gridTemplateRows: 'auto auto', gap: 0, border: `${M_LINE}px solid ${M_BLACK}`, background: M_BLACK }}>
+        <div style={{ background: accent, padding: mobile ? '24px' : '40px', borderRight: mobile ? 'none' : `${M_LINE}px solid ${M_BLACK}`, borderBottom: `${M_LINE}px solid ${M_BLACK}` }}>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
             {project.tags.map(t => (
               <span key={t} style={{ fontFamily: M_MONO, fontSize: '11px', fontWeight: 700, color: accentFg, padding: '4px 10px', border: `2px solid ${accentFg}`, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{t}</span>
@@ -1444,15 +1528,17 @@ function MProjectDetail({ project, onBack }) {
           <h1 style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(56px, 9vw, 132px)', color: accentFg, lineHeight: 0.9, letterSpacing: '-0.04em', textTransform: 'uppercase' }}>{project.title}</h1>
           {project.tagline && <p style={{ fontFamily: M_SANS, fontWeight: 700, fontSize: '20px', color: accentFg, marginTop: 16, letterSpacing: '-0.01em' }}>{project.tagline}</p>}
         </div>
-        <div style={{ background: M_BLACK, padding: '40px', borderBottom: `${M_LINE}px solid ${M_BLACK}`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-          <MLabel color={M_WHITE}>Year</MLabel>
-          <div style={{ fontFamily: M_DISPLAY, fontSize: '88px', color: M_WHITE, lineHeight: 1.0, letterSpacing: '-0.04em' }}>{project.year}</div>
-        </div>
-        <div style={{ background: M_WHITE, padding: '40px', borderRight: `${M_LINE}px solid ${M_BLACK}` }}>
+        {!mobile && (
+          <div style={{ background: M_BLACK, padding: '40px', borderBottom: `${M_LINE}px solid ${M_BLACK}`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <MLabel color={M_WHITE}>Year</MLabel>
+            <div style={{ fontFamily: M_DISPLAY, fontSize: '88px', color: M_WHITE, lineHeight: 1.0, letterSpacing: '-0.04em' }}>{project.year}</div>
+          </div>
+        )}
+        <div style={{ background: M_WHITE, padding: mobile ? '24px' : '40px', borderRight: mobile ? 'none' : `${M_LINE}px solid ${M_BLACK}` }}>
           <MLabel>Brief</MLabel>
           <p style={{ fontFamily: M_SANS, fontSize: '17px', fontWeight: 500, color: M_BLACK, lineHeight: 1.65, marginTop: 16 }}>{project.detail || project.description}</p>
         </div>
-        <div style={{ background: M_WHITE, padding: '40px', display: 'flex', flexDirection: 'column', gap: 24 }}>
+        <div style={{ background: M_WHITE, padding: mobile ? '24px' : '40px', display: 'flex', flexDirection: 'column', gap: 24 }}>
           {project.role && <div><MLabel size="10px">Role</MLabel><div style={{ fontFamily: M_SANS, fontWeight: 500, fontSize: '15px', color: M_BLACK, marginTop: 6 }}>{project.role}</div></div>}
           {project.stack && (
             <div>
@@ -1475,26 +1561,60 @@ function MProjectDetail({ project, onBack }) {
 }
 
 function MWorkTable({ onSelect }) {
+  const mobile = useMobile();
   const ROW_BORDER = `${M_LINE}px solid ${M_BLACK}`;
   const CELL = { borderRight: ROW_BORDER, padding: '28px 24px', display: 'flex', alignItems: 'center' };
   return (
-    <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '24px' }}>
-      {/* header row */}
-      <div style={{ border: ROW_BORDER, borderBottom: 'none', display: 'grid', gridTemplateColumns: '40px 1fr 120px 80px 180px 48px', background: M_BLACK, gap: 0 }}>
-        {['#', 'PROJECT', 'TYPE', 'YEAR', 'URL', ''].map((h, i, arr) => (
-          <div key={h + i} style={{
-            ...CELL,
-            borderRight: i < arr.length - 1 ? ROW_BORDER : 'none',
-            background: M_BLACK, color: M_WHITE,
-            fontFamily: M_MONO, fontSize: '10px', letterSpacing: '0.12em',
-            padding: '14px 24px',
-          }}>{h}</div>
-        ))}
-      </div>
-      {/* rows */}
+    <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: mobile ? '12px' : '24px' }}>
+      {!mobile && (
+        <div style={{ border: ROW_BORDER, borderBottom: 'none', display: 'grid', gridTemplateColumns: '40px 1fr 120px 80px 180px 48px', background: M_BLACK, gap: 0 }}>
+          {['#', 'PROJECT', 'TYPE', 'YEAR', 'URL', ''].map((h, i, arr) => (
+            <div key={h + i} style={{
+              ...CELL,
+              borderRight: i < arr.length - 1 ? ROW_BORDER : 'none',
+              background: M_BLACK, color: M_WHITE,
+              fontFamily: M_MONO, fontSize: '10px', letterSpacing: '0.12em',
+              padding: '14px 24px',
+            }}>{h}</div>
+          ))}
+        </div>
+      )}
       {PROJECTS.map((p, idx) => {
         const isClickable = !!p.detail;
         const accentCol = [M_RED, M_BLUE, M_YELLOW, M_BLACK][idx % 4];
+        const accentFg = accentCol === M_YELLOW ? M_BLACK : M_WHITE;
+        if (mobile) {
+          return (
+            <div
+              key={p.id}
+              onClick={isClickable ? () => onSelect(p) : undefined}
+              style={{
+                border: ROW_BORDER, borderBottom: 'none', marginBottom: `${M_LINE}px`,
+                display: 'grid', gridTemplateColumns: '36px 1fr 32px',
+                background: M_WHITE, cursor: isClickable ? 'pointer' : 'default',
+              }}
+              onMouseEnter={e => { if (isClickable) e.currentTarget.style.background = '#f5f5f5'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = M_WHITE; }}
+            >
+              <div style={{ background: accentCol, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRight: ROW_BORDER }}>
+                <span style={{ fontFamily: M_MONO, fontSize: '11px', color: accentFg, letterSpacing: '0.04em' }}>
+                  {String(idx + 1).padStart(2, '0')}
+                </span>
+              </div>
+              <div style={{ padding: '16px 16px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <span style={{ fontFamily: M_DISPLAY, fontSize: '20px', color: M_BLACK, letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1 }}>{p.title}</span>
+                <div style={{ display: 'flex', gap: '8px', marginTop: 2 }}>
+                  <span style={{ fontFamily: M_MONO, fontSize: '10px', color: '#5a5a5a', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{p.tags[0]}</span>
+                  <span style={{ fontFamily: M_MONO, fontSize: '10px', color: '#5a5a5a', letterSpacing: '0.04em' }}>{p.year}</span>
+                </div>
+                <span style={{ fontFamily: M_MONO, fontSize: '10px', color: M_BLACK, letterSpacing: '0.02em', marginTop: 2 }}>{p.url}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', borderLeft: ROW_BORDER }}>
+                {isClickable && <span style={{ fontFamily: M_MONO, fontSize: '16px', color: M_BLACK }}>→</span>}
+              </div>
+            </div>
+          );
+        }
         return (
           <div
             key={p.id}
@@ -1507,30 +1627,24 @@ function MWorkTable({ onSelect }) {
             onMouseEnter={e => { if (isClickable) e.currentTarget.style.background = '#f5f5f5'; }}
             onMouseLeave={e => { e.currentTarget.style.background = M_WHITE; }}
           >
-            {/* index */}
             <div style={{ ...CELL, borderRight: ROW_BORDER, background: accentCol, justifyContent: 'center', padding: '28px 0' }}>
               <span style={{ fontFamily: M_MONO, fontSize: '11px', color: accentCol === M_BLACK || accentCol === M_RED || accentCol === M_BLUE ? M_WHITE : M_BLACK, letterSpacing: '0.04em' }}>
                 {String(idx + 1).padStart(2, '0')}
               </span>
             </div>
-            {/* title + description */}
             <div style={{ ...CELL, borderRight: ROW_BORDER, flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
               <span style={{ fontFamily: M_DISPLAY, fontSize: '22px', color: M_BLACK, letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1 }}>{p.title}</span>
               {p.description && <span style={{ fontFamily: M_MONO, fontSize: '11px', color: '#5a5a5a', letterSpacing: '0.02em', lineHeight: 1.4 }}>{p.description}</span>}
             </div>
-            {/* type */}
             <div style={{ ...CELL, borderRight: ROW_BORDER }}>
               <span style={{ fontFamily: M_MONO, fontSize: '11px', color: M_BLACK, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{p.tags[0]}</span>
             </div>
-            {/* year */}
             <div style={{ ...CELL, borderRight: ROW_BORDER }}>
               <span style={{ fontFamily: M_MONO, fontSize: '11px', color: '#5a5a5a', letterSpacing: '0.04em' }}>{p.year}</span>
             </div>
-            {/* url */}
             <div style={{ ...CELL, borderRight: ROW_BORDER }}>
               <span style={{ fontFamily: M_MONO, fontSize: '11px', color: M_BLACK, letterSpacing: '0.02em' }}>{p.url}</span>
             </div>
-            {/* arrow */}
             <div style={{ ...CELL, borderRight: 'none', justifyContent: 'center', padding: '28px 0' }}>
               {isClickable && <span style={{ fontFamily: M_MONO, fontSize: '16px', color: M_BLACK }}>→</span>}
             </div>
@@ -1542,23 +1656,26 @@ function MWorkTable({ onSelect }) {
 }
 
 function MFooter() {
+  const mobile = useMobile();
   return (
-    <footer style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '24px 24px 32px' }}>
-      <div style={{ border: `${M_LINE}px solid ${M_BLACK}`, display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', background: M_BLACK }}>
-        <div style={{ background: M_WHITE, padding: '20px 24px', borderRight: `${M_LINE}px solid ${M_BLACK}` }}>
+    <footer style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: mobile ? '12px 12px 20px' : '24px 24px 32px' }}>
+      <div style={{ border: `${M_LINE}px solid ${M_BLACK}`, display: 'grid', gridTemplateColumns: mobile ? '1fr 1fr' : '2fr 1fr 1fr 1fr', background: M_BLACK }}>
+        <div style={{ background: M_WHITE, padding: '16px 20px', borderRight: `${M_LINE}px solid ${M_BLACK}`, gridColumn: mobile ? '1 / -1' : undefined, borderBottom: mobile ? `${M_LINE}px solid ${M_BLACK}` : 'none' }}>
           <MLabel size="10px">© 2026 Peter &amp; Co.</MLabel>
           <div style={{ fontFamily: M_MONO, fontSize: '11px', color: M_BLACK, marginTop: 6, letterSpacing: '0.04em' }}>this is a playground, not a business. yet.</div>
+          {mobile && <div style={{ fontFamily: M_MONO, fontSize: '10px', color: '#888', marginTop: 6, letterSpacing: '0.04em' }}>best viewed on desktop</div>}
         </div>
         {[
-          { label: 'github',   href: 'https://github.com/preijm',                                 bg: M_RED,    fg: M_WHITE },
-          { label: 'linkedin', href: 'https://www.linkedin.com/in/peter-reijm-47165b5b/',         bg: M_BLUE,   fg: M_WHITE },
-          { label: 'email',    href: 'mailto:peterreijm@live.nl',                                 bg: M_YELLOW, fg: M_BLACK },
+          { label: 'github',   href: 'https://github.com/preijm',                               bg: M_RED,    fg: M_WHITE },
+          { label: 'linkedin', href: 'https://www.linkedin.com/in/peter-reijm-47165b5b/',       bg: M_BLUE,   fg: M_WHITE },
+          { label: 'email',    href: 'mailto:peterreijm@live.nl',                               bg: M_YELLOW, fg: M_BLACK },
         ].map((l, i, arr) => (
           <a key={l.label} href={l.href} target={l.href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer" style={{
-            background: l.bg, padding: '20px 24px', textDecoration: 'none',
-            borderRight: i < arr.length - 1 ? `${M_LINE}px solid ${M_BLACK}` : 'none',
+            background: l.bg, padding: mobile ? '16px 20px' : '20px 24px', textDecoration: 'none',
+            borderRight: mobile ? (i % 2 === 0 ? `${M_LINE}px solid ${M_BLACK}` : 'none') : (i < arr.length - 1 ? `${M_LINE}px solid ${M_BLACK}` : 'none'),
+            borderTop: mobile && i >= 2 ? `${M_LINE}px solid ${M_BLACK}` : 'none',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            fontFamily: M_DISPLAY, fontSize: '20px', color: l.fg,
+            fontFamily: M_DISPLAY, fontSize: mobile ? '16px' : '20px', color: l.fg,
             letterSpacing: '-0.02em', textTransform: 'uppercase',
           }}>{l.label} <span>→</span></a>
         ))}
