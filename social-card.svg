@@ -12,11 +12,11 @@
   <text x="94" y="350" font-size="108" fill="#3a3a3a" font-family="Georgia, serif" letter-spacing="-4">&amp; Co.</text>
 
   <!-- Divider -->
-  <line x1="88" y1="390" x2="560" y2="390" stroke="#2a2a2a" stroke-width="1"/>
+  <line x1="88" y1="440" x2="560" y2="440" stroke="#2a2a2a" stroke-width="1"/>
 
   <!-- Description -->
-  <text x="88" y="436" font-size="22" fill="#6b6b6b" font-family="Georgia, serif">Product owner, builder, explorer. Based in Rotterdam.</text>
+  <text x="88" y="488" font-size="22" fill="#6b6b6b" font-family="Georgia, serif">Product owner, builder, explorer. Based in Rotterdam.</text>
 
   <!-- URL -->
-  <text x="88" y="474" font-size="16" fill="#4a4a4a" font-family="'Courier New', monospace" letter-spacing="0.06em">peterandco.nl</text>
+  <text x="88" y="526" font-size="16" fill="#4a4a4a" font-family="'Courier New', monospace" letter-spacing="0.06em">peterandco.nl</text>
 </svg>
