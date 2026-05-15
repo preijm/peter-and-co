@@ -3,12 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Peter & Co. — Logo Variations</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;600&family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<title>Peter & Co. — Logo Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;600&family=Archivo+Black&family=Space+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  /* Nav */
   nav {
     position: sticky; top: 0; z-index: 100;
     background: #0a0a0a; border-bottom: 1px solid #1e1e1e;
@@ -20,53 +19,41 @@
     padding: 16px 20px; border-bottom: 2px solid transparent;
     transition: color 150ms, border-color 150ms;
   }
-  nav a:hover { color: #fff; }
-  nav a.ink    { border-bottom-color: #ffffff; color: #ffffff; }
-  nav a.chalk  { border-bottom-color: #f2f0eb; color: #f2f0eb; }
+  nav a.ink       { border-bottom-color: #ffffff; color: #ffffff; }
+  nav a.chalk     { border-bottom-color: #f2f0eb; color: #f2f0eb; }
   nav a.mondriaan { border-bottom-color: #d72027; color: #d72027; }
 
-  /* Sections */
   section { padding: 64px 32px 96px; }
-  section.ink        { background: #0a0a0a; }
-  section.chalk      { background: #f2f0eb; }
-  section.mondriaan  { background: #ffffff; }
+  section.ink       { background: #0a0a0a; }
+  section.chalk     { background: #f2f0eb; }
+  section.mondriaan { background: #ffffff; }
 
-  /* Section header */
   .theme-title { margin-bottom: 4px; }
-  .theme-title.ink       { font-family: 'DM Serif Display', serif; font-size: 28px; color: #ffffff; }
-  .theme-title.chalk     { font-family: 'DM Serif Display', serif; font-size: 28px; color: #0a0a0a; }
-  .theme-title.mondriaan { font-family: 'Archivo Black', sans-serif; font-size: 28px; color: #0a0a0a; }
-  .theme-sub { font-size: 11px; letter-spacing: 0.1em; margin-bottom: 64px; }
+  .theme-title.ink       { font-family: 'DM Serif Display', serif; font-size: 24px; color: #ffffff; }
+  .theme-title.chalk     { font-family: 'DM Serif Display', serif; font-size: 24px; color: #0a0a0a; }
+  .theme-title.mondriaan { font-family: 'Archivo Black', sans-serif; font-size: 24px; color: #0a0a0a; }
+
+  .theme-sub { font-size: 11px; letter-spacing: 0.1em; margin-bottom: 48px; }
   .theme-sub.ink        { font-family: 'JetBrains Mono', monospace; color: #3a3a3a; }
   .theme-sub.chalk      { font-family: 'JetBrains Mono', monospace; color: #aaaaaa; }
   .theme-sub.mondriaan  { font-family: 'Space Mono', monospace; color: #8a8a8a; }
 
-  /* Group labels */
-  .section-label { font-size: 10px; letter-spacing: 0.15em; margin-bottom: 24px; padding-bottom: 12px; }
-  .section-label.ink       { font-family: 'JetBrains Mono', monospace; color: #3a3a3a; border-bottom: 1px solid #1e1e1e; }
-  .section-label.chalk     { font-family: 'JetBrains Mono', monospace; color: #aaaaaa; border-bottom: 1px solid #d0cec9; }
-  .section-label.mondriaan { font-family: 'Space Mono', monospace; color: #8a8a8a; border-bottom: 3px solid #0a0a0a; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1px; }
+  .grid.ink       { background: #1a1a1a; }
+  .grid.chalk     { background: #d0cec9; }
+  .grid.mondriaan { background: #0a0a0a; }
 
-  /* Grid */
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1px; margin-bottom: 64px; }
-  .grid.ink        { background: #1a1a1a; }
-  .grid.chalk      { background: #d0cec9; }
-  .grid.mondriaan  { background: #0a0a0a; }
-
-  /* Cards */
-  .card { padding: 40px 32px; display: flex; flex-direction: column; gap: 20px; }
+  .card { padding: 48px 40px; display: flex; flex-direction: column; gap: 24px; }
   .card.ink       { background: #0a0a0a; }
   .card.chalk     { background: #f2f0eb; }
   .card.mondriaan { background: #ffffff; }
 
-  /* Card labels */
-  .card-label { font-size: 10px; letter-spacing: 0.1em; margin-top: 8px; }
-  .card-label.ink        { font-family: 'JetBrains Mono', monospace; color: #3a3a3a; }
-  .card-label.chalk      { font-family: 'JetBrains Mono', monospace; color: #aaaaaa; }
-  .card-label.mondriaan  { font-family: 'Space Mono', monospace; color: #8a8a8a; }
+  .card-label { font-size: 10px; letter-spacing: 0.12em; }
+  .card-label.ink       { font-family: 'JetBrains Mono', monospace; color: #3a3a3a; }
+  .card-label.chalk     { font-family: 'JetBrains Mono', monospace; color: #aaaaaa; }
+  .card-label.mondriaan { font-family: 'Space Mono', monospace; color: #8a8a8a; }
 
-  /* Copy buttons */
-  .copy-btn { align-self: flex-start; font-size: 10px; letter-spacing: 0.08em; background: none; padding: 4px 10px; cursor: pointer; transition: all 150ms ease; border-radius: 2px; }
+  .copy-btn { align-self: flex-start; font-size: 10px; letter-spacing: 0.08em; background: none; padding: 4px 10px; cursor: pointer; transition: all 150ms; border-radius: 2px; }
   .copy-btn.ink       { font-family: 'JetBrains Mono', monospace; color: #3a3a3a; border: 1px solid #1e1e1e; }
   .copy-btn.ink:hover { color: #fff; border-color: #3a3a3a; }
   .copy-btn.chalk       { font-family: 'JetBrains Mono', monospace; color: #aaaaaa; border: 1px solid #d0cec9; }
@@ -84,254 +71,79 @@
 </nav>
 
 
-<!-- ═══════════════════════════════════════════
-     INK v1
-═══════════════════════════════════════════ -->
+<!-- INK -->
 <section class="ink" id="ink">
   <p class="theme-title ink">Ink v1</p>
   <p class="theme-sub ink">DARK · EDITORIAL · DM SERIF DISPLAY</p>
-
-  <div class="section-label ink">WORDMARKS</div>
   <div class="grid ink">
 
     <div class="card ink">
-      <svg id="ink-s1" width="160" height="88" viewBox="0 0 160 88" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <text x="0" y="44" font-size="44" fill="#ffffff" letter-spacing="-1.5" font-family="'DM Serif Display', Georgia, serif">Peter</text>
-        <text x="2" y="86" font-size="44" fill="#ffffff" letter-spacing="-1.5" font-family="'DM Serif Display', Georgia, serif">&amp; Co.</text>
-      </svg>
-      <span class="card-label ink">01 — Stacked, equal</span>
-      <button class="copy-btn ink" onclick="copySVG('ink-s1', 'ink')">copy svg</button>
-    </div>
-
-    <div class="card ink">
-      <svg id="ink-s2" width="160" height="88" viewBox="0 0 160 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg width="160" height="88" viewBox="0 0 160 88" fill="none" xmlns="http://www.w3.org/2000/svg" id="ink-wordmark">
         <text x="0" y="44" font-size="44" fill="#ffffff" letter-spacing="-1.5" font-family="'DM Serif Display', Georgia, serif">Peter</text>
         <text x="2" y="86" font-size="44" fill="#4a4a4a" letter-spacing="-1.5" font-family="'DM Serif Display', Georgia, serif">&amp; Co.</text>
       </svg>
-      <span class="card-label ink">02 — Stacked, &amp; Co. muted</span>
-      <button class="copy-btn ink" onclick="copySVG('ink-s2', 'ink')">copy svg</button>
+      <span class="card-label ink">WORDMARK — used in site header</span>
+      <button class="copy-btn ink" onclick="copySVG('ink-wordmark')">copy svg</button>
     </div>
 
     <div class="card ink">
-      <svg id="ink-s3" width="160" height="80" viewBox="0 0 160 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <text x="0" y="44" font-size="44" fill="#ffffff" letter-spacing="-1.5" font-family="'DM Serif Display', Georgia, serif">Peter</text>
-        <text x="3" y="74" font-size="28" fill="#6b6b6b" letter-spacing="-0.5" font-family="'DM Serif Display', Georgia, serif">&amp; Co.</text>
-      </svg>
-      <span class="card-label ink">03 — Stacked, &amp; Co. smaller</span>
-      <button class="copy-btn ink" onclick="copySVG('ink-s3', 'ink')">copy svg</button>
-    </div>
-
-    <div class="card ink">
-      <svg id="ink-s4" width="240" height="48" viewBox="0 0 240 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <text x="0" y="42" font-size="42" fill="#ffffff" letter-spacing="-1.5" font-family="'DM Serif Display', Georgia, serif">Peter &amp; Co.</text>
-      </svg>
-      <span class="card-label ink">04 — Inline, single line</span>
-      <button class="copy-btn ink" onclick="copySVG('ink-s4', 'ink')">copy svg</button>
-    </div>
-
-    <div class="card ink">
-      <svg id="ink-s5" width="220" height="48" viewBox="0 0 220 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <text x="0" y="42" font-size="42" fill="#ffffff" letter-spacing="-1.5" font-family="'DM Serif Display', Georgia, serif">Peter</text>
-        <text x="122" y="42" font-size="26" fill="#6b6b6b" letter-spacing="-0.5" font-family="'DM Serif Display', Georgia, serif">&amp; Co.</text>
-      </svg>
-      <span class="card-label ink">05 — Inline, &amp; Co. smaller</span>
-      <button class="copy-btn ink" onclick="copySVG('ink-s5', 'ink')">copy svg</button>
-    </div>
-
-    <div class="card ink">
-      <svg id="ink-s6" width="160" height="88" viewBox="0 0 160 88" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <text x="0" y="44" font-size="44" fill="#ffffff" letter-spacing="-1.5" font-style="italic" font-family="'DM Serif Display', Georgia, serif">Peter</text>
-        <text x="2" y="86" font-size="44" fill="#ffffff" letter-spacing="-1.5" font-style="italic" font-family="'DM Serif Display', Georgia, serif">&amp; Co.</text>
-      </svg>
-      <span class="card-label ink">06 — Stacked, italic</span>
-      <button class="copy-btn ink" onclick="copySVG('ink-s6', 'ink')">copy svg</button>
-    </div>
-
-  </div>
-
-  <div class="section-label ink">ICONS &amp; MARKS</div>
-  <div class="grid ink">
-
-    <div class="card ink">
-      <svg id="ink-i1" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" id="ink-favicon">
         <rect width="64" height="64" fill="#0a0a0a"/>
         <text x="7" y="52" font-size="52" fill="#ffffff" font-family="Georgia, serif" letter-spacing="-2">P</text>
       </svg>
-      <span class="card-label ink">07 — P mark, dark</span>
-      <button class="copy-btn ink" onclick="copySVG('ink-i1', 'ink')">copy svg</button>
-    </div>
-
-    <div class="card ink">
-      <svg id="ink-i2" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="1" y="1" width="62" height="62" fill="none" stroke="#ffffff" stroke-width="1.5"/>
-        <text x="7" y="52" font-size="52" fill="#ffffff" font-family="Georgia, serif" letter-spacing="-2">P</text>
-      </svg>
-      <span class="card-label ink">08 — P mark, outlined</span>
-      <button class="copy-btn ink" onclick="copySVG('ink-i2', 'ink')">copy svg</button>
-    </div>
-
-    <div class="card ink">
-      <svg id="ink-i3" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <text x="4" y="44" font-size="38" fill="#ffffff" font-family="'DM Serif Display', Georgia, serif" letter-spacing="-1">P.</text>
-      </svg>
-      <span class="card-label ink">09 — P. minimal mark</span>
-      <button class="copy-btn ink" onclick="copySVG('ink-i3', 'ink')">copy svg</button>
+      <span class="card-label ink">FAVICON — browser tab icon</span>
+      <button class="copy-btn ink" onclick="copySVG('ink-favicon')">copy svg</button>
     </div>
 
   </div>
 </section>
 
 
-<!-- ═══════════════════════════════════════════
-     CHALK v1
-═══════════════════════════════════════════ -->
+<!-- CHALK -->
 <section class="chalk" id="chalk">
   <p class="theme-title chalk">Chalk v1</p>
   <p class="theme-sub chalk">LIGHT · OPEN · DM SERIF DISPLAY</p>
-
-  <div class="section-label chalk">WORDMARKS</div>
   <div class="grid chalk">
 
     <div class="card chalk">
-      <svg id="chalk-s1" width="160" height="88" viewBox="0 0 160 88" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <text x="0" y="44" font-size="44" fill="#0a0a0a" letter-spacing="-1.5" font-family="'DM Serif Display', Georgia, serif">Peter</text>
-        <text x="2" y="86" font-size="44" fill="#0a0a0a" letter-spacing="-1.5" font-family="'DM Serif Display', Georgia, serif">&amp; Co.</text>
-      </svg>
-      <span class="card-label chalk">01 — Stacked, equal</span>
-      <button class="copy-btn chalk" onclick="copySVG('chalk-s1', 'chalk')">copy svg</button>
-    </div>
-
-    <div class="card chalk">
-      <svg id="chalk-s2" width="160" height="88" viewBox="0 0 160 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg width="160" height="88" viewBox="0 0 160 88" fill="none" xmlns="http://www.w3.org/2000/svg" id="chalk-wordmark">
         <text x="0" y="44" font-size="44" fill="#0a0a0a" letter-spacing="-1.5" font-family="'DM Serif Display', Georgia, serif">Peter</text>
         <text x="2" y="86" font-size="44" fill="#aaaaaa" letter-spacing="-1.5" font-family="'DM Serif Display', Georgia, serif">&amp; Co.</text>
       </svg>
-      <span class="card-label chalk">02 — Stacked, &amp; Co. muted</span>
-      <button class="copy-btn chalk" onclick="copySVG('chalk-s2', 'chalk')">copy svg</button>
+      <span class="card-label chalk">WORDMARK — used in site header</span>
+      <button class="copy-btn chalk" onclick="copySVG('chalk-wordmark')">copy svg</button>
     </div>
 
     <div class="card chalk">
-      <svg id="chalk-s3" width="160" height="80" viewBox="0 0 160 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <text x="0" y="44" font-size="44" fill="#0a0a0a" letter-spacing="-1.5" font-family="'DM Serif Display', Georgia, serif">Peter</text>
-        <text x="3" y="74" font-size="28" fill="#aaaaaa" letter-spacing="-0.5" font-family="'DM Serif Display', Georgia, serif">&amp; Co.</text>
-      </svg>
-      <span class="card-label chalk">03 — Stacked, &amp; Co. smaller</span>
-      <button class="copy-btn chalk" onclick="copySVG('chalk-s3', 'chalk')">copy svg</button>
-    </div>
-
-    <div class="card chalk">
-      <svg id="chalk-s4" width="240" height="48" viewBox="0 0 240 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <text x="0" y="42" font-size="42" fill="#0a0a0a" letter-spacing="-1.5" font-family="'DM Serif Display', Georgia, serif">Peter &amp; Co.</text>
-      </svg>
-      <span class="card-label chalk">04 — Inline, single line</span>
-      <button class="copy-btn chalk" onclick="copySVG('chalk-s4', 'chalk')">copy svg</button>
-    </div>
-
-    <div class="card chalk">
-      <svg id="chalk-s5" width="220" height="48" viewBox="0 0 220 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <text x="0" y="42" font-size="42" fill="#0a0a0a" letter-spacing="-1.5" font-family="'DM Serif Display', Georgia, serif">Peter</text>
-        <text x="122" y="42" font-size="26" fill="#aaaaaa" letter-spacing="-0.5" font-family="'DM Serif Display', Georgia, serif">&amp; Co.</text>
-      </svg>
-      <span class="card-label chalk">05 — Inline, &amp; Co. smaller</span>
-      <button class="copy-btn chalk" onclick="copySVG('chalk-s5', 'chalk')">copy svg</button>
-    </div>
-
-    <div class="card chalk">
-      <svg id="chalk-s6" width="160" height="88" viewBox="0 0 160 88" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <text x="0" y="44" font-size="44" fill="#0a0a0a" letter-spacing="-1.5" font-style="italic" font-family="'DM Serif Display', Georgia, serif">Peter</text>
-        <text x="2" y="86" font-size="44" fill="#0a0a0a" letter-spacing="-1.5" font-style="italic" font-family="'DM Serif Display', Georgia, serif">&amp; Co.</text>
-      </svg>
-      <span class="card-label chalk">06 — Stacked, italic</span>
-      <button class="copy-btn chalk" onclick="copySVG('chalk-s6', 'chalk')">copy svg</button>
-    </div>
-
-  </div>
-
-  <div class="section-label chalk">ICONS &amp; MARKS</div>
-  <div class="grid chalk">
-
-    <div class="card chalk">
-      <svg id="chalk-i1" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" id="chalk-favicon">
         <rect width="64" height="64" fill="#f2f0eb"/>
         <text x="7" y="52" font-size="52" fill="#0a0a0a" font-family="Georgia, serif" letter-spacing="-2">P</text>
       </svg>
-      <span class="card-label chalk">07 — P mark, light</span>
-      <button class="copy-btn chalk" onclick="copySVG('chalk-i1', 'chalk')">copy svg</button>
-    </div>
-
-    <div class="card chalk">
-      <svg id="chalk-i2" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="1" y="1" width="62" height="62" fill="none" stroke="#0a0a0a" stroke-width="1.5"/>
-        <text x="7" y="52" font-size="52" fill="#0a0a0a" font-family="Georgia, serif" letter-spacing="-2">P</text>
-      </svg>
-      <span class="card-label chalk">08 — P mark, outlined</span>
-      <button class="copy-btn chalk" onclick="copySVG('chalk-i2', 'chalk')">copy svg</button>
-    </div>
-
-    <div class="card chalk">
-      <svg id="chalk-i3" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <text x="4" y="44" font-size="38" fill="#0a0a0a" font-family="'DM Serif Display', Georgia, serif" letter-spacing="-1">P.</text>
-      </svg>
-      <span class="card-label chalk">09 — P. minimal mark</span>
-      <button class="copy-btn chalk" onclick="copySVG('chalk-i3', 'chalk')">copy svg</button>
+      <span class="card-label chalk">FAVICON — browser tab icon</span>
+      <button class="copy-btn chalk" onclick="copySVG('chalk-favicon')">copy svg</button>
     </div>
 
   </div>
 </section>
 
 
-<!-- ═══════════════════════════════════════════
-     MONDRIAAN v1
-═══════════════════════════════════════════ -->
+<!-- MONDRIAAN -->
 <section class="mondriaan" id="mondriaan">
   <p class="theme-title mondriaan">Mondriaan v1</p>
   <p class="theme-sub mondriaan">PRIMARY COLOURS · GEOMETRIC · ARCHIVO BLACK</p>
-
-  <div class="section-label mondriaan">WORDMARKS</div>
   <div class="grid mondriaan">
 
     <div class="card mondriaan">
-      <svg id="m-s1" width="160" height="88" viewBox="0 0 160 88" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <text x="0" y="44" font-size="40" fill="#0a0a0a" letter-spacing="-1" font-family="'Archivo Black', sans-serif">Peter</text>
-        <text x="0" y="84" font-size="40" fill="#0a0a0a" letter-spacing="-1" font-family="'Archivo Black', sans-serif">&amp; Co.</text>
-      </svg>
-      <span class="card-label mondriaan">01 — Stacked, equal</span>
-      <button class="copy-btn mondriaan" onclick="copySVG('m-s1', 'mondriaan')">copy svg</button>
-    </div>
-
-    <div class="card mondriaan">
-      <svg id="m-s2" width="160" height="88" viewBox="0 0 160 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg width="160" height="88" viewBox="0 0 160 88" fill="none" xmlns="http://www.w3.org/2000/svg" id="m-wordmark">
         <text x="0" y="44" font-size="40" fill="#0a0a0a" letter-spacing="-1" font-family="'Archivo Black', sans-serif">Peter</text>
         <text x="0" y="84" font-size="40" fill="#d72027" letter-spacing="-1" font-family="'Archivo Black', sans-serif">&amp; Co.</text>
       </svg>
-      <span class="card-label mondriaan">02 — Stacked, &amp; Co. red</span>
-      <button class="copy-btn mondriaan" onclick="copySVG('m-s2', 'mondriaan')">copy svg</button>
+      <span class="card-label mondriaan">WORDMARK — used in site header</span>
+      <button class="copy-btn mondriaan" onclick="copySVG('m-wordmark')">copy svg</button>
     </div>
 
     <div class="card mondriaan">
-      <svg id="m-s3" width="220" height="48" viewBox="0 0 220 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <text x="0" y="40" font-size="38" fill="#0a0a0a" letter-spacing="-1" font-family="'Archivo Black', sans-serif">Peter &amp; Co.</text>
-      </svg>
-      <span class="card-label mondriaan">03 — Inline, single line</span>
-      <button class="copy-btn mondriaan" onclick="copySVG('m-s3', 'mondriaan')">copy svg</button>
-    </div>
-
-    <div class="card mondriaan">
-      <svg id="m-s4" width="220" height="48" viewBox="0 0 220 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <text x="0" y="40" font-size="38" fill="#0a0a0a" letter-spacing="-1" font-family="'Archivo Black', sans-serif">Peter</text>
-        <text x="120" y="40" font-size="38" fill="#d72027" letter-spacing="-1" font-family="'Archivo Black', sans-serif">&amp; Co.</text>
-      </svg>
-      <span class="card-label mondriaan">04 — Inline, &amp; Co. red</span>
-      <button class="copy-btn mondriaan" onclick="copySVG('m-s4', 'mondriaan')">copy svg</button>
-    </div>
-
-  </div>
-
-  <div class="section-label mondriaan">ICONS &amp; MARKS</div>
-  <div class="grid mondriaan">
-
-    <div class="card mondriaan">
-      <svg id="m-i1" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" id="m-favicon">
         <rect width="64" height="64" fill="#ffffff"/>
         <rect x="3" y="3" width="30" height="30" fill="#d72027"/>
         <rect x="3" y="36" width="14" height="25" fill="#fcc60b"/>
@@ -342,35 +154,8 @@
         <line x1="36" y1="17" x2="61" y2="17" stroke="#0a0a0a" stroke-width="3"/>
         <rect x="1.5" y="1.5" width="61" height="61" fill="none" stroke="#0a0a0a" stroke-width="3"/>
       </svg>
-      <span class="card-label mondriaan">05 — Grid mark</span>
-      <button class="copy-btn mondriaan" onclick="copySVG('m-i1', 'mondriaan')">copy svg</button>
-    </div>
-
-    <div class="card mondriaan">
-      <svg id="m-i2" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="64" height="64" fill="#d72027"/>
-        <text x="7" y="52" font-size="52" fill="#ffffff" font-family="'Archivo Black', sans-serif" letter-spacing="-2">P</text>
-      </svg>
-      <span class="card-label mondriaan">06 — P mark, red</span>
-      <button class="copy-btn mondriaan" onclick="copySVG('m-i2', 'mondriaan')">copy svg</button>
-    </div>
-
-    <div class="card mondriaan">
-      <svg id="m-i3" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="64" height="64" fill="#0a0a0a"/>
-        <text x="7" y="52" font-size="52" fill="#ffffff" font-family="'Archivo Black', sans-serif" letter-spacing="-2">P</text>
-      </svg>
-      <span class="card-label mondriaan">07 — P mark, black</span>
-      <button class="copy-btn mondriaan" onclick="copySVG('m-i3', 'mondriaan')">copy svg</button>
-    </div>
-
-    <div class="card mondriaan">
-      <svg id="m-i4" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="1.5" y="1.5" width="61" height="61" fill="none" stroke="#0a0a0a" stroke-width="3"/>
-        <text x="7" y="52" font-size="52" fill="#0a0a0a" font-family="'Archivo Black', sans-serif" letter-spacing="-2">P</text>
-      </svg>
-      <span class="card-label mondriaan">08 — P mark, outlined</span>
-      <button class="copy-btn mondriaan" onclick="copySVG('m-i4', 'mondriaan')">copy svg</button>
+      <span class="card-label mondriaan">FAVICON — browser tab icon</span>
+      <button class="copy-btn mondriaan" onclick="copySVG('m-favicon')">copy svg</button>
     </div>
 
   </div>
@@ -378,10 +163,9 @@
 
 
 <script>
-function copySVG(id, theme) {
+function copySVG(id) {
   const svg = document.getElementById(id);
-  const serializer = new XMLSerializer();
-  const str = serializer.serializeToString(svg);
+  const str = new XMLSerializer().serializeToString(svg);
   navigator.clipboard.writeText(str).then(() => {
     const btn = svg.parentElement.querySelector('.copy-btn');
     const original = btn.textContent;
