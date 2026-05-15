@@ -767,20 +767,28 @@ function Tools() {
       <p style={{ fontFamily: theme.fonts.mono, fontSize: '13px', color: theme.colors.textDim, lineHeight: 1.8, maxWidth: '48ch', marginBottom: '64px' }}>
         No strong opinions on tools. Strong opinions on outcomes. These just happen to be what's in the stack right now.
       </p>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1px', background: theme.colors.borderSubtle }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', columnGap: '1px', rowGap: 0, background: theme.colors.borderSubtle }}>
         {categories.map(cat => (
-          <div key={cat.label} style={{ background: theme.colors.bg, padding: '32px 28px' }}>
-            <div style={{ fontFamily: theme.fonts.mono, fontSize: '10px', letterSpacing: '0.12em', color: theme.colors.textFaint, marginBottom: '24px' }}>{cat.label}</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              {cat.tools.map(t => (
-                <div key={t.name}>
-                  <div style={{ fontFamily: theme.fonts.serif, fontSize: '20px', color: theme.colors.text, letterSpacing: '-0.01em', marginBottom: '4px' }}>{t.name}</div>
-                  <div style={{ fontFamily: theme.fonts.mono, fontSize: '11px', color: theme.colors.textFaint, lineHeight: 1.6 }}>{t.desc}</div>
-                </div>
-              ))}
-            </div>
+          <div key={`h-${cat.label}`} style={{ background: theme.colors.bg, padding: '32px 28px 20px' }}>
+            <div style={{ fontFamily: theme.fonts.mono, fontSize: '10px', letterSpacing: '0.12em', color: theme.colors.textFaint }}>{cat.label}</div>
           </div>
         ))}
+        {Array.from({ length: Math.max(...categories.map(c => c.tools.length)) }, (_, rowIdx) =>
+          categories.map(cat => {
+            const t = cat.tools[rowIdx];
+            const isLast = rowIdx === Math.max(...categories.map(c => c.tools.length)) - 1;
+            return (
+              <div key={`${cat.label}-${rowIdx}`} style={{ background: theme.colors.bg, padding: `0 28px ${isLast ? '32px' : '20px'}` }}>
+                {t && (
+                  <>
+                    <div style={{ fontFamily: theme.fonts.serif, fontSize: '20px', color: theme.colors.text, letterSpacing: '-0.01em', marginBottom: '4px' }}>{t.name}</div>
+                    <div style={{ fontFamily: theme.fonts.mono, fontSize: '11px', color: theme.colors.textFaint, lineHeight: 1.6 }}>{t.desc}</div>
+                  </>
+                )}
+              </div>
+            );
+          })
+        )}
       </div>
     </section>
   );
@@ -1293,24 +1301,34 @@ function MTools() {
           <div style={{ fontFamily: M_DISPLAY, fontSize: '88px', color: M_WHITE, lineHeight: 1.0, letterSpacing: '-0.04em' }}>{TOOL_CATEGORIES.reduce((n, c) => n + c.tools.length, 0)}</div>
         </div>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: `${M_LINE}px`, background: M_BLACK, border: `${M_LINE}px solid ${M_BLACK}` }}>
-        {cats.map(cat => (
-          <div key={cat.label} style={{ background: M_WHITE, display: 'flex', flexDirection: 'column' }}>
-            <div style={{ background: cat.color, borderBottom: `${M_LINE}px solid ${M_BLACK}`, padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-              <h3 style={{ fontFamily: M_DISPLAY, fontSize: '24px', color: cat.fg, letterSpacing: '-0.02em', textTransform: 'uppercase' }}>{cat.label}</h3>
-              <MLabel color={cat.fg} size="10px">{String(cat.tools.length).padStart(2,'0')}</MLabel>
-            </div>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              {cat.tools.map((t, i) => (
-                <li key={t.name} style={{ padding: '18px 24px', borderBottom: i < cat.tools.length - 1 ? `2px solid ${M_BLACK}` : 'none' }}>
-                  <div style={{ fontFamily: M_DISPLAY, fontSize: '20px', color: M_BLACK, letterSpacing: '-0.015em', marginBottom: 4 }}>{t.name}</div>
-                  <div style={{ fontFamily: M_SANS, fontSize: '13px', color: M_BLACK, fontWeight: 500, lineHeight: 1.5, opacity: 0.75 }}>{t.desc}</div>
-                </li>
-              ))}
-            </ul>
+      {(() => {
+        const maxTools = Math.max(...cats.map(c => c.tools.length));
+        return (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: `${M_LINE}px`, background: M_BLACK, border: `${M_LINE}px solid ${M_BLACK}` }}>
+            {cats.map(cat => (
+              <div key={`h-${cat.label}`} style={{ background: cat.color, padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                <h3 style={{ fontFamily: M_DISPLAY, fontSize: '24px', color: cat.fg, letterSpacing: '-0.02em', textTransform: 'uppercase' }}>{cat.label}</h3>
+                <MLabel color={cat.fg} size="10px">{String(cat.tools.length).padStart(2,'0')}</MLabel>
+              </div>
+            ))}
+            {Array.from({ length: maxTools }, (_, rowIdx) =>
+              cats.map(cat => {
+                const t = cat.tools[rowIdx];
+                return (
+                  <div key={`${cat.label}-${rowIdx}`} style={{ background: M_WHITE, padding: '18px 24px' }}>
+                    {t && (
+                      <>
+                        <div style={{ fontFamily: M_DISPLAY, fontSize: '20px', color: M_BLACK, letterSpacing: '-0.015em', marginBottom: 4 }}>{t.name}</div>
+                        <div style={{ fontFamily: M_SANS, fontSize: '13px', color: M_BLACK, fontWeight: 500, lineHeight: 1.5, opacity: 0.75 }}>{t.desc}</div>
+                      </>
+                    )}
+                  </div>
+                );
+              })
+            )}
           </div>
-        ))}
-      </div>
+        );
+      })()}
     </section>
   );
 }
