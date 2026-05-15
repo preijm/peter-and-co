@@ -179,6 +179,8 @@ function ThemeProvider({ children }) {
     root.style.setProperty('--color-text', theme.colors.text);
     const link = document.getElementById('theme-fonts');
     if (link) link.href = theme.googleFonts;
+    const favicon = document.querySelector("link[rel='icon']");
+    if (favicon) favicon.href = `themes/${theme.id}/favicon.svg`;
   }, [theme]);
 
   return (
