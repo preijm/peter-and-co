@@ -134,7 +134,7 @@ const THEMES = [
     id: 'mondriaan-v1',
     name: 'Mondriaan',
     version: 'v1',
-    tagline: 'primary · geometric · De Stijl',
+    tagline: 'primary · geometric · bold',
     mondriaan: true,
     fonts: {
       display: "'Archivo Black', 'Helvetica Neue', sans-serif",
@@ -266,6 +266,7 @@ function ThemeSwatch({ themeId }) {
 // ── EditionModal ───────────────────────────────────────────
 function EditionModal() {
   const { theme, themes, themeIdx, setThemeById, pickRandom, closeEditions } = useTheme();
+  const mobile = useMobile();
   const MONO = "'JetBrains Mono','Space Mono',monospace";
   const dark = theme.id === 'ink-v1';
 
@@ -319,45 +320,81 @@ function EditionModal() {
         <div style={{ fontFamily:MONO, fontSize:'10px', letterSpacing:'0.14em', color:c.label, marginBottom:'28px', textTransform:'uppercase' }}>
           choose edition
         </div>
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'16px', marginBottom:'28px', alignItems:'stretch' }}>
-          {themes.map((t, i) => {
-            const isActive = i === themeIdx;
-            return (
-              <button
-                key={t.id}
-                onClick={() => { setThemeById(t.id); closeEditions(); }}
-                style={{
-                  background:'none', border:`2px solid ${isActive ? c.cardActive : c.cardInactive}`,
-                  cursor:'pointer', padding:'0', textAlign:'left', display:'flex', flexDirection:'column', width:'100%',
-                }}
-                onMouseEnter={e => { if (!isActive) e.currentTarget.style.borderColor = c.cardHover; }}
-                onMouseLeave={e => { if (!isActive) e.currentTarget.style.borderColor = c.cardInactive; }}
-              >
-                <ThemeSwatch themeId={t.id} />
-                <div style={{ padding:'14px 16px' }}>
-                  <div style={{ display:'flex', alignItems:'baseline', gap:'8px', marginBottom:'4px' }}>
-                    <span style={{ fontFamily:MONO, fontSize:'14px', fontWeight:600, color:c.cardName, letterSpacing:'-0.01em' }}>{t.name}</span>
-                    {isActive && <span style={{ fontFamily:MONO, fontSize:'9px', letterSpacing:'0.1em', color:c.tagline, textTransform:'uppercase' }}>current</span>}
+        {mobile ? (
+          <div style={{ marginBottom:'24px' }}>
+            {themes.map((t, i) => {
+              const isActive = t.id === theme.id;
+              const mobileAvailable = t.id === 'ink-v1' || t.id === 'chalk-v1';
+              return (
+                <button
+                  key={t.id}
+                  onClick={mobileAvailable ? () => { setThemeById(t.id); closeEditions(); } : undefined}
+                  disabled={!mobileAvailable}
+                  style={{
+                    width:'100%', background:'none', border:'none', borderBottom: i < themes.length - 1 ? `1px solid ${c.divider}` : 'none',
+                    padding:'16px 0', textAlign:'left', cursor: mobileAvailable ? 'pointer' : 'default',
+                    display:'flex', justifyContent:'space-between', alignItems:'center',
+                    opacity: mobileAvailable ? 1 : 0.35,
+                  }}
+                >
+                  <div>
+                    <div style={{ display:'flex', alignItems:'baseline', gap:'8px', marginBottom:'3px' }}>
+                      <span style={{ fontFamily:MONO, fontSize:'16px', fontWeight:600, color:c.cardName, letterSpacing:'-0.01em' }}>{t.name}</span>
+                      {isActive && <span style={{ fontFamily:MONO, fontSize:'9px', letterSpacing:'0.1em', color:c.tagline, textTransform:'uppercase' }}>current</span>}
+                    </div>
+                    <span style={{ fontFamily:MONO, fontSize:'10px', color:c.tagline, letterSpacing:'0.04em' }}>{t.tagline}</span>
                   </div>
-                  <div style={{ fontFamily:MONO, fontSize:'10px', color:c.tagline, letterSpacing:'0.04em', lineHeight:1.5, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{t.tagline}</div>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-        <div style={{ borderTop:`1px solid ${c.divider}`, paddingTop:'20px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-          <button
-            onClick={() => { pickRandom(); closeEditions(); }}
-            style={{ fontFamily:MONO, fontSize:'11px', color:c.randomColor, background:'none', border:'none', cursor:'pointer', letterSpacing:'0.06em' }}
-            onMouseEnter={e => e.currentTarget.style.color = c.randomHover}
-            onMouseLeave={e => e.currentTarget.style.color = c.randomColor}
-          >random edition →</button>
+                  <span style={{ fontFamily:MONO, fontSize:'10px', color: mobileAvailable ? c.randomColor : c.tagline, letterSpacing:'0.08em', flexShrink:0, marginLeft:'12px' }}>
+                    {mobileAvailable ? (isActive ? '✓' : '→') : 'desktop'}
+                  </span>
+                </button>
+              );
+            })}
+
+          </div>
+        ) : (
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'16px', marginBottom:'28px', alignItems:'stretch' }}>
+            {themes.map((t) => {
+              const isActive = t.id === theme.id;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => { setThemeById(t.id); closeEditions(); }}
+                  style={{
+                    background:'none', border:`2px solid ${isActive ? c.cardActive : c.cardInactive}`,
+                    cursor:'pointer', padding:'0', textAlign:'left', display:'flex', flexDirection:'column', width:'100%',
+                  }}
+                  onMouseEnter={e => { if (!isActive) e.currentTarget.style.borderColor = c.cardHover; }}
+                  onMouseLeave={e => { if (!isActive) e.currentTarget.style.borderColor = c.cardInactive; }}
+                >
+                  <ThemeSwatch themeId={t.id} />
+                  <div style={{ padding:'14px 16px' }}>
+                    <div style={{ display:'flex', alignItems:'baseline', gap:'8px', marginBottom:'4px' }}>
+                      <span style={{ fontFamily:MONO, fontSize:'14px', fontWeight:600, color:c.cardName, letterSpacing:'-0.01em' }}>{t.name}</span>
+                      {isActive && <span style={{ fontFamily:MONO, fontSize:'9px', letterSpacing:'0.1em', color:c.tagline, textTransform:'uppercase' }}>current</span>}
+                    </div>
+                    <div style={{ fontFamily:MONO, fontSize:'10px', color:c.tagline, letterSpacing:'0.04em', lineHeight:1.5, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{t.tagline}</div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+        <div style={{ paddingTop:'20px', display:'flex', justifyContent: mobile ? 'flex-end' : 'space-between', alignItems:'center' }}>
+          {!mobile && (
+            <button
+              onClick={() => { pickRandom(); closeEditions(); }}
+              style={{ fontFamily:MONO, fontSize:'11px', color:c.randomColor, background:'none', border:'none', cursor:'pointer', letterSpacing:'0.06em' }}
+              onMouseEnter={e => e.currentTarget.style.color = c.randomHover}
+              onMouseLeave={e => e.currentTarget.style.color = c.randomColor}
+            >random edition →</button>
+          )}
           <button
             onClick={closeEditions}
             style={{ fontFamily:MONO, fontSize:'10px', color:c.closeColor, background:'none', border:'none', cursor:'pointer', letterSpacing:'0.1em', textTransform:'uppercase' }}
             onMouseEnter={e => e.currentTarget.style.color = c.closeHover}
             onMouseLeave={e => e.currentTarget.style.color = c.closeColor}
-          >esc to close</button>
+          >{mobile ? 'close' : 'esc to close'}</button>
         </div>
       </div>
     </div>
@@ -394,30 +431,74 @@ function Tag({ children, filled, muted }) {
 function SiteHeader({ activePage, onNavigate }) {
   const mobile = useMobile();
   const { theme } = useTheme();
+  const [menuOpen, setMenuOpen] = React.useState(false);
   const links = ['work', 'tools', 'about', 'contact'];
+
+  const handleNav = (l) => { setMenuOpen(false); onNavigate(l); };
+
   return (
-    <div style={{ maxWidth: '1080px', margin: '0 auto', padding: '48px 32px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: mobile ? 'wrap' : 'nowrap', gap: mobile ? '12px' : '0' }}>
-      <button onClick={() => onNavigate('home')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'baseline', gap: '5px' }}>
-        <span style={{ fontFamily: theme.fonts.serif, fontSize: mobile ? '26px' : '36px', color: theme.colors.text, letterSpacing: '-0.03em', lineHeight: 1.0 }}>Peter</span>
-        <span style={{ fontFamily: theme.fonts.serif, fontSize: mobile ? '16px' : '22px', color: theme.colors.textDim, letterSpacing: '-0.02em', lineHeight: 1.0 }}>&amp; Co.</span>
-      </button>
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: mobile ? '16px' : '28px', flexShrink: 0 }}>
-        <nav style={{ display: 'flex', gap: mobile ? '16px' : '28px', paddingTop: '8px' }}>
-          {links.map(l => (
-            <button key={l} onClick={() => onNavigate(l)} style={{
-              fontFamily: theme.fonts.mono, fontSize: '11px', letterSpacing: '0.08em',
-              color: activePage === l ? theme.colors.text : theme.colors.textDim,
-              background: 'none', border: 'none', cursor: 'pointer',
-              borderBottom: activePage === l ? `1px solid ${theme.colors.text}` : '1px solid transparent',
-              paddingBottom: '2px', transition: 'color 150ms ease',
-            }}
-            onMouseEnter={e => e.currentTarget.style.color = theme.colors.text}
-            onMouseLeave={e => e.currentTarget.style.color = activePage === l ? theme.colors.text : theme.colors.textDim}
-            >{l}</button>
-          ))}
-        </nav>
-        {!mobile && <ThemeDropdown />}
+    <div style={{ maxWidth: '1080px', margin: '0 auto', padding: mobile ? '24px 20px 0' : '48px 32px 0' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <button onClick={() => handleNav('home')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'baseline', gap: '5px' }}>
+          <span style={{ fontFamily: theme.fonts.serif, fontSize: mobile ? '26px' : '36px', color: theme.colors.text, letterSpacing: '-0.03em', lineHeight: 1.0 }}>Peter</span>
+          <span style={{ fontFamily: theme.fonts.serif, fontSize: mobile ? '16px' : '22px', color: theme.colors.textDim, letterSpacing: '-0.02em', lineHeight: 1.0 }}>&amp; Co.</span>
+        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          {!mobile && (
+            <nav style={{ display: 'flex', gap: '28px' }}>
+              {links.map(l => (
+                <button key={l} onClick={() => handleNav(l)} style={{
+                  fontFamily: theme.fonts.mono, fontSize: '11px', letterSpacing: '0.08em',
+                  color: activePage === l ? theme.colors.text : theme.colors.textDim,
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  borderBottom: activePage === l ? `1px solid ${theme.colors.text}` : '1px solid transparent',
+                  paddingBottom: '2px', transition: 'color 150ms ease',
+                }}
+                onMouseEnter={e => e.currentTarget.style.color = theme.colors.text}
+                onMouseLeave={e => e.currentTarget.style.color = activePage === l ? theme.colors.text : theme.colors.textDim}
+                >{l}</button>
+              ))}
+            </nav>
+          )}
+          {!mobile && <ThemeDropdown />}
+          {mobile && (
+            <button onClick={() => setMenuOpen(o => !o)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
+              <span style={{ display: 'block', width: '22px', height: '1.5px', background: theme.colors.text, transition: 'transform 200ms ease, opacity 200ms ease', transform: menuOpen ? 'translateY(6.5px) rotate(45deg)' : 'none' }} />
+              <span style={{ display: 'block', width: '22px', height: '1.5px', background: theme.colors.text, transition: 'opacity 200ms ease', opacity: menuOpen ? 0 : 1 }} />
+              <span style={{ display: 'block', width: '22px', height: '1.5px', background: theme.colors.text, transition: 'transform 200ms ease, opacity 200ms ease', transform: menuOpen ? 'translateY(-6.5px) rotate(-45deg)' : 'none' }} />
+            </button>
+          )}
+        </div>
       </div>
+
+      {mobile && menuOpen && (
+        <div style={{ position: 'fixed', inset: 0, background: theme.colors.bg, zIndex: 100, display: 'flex', flexDirection: 'column', padding: '24px 20px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <button onClick={() => handleNav('home')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'baseline', gap: '5px' }}>
+              <span style={{ fontFamily: theme.fonts.serif, fontSize: '26px', color: theme.colors.text, letterSpacing: '-0.03em', lineHeight: 1.0 }}>Peter</span>
+              <span style={{ fontFamily: theme.fonts.serif, fontSize: '16px', color: theme.colors.textDim, letterSpacing: '-0.02em', lineHeight: 1.0 }}>&amp; Co.</span>
+            </button>
+            <button onClick={() => setMenuOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
+              <span style={{ display: 'block', width: '22px', height: '1.5px', background: theme.colors.text, transform: 'translateY(6.5px) rotate(45deg)' }} />
+              <span style={{ display: 'block', width: '22px', height: '1.5px', background: theme.colors.text, opacity: 0 }} />
+              <span style={{ display: 'block', width: '22px', height: '1.5px', background: theme.colors.text, transform: 'translateY(-6.5px) rotate(-45deg)' }} />
+            </button>
+          </div>
+          <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '8px' }}>
+            {links.map(l => (
+              <button key={l} onClick={() => handleNav(l)} style={{
+                fontFamily: theme.fonts.serif, fontSize: '48px', letterSpacing: '-0.02em', lineHeight: 1.1,
+                color: activePage === l ? theme.colors.text : theme.colors.textDim,
+                background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0', textAlign: 'left',
+                transition: 'color 150ms ease',
+              }}
+              onMouseEnter={e => e.currentTarget.style.color = theme.colors.text}
+              onMouseLeave={e => e.currentTarget.style.color = activePage === l ? theme.colors.text : theme.colors.textDim}
+              >{l}</button>
+            ))}
+          </nav>
+        </div>
+      )}
     </div>
   );
 }
@@ -429,7 +510,7 @@ function Hero({ onCTA, activePage, onNavigate }) {
   return (
     <section>
       <SiteHeader activePage={activePage} onNavigate={onNavigate} />
-      <div style={{ maxWidth: '1080px', margin: '0 auto', width: '100%', padding: '64px 32px 80px' }}>
+      <div style={{ maxWidth: '1080px', margin: '0 auto', width: '100%', padding: mobile ? '48px 20px 32px' : '64px 32px 80px' }}>
         <div style={{ fontFamily: theme.fonts.mono, fontSize: '11px', letterSpacing: '0.12em', color: theme.colors.textFaint, marginBottom: '24px' }}>
           rotterdam, nl · digital studio
         </div>
@@ -527,69 +608,77 @@ function ProjectStrip({ onSelect, projects, onViewAll }) {
         {list.map((p, i) => {
           const [hovered, setHovered] = React.useState(false);
           const accent = resolveAccent(p, theme.id) || theme.colors.text;
+          const notLive = p.public === false;
+          const soonRowStyle = notLive ? { opacity: 0.2, userSelect: 'none' } : {};
           if (mobile) {
             return (
-              <div key={p.id}
-                onClick={() => onSelect(p)}
-                onMouseEnter={() => setHovered(true)}
-                onMouseLeave={() => setHovered(false)}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '12px',
-                  padding: '18px 0',
-                  borderBottom: `1px solid ${theme.colors.borderSubtle}`,
-                  cursor: 'pointer',
-                  background: hovered ? theme.colors.surface : 'transparent',
-                  transition: 'background 120ms ease',
-                }}
-              >
-                <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.1em', flexShrink: 0 }}>
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontFamily: theme.fonts.serif, fontSize: '22px', color: theme.colors.text, letterSpacing: '-0.02em' }}>{p.title}</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
-                    <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: accent, display: 'inline-block', flexShrink: 0 }} />
-                    <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: accent, letterSpacing: '0.04em' }}>{p.url}</span>
+              <div key={p.id} style={{ position: 'relative' }}>
+                <div
+                  onClick={notLive ? undefined : () => onSelect(p)}
+                  onMouseEnter={() => { if (!notLive) setHovered(true); }}
+                  onMouseLeave={() => setHovered(false)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '12px',
+                    padding: '18px 0',
+                    borderBottom: `1px solid ${theme.colors.borderSubtle}`,
+                    cursor: notLive ? 'default' : 'pointer',
+                    background: hovered ? theme.colors.surface : 'transparent',
+                    transition: 'background 120ms ease',
+                    ...soonRowStyle,
+                  }}
+                >
+                  <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.1em', flexShrink: 0 }}>
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontFamily: theme.fonts.serif, fontSize: '22px', color: theme.colors.text, letterSpacing: '-0.02em' }}>{p.title}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
+                      <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: accent, display: 'inline-block', flexShrink: 0 }} />
+                      <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: accent, letterSpacing: '0.04em' }}>{p.url}</span>
+                    </div>
                   </div>
+                  {!notLive && <span style={{ fontFamily: theme.fonts.mono, fontSize: '13px', color: hovered ? theme.colors.text : theme.colors.textGhost, transition: 'color 150ms ease', flexShrink: 0 }}>→</span>}
                 </div>
-                <span style={{ fontFamily: theme.fonts.mono, fontSize: '13px', color: hovered ? theme.colors.text : theme.colors.textGhost, transition: 'color 150ms ease', flexShrink: 0 }}>→</span>
               </div>
             );
           }
           return (
-            <div key={p.id}
-              onClick={() => onSelect(p)}
-              onMouseEnter={() => setHovered(true)}
-              onMouseLeave={() => setHovered(false)}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '28px 1fr 72px 44px 180px 20px',
-                alignItems: 'center',
-                padding: '18px 32px',
-                borderBottom: `1px solid ${theme.colors.borderSubtle}`,
-                cursor: 'pointer',
-                background: hovered ? theme.colors.surface : 'transparent',
-                margin: '0 -32px',
-                transition: 'background 120ms ease',
-              }}
-            >
-              <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.1em' }}>
-                {String(i + 1).padStart(2, '0')}
-              </span>
-              <span style={{ fontFamily: theme.fonts.serif, fontSize: '22px', color: theme.colors.text, letterSpacing: '-0.02em' }}>
-                {p.title}
-              </span>
-              <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textDim, letterSpacing: '0.08em' }}>
-                {p.tags[0]}
-              </span>
-              <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.06em' }}>
-                {p.year}
-              </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: accent, display: 'inline-block', flexShrink: 0 }} />
-                <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: accent, letterSpacing: '0.04em' }}>{p.url}</span>
-              </span>
-              <span style={{ fontFamily: theme.fonts.mono, fontSize: '13px', color: hovered ? theme.colors.text : theme.colors.textGhost, transition: 'color 150ms ease', textAlign: 'right' }}>→</span>
+            <div key={p.id} style={{ position: 'relative' }}>
+              <div
+                onClick={notLive ? undefined : () => onSelect(p)}
+                onMouseEnter={() => { if (!notLive) setHovered(true); }}
+                onMouseLeave={() => setHovered(false)}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '28px 1fr 72px 44px 180px 20px',
+                  alignItems: 'center',
+                  padding: '18px 32px',
+                  borderBottom: `1px solid ${theme.colors.borderSubtle}`,
+                  cursor: notLive ? 'default' : 'pointer',
+                  background: hovered ? theme.colors.surface : 'transparent',
+                  margin: '0 -32px',
+                  transition: 'background 120ms ease',
+                  ...soonRowStyle,
+                }}
+              >
+                <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.1em' }}>
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <span style={{ fontFamily: theme.fonts.serif, fontSize: '22px', color: theme.colors.text, letterSpacing: '-0.02em' }}>
+                  {p.title}
+                </span>
+                <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textDim, letterSpacing: '0.08em' }}>
+                  {p.tags[0]}
+                </span>
+                <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.06em' }}>
+                  {notLive ? 'soon' : p.year}
+                </span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: accent, display: 'inline-block', flexShrink: 0 }} />
+                  <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: accent, letterSpacing: '0.04em' }}>{p.url}</span>
+                </span>
+                {!notLive && <span style={{ fontFamily: theme.fonts.mono, fontSize: '13px', color: hovered ? theme.colors.text : theme.colors.textGhost, transition: 'color 150ms ease', textAlign: 'right' }}>→</span>}
+              </div>
             </div>
           );
         })}
@@ -669,7 +758,7 @@ const PROJECTS = [
   },
 ];
 
-function ProjectGrid({ onSelect, featured }) {
+function ProjectGrid({ onSelect, featured, onViewAll }) {
   const { theme } = useTheme();
   const mobile = useMobile();
   const [filter, setFilter] = React.useState('all');
@@ -684,9 +773,16 @@ function ProjectGrid({ onSelect, featured }) {
         <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.15em' }}>
           {featured ? 'FEATURED WORK' : 'SELECTED PROJECTS'}
         </span>
-        <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.1em' }}>
-          {String(visible.length).padStart(2, '0')} projects
-        </span>
+        {onViewAll ? (
+          <button onClick={onViewAll} style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.1em', background: 'none', border: 'none', cursor: 'pointer', padding: 0, transition: 'color 150ms ease' }}
+            onMouseEnter={e => e.currentTarget.style.color = theme.colors.text}
+            onMouseLeave={e => e.currentTarget.style.color = theme.colors.textGhost}
+          >{String(visible.length).padStart(2, '0')} / {String(PROJECTS.length).padStart(2, '0')} projects →</button>
+        ) : (
+          <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.1em' }}>
+            {String(visible.length).padStart(2, '0')} / {String(PROJECTS.length).padStart(2, '0')} projects
+          </span>
+        )}
       </div>
       {!featured && (
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '32px' }}>
@@ -717,32 +813,51 @@ function Footer() {
   const mobile = useMobile();
   const { theme } = useTheme();
   return (
-    <footer style={{ borderTop: `1px solid ${theme.colors.borderSubtle}`, padding: '20px 32px' }}>
-      <div style={{ maxWidth: '1080px', margin: '0 auto', display: 'flex', flexDirection: mobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: mobile ? 'flex-start' : 'center', gap: mobile ? '12px' : '0' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+    <footer style={{ borderTop: `1px solid ${theme.colors.borderSubtle}`, padding: mobile ? '20px' : '20px 32px' }}>
+      <div style={{ maxWidth: '1080px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        {!mobile ? (
+          <div style={{ display: 'flex', gap: '24px' }}>
+            {[
+              { label: 'github',   href: 'https://github.com/preijm' },
+              { label: 'linkedin', href: 'https://www.linkedin.com/in/peter-reijm-47165b5b/' },
+              { label: 'email',    href: 'mailto:peterreijm@live.nl' },
+            ].map(({ label, href }) => (
+              <a key={label} href={href} target={href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer" style={{ fontFamily: theme.fonts.mono, fontSize: '10px', letterSpacing: '0.08em', color: theme.colors.textGhost, textDecoration: 'none', transition: 'color 150ms ease' }}
+                onMouseEnter={e => e.target.style.color = theme.colors.text}
+                onMouseLeave={e => e.target.style.color = theme.colors.textGhost}
+              >{label}</a>
+            ))}
+          </div>
+        ) : (
           <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.06em' }}>
-            © 2026 Peter &amp; Co. · this is a playground, not a business. yet.
+            © 2026 Peter &amp; Co.
           </span>
-          {mobile && !theme.mobileOptimized && (
-            <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textFaint, letterSpacing: '0.06em' }}>
-              best viewed on desktop
-            </span>
-          )}
-        </div>
-        <div style={{ display: 'flex', gap: '24px' }}>
-          {[
-            { label: 'github',   href: 'https://github.com/preijm' },
-            { label: 'linkedin', href: 'https://www.linkedin.com/in/peter-reijm-47165b5b/' },
-            { label: 'email',    href: 'mailto:peterreijm@live.nl' },
-          ].map(({ label, href }) => (
-            <a key={label} href={href} target={href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer" style={{ fontFamily: theme.fonts.mono, fontSize: '10px', letterSpacing: '0.08em', color: theme.colors.textGhost, textDecoration: 'none', transition: 'color 150ms ease' }}
-              onMouseEnter={e => e.target.style.color = theme.colors.text}
-              onMouseLeave={e => e.target.style.color = theme.colors.textGhost}
-            >{label}</a>
-          ))}
-        </div>
+        )}
+        {!mobile && (
+          <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.06em' }}>
+            © 2026 Peter &amp; Co.
+          </span>
+        )}
+        {mobile && <ThemeDropdown />}
       </div>
     </footer>
+  );
+}
+
+// ── WorkPage ───────────────────────────────────────────────
+function WorkPage({ onSelect }) {
+  const mobile = useMobile();
+  const { theme } = useTheme();
+  return (
+    <div>
+      <div style={{ maxWidth: '1080px', margin: '0 auto', padding: mobile ? '48px 20px 0' : '80px 32px 0' }}>
+        <div style={{ fontFamily: theme.fonts.mono, fontSize: '10px', letterSpacing: '0.12em', color: theme.colors.textFaint, marginBottom: '24px' }}>work</div>
+        <h1 style={{ fontFamily: theme.fonts.serif, fontSize: '44px', fontWeight: 400, color: theme.colors.text, lineHeight: 1.05, letterSpacing: '-0.02em', marginBottom: '48px' }}>
+          Things I've built.
+        </h1>
+      </div>
+      <ProjectStrip projects={PROJECTS} onSelect={onSelect} />
+    </div>
   );
 }
 
@@ -771,7 +886,7 @@ function About() {
             Sometimes something useful comes out of it.
           </p>
         </div>
-        <div style={{ order: mobile ? -1 : undefined }}>
+        <div>
           <div style={{ width: '100%', aspectRatio: mobile ? '4/3' : '3/4', background: theme.colors.surface, border: `1px solid ${theme.colors.border}`, borderRadius: '2px', overflow: 'hidden' }}>
             <img src="data:image/jpeg;base64,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" alt="Peter" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }} />
           </div>
@@ -1059,15 +1174,13 @@ function AppShell({ page, selectedProject, activePage, navigate, selectProject }
         {page === 'home' && !selectedProject && (
           <>
             <Hero activePage={activePage} onNavigate={navigate} />
-            <ProjectGrid featured onSelect={selectProject} />
+            <ProjectGrid featured onSelect={selectProject} onViewAll={() => navigate('work')} />
           </>
         )}
         {page === 'work' && !selectedProject && (
           <>
             <SiteHeader activePage={activePage} onNavigate={navigate} />
-            <div style={{ paddingTop: '80px' }}>
-              <ProjectStrip projects={PROJECTS} onSelect={selectProject} />
-            </div>
+            <WorkPage onSelect={selectProject} />
           </>
         )}
         {(page === 'about' || page === 'tools' || page === 'contact' || page === 'project') && (
@@ -1276,7 +1389,7 @@ function MHomeComposition({ onNavigate, onSelect }) {
 
         {/* Selected work label — spans cols 1–2, ending at black square */}
         <div style={{ background: M_WHITE, gridColumn: '1 / 3', gridRow: '2', padding: '0 40px', display: 'flex', alignItems: 'center', ...pnt('r', 880, 620) }}>
-          <MLabel>Selected Work · {String(PROJECTS.filter(p => p.featured).length).padStart(2,'0')} projects</MLabel>
+          <MLabel>Selected Work · {String(PROJECTS.filter(p => p.featured).length).padStart(2,'0')} / {String(PROJECTS.length).padStart(2,'0')} projects</MLabel>
         </div>
         <div style={{ background: M_YELLOW, gridColumn: '4', gridRow: '2', ...pnt('d', 960, 500) }} />
 
@@ -1356,7 +1469,7 @@ function MProjectGrid({ onSelect }) {
           <MLabel>Featured Work</MLabel>
           <h2 style={{ fontFamily: M_DISPLAY, fontSize: '64px', color: M_BLACK, letterSpacing: '-0.03em', lineHeight: 1.0, marginTop: 8, textTransform: 'uppercase' }}>Selected.</h2>
         </div>
-        <MLabel size="12px">{String(PROJECTS.length).padStart(2,'0')} / {String(PROJECTS.length).padStart(2,'0')}</MLabel>
+        <MLabel size="12px">{String(PROJECTS.filter(p => p.featured).length).padStart(2,'0')} / {String(PROJECTS.length).padStart(2,'0')}</MLabel>
       </div>
       <div style={{
         display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: `${M_LINE}px`,
@@ -1410,18 +1523,16 @@ function MAbout() {
         display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1.4fr)', gridTemplateRows: 'auto auto',
         gap: 0, border: `${M_LINE}px solid ${M_BLACK}`, background: M_BLACK,
       }}>
-        <div style={{ gridRow: '1 / 3', background: M_YELLOW, borderRight: `${M_LINE}px solid ${M_BLACK}`, padding: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '600px' }}>
-          <MLabel>Subject</MLabel>
-          <div>
-            <div style={{ width: '100%', aspectRatio: '3/4', background: M_WHITE, border: `${M_LINE/2 + 1}px solid ${M_BLACK}`, position: 'relative', overflow: 'hidden' }}>
-              <div style={{ position: 'absolute', inset: 0, background: M_WHITE }} />
-              <div style={{ position: 'absolute', top: '8%', left: '14%', width: '72%', height: '46%', background: M_WHITE, border: `${M_LINE/2}px solid ${M_BLACK}`, borderRadius: '50% 50% 45% 45%' }} />
-              <div style={{ position: 'absolute', top: '54%', left: '8%', width: '84%', height: '46%', background: M_BLUE, borderTop: `${M_LINE/2}px solid ${M_BLACK}` }} />
-              <div style={{ position: 'absolute', top: '20%', left: '36%', width: '8%', height: '5%', background: M_BLACK, borderRadius: '50%' }} />
-              <div style={{ position: 'absolute', top: '20%', left: '56%', width: '8%', height: '5%', background: M_BLACK, borderRadius: '50%' }} />
-              <div style={{ position: 'absolute', top: '36%', left: '44%', width: '12%', height: '4%', background: M_RED }} />
-            </div>
-            <MLabel size="10px" style={{ marginTop: 12, display: 'block' }}>Cârțișoara, 2025</MLabel>
+        <div style={{ gridRow: '1 / 3', background: M_YELLOW, borderRight: `${M_LINE}px solid ${M_BLACK}`, padding: '40px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '600px' }}>
+          <div style={{ width: '75%', aspectRatio: '2/3', background: M_WHITE, position: 'relative', overflow: 'hidden', border: `${M_LINE}px solid ${M_BLACK}` }}>
+            {/* left eye */}
+            <div style={{ position: 'absolute', left: '25%', width: '18%', top: '28%', height: '7%', background: M_BLACK }} />
+            {/* right eye */}
+            <div style={{ position: 'absolute', right: '25%', width: '18%', top: '28%', height: '7%', background: M_BLACK }} />
+            {/* mouth */}
+            <div style={{ position: 'absolute', left: '34%', right: '34%', top: '44%', height: '6%', background: M_RED }} />
+            {/* body */}
+            <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: '46%', background: M_BLUE }} />
           </div>
         </div>
         <div style={{ background: M_WHITE, borderBottom: `${M_LINE}px solid ${M_BLACK}`, padding: '40px' }}>
@@ -1690,73 +1801,80 @@ function MWorkTable({ onSelect }) {
         </div>
       )}
       {PROJECTS.map((p, idx) => {
-        const isClickable = !!p.detail;
-        const accentCol = [M_RED, M_BLUE, M_YELLOW, M_BLACK][idx % 4];
-        const accentFg = accentCol === M_YELLOW ? M_BLACK : M_WHITE;
+        const isClickable = !!p.detail && p.public !== false;
+        const notLive = p.public === false;
+        const accentCol = notLive ? M_WHITE : [M_RED, M_BLUE, M_YELLOW, M_BLACK][idx % 4];
+        const accentFg = notLive ? '#aaa' : (accentCol === M_YELLOW ? M_BLACK : M_WHITE);
         if (mobile) {
           return (
-            <div
-              key={p.id}
-              onClick={isClickable ? () => onSelect(p) : undefined}
-              style={{
-                border: ROW_BORDER, borderBottom: 'none', marginBottom: `${M_LINE}px`,
-                display: 'grid', gridTemplateColumns: '36px 1fr 32px',
-                background: M_WHITE, cursor: isClickable ? 'pointer' : 'default',
-              }}
-              onMouseEnter={e => { if (isClickable) e.currentTarget.style.background = '#f5f5f5'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = M_WHITE; }}
-            >
-              <div style={{ background: accentCol, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRight: ROW_BORDER }}>
-                <span style={{ fontFamily: M_MONO, fontSize: '11px', color: accentFg, letterSpacing: '0.04em' }}>
-                  {String(idx + 1).padStart(2, '0')}
-                </span>
-              </div>
-              <div style={{ padding: '16px 16px', display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <span style={{ fontFamily: M_DISPLAY, fontSize: '20px', color: M_BLACK, letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1 }}>{p.title}</span>
-                <div style={{ display: 'flex', gap: '8px', marginTop: 2 }}>
-                  <span style={{ fontFamily: M_MONO, fontSize: '10px', color: '#5a5a5a', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{p.tags[0]}</span>
-                  <span style={{ fontFamily: M_MONO, fontSize: '10px', color: '#5a5a5a', letterSpacing: '0.04em' }}>{p.year}</span>
+            <div key={p.id} style={{ position: 'relative', marginBottom: `${M_LINE}px` }}>
+              <div
+                onClick={isClickable ? () => onSelect(p) : undefined}
+                style={{
+                  border: ROW_BORDER, borderBottom: 'none',
+                  display: 'grid', gridTemplateColumns: '36px 1fr 32px',
+                  background: M_WHITE, cursor: isClickable ? 'pointer' : 'default',
+                  opacity: notLive ? 0.2 : 1,
+                  userSelect: notLive ? 'none' : 'auto',
+                }}
+                onMouseEnter={e => { if (isClickable) e.currentTarget.style.background = '#f5f5f5'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = M_WHITE; }}
+              >
+                <div style={{ background: accentCol, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRight: ROW_BORDER }}>
+                  <span style={{ fontFamily: M_MONO, fontSize: '11px', color: accentFg, letterSpacing: '0.04em' }}>
+                    {String(idx + 1).padStart(2, '0')}
+                  </span>
                 </div>
-                <span style={{ fontFamily: M_MONO, fontSize: '10px', color: M_BLACK, letterSpacing: '0.02em', marginTop: 2 }}>{p.url}</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', borderLeft: ROW_BORDER }}>
-                {isClickable && <span style={{ fontFamily: M_MONO, fontSize: '16px', color: M_BLACK }}>→</span>}
+                <div style={{ padding: '16px 16px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <span style={{ fontFamily: M_DISPLAY, fontSize: '20px', color: M_BLACK, letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1 }}>{p.title}</span>
+                  <div style={{ display: 'flex', gap: '8px', marginTop: 2 }}>
+                    <span style={{ fontFamily: M_MONO, fontSize: '10px', color: '#5a5a5a', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{p.tags[0]}</span>
+                    <span style={{ fontFamily: M_MONO, fontSize: '10px', color: '#5a5a5a', letterSpacing: '0.04em' }}>{notLive ? 'soon' : p.year}</span>
+                  </div>
+                  <span style={{ fontFamily: M_MONO, fontSize: '10px', color: M_BLACK, letterSpacing: '0.02em', marginTop: 2 }}>{p.url}</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', borderLeft: ROW_BORDER }}>
+                  {isClickable && <span style={{ fontFamily: M_MONO, fontSize: '16px', color: M_BLACK }}>→</span>}
+                </div>
               </div>
             </div>
           );
         }
         return (
-          <div
-            key={p.id}
-            onClick={isClickable ? () => onSelect(p) : undefined}
-            style={{
-              border: ROW_BORDER, borderBottom: idx === PROJECTS.length - 1 ? ROW_BORDER : 'none',
-              display: 'grid', gridTemplateColumns: '40px 1fr 120px 80px 180px 48px',
-              background: M_WHITE, cursor: isClickable ? 'pointer' : 'default',
-            }}
-            onMouseEnter={e => { if (isClickable) e.currentTarget.style.background = '#f5f5f5'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = M_WHITE; }}
-          >
-            <div style={{ ...CELL, borderRight: ROW_BORDER, background: accentCol, justifyContent: 'center', padding: '28px 0' }}>
-              <span style={{ fontFamily: M_MONO, fontSize: '11px', color: accentCol === M_BLACK || accentCol === M_RED || accentCol === M_BLUE ? M_WHITE : M_BLACK, letterSpacing: '0.04em' }}>
-                {String(idx + 1).padStart(2, '0')}
-              </span>
-            </div>
-            <div style={{ ...CELL, borderRight: ROW_BORDER, flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
-              <span style={{ fontFamily: M_DISPLAY, fontSize: '22px', color: M_BLACK, letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1 }}>{p.title}</span>
-              {p.description && <span style={{ fontFamily: M_MONO, fontSize: '11px', color: '#5a5a5a', letterSpacing: '0.02em', lineHeight: 1.4 }}>{p.description}</span>}
-            </div>
-            <div style={{ ...CELL, borderRight: ROW_BORDER }}>
-              <span style={{ fontFamily: M_MONO, fontSize: '11px', color: M_BLACK, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{p.tags[0]}</span>
-            </div>
-            <div style={{ ...CELL, borderRight: ROW_BORDER }}>
-              <span style={{ fontFamily: M_MONO, fontSize: '11px', color: '#5a5a5a', letterSpacing: '0.04em' }}>{p.year}</span>
-            </div>
-            <div style={{ ...CELL, borderRight: ROW_BORDER }}>
-              <span style={{ fontFamily: M_MONO, fontSize: '11px', color: M_BLACK, letterSpacing: '0.02em' }}>{p.url}</span>
-            </div>
-            <div style={{ ...CELL, borderRight: 'none', justifyContent: 'center', padding: '28px 0' }}>
-              {isClickable && <span style={{ fontFamily: M_MONO, fontSize: '16px', color: M_BLACK }}>→</span>}
+          <div key={p.id} style={{ position: 'relative' }}>
+            <div
+              onClick={isClickable ? () => onSelect(p) : undefined}
+              style={{
+                border: ROW_BORDER, borderBottom: idx === PROJECTS.length - 1 ? ROW_BORDER : 'none',
+                display: 'grid', gridTemplateColumns: '40px 1fr 120px 80px 180px 48px',
+                background: M_WHITE, cursor: isClickable ? 'pointer' : 'default',
+                opacity: notLive ? 0.2 : 1,
+                userSelect: notLive ? 'none' : 'auto',
+              }}
+              onMouseEnter={e => { if (isClickable) e.currentTarget.style.background = '#f5f5f5'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = M_WHITE; }}
+            >
+              <div style={{ ...CELL, borderRight: ROW_BORDER, background: accentCol, justifyContent: 'center', padding: '28px 0' }}>
+                <span style={{ fontFamily: M_MONO, fontSize: '11px', color: accentCol === M_BLACK || accentCol === M_RED || accentCol === M_BLUE ? M_WHITE : M_BLACK, letterSpacing: '0.04em' }}>
+                  {String(idx + 1).padStart(2, '0')}
+                </span>
+              </div>
+              <div style={{ ...CELL, borderRight: ROW_BORDER, flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
+                <span style={{ fontFamily: M_DISPLAY, fontSize: '22px', color: M_BLACK, letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1 }}>{p.title}</span>
+                {p.description && <span style={{ fontFamily: M_MONO, fontSize: '11px', color: '#5a5a5a', letterSpacing: '0.02em', lineHeight: 1.4 }}>{p.description}</span>}
+              </div>
+              <div style={{ ...CELL, borderRight: ROW_BORDER }}>
+                <span style={{ fontFamily: M_MONO, fontSize: '11px', color: M_BLACK, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{p.tags[0]}</span>
+              </div>
+              <div style={{ ...CELL, borderRight: ROW_BORDER }}>
+                <span style={{ fontFamily: M_MONO, fontSize: '11px', color: '#5a5a5a', letterSpacing: '0.04em' }}>{notLive ? 'soon' : p.year}</span>
+              </div>
+              <div style={{ ...CELL, borderRight: ROW_BORDER }}>
+                <span style={{ fontFamily: M_MONO, fontSize: '11px', color: M_BLACK, letterSpacing: '0.02em' }}>{p.url}</span>
+              </div>
+              <div style={{ ...CELL, borderRight: 'none', justifyContent: 'center', padding: '28px 0' }}>
+                {isClickable && <span style={{ fontFamily: M_MONO, fontSize: '16px', color: M_BLACK }}>→</span>}
+              </div>
             </div>
           </div>
         );
