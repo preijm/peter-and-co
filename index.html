@@ -37,11 +37,12 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' fill='%230a0a0a'/><text x='7' y='52' font-size='52' fill='%23ffffff' font-family='Georgia,serif' letter-spacing='-2'>P</text></svg>">
 <script id="counterscale-script" src="https://counterscale.peterreijm.workers.dev/tracker.js" data-site-id="peterandco.nl" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link id="theme-fonts" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link id="theme-fonts" rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@300;400;500;600&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet"></noscript>
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous" defer></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous" defer></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous" defer></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
@@ -1032,6 +1033,89 @@ function ProjectDetail({ project, onBack }) {
   );
 }
 
+// ── App ────────────────────────────────────────────────
+function AppShell({ page, selectedProject, activePage, navigate, selectProject }) {
+  const { theme, editionsOpen } = useTheme();
+  const [mondriaanReady, setMondriaanReady] = React.useState(false);
+  const modal = editionsOpen ? <EditionModal /> : null;
+
+  React.useEffect(() => {
+    if (!theme.mondriaan || mondriaanReady) return;
+    const src = document.getElementById('mondriaan-src').textContent;
+    const compiled = Babel.transform(src, { presets: ['react'] }).code;
+    const s = document.createElement('script');
+    s.text = compiled;
+    document.head.appendChild(s);
+    setMondriaanReady(true);
+  }, [theme.mondriaan]);
+
+  if (theme.mondriaan) {
+    if (!mondriaanReady) return <>{modal}<div style={{ minHeight: '100vh', background: '#ffffff' }} /></>;
+    return <>{modal}<MondriaanApp page={page} selectedProject={selectedProject} navigate={navigate} selectProject={selectProject} activePage={activePage} /></>;
+  }
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>{modal}
+      <main style={{ flex: 1 }}>
+        {page === 'home' && !selectedProject && (
+          <>
+            <Hero activePage={activePage} onNavigate={navigate} />
+            <ProjectGrid featured onSelect={selectProject} />
+          </>
+        )}
+        {page === 'work' && !selectedProject && (
+          <>
+            <SiteHeader activePage={activePage} onNavigate={navigate} />
+            <div style={{ paddingTop: '80px' }}>
+              <ProjectStrip projects={PROJECTS} onSelect={selectProject} />
+            </div>
+          </>
+        )}
+        {(page === 'about' || page === 'tools' || page === 'contact' || page === 'project') && (
+          <SiteHeader activePage={activePage} onNavigate={navigate} />
+        )}
+        {page === 'about'   && <About />}
+        {page === 'tools'   && <Tools />}
+        {page === 'contact' && <Contact />}
+        {page === 'project' && selectedProject && <ProjectDetail project={selectedProject} onBack={() => navigate('work')} />}
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
+function App() {
+  const [page, setPage] = React.useState('home');
+  const [selectedProject, setSelectedProject] = React.useState(null);
+
+  const navigate = (p) => {
+    setPage(p);
+    setSelectedProject(null);
+    window.scrollTo({ top: 0 });
+  };
+
+  const selectProject = (project) => {
+    setSelectedProject(project);
+    setPage('project');
+    window.scrollTo({ top: 0 });
+  };
+
+  const activePage = selectedProject ? 'work' : page;
+
+  React.useEffect(() => {
+    const titles = { home: 'Peter & Co.', work: 'Work — Peter & Co.', tools: 'Tools — Peter & Co.', about: 'About — Peter & Co.', contact: 'Contact — Peter & Co.' };
+    document.title = selectedProject ? `${selectedProject.title} — Peter & Co.` : (titles[page] || 'Peter & Co.');
+  }, [page, selectedProject]);
+
+  return (
+    <ThemeProvider>
+      <AppShell page={page} selectedProject={selectedProject} activePage={activePage} navigate={navigate} selectProject={selectProject} />
+    </ThemeProvider>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+<script type="text/plain" id="mondriaan-src">
 // ─────────────────────────────────────────────────────────
 // MONDRIAAN MODE — De Stijl-inspired full reimagining
 // ─────────────────────────────────────────────────────────
@@ -1726,75 +1810,6 @@ function MondriaanApp({ page, selectedProject, navigate, selectProject, activePa
     </div>
   );
 }
-
-// ── App ────────────────────────────────────────────────────
-function AppShell({ page, selectedProject, activePage, navigate, selectProject }) {
-  const { theme, editionsOpen } = useTheme();
-  const modal = editionsOpen ? <EditionModal /> : null;
-  if (theme.mondriaan) {
-    return <>{modal}<MondriaanApp page={page} selectedProject={selectedProject} navigate={navigate} selectProject={selectProject} activePage={activePage} /></>;
-  }
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>{modal}
-      <main style={{ flex: 1 }}>
-        {page === 'home' && !selectedProject && (
-          <>
-            <Hero activePage={activePage} onNavigate={navigate} />
-            <ProjectGrid featured onSelect={selectProject} />
-          </>
-        )}
-        {page === 'work' && !selectedProject && (
-          <>
-            <SiteHeader activePage={activePage} onNavigate={navigate} />
-            <div style={{ paddingTop: '80px' }}>
-              <ProjectStrip projects={PROJECTS} onSelect={selectProject} />
-            </div>
-          </>
-        )}
-        {(page === 'about' || page === 'tools' || page === 'contact' || page === 'project') && (
-          <SiteHeader activePage={activePage} onNavigate={navigate} />
-        )}
-        {page === 'about'   && <About />}
-        {page === 'tools'   && <Tools />}
-        {page === 'contact' && <Contact />}
-        {page === 'project' && selectedProject && <ProjectDetail project={selectedProject} onBack={() => navigate('work')} />}
-      </main>
-      <Footer />
-    </div>
-  );
-}
-
-function App() {
-  const [page, setPage] = React.useState('home');
-  const [selectedProject, setSelectedProject] = React.useState(null);
-
-  const navigate = (p) => {
-    setPage(p);
-    setSelectedProject(null);
-    window.scrollTo({ top: 0 });
-  };
-
-  const selectProject = (project) => {
-    setSelectedProject(project);
-    setPage('project');
-    window.scrollTo({ top: 0 });
-  };
-
-  const activePage = selectedProject ? 'work' : page;
-
-  React.useEffect(() => {
-    const titles = { home: 'Peter & Co.', work: 'Work — Peter & Co.', tools: 'Tools — Peter & Co.', about: 'About — Peter & Co.', contact: 'Contact — Peter & Co.' };
-    document.title = selectedProject ? `${selectedProject.title} — Peter & Co.` : (titles[page] || 'Peter & Co.');
-  }, [page, selectedProject]);
-
-  return (
-    <ThemeProvider>
-      <AppShell page={page} selectedProject={selectedProject} activePage={activePage} navigate={navigate} selectProject={selectProject} />
-    </ThemeProvider>
-  );
-}
-
-ReactDOM.createRoot(document.getElementById('root')).render(<App />);
 </script>
 </body>
 </html>
