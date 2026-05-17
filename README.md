@@ -105,6 +105,5 @@ Add a new key when adding a new theme.
 
 | File | Purpose |
 |---|---|
-| `logos.html` | Standalone logo variation sheet — open directly in browser |
-| `themes/` | Per-theme token files and SVG assets |
+| `themes/` | Per-theme favicon SVG assets |
 | `CNAME` | GitHub Pages custom domain |
