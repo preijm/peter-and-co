@@ -11,6 +11,8 @@ Thumbs.db
 # Local dev
 node_modules/
 .env
+dist/
+.claude/
 
 # Internal reference files
 _intern/
