@@ -816,6 +816,20 @@ function Footer() {
     <footer style={{ borderTop: `1px solid ${theme.colors.borderSubtle}`, padding: mobile ? '20px' : '20px 32px' }}>
       <div style={{ maxWidth: '1080px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         {!mobile ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.06em' }}>
+              © 2026 Peter &amp; Co.
+            </span>
+            <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textFaint, letterSpacing: '0.06em', fontStyle: 'italic' }}>
+              a playground, not a business. yet.
+            </span>
+          </div>
+        ) : (
+          <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.06em' }}>
+            © 2026 Peter &amp; Co.
+          </span>
+        )}
+        {!mobile && (
           <div style={{ display: 'flex', gap: '24px' }}>
             {[
               { label: 'github',   href: 'https://github.com/preijm' },
@@ -828,15 +842,6 @@ function Footer() {
               >{label}</a>
             ))}
           </div>
-        ) : (
-          <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.06em' }}>
-            © 2026 Peter &amp; Co.
-          </span>
-        )}
-        {!mobile && (
-          <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.06em' }}>
-            © 2026 Peter &amp; Co.
-          </span>
         )}
         {mobile && <ThemeDropdown />}
       </div>
