@@ -12,6 +12,7 @@ Thumbs.db
 node_modules/
 .env
 dist/
+.claude/
 
 # Internal reference files
 _intern/
