@@ -97,7 +97,7 @@ const THEMES = [
     googleFonts: 'https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@300;400;500;600&display=swap',
     colors: {
       bg:          '#f2f0eb',
-      bgDark:      '#e8e6e1',
+      bgDark:      'transparent',
       bgInput:     '#eceae5',
       surface:     '#e2e0db',
       border:      '#d0cec9',
@@ -408,7 +408,7 @@ function Hero({ onCTA, activePage, onNavigate }) {
   const mobile = useMobile();
   const { theme } = useTheme();
   return (
-    <section style={{ borderBottom: `1px solid ${theme.colors.border}` }}>
+    <section>
       <SiteHeader activePage={activePage} onNavigate={onNavigate} />
       <div style={{ maxWidth: '1080px', margin: '0 auto', width: '100%', padding: '64px 32px 80px' }}>
         <div style={{ fontFamily: theme.fonts.mono, fontSize: '11px', letterSpacing: '0.12em', color: theme.colors.textFaint, marginBottom: '24px' }}>
@@ -457,10 +457,10 @@ function ProjectCard({ project, index, onClick }) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        background: theme.colors.bgDark, cursor: 'pointer', padding: '28px 28px 0',
+        background: hovered ? theme.colors.surface : theme.colors.bgDark, cursor: 'pointer', padding: '28px 28px 0',
         display: 'flex', flexDirection: 'column',
         border: `1px solid ${theme.colors.borderSubtle}`,
-        transition: 'border-color 150ms ease',
+        transition: 'border-color 150ms ease, background 150ms ease',
         borderColor: hovered ? theme.colors.border : theme.colors.borderSubtle,
         position: 'relative',
       }}
@@ -501,7 +501,7 @@ function ProjectCard({ project, index, onClick }) {
 function ProjectStrip({ onSelect, projects, onViewAll }) {
   const { theme } = useTheme();
   const mobile = useMobile();
-  const list = projects || PROJECTS;
+  const list = projects || PROJECTS.filter(p => p.public !== false);
   return (
     <div style={{ borderTop: `1px solid ${theme.colors.borderSubtle}` }}>
       <div style={{ maxWidth: '1080px', margin: '0 auto', padding: mobile ? '0 20px' : '0 32px' }}>
@@ -614,7 +614,7 @@ const PROJECTS = [
     tags: ['tool', 'finance', 'data'],
     year: '2026',
     url: 'folio.local',
-    accent: { default: '#f59e0b', 'mondriaan-v1': '#1d4ed8' },
+    accent: { default: '#06b6d4', 'mondriaan-v1': '#0891b2' },
     tagline: 'Your money. Your numbers. No subscriptions.',
     detail: 'A personal finance dashboard built for people who want to see everything in one place without handing over bank credentials. Crypto, gold, ETFs — tracked and backed up to your own Backblaze bucket. No third-party accounts, no monthly fee, no dark patterns. Just a clean view of where things stand.',
     role: 'Idea, design, build.',
@@ -635,13 +635,18 @@ const PROJECTS = [
     stack: ['React', 'GitHub Pages', 'Counterscale', 'Formspree'],
   },
   {
-    id: 'experiment-04', featured: false,
-    title: 'Experiment 04',
-    description: 'An unnamed project. Still running. Details later.',
-    tags: ['experiment'],
+    id: 'boer-transport', featured: false, public: false,
+    title: 'Boer Transport',
+    description: 'Rebuilt the website of a friend\'s family transport company — 140+ years of history, zero mobile support.',
+    tags: ['site', 'client'],
     year: '2026',
-    url: 'tbd',
-    accent: { default: '#f43f5e', 'mondriaan-v1': '#d72027' },
+    url: 'transportlboer.nl',
+    href: 'https://transportlboer.nl',
+    accent: { default: '#ffad01', 'mondriaan-v1': '#fcc60b' },
+    tagline: '140 years of moving things. Now the site moves too.',
+    detail: 'A refresh of the website for CV Transportbedrijf L. Boer & Zn. — a family container transport company from Nieuwerkerk aan den IJssel, active since 1878. The old site had been untouched for years. Rebuilt it clean: same character, mobile-friendly, no frameworks. Deployed on Netlify via GitHub with the contact form handled by Netlify Forms.',
+    role: 'Review, rebuild, ship.',
+    stack: ['HTML', 'CSS', 'Netlify', 'Behold'],
   },
 ];
 
@@ -650,7 +655,7 @@ function ProjectGrid({ onSelect, featured }) {
   const mobile = useMobile();
   const [filter, setFilter] = React.useState('all');
 
-  const pool = featured ? PROJECTS.filter(p => p.featured) : PROJECTS;
+  const pool = featured ? PROJECTS.filter(p => p.featured) : PROJECTS.filter(p => p.public !== false);
   const categories = ['all', ...new Set(PROJECTS.map(p => p.tags[0]))];
   const visible = (!featured && filter !== 'all') ? pool.filter(p => p.tags[0] === filter) : pool;
 
@@ -681,7 +686,7 @@ function ProjectGrid({ onSelect, featured }) {
           ))}
         </div>
       )}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1px', background: visible.length ? theme.colors.borderSubtle : 'transparent' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1px', background: visible.length ? theme.colors.bg : 'transparent' }}>
         {visible.map((p, i) => <ProjectCard key={p.id} project={p} index={i} onClick={onSelect} />)}
       </div>
     </section>
@@ -698,9 +703,6 @@ function Footer() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
           <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.06em' }}>
             © 2026 Peter &amp; Co. · this is a playground, not a business. yet.
-          </span>
-          <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textFaint, letterSpacing: '0.06em' }}>
-            edition: {theme.name}
           </span>
           {mobile && !theme.mobileOptimized && (
             <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textFaint, letterSpacing: '0.06em' }}>
@@ -783,11 +785,13 @@ const TOOL_CATEGORIES = [
       { name: 'Mapbox',        desc: 'Maps that don\'t look like Google Maps.' },
       { name: 'Counterscale',  desc: 'Self-hosted analytics on Cloudflare Workers. No cookies, no nonsense.' },
       { name: 'Formspree',     desc: 'Form submissions without the backend.' },
+      { name: 'Netlify',       desc: 'Deploy from GitHub, forms included. Done.' },
     ],
   },
   {
     label: 'daily',
     tools: [
+      { name: 'Arc',               desc: 'The only browser I\'ve actually looked forward to opening.' },
       { name: 'Remember the Milk', desc: 'Task management that actually stuck.' },
       { name: 'Markpad',           desc: 'Notes in plain text, the way it should be.' },
       { name: 'Bitwarden',         desc: 'One password to rule them all. Safely.' },
@@ -991,7 +995,7 @@ function ProjectDetail({ project, onBack }) {
       </div>
 
       <div style={{
-        width: '100%', aspectRatio: '16/9', background: theme.colors.bgDark, border: `1px solid ${accent}22`,
+        width: '100%', aspectRatio: '16/9', background: theme.colors.surface, border: `1px solid ${accent}22`,
         borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center',
         position: 'relative', overflow: 'hidden',
       }}>
