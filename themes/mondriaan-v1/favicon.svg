@@ -1,19 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <!-- Mondrian grid -->
-  <rect width="64" height="64" fill="#ffffff"/>
-  <rect x="3" y="3" width="30" height="30" fill="#d72027"/>
-  <rect x="3" y="36" width="14" height="25" fill="#fcc60b"/>
-  <rect x="20" y="36" width="13" height="25" fill="#ffffff"/>
-  <rect x="36" y="3" width="25" height="14" fill="#ffffff"/>
-  <rect x="36" y="20" width="25" height="16" fill="#1d4ed8"/>
-  <rect x="36" y="39" width="25" height="22" fill="#ffffff"/>
-  <!-- Grid lines -->
-  <line x1="3" y1="33" x2="61" y2="33" stroke="#0a0a0a" stroke-width="3"/>
-  <line x1="33" y1="3" x2="33" y2="61" stroke="#0a0a0a" stroke-width="3"/>
-  <line x1="3" y1="36" x2="33" y2="36" stroke="#0a0a0a" stroke-width="3"/>
-  <line x1="17" y1="36" x2="17" y2="61" stroke="#0a0a0a" stroke-width="3"/>
-  <line x1="36" y1="17" x2="61" y2="17" stroke="#0a0a0a" stroke-width="3"/>
-  <line x1="36" y1="36" x2="61" y2="36" stroke="#0a0a0a" stroke-width="3"/>
-  <!-- Outer border -->
+  <rect width="64" height="64" fill="#d72027"/>
   <rect x="1.5" y="1.5" width="61" height="61" fill="none" stroke="#0a0a0a" stroke-width="3"/>
+  <text x="32" y="50" font-size="52" fill="#ffffff" font-family="'Archivo Black', 'Arial Black', sans-serif" font-weight="900" text-anchor="middle">P</text>
 </svg>
