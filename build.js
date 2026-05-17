@@ -13,6 +13,8 @@ const babelConfig = {
   ],
 };
 
+fs.mkdirSync('dist', { recursive: true });
+
 let html = fs.readFileSync('index.html', 'utf-8').replace(/\r\n/g, '\n');
 
 // 0. Update lazy loader before compilation: skip Babel.transform since code is pre-compiled
@@ -50,7 +52,6 @@ html = html.replace(
 
 
 // Write output
-fs.mkdirSync('dist', { recursive: true });
 fs.writeFileSync('dist/index.html', html);
 console.log('Written dist/index.html');
 
