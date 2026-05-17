@@ -646,6 +646,7 @@ const PROJECTS = [
     year: '2026',
     url: 'peterandco.nl',
     href: 'https://peterandco.nl',
+    screenshot: 'screenshots/peterandco.png',
     accent: { default: '#818cf8', 'mondriaan-v1': '#d72027' },
     tagline: 'A playground, not a business. Yet.',
     detail: 'A single-file React app built as a hub for experiments and side projects. No build step, no framework overhead — just Babel in the browser, inline styles, and a theme system that lets you flip between named, versioned looks at runtime. The whole thing is a side project about side projects.',
@@ -723,8 +724,8 @@ function Footer() {
             © 2026 Peter &amp; Co. · this is a playground, not a business. yet.
           </span>
           {mobile && !theme.mobileOptimized && (
-            <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textFaint, letterSpacing: '0.06em' }}>
-              best viewed on desktop
+            <span style={{ color: theme.colors.textFaint }}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
             </span>
           )}
         </div>
@@ -1018,7 +1019,7 @@ function ProjectDetail({ project, onBack }) {
         position: 'relative', overflow: 'hidden',
       }}>
         {project.screenshot
-          ? <img src={project.screenshot} alt={project.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ? <img src={project.screenshot} alt={project.title} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} />
           : <>
               <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse at 30% 50%, ${accent}11 0%, transparent 70%)` }} />
               <div style={{ textAlign: 'center' }}>
@@ -1772,7 +1773,7 @@ function MFooter() {
         <div style={{ background: M_WHITE, padding: '16px 20px', borderRight: `${M_LINE}px solid ${M_BLACK}`, gridColumn: mobile ? '1 / -1' : undefined, borderBottom: mobile ? `${M_LINE}px solid ${M_BLACK}` : 'none' }}>
           <MLabel size="10px">© 2026 Peter &amp; Co.</MLabel>
           <div style={{ fontFamily: M_MONO, fontSize: '11px', color: M_BLACK, marginTop: 6, letterSpacing: '0.04em' }}>this is a playground, not a business. yet.</div>
-          {mobile && <div style={{ fontFamily: M_MONO, fontSize: '10px', color: '#888', marginTop: 6, letterSpacing: '0.04em' }}>best viewed on desktop</div>}
+          {mobile && <div style={{ marginTop: 8, color: '#888' }}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>}
         </div>
         {[
           { label: 'github',   href: 'https://github.com/preijm',                               bg: M_RED,    fg: M_WHITE },
