@@ -96,7 +96,7 @@ const THEMES = [
       borderSubtle:'#1e1e1e',
       text:        '#ffffff',
       textMuted:   '#a8a8a8',
-      textDim:     '#6b6b6b',
+      textDim:     '#808080',
       textFaint:   '#4a4a4a',
       textGhost:   '#3a3a3a',
       btnBg:       '#ffffff',
@@ -492,11 +492,11 @@ function ProjectCard({ project, index, onClick }) {
           {project.tags[0].toUpperCase()}
         </span>
       </div>
-      <h3 style={{
+      <h2 style={{
         fontFamily: theme.fonts.serif, fontWeight: 400, fontSize: 'clamp(26px, 8vw, 36px)',
         lineHeight: 0.95, color: theme.colors.text, letterSpacing: '-0.02em',
         marginBottom: '24px', flex: 1,
-      }}>{project.title}</h3>
+      }}>{project.title}</h2>
       <p style={{
         fontFamily: theme.fonts.mono, fontSize: '12px', color: theme.colors.textDim,
         lineHeight: 1.7, marginBottom: '32px', maxWidth: '36ch',
