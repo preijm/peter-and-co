@@ -1567,9 +1567,9 @@ function MAbout() {
         display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1.4fr)', gridTemplateRows: 'auto auto',
         gap: 0, border: `${M_LINE}px solid ${M_BLACK}`, background: M_BLACK,
       }}>
-        <div style={{ gridRow: '1 / 3', background: M_YELLOW, borderRight: `${M_LINE}px solid ${M_BLACK}`, padding: '40px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '600px' }}>
-          <div style={{ width: '75%', aspectRatio: '2/3' }}>
-            <svg viewBox="0 0 480 720" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" style={{ display: 'block' }}>
+        <div style={{ gridRow: '1 / 3', background: M_YELLOW, borderRight: `${M_LINE}px solid ${M_BLACK}`, display: 'flex', minHeight: '600px', overflow: 'hidden' }}>
+          <div style={{ width: '100%', height: '100%', flex: 1 }}>
+            <svg viewBox="0 0 480 720" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" style={{ display: 'block' }}>
               <rect x="0"   y="0"   width="95"  height="80"  fill="#D4241E" />
               <rect x="95"  y="0"   width="100" height="80"  fill="#FCC419" />
               <rect x="195" y="0"   width="90"  height="80"  fill="#FCC419" />
