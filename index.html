@@ -173,6 +173,11 @@ function ThemeProvider({ children }) {
   const [editionsOpen, setEditionsOpen] = React.useState(false);
   const [themeIdx, setThemeIdx] = React.useState(() => {
     try {
+      const urlTheme = new URLSearchParams(window.location.search).get('theme');
+      if (urlTheme) {
+        const idx = THEMES.findIndex(t => t.id === urlTheme);
+        if (idx >= 0) return idx;
+      }
       const saved = localStorage.getItem('pco-theme');
       const idx = THEMES.findIndex(t => t.id === saved);
       return idx >= 0 ? idx : 0;
@@ -738,7 +743,7 @@ const PROJECTS = [
     screenshot: 'screenshots/peterandco.png',
     accent: { default: '#818cf8', 'mondriaan-v1': '#d72027' },
     tagline: 'A playground, not a business. Yet.',
-    screenshot: 'screenshots/peterandco.png',
+    livePreview: true,
     detail: 'A single-file React app built as a hub for experiments and side projects. No build step, no framework overhead — just Babel in the browser, inline styles, and a theme system that lets you flip between named, versioned looks at runtime. The whole thing is a side project about side projects.',
     role: 'Idea, design, build, ship.',
     stack: ['React', 'GitHub Pages', 'Counterscale', 'Formspree'],
@@ -806,6 +811,37 @@ function ProjectGrid({ onSelect, featured, onViewAll }) {
         {visible.map((p, i) => <ProjectCard key={p.id} project={p} index={i} onClick={onSelect} />)}
       </div>
     </section>
+  );
+}
+
+// ── LivePreview ────────────────────────────────────────────
+function LivePreview({ href, themeId }) {
+  const containerRef = React.useRef(null);
+  const [scale, setScale] = React.useState(1);
+  React.useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const obs = new ResizeObserver(([entry]) => {
+      setScale(entry.contentRect.width / 1280);
+    });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  const url = `${href}?theme=${themeId}`;
+  return (
+    <div ref={containerRef} style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+      <iframe
+        key={url}
+        src={url}
+        scrolling="no"
+        style={{
+          position: 'absolute', top: 0, left: 0,
+          width: '1280px', height: '720px',
+          border: 'none', pointerEvents: 'none',
+          transform: `scale(${scale})`, transformOrigin: 'top left',
+        }}
+      />
+    </div>
   );
 }
 
@@ -1139,15 +1175,17 @@ function ProjectDetail({ project, onBack }) {
         borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center',
         position: 'relative', overflow: 'hidden',
       }}>
-        {project.screenshot
-          ? <img src={project.screenshot} alt={project.title} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} />
-          : <>
-              <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse at 30% 50%, ${accent}11 0%, transparent 70%)` }} />
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontFamily: theme.fonts.serif, fontSize: '32px', color: accent, opacity: 0.2, marginBottom: '8px' }}>{project.title}</div>
-                <div style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.1em' }}>screenshot coming soon</div>
-              </div>
-            </>
+        {project.livePreview
+          ? <LivePreview href={project.href} themeId={theme.id} />
+          : project.screenshot
+            ? <img src={project.screenshot} alt={project.title} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} />
+            : <>
+                <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse at 30% 50%, ${accent}11 0%, transparent 70%)` }} />
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontFamily: theme.fonts.serif, fontSize: '32px', color: accent, opacity: 0.2, marginBottom: '8px' }}>{project.title}</div>
+                  <div style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.1em' }}>screenshot coming soon</div>
+                </div>
+              </>
         }
       </div>
     </section>
