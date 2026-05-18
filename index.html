@@ -1564,8 +1564,8 @@ function MAbout() {
   return (
     <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '24px' }}>
       <div style={{
-        display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1.4fr)', gridTemplateRows: 'auto auto',
-        gap: 0, border: `${M_LINE}px solid ${M_BLACK}`, background: M_BLACK,
+        display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1.4fr)', gridTemplateRows: '420fr 300fr',
+        gap: 0, border: `${M_LINE}px solid ${M_BLACK}`, background: M_BLACK, minHeight: '600px',
       }}>
         <div style={{ gridRow: '1 / 3', background: M_YELLOW, borderRight: `${M_LINE}px solid ${M_BLACK}`, display: 'flex', minHeight: '600px', overflow: 'hidden' }}>
           <div style={{ width: '100%', height: '100%', flex: 1 }}>
@@ -1619,7 +1619,7 @@ function MAbout() {
             <span style={{ display: 'block', whiteSpace: 'nowrap' }}>Not a studio.</span><span style={{ color: M_RED }}>Just me.</span><br/><span style={{ color: M_BLUE }}>Peter.</span>
           </h1>
         </div>
-        <div style={{ background: M_WHITE, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }}>
+        <div style={{ background: M_WHITE, display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 2fr', gap: 0, height: '100%' }}>
           <div style={{ padding: '32px 32px 32px 40px', borderRight: `${M_LINE}px solid ${M_BLACK}` }}>
             <MLabel size="10px">Origin</MLabel>
             <p style={{ fontFamily: M_SANS, fontSize: '15px', fontWeight: 500, color: M_BLACK, lineHeight: 1.5, marginTop: 12 }}>Plant science → data → product. Curiosity doing the navigation.</p>
