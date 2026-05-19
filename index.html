@@ -1176,7 +1176,7 @@ function ProjectDetail({ project, onBack }) {
 
       <div style={{
         width: '100%', aspectRatio: '16/9', background: theme.colors.surface, border: `1px solid ${accent}22`,
-        borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        borderRadius: '2px', display: 'flex', alignItems: 'center',
         position: 'relative', overflow: 'hidden',
       }}>
         {project.livePreview
@@ -1655,11 +1655,18 @@ function MAbout() {
             <MLabel size="10px">Tagline</MLabel>
             <p style={{ fontFamily: M_DISPLAY, fontSize: '26px', color: M_BLACK, lineHeight: 0.95, marginTop: 10, letterSpacing: '-0.02em' }}>Sometimes<br/>something useful<br/>comes out.</p>
           </div>
-        </div>
+        )}
+      </div>
+      {/* Tagline block */}
+      <div style={{ background: M_YELLOW, padding: '32px 40px', borderTop: 'none', border: `${M_LINE}px solid ${M_BLACK}`, borderTop: 0, marginTop: `${M_LINE}px` }}>
+        <p style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(36px, 5vw, 64px)', color: M_BLACK, letterSpacing: '-0.03em', lineHeight: 0.95, textTransform: 'uppercase' }}>
+          Sometimes<br/>Something<br/>Useful
+        </p>
       </div>
     </section>
   );
 }
+
 
 function MTools() {
   const mobile = useMobile();
