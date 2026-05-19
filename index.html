@@ -1568,16 +1568,14 @@ function MAbout() {
   const mobile = useMobile();
   return (
     <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: mobile ? '12px' : '24px' }}>
+      {/* Main 2-col block */}
       <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : 'minmax(0, 1.2fr) minmax(0, 1fr)', gridTemplateRows: '1fr', gap: 0, border: `${M_LINE}px solid ${M_BLACK}`, background: M_BLACK, minHeight: mobile ? 'auto' : '600px' }}>
-        <div style={{ background: M_WHITE, padding: '40px', borderRight: mobile ? 'none' : `${M_LINE}px solid ${M_BLACK}`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        <div style={{ background: M_WHITE, padding: '40px', borderRight: mobile ? 'none' : `${M_LINE}px solid ${M_BLACK}` }}>
           <h1 style={{ fontFamily: M_DISPLAY, fontSize: mobile ? 'clamp(52px,14vw,80px)' : 'clamp(56px, 8vw, 112px)', color: M_BLACK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase' }}>
             Not a studio.<br/>
             <span style={{ color: M_RED }}>Just me.</span><br/>
             <span style={{ color: M_BLUE }}>Peter.</span>
           </h1>
-          <p style={{ fontFamily: M_DISPLAY, fontSize: '28px', color: M_BLACK, letterSpacing: '-0.02em', lineHeight: 1.0, marginTop: 40 }}>
-            Sometimes<br/>Something<br/>Useful
-          </p>
         </div>
         {!mobile && (
           <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr 1fr', gap: 0 }}>
@@ -1598,9 +1596,16 @@ function MAbout() {
           </div>
         )}
       </div>
+      {/* Tagline block */}
+      <div style={{ background: M_YELLOW, padding: '32px 40px', borderTop: 'none', border: `${M_LINE}px solid ${M_BLACK}`, borderTop: 0, marginTop: `${M_LINE}px` }}>
+        <p style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(36px, 5vw, 64px)', color: M_BLACK, letterSpacing: '-0.03em', lineHeight: 0.95, textTransform: 'uppercase' }}>
+          Sometimes<br/>Something<br/>Useful
+        </p>
+      </div>
     </section>
   );
 }
+
 
 function MTools() {
   const mobile = useMobile();
