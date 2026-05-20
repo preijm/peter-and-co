@@ -1565,95 +1565,33 @@ function MProjectCard({ project, index, color, onClick }) {
 }
 
 function MAbout() {
-  const SVG_PORTRAIT = (
-    <svg viewBox="0 0 480 720" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" style={{ display: 'block' }}>
-      <rect x="0"   y="0"   width="95"  height="80"  fill="#D4241E" />
-      <rect x="95"  y="0"   width="100" height="80"  fill="#FCC419" />
-      <rect x="195" y="0"   width="90"  height="80"  fill="#FCC419" />
-      <rect x="285" y="0"   width="100" height="80"  fill="#FCC419" />
-      <rect x="385" y="0"   width="95"  height="80"  fill="#FFFFFF" />
-      <rect x="0"   y="80"  width="95"  height="85"  fill="#FFFFFF" />
-      <rect x="95"  y="80"  width="100" height="85"  fill="#FFFFFF" />
-      <rect x="195" y="80"  width="90"  height="85"  fill="#FFFFFF" />
-      <rect x="285" y="80"  width="100" height="85"  fill="#FFFFFF" />
-      <rect x="385" y="80"  width="95"  height="85"  fill="#FCC419" />
-      <rect x="0"   y="165" width="95"  height="255" fill="#1A56DB" />
-      <rect x="385" y="165" width="95"  height="255" fill="#FCC419" />
-      <rect x="95"  y="165" width="100" height="110" fill="#1A1A1A" />
-      <rect x="195" y="165" width="90"  height="110" fill="#FFFFFF" />
-      <rect x="285" y="165" width="100" height="110" fill="#1A1A1A" />
-      <rect x="95"  y="275" width="100" height="70"  fill="#FFFFFF" />
-      <rect x="195" y="275" width="90"  height="70"  fill="#FFFFFF" />
-      <rect x="285" y="275" width="100" height="70"  fill="#FFFFFF" />
-      <rect x="95"  y="345" width="100" height="75"  fill="#FFFFFF" />
-      <rect x="195" y="345" width="90"  height="75"  fill="#D4241E" />
-      <rect x="285" y="345" width="100" height="75"  fill="#FFFFFF" />
-      <rect x="0"   y="420" width="95"  height="100" fill="#FCC419" />
-      <rect x="95"  y="420" width="100" height="100" fill="#FFFFFF" />
-      <rect x="195" y="420" width="90"  height="100" fill="#FFFFFF" />
-      <rect x="285" y="420" width="100" height="100" fill="#FFFFFF" />
-      <rect x="385" y="420" width="95"  height="100" fill="#D4241E" />
-      <rect x="0"   y="520" width="95"  height="200" fill="#FCC419" />
-      <rect x="95"  y="520" width="100" height="200" fill="#1A56DB" />
-      <rect x="195" y="520" width="90"  height="200" fill="#1A56DB" />
-      <rect x="285" y="520" width="100" height="200" fill="#1A56DB" />
-      <rect x="385" y="520" width="95"  height="200" fill="#D4241E" />
-      <line x1="95"  y1="0"   x2="95"  y2="720" stroke="#1A1A1A" strokeWidth="6" vectorEffect="non-scaling-stroke" />
-      <line x1="195" y1="0"   x2="195" y2="720" stroke="#1A1A1A" strokeWidth="6" vectorEffect="non-scaling-stroke" />
-      <line x1="285" y1="0"   x2="285" y2="720" stroke="#1A1A1A" strokeWidth="6" vectorEffect="non-scaling-stroke" />
-      <line x1="385" y1="0"   x2="385" y2="720" stroke="#1A1A1A" strokeWidth="6" vectorEffect="non-scaling-stroke" />
-      <line x1="0"   y1="80"  x2="480" y2="80"  stroke="#1A1A1A" strokeWidth="6" vectorEffect="non-scaling-stroke" />
-      <line x1="0"   y1="165" x2="480" y2="165" stroke="#1A1A1A" strokeWidth="6" vectorEffect="non-scaling-stroke" />
-      <line x1="0"   y1="420" x2="480" y2="420" stroke="#1A1A1A" strokeWidth="6" vectorEffect="non-scaling-stroke" />
-      <line x1="0"   y1="520" x2="480" y2="520" stroke="#1A1A1A" strokeWidth="6" vectorEffect="non-scaling-stroke" />
-      <line x1="95"  y1="275" x2="385" y2="275" stroke="#1A1A1A" strokeWidth="6" vectorEffect="non-scaling-stroke" />
-      <line x1="95"  y1="345" x2="385" y2="345" stroke="#1A1A1A" strokeWidth="6" vectorEffect="non-scaling-stroke" />
-    </svg>
-  );
+  const mobile = useMobile();
   return (
-    <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '24px' }}>
-      {/* Outer wrapper: headline row + content row */}
-      <div style={{ display: 'grid', gridTemplateRows: 'auto auto', gap: `${M_LINE}px`, background: M_BLACK, border: `${M_LINE}px solid ${M_BLACK}` }}>
-
-        {/* Row 1: full-width headline */}
-        <div style={{ background: M_WHITE, padding: '36px 40px' }}>
-          <h1 style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(52px, 6.5vw, 96px)', color: M_BLACK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase' }}>
-            <span style={{ whiteSpace: 'nowrap' }}>Not a studio. </span>
-            <span style={{ color: M_RED }}>Just me. </span>
+    <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: mobile ? '12px' : '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : 'minmax(0, 1.2fr) minmax(0, 1fr)', gridTemplateRows: '1fr', gap: 0, border: `${M_LINE}px solid ${M_BLACK}`, background: M_BLACK, minHeight: mobile ? 'auto' : '600px' }}>
+        <div style={{ background: M_WHITE, padding: '40px', borderRight: mobile ? 'none' : `${M_LINE}px solid ${M_BLACK}` }}>
+          <h1 style={{ fontFamily: M_DISPLAY, fontSize: mobile ? 'clamp(52px,14vw,80px)' : 'clamp(56px, 8vw, 112px)', color: M_BLACK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase' }}>
+            Not a studio.<br/>
+            <span style={{ color: M_RED }}>Just me.</span><br/>
             <span style={{ color: M_BLUE }}>Peter.</span>
           </h1>
         </div>
-
-        {/* Row 2: portrait (left, 2 cols) + 4 info cells (right, 2×2) */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)', gridTemplateRows: 'auto auto', gap: `${M_LINE}px`, background: M_BLACK }}>
-
-          {/* Portrait spans 2 cols × 2 rows */}
-          <div style={{ gridColumn: '1 / 3', gridRow: '1 / 3', background: M_YELLOW, overflow: 'hidden', minHeight: '260px' }}>
-            {SVG_PORTRAIT}
-          </div>
-
-          {/* Origin */}
-          <div style={{ background: M_WHITE, padding: '28px 32px' }}>
-            <MLabel size="10px">Origin</MLabel>
-            <p style={{ fontFamily: M_SANS, fontSize: '14px', fontWeight: 500, color: M_BLACK, lineHeight: 1.5, marginTop: 10 }}>Plant science → data → product. Curiosity doing the navigation.</p>
-          </div>
-
-          {/* Method */}
-          <div style={{ background: M_WHITE, padding: '28px 32px' }}>
-            <MLabel size="10px">Method</MLabel>
-            <p style={{ fontFamily: M_SANS, fontSize: '14px', fontWeight: 500, color: M_BLACK, lineHeight: 1.5, marginTop: 10 }}>Build first, explain later.</p>
-          </div>
-
-          {/* Off-screen */}
-          <div style={{ background: M_RED, padding: '28px 32px' }}>
-            <MLabel size="10px" color={M_WHITE}>Off-screen</MLabel>
-            <p style={{ fontFamily: M_SANS, fontSize: '14px', fontWeight: 500, color: M_WHITE, lineHeight: 1.5, marginTop: 10 }}>Running, biking, plants, rare beers.</p>
-          </div>
-
-          {/* Tagline */}
-          <div style={{ background: M_WHITE, padding: '28px 32px' }}>
-            <MLabel size="10px">Tagline</MLabel>
-            <p style={{ fontFamily: M_DISPLAY, fontSize: '26px', color: M_BLACK, lineHeight: 0.95, marginTop: 10, letterSpacing: '-0.02em' }}>Sometimes<br/>something useful<br/>comes out.</p>
+        {!mobile && (
+          <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr 1fr', gap: 0 }}>
+            {[
+              { label: 'Origin',     bg: M_WHITE,  fg: M_BLACK, text: 'Plant science,\nData science,\nProduct science(?)' },
+              { label: 'Method',     bg: M_YELLOW, fg: M_BLACK, text: 'Build first,\nexplain later.' },
+              { label: 'Off-screen', bg: M_RED,    fg: M_WHITE, text: 'Running, biking,\nplants, rare beers.' },
+            ].map((l, i, arr) => (
+              <div key={l.label} style={{
+                background: l.bg, padding: '28px 32px',
+                borderBottom: i < arr.length - 1 ? `${M_LINE}px solid ${M_BLACK}` : 'none',
+                display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+              }}>
+                <MLabel color={l.fg}>{l.label}</MLabel>
+                <div style={{ fontFamily: M_DISPLAY, fontSize: '26px', color: l.fg, letterSpacing: '-0.02em', lineHeight: 1.1, whiteSpace: 'pre-line' }}>{l.text}</div>
+              </div>
+            ))}
           </div>
         )}
       </div>
