@@ -1615,50 +1615,48 @@ function MAbout() {
   return (
     <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: mobile ? '12px' : '24px' }}>
       <div style={{
-        display: 'grid',
-        gridTemplateColumns: mobile ? '1fr' : '1fr 1fr',
-        gridTemplateRows: mobile ? 'auto auto' : '1fr auto',
+        display: 'flex', flexDirection: 'column',
+        minHeight: mobile ? 'auto' : '600px',
         border: `${M_LINE}px solid ${M_BLACK}`,
         background: M_BLACK,
-        minHeight: mobile ? 'auto' : '600px',
       }}>
         <div style={{
-          background: M_WHITE, padding: '40px',
-          borderRight: mobile ? 'none' : `${M_LINE}px solid ${M_BLACK}`,
-          borderBottom: `${M_LINE}px solid ${M_BLACK}`,
-          display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+          flex: 1, display: 'grid', minHeight: 0,
+          gridTemplateColumns: mobile ? '1fr' : '1fr 1fr',
         }}>
-          <h1 style={{ fontFamily: M_DISPLAY, fontSize: mobile ? 'clamp(52px,14vw,80px)' : 'clamp(56px, 8vw, 112px)', color: M_BLACK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase' }}>
-            Not a studio.<br/>
-            <span style={{ color: M_RED }}>Just me.</span><br/>
-            <span style={{ color: M_BLUE }}>Peter.</span>
-          </h1>
+          <div style={{
+            background: M_WHITE, padding: '40px',
+            borderRight: mobile ? 'none' : `${M_LINE}px solid ${M_BLACK}`,
+            display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+          }}>
+            <h1 style={{ fontFamily: M_DISPLAY, fontSize: mobile ? 'clamp(52px,14vw,80px)' : 'clamp(56px, 8vw, 112px)', color: M_BLACK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase' }}>
+              Not a studio.<br/>
+              <span style={{ color: M_RED }}>Just me.</span><br/>
+              <span style={{ color: M_BLUE }}>Peter.</span>
+            </h1>
+
+          </div>
           {!mobile && (
-            <div style={{ animation: 'bounce 1.8s ease-in-out infinite', alignSelf: 'flex-start', marginTop: '32px' }}>
-              <div style={{ width: '14px', height: '14px', borderRight: `2px solid ${M_BLACK}`, borderBottom: `2px solid ${M_BLACK}`, transform: 'rotate(45deg)', opacity: 0.22 }} />
+            <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr 1fr' }}>
+              {cards.map((l, i, arr) => (
+                <div key={l.label} style={{
+                  background: l.bg, padding: '28px 32px',
+                  borderBottom: i < arr.length - 1 ? `${M_LINE}px solid ${M_BLACK}` : 'none',
+                  display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', gap: '16px',
+                }}>
+                  <MLabel color={l.fg} style={{ fontWeight: 400 }}>{l.label}</MLabel>
+                  <div style={{ fontFamily: M_DISPLAY, fontSize: '24px', color: l.fg, letterSpacing: '-0.02em', lineHeight: 1.1, whiteSpace: 'pre-line' }}>{l.text}</div>
+                </div>
+              ))}
             </div>
           )}
         </div>
-        {!mobile && (
-          <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr 1fr', borderBottom: `${M_LINE}px solid ${M_BLACK}` }}>
-            {cards.map((l, i, arr) => (
-              <div key={l.label} style={{
-                background: l.bg, padding: '40px',
-                borderBottom: i < arr.length - 1 ? `${M_LINE}px solid ${M_BLACK}` : 'none',
-                display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-              }}>
-                <MLabel color={l.fg} style={{ fontWeight: 400 }}>{l.label}</MLabel>
-                <div style={{ fontFamily: M_DISPLAY, fontSize: '26px', color: l.fg, letterSpacing: '-0.02em', lineHeight: 1.1, whiteSpace: 'pre-line' }}>{l.text}</div>
-              </div>
-            ))}
-          </div>
-        )}
         <div style={{
-          background: M_YELLOW, padding: '32px 40px',
-          gridColumn: mobile ? '1' : '1 / -1',
+          background: M_BLUE, padding: '32px 40px',
+          borderTop: `${M_LINE}px solid ${M_BLACK}`, flexShrink: 0,
         }}>
-          <p style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(36px, 5vw, 64px)', color: M_BLACK, letterSpacing: '-0.03em', lineHeight: 0.95, textTransform: 'uppercase' }}>
-            Sometimes<br/>Something<br/>Useful
+          <p style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(28px, 3.5vw, 48px)', color: M_WHITE, letterSpacing: '-0.03em', lineHeight: 0.95, textTransform: 'uppercase' }}>
+            Sometimes Something Useful
           </p>
         </div>
       </div>
