@@ -1642,9 +1642,9 @@ function MAbout() {
                 <div key={l.label} style={{
                   background: l.bg, padding: '28px 32px',
                   borderBottom: i < arr.length - 1 ? `${M_LINE}px solid ${M_BLACK}` : 'none',
-                  display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+                  display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', gap: '16px',
                 }}>
-                  <MLabel color={l.fg} style={{ fontWeight: 400, display: 'block', marginBottom: '12px' }}>{l.label}</MLabel>
+                  <MLabel color={l.fg} style={{ fontWeight: 400 }}>{l.label}</MLabel>
                   <div style={{ fontFamily: M_DISPLAY, fontSize: '24px', color: l.fg, letterSpacing: '-0.02em', lineHeight: 1.1, whiteSpace: 'pre-line' }}>{l.text}</div>
                 </div>
               ))}
