@@ -44,7 +44,8 @@
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous" defer></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
+  html { scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none; }
+  html::-webkit-scrollbar { display: none; }
   @keyframes bounce {
     0%, 100% { transform: translateY(0); opacity: 0.4; }
     50% { transform: translateY(6px); opacity: 0.9; }
@@ -821,6 +822,8 @@ function ProjectGrid({ onSelect, featured, onViewAll }) {
 function LivePreview({ href, themeId }) {
   const containerRef = React.useRef(null);
   const [scale, setScale] = React.useState(1);
+  const [interactive, setInteractive] = React.useState(false);
+  const [hovered, setHovered] = React.useState(false);
   React.useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -830,20 +833,58 @@ function LivePreview({ href, themeId }) {
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
+  React.useEffect(() => {
+    if (!interactive) return;
+    const handler = (e) => { if (e.key === 'Escape') setInteractive(false); };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [interactive]);
   const url = `${href}?theme=${themeId}`;
   return (
     <div ref={containerRef} style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
       <iframe
         key={url}
         src={url}
-        scrolling="no"
+        scrolling={interactive ? "yes" : "no"}
         style={{
           position: 'absolute', top: 0, left: 0,
-          width: '1280px', height: '720px',
-          border: 'none', pointerEvents: 'none',
+          width: '1297px', height: '720px',
+          border: 'none',
+          pointerEvents: interactive ? 'auto' : 'none',
           transform: `scale(${scale})`, transformOrigin: 'top left',
         }}
       />
+      {!interactive ? (
+        <div
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          onClick={() => setInteractive(true)}
+          style={{
+            position: 'absolute', inset: 0, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: hovered ? 'rgba(0,0,0,0.12)' : 'transparent',
+            transition: 'background 0.2s',
+          }}
+        >
+          <span style={{
+            background: 'rgba(0,0,0,0.72)', color: '#fff',
+            padding: '7px 16px', borderRadius: '3px',
+            fontFamily: 'monospace', fontSize: '11px', letterSpacing: '0.07em',
+            opacity: hovered ? 1 : 0, transition: 'opacity 0.15s',
+            pointerEvents: 'none', userSelect: 'none',
+          }}>&#9654; INTERACT</span>
+        </div>
+      ) : (
+        <button
+          onClick={() => setInteractive(false)}
+          style={{
+            position: 'absolute', top: '8px', right: '8px', zIndex: 10,
+            background: 'rgba(0,0,0,0.72)', color: '#fff', border: 'none',
+            padding: '5px 12px', borderRadius: '3px', cursor: 'pointer',
+            fontFamily: 'monospace', fontSize: '11px', letterSpacing: '0.05em',
+          }}
+        >&#10005; EXIT</button>
+      )}
     </div>
   );
 }
@@ -1176,7 +1217,7 @@ function ProjectDetail({ project, onBack }) {
 
       <div style={{
         width: '100%', aspectRatio: '16/9', background: theme.colors.surface, border: `1px solid ${accent}22`,
-        borderRadius: '2px', display: 'flex', alignItems: 'center',
+        borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center',
         position: 'relative', overflow: 'hidden',
       }}>
         {project.livePreview
@@ -1185,7 +1226,7 @@ function ProjectDetail({ project, onBack }) {
             ? <img src={project.screenshot} alt={project.title} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} />
             : <>
                 <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse at 30% 50%, ${accent}11 0%, transparent 70%)` }} />
-                <div style={{ textAlign: 'center' }}>
+                <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
                   <div style={{ fontFamily: theme.fonts.serif, fontSize: '32px', color: accent, opacity: 0.2, marginBottom: '8px' }}>{project.title}</div>
                   <div style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.1em' }}>screenshot coming soon</div>
                 </div>
@@ -1595,8 +1636,7 @@ function MAbout() {
           </div>
         )}
       </div>
-      {/* Tagline block */}
-      <div style={{ background: M_YELLOW, padding: '32px 40px', borderTop: 'none', border: `${M_LINE}px solid ${M_BLACK}`, borderTop: 0, marginTop: `${M_LINE}px` }}>
+      <div style={{ background: M_YELLOW, padding: '32px 40px', border: `${M_LINE}px solid ${M_BLACK}`, borderTop: 0 }}>
         <p style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(36px, 5vw, 64px)', color: M_BLACK, letterSpacing: '-0.03em', lineHeight: 0.95, textTransform: 'uppercase' }}>
           Sometimes<br/>Something<br/>Useful
         </p>
