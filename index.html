@@ -1609,7 +1609,8 @@ function MAbout() {
   const mobile = useMobile();
   return (
     <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: mobile ? '12px' : '24px' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : 'minmax(0, 1.2fr) minmax(0, 1fr)', gridTemplateRows: '1fr', gap: 0, border: `${M_LINE}px solid ${M_BLACK}`, background: M_BLACK, minHeight: mobile ? 'auto' : '600px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: mobile ? 'auto' : '600px' }}>
+      <div style={{ flex: 1, display: 'grid', gridTemplateColumns: mobile ? '1fr' : 'minmax(0, 1.2fr) minmax(0, 1fr)', gridTemplateRows: '1fr', gap: 0, border: `${M_LINE}px solid ${M_BLACK}`, background: M_BLACK }}>
         <div style={{ background: M_WHITE, padding: '40px', borderRight: mobile ? 'none' : `${M_LINE}px solid ${M_BLACK}` }}>
           <h1 style={{ fontFamily: M_DISPLAY, fontSize: mobile ? 'clamp(52px,14vw,80px)' : 'clamp(56px, 8vw, 112px)', color: M_BLACK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase' }}>
             Not a studio.<br/>
@@ -1640,6 +1641,7 @@ function MAbout() {
         <p style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(36px, 5vw, 64px)', color: M_BLACK, letterSpacing: '-0.03em', lineHeight: 0.95, textTransform: 'uppercase' }}>
           Sometimes<br/>Something<br/>Useful
         </p>
+      </div>
       </div>
     </section>
   );
