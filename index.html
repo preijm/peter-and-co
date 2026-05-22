@@ -821,6 +821,8 @@ function ProjectGrid({ onSelect, featured, onViewAll }) {
 function LivePreview({ href, themeId }) {
   const containerRef = React.useRef(null);
   const [scale, setScale] = React.useState(1);
+  const [interactive, setInteractive] = React.useState(false);
+  const [hovered, setHovered] = React.useState(false);
   React.useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -830,6 +832,12 @@ function LivePreview({ href, themeId }) {
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
+  React.useEffect(() => {
+    if (!interactive) return;
+    const handler = (e) => { if (e.key === 'Escape') setInteractive(false); };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [interactive]);
   const url = `${href}?theme=${themeId}`;
   return (
     <div ref={containerRef} style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
@@ -840,10 +848,42 @@ function LivePreview({ href, themeId }) {
         style={{
           position: 'absolute', top: 0, left: 0,
           width: '1280px', height: '720px',
-          border: 'none', pointerEvents: 'none',
+          border: 'none',
+          pointerEvents: interactive ? 'auto' : 'none',
           transform: `scale(${scale})`, transformOrigin: 'top left',
         }}
       />
+      {!interactive ? (
+        <div
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          onClick={() => setInteractive(true)}
+          style={{
+            position: 'absolute', inset: 0, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: hovered ? 'rgba(0,0,0,0.12)' : 'transparent',
+            transition: 'background 0.2s',
+          }}
+        >
+          <span style={{
+            background: 'rgba(0,0,0,0.72)', color: '#fff',
+            padding: '7px 16px', borderRadius: '3px',
+            fontFamily: 'monospace', fontSize: '11px', letterSpacing: '0.07em',
+            opacity: hovered ? 1 : 0, transition: 'opacity 0.15s',
+            pointerEvents: 'none', userSelect: 'none',
+          }}>&#9654; INTERACT</span>
+        </div>
+      ) : (
+        <button
+          onClick={() => setInteractive(false)}
+          style={{
+            position: 'absolute', top: '8px', right: '8px', zIndex: 10,
+            background: 'rgba(0,0,0,0.72)', color: '#fff', border: 'none',
+            padding: '5px 12px', borderRadius: '3px', cursor: 'pointer',
+            fontFamily: 'monospace', fontSize: '11px', letterSpacing: '0.05em',
+          }}
+        >&#10005; EXIT</button>
+      )}
     </div>
   );
 }
