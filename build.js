@@ -58,7 +58,7 @@ console.log('Written dist/index.html');
 // Copy static assets
 const staticFiles = [
   'CNAME', 'robots.txt', 'sitemap.xml',
-  'social-card.png', 'social-card.svg',
+  'social-card.png',
   ...fs.readdirSync('.').filter(f => f.startsWith('google') && f.endsWith('.html')),
 ];
 for (const f of staticFiles) {

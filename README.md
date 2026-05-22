@@ -124,6 +124,5 @@ Add a new key when adding a new theme.
 | `THEMES.md` | Canonical rules for theme structure, tokens, and Mondriaan animation |
 | `themes/` | Per-theme favicon SVG assets |
 | `screenshots/` | Static project screenshots copied to dist/ |
-| `assets/` | Other static assets copied to dist/ |
 | `social-card.png` | OG/Twitter share image (1200×630) |
 | `CNAME` | GitHub Pages custom domain |
