@@ -1607,44 +1607,64 @@ function MProjectCard({ project, index, color, onClick }) {
 
 function MAbout() {
   const mobile = useMobile();
+  const cards = [
+    { label: 'Origin',     bg: M_WHITE,  fg: M_BLACK, text: 'Plant science,\nData science,\nProduct science(?)' },
+    { label: 'Method',     bg: M_YELLOW, fg: M_BLACK, text: 'Build first,\nexplain later.' },
+    { label: 'Off-screen', bg: M_RED,    fg: M_WHITE, text: 'Running, biking,\nplants, rare beers.' },
+  ];
   return (
     <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: mobile ? '12px' : '24px' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : 'minmax(0, 1.2fr) minmax(0, 1fr)', gridTemplateRows: '1fr', gap: 0, border: `${M_LINE}px solid ${M_BLACK}`, background: M_BLACK, minHeight: mobile ? 'auto' : '600px' }}>
-        <div style={{ background: M_WHITE, padding: '40px', borderRight: mobile ? 'none' : `${M_LINE}px solid ${M_BLACK}` }}>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: mobile ? '1fr' : '1fr 1fr',
+        gridTemplateRows: mobile ? 'auto auto' : '1fr auto',
+        border: `${M_LINE}px solid ${M_BLACK}`,
+        background: M_BLACK,
+        minHeight: mobile ? 'auto' : '600px',
+      }}>
+        <div style={{
+          background: M_WHITE, padding: '40px',
+          borderRight: mobile ? 'none' : `${M_LINE}px solid ${M_BLACK}`,
+          borderBottom: `${M_LINE}px solid ${M_BLACK}`,
+          display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+        }}>
           <h1 style={{ fontFamily: M_DISPLAY, fontSize: mobile ? 'clamp(52px,14vw,80px)' : 'clamp(56px, 8vw, 112px)', color: M_BLACK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase' }}>
             Not a studio.<br/>
             <span style={{ color: M_RED }}>Just me.</span><br/>
             <span style={{ color: M_BLUE }}>Peter.</span>
           </h1>
+          {!mobile && (
+            <div style={{ animation: 'bounce 1.8s ease-in-out infinite', alignSelf: 'flex-start', marginTop: '32px' }}>
+              <div style={{ width: '14px', height: '14px', borderRight: `2px solid ${M_BLACK}`, borderBottom: `2px solid ${M_BLACK}`, transform: 'rotate(45deg)', opacity: 0.22 }} />
+            </div>
+          )}
         </div>
         {!mobile && (
-          <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr 1fr', gap: 0 }}>
-            {[
-              { label: 'Origin',     bg: M_WHITE,  fg: M_BLACK, text: 'Plant science,\nData science,\nProduct science(?)' },
-              { label: 'Method',     bg: M_YELLOW, fg: M_BLACK, text: 'Build first,\nexplain later.' },
-              { label: 'Off-screen', bg: M_RED,    fg: M_WHITE, text: 'Running, biking,\nplants, rare beers.' },
-            ].map((l, i, arr) => (
+          <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr 1fr', borderBottom: `${M_LINE}px solid ${M_BLACK}` }}>
+            {cards.map((l, i, arr) => (
               <div key={l.label} style={{
-                background: l.bg, padding: '28px 32px',
+                background: l.bg, padding: '40px',
                 borderBottom: i < arr.length - 1 ? `${M_LINE}px solid ${M_BLACK}` : 'none',
                 display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
               }}>
-                <MLabel color={l.fg}>{l.label}</MLabel>
+                <MLabel color={l.fg} style={{ fontWeight: 400 }}>{l.label}</MLabel>
                 <div style={{ fontFamily: M_DISPLAY, fontSize: '26px', color: l.fg, letterSpacing: '-0.02em', lineHeight: 1.1, whiteSpace: 'pre-line' }}>{l.text}</div>
               </div>
             ))}
           </div>
         )}
-      </div>
-      <div style={{ background: M_YELLOW, padding: '32px 40px', border: `${M_LINE}px solid ${M_BLACK}`, borderTop: 0 }}>
-        <p style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(36px, 5vw, 64px)', color: M_BLACK, letterSpacing: '-0.03em', lineHeight: 0.95, textTransform: 'uppercase' }}>
-          Sometimes<br/>Something<br/>Useful
-        </p>
+        <div style={{
+          background: M_YELLOW, padding: '32px 40px',
+          gridColumn: mobile ? '1' : '1 / -1',
+        }}>
+          <p style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(36px, 5vw, 64px)', color: M_BLACK, letterSpacing: '-0.03em', lineHeight: 0.95, textTransform: 'uppercase' }}>
+            Sometimes<br/>Something<br/>Useful
+          </p>
+        </div>
       </div>
     </section>
   );
 }
-
 
 function MTools() {
   const mobile = useMobile();
