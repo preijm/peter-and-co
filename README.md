@@ -40,7 +40,7 @@ CI runs on every push to `master`:
 npm ci → node build.js → dist/ → GitHub Pages
 ```
 
-`build.js` compiles the JSX with Babel and writes `dist/`. It also copies static assets (`screenshots/`, `assets/`, `social-card.png`, `CNAME`, `themes/`). **Never edit `dist/`** — it is generated and not tracked in git.
+`build.js` compiles the JSX with Babel and writes `dist/`. It also copies static assets (`screenshots/`, `social-card.png`, `CNAME`, `themes/`, `robots.txt`, `sitemap.xml`). **Never edit `dist/`** — it is generated and not tracked in git.
 
 ---
 

@@ -36,4 +36,4 @@ const M_MONO    = 'Space Mono, monospace'
 
 ## Build Output
 `build.js` copies these to `dist/` alongside the compiled HTML:
-`screenshots/`, `assets/`, `social-card.png`, `social-card.svg`, `CNAME`, `themes/`, `favicon.ico`
+`screenshots/`, `social-card.png`, `CNAME`, `themes/`, `robots.txt`, `sitemap.xml`, `google*.html`
