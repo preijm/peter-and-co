@@ -13,3 +13,27 @@ For local preview, the raw `index.html` still works in the browser via `npx serv
 
 ## Theme Work
 Before designing or modifying any theme, read **[THEMES.md](THEMES.md)** — it contains the canonical rules for theme structure, taglines, color tokens, the Editions modal, and the Mondriaan paint-in animation.
+
+## Mondriaan Theme Internals
+The Mondriaan theme lives in a `<script type="text/plain" id="mondriaan-src">` blob inside `index.html`. It is compiled by Babel at runtime in dev and pre-compiled by `build.js` in CI. Key constants used throughout:
+
+```js
+const M_LINE   = 6           // grid gap / border width (px)
+const M_BLACK  = '#0a0a0a'
+const M_RED    = '#d72027'
+const M_BLUE   = '#1d4ed8'
+const M_YELLOW = '#fcc60b'
+const M_WHITE  = '#ffffff'
+const M_DISPLAY = 'Archivo Black, sans-serif'
+const M_SANS    = 'Space Grotesk, sans-serif'
+const M_MONO    = 'Space Mono, monospace'
+```
+
+## PR Workflow
+- Always check PR state before pushing (`gh pr list --state open`)
+- If the previous PR is already merged, create a **fresh branch from master** — never reuse a merged branch
+- Resolve merge conflicts by keeping the HEAD version unless the incoming change is intentional
+
+## Build Output
+`build.js` copies these to `dist/` alongside the compiled HTML:
+`screenshots/`, `assets/`, `social-card.png`, `social-card.svg`, `CNAME`, `themes/`, `favicon.ico`

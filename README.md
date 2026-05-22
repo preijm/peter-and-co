@@ -2,7 +2,7 @@
 
 Personal portfolio and project hub — [peterandco.nl](https://peterandco.nl)
 
-A single self-contained HTML file. No build step, no bundler, no dependencies to install. React runs in the browser via CDN. Flip between three named themes at runtime.
+A single self-contained HTML file. All components, themes, and data live in `index.html`. React and Babel run in-browser locally; JSX is pre-compiled by CI for production. Flip between three named themes at runtime.
 
 ---
 
@@ -32,13 +32,25 @@ Each theme has its own full-page layout variants for Work, Tools, About, and Con
 
 ---
 
+## Build & deploy
+
+CI runs on every push to `master`:
+
+```
+npm ci → node build.js → dist/ → GitHub Pages
+```
+
+`build.js` compiles the JSX with Babel and writes `dist/`. It also copies static assets (`screenshots/`, `assets/`, `social-card.png`, `CNAME`, `themes/`). **Never edit `dist/`** — it is generated and not tracked in git.
+
+---
+
 ## Run locally
 
 ```bash
 npx serve .
 ```
 
-Open [localhost:3456](http://localhost:3456).
+Open [localhost:3456](http://localhost:3456). The Mondriaan theme is lazy-loaded and compiled at runtime in dev; it is pre-compiled in the production build.
 
 ---
 
@@ -91,7 +103,10 @@ App             — routes between pages, switches renderer based on theme
 
 Projects and tools are plain JS objects — edit the `PROJECTS` array and `TOOL_CATEGORIES` array near the top of `index.html`.
 
-**Project fields:** `id`, `featured`, `title`, `description`, `tags`, `year`, `url`, `href`, `accent`, `tagline`, `detail`, `role`, `stack`
+**Project fields:** `id`, `featured`, `title`, `description`, `tags`, `year`, `url`, `href`, `accent`, `tagline`, `detail`, `role`, `stack`, `screenshot`, `livePreview`
+
+- `screenshot` — path to a static image shown in the project card (e.g. `screenshots/peterandco.png`)
+- `livePreview: true` — renders an interactive scaled iframe of `href` instead of a screenshot; hover to preview, click to interact, Escape or EXIT button to exit
 
 **Accent colour format:**
 ```js
@@ -105,5 +120,10 @@ Add a new key when adding a new theme.
 
 | File | Purpose |
 |---|---|
+| `build.js` | Compiles JSX + bundles dist/ for production |
+| `THEMES.md` | Canonical rules for theme structure, tokens, and Mondriaan animation |
 | `themes/` | Per-theme favicon SVG assets |
+| `screenshots/` | Static project screenshots copied to dist/ |
+| `assets/` | Other static assets copied to dist/ |
+| `social-card.png` | OG/Twitter share image (1200×630) |
 | `CNAME` | GitHub Pages custom domain |
