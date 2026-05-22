@@ -14,7 +14,7 @@ The site ships with three named, versioned themes switchable at runtime:
 |---|---|
 | **Ink** `v1` | Dark · minimal · editorial |
 | **Chalk** `v1` | Light · open · breathing room |
-| **Mondriaan** `v1` | Primary colours · geometric · De Stijl |
+| **Mondriaan** `v1` | Primary colours · geometric · bold |
 
 Each theme has its own full-page layout variants for Work, Tools, About, and Contact. Projects have per-theme accent colours defined in their data — a `resolveAccent(project, themeId)` helper picks the right one at render time.
 

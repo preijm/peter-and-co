@@ -26,7 +26,7 @@ Themes that fully replace the page layout also set `mondriaan: true`.
 |------------|----------------------------------|
 | Ink        | `dark · minimal · no noise`      |
 | Chalk      | `light · open · breathing room`  |
-| Mondriaan  | `primary · geometric · De Stijl` |
+| Mondriaan  | `primary · geometric · bold`     |
 
 ---
 
