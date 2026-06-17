@@ -18,20 +18,31 @@
 <meta name="twitter:title" content="Peter &amp; Co.">
 <meta name="twitter:description" content="Product owner, builder, explorer. Projects in finance, food, and whatever else wouldn't leave me alone. Based in Rotterdam.">
 <meta name="twitter:image" content="https://peterandco.nl/social-card.png">
+<link rel="canonical" href="https://peterandco.nl">
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Person",
-  "name": "Peter Reijm",
-  "url": "https://peterandco.nl",
-  "description": "Product owner, builder, explorer. Projects in finance, food, and whatever else wouldn't leave me alone. Based in Rotterdam.",
-  "jobTitle": "Product Owner",
-  "address": { "@type": "PostalAddress", "addressLocality": "Rotterdam", "addressCountry": "NL" },
-  "sameAs": [
-    "https://github.com/preijm",
-    "https://www.linkedin.com/in/peter-reijm-47165b5b/"
-  ]
-}
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Peter Reijm",
+    "url": "https://peterandco.nl",
+    "description": "Product owner, builder, explorer. Projects in finance, food, and whatever else wouldn't leave me alone. Based in Rotterdam.",
+    "jobTitle": "Product Owner",
+    "address": { "@type": "PostalAddress", "addressLocality": "Rotterdam", "addressCountry": "NL" },
+    "sameAs": [
+      "https://github.com/preijm",
+      "https://www.linkedin.com/in/peter-reijm-47165b5b/"
+    ]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Peter & Co.",
+    "url": "https://peterandco.nl",
+    "description": "Product owner, builder, explorer. Projects in finance, food, and whatever else wouldn't leave me alone. Based in Rotterdam.",
+    "author": { "@type": "Person", "name": "Peter Reijm" }
+  }
+]
 </script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' fill='%230a0a0a'/><text x='7' y='52' font-size='52' fill='%23ffffff' font-family='Georgia,serif' letter-spacing='-2'>P</text></svg>">
 <script id="counterscale-script" src="https://counterscale.peterreijm.workers.dev/tracker.js" data-site-id="peterandco.nl" defer></script>
@@ -44,7 +55,8 @@
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous" defer></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
+  html { scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none; }
+  html::-webkit-scrollbar { display: none; }
   @keyframes bounce {
     0%, 100% { transform: translateY(0); opacity: 0.4; }
     50% { transform: translateY(6px); opacity: 0.9; }
@@ -207,6 +219,11 @@ function ThemeProvider({ children }) {
   const [editionsOpen, setEditionsOpen] = React.useState(false);
   const [themeIdx, setThemeIdx] = React.useState(() => {
     try {
+      const urlTheme = new URLSearchParams(window.location.search).get('theme');
+      if (urlTheme) {
+        const idx = THEMES.findIndex(t => t.id === urlTheme);
+        if (idx >= 0) return idx;
+      }
       const saved = localStorage.getItem('pco-theme');
       const idx = THEMES.findIndex(t => t.id === saved);
       return idx >= 0 ? idx : 0;
@@ -582,11 +599,14 @@ function Hero({ onCTA, activePage, onNavigate }) {
 }
 
 // ── resolveAccent ──────────────────────────────────────────
+const MONDRIAAN_PALETTE = new Set(['#d72027', '#1d4ed8', '#fcc60b', '#0a0a0a', '#ffffff']);
 function resolveAccent(project, themeId) {
   const a = project.accent;
   if (!a) return null;
-  if (typeof a === 'string') return a;
-  return a[themeId] || a.default || null;
+  const color = typeof a === 'string' ? a : (a[themeId] || a.default || null);
+  if (!color) return null;
+  if (themeId === 'mondriaan-v1' && !MONDRIAAN_PALETTE.has(color.toLowerCase())) return null;
+  return color;
 }
 
 // ── ProjectCard ────────────────────────────────────────────
@@ -788,7 +808,7 @@ const PROJECTS = [
     screenshot: 'screenshots/peterandco.png',
     accent: { default: '#818cf8', 'mondriaan-v1': '#d72027' },
     tagline: 'A playground, not a business. Yet.',
-    screenshot: 'screenshots/peterandco.png',
+    livePreview: true,
     detail: 'A single-file React app built as a hub for experiments and side projects. No build step, no framework overhead — just Babel in the browser, inline styles, and a theme system that lets you flip between named, versioned looks at runtime. The whole thing is a side project about side projects.',
     role: 'Idea, design, build, ship.',
     stack: ['React', 'GitHub Pages', 'Counterscale', 'Formspree'],
@@ -859,6 +879,77 @@ function ProjectGrid({ onSelect, featured, onViewAll }) {
         {visible.map((p, i) => <ProjectCard key={p.id} project={p} index={i} onClick={onSelect} />)}
       </div>
     </section>
+  );
+}
+
+// ── LivePreview ────────────────────────────────────────────
+function LivePreview({ href, themeId }) {
+  const containerRef = React.useRef(null);
+  const [scale, setScale] = React.useState(1);
+  const [interactive, setInteractive] = React.useState(false);
+  const [hovered, setHovered] = React.useState(false);
+  React.useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const obs = new ResizeObserver(([entry]) => {
+      setScale(entry.contentRect.width / 1280);
+    });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  React.useEffect(() => {
+    if (!interactive) return;
+    const handler = (e) => { if (e.key === 'Escape') setInteractive(false); };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [interactive]);
+  const url = `${href}?theme=${themeId}`;
+  return (
+    <div ref={containerRef} style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+      <iframe
+        key={url}
+        src={url}
+        scrolling={interactive ? "yes" : "no"}
+        style={{
+          position: 'absolute', top: 0, left: 0,
+          width: '1297px', height: '720px',
+          border: 'none',
+          pointerEvents: interactive ? 'auto' : 'none',
+          transform: `scale(${scale})`, transformOrigin: 'top left',
+        }}
+      />
+      {!interactive ? (
+        <div
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          onClick={() => setInteractive(true)}
+          style={{
+            position: 'absolute', inset: 0, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: hovered ? 'rgba(0,0,0,0.12)' : 'transparent',
+            transition: 'background 0.2s',
+          }}
+        >
+          <span style={{
+            background: 'rgba(0,0,0,0.72)', color: '#fff',
+            padding: '7px 16px', borderRadius: '3px',
+            fontFamily: 'monospace', fontSize: '11px', letterSpacing: '0.07em',
+            opacity: hovered ? 1 : 0, transition: 'opacity 0.15s',
+            pointerEvents: 'none', userSelect: 'none',
+          }}>&#9654; INTERACT</span>
+        </div>
+      ) : (
+        <button
+          onClick={() => setInteractive(false)}
+          style={{
+            position: 'absolute', top: '8px', right: '8px', zIndex: 10,
+            background: 'rgba(0,0,0,0.72)', color: '#fff', border: 'none',
+            padding: '5px 12px', borderRadius: '3px', cursor: 'pointer',
+            fontFamily: 'monospace', fontSize: '11px', letterSpacing: '0.05em',
+          }}
+        >&#10005; EXIT</button>
+      )}
+    </div>
   );
 }
 
@@ -977,9 +1068,10 @@ const TOOL_CATEGORIES = [
     tools: [
       { name: 'Supabase',      desc: 'Backend without the backend work.' },
       { name: 'Backblaze',     desc: 'Cheap, reliable storage. No drama.' },
+      { name: 'Cloudflare',    desc: 'DNS, proxy, and Workers. Fast and safe.' },
       { name: 'IONOS',         desc: 'Domains and hosting, quietly doing its job.' },
       { name: 'Mapbox',        desc: 'Maps that don\'t look like Google Maps.' },
-      { name: 'Counterscale',  desc: 'Self-hosted analytics on Cloudflare Workers. No cookies, no nonsense.' },
+      { name: 'Counterscale',  desc: 'Self-hosted analytics. No cookies, no nonsense.' },
       { name: 'Formspree',     desc: 'Form submissions without the backend.' },
       { name: 'Netlify',       desc: 'Deploy from GitHub, forms included. Done.' },
     ],
@@ -1651,46 +1743,58 @@ function MProjectCard({ project, index, color, onClick }) {
 }
 
 function MAbout() {
+  const mobile = useMobile();
+  const cards = [
+    { label: 'Origin',     bg: M_WHITE,  fg: M_BLACK, text: 'Plant science,\nData science,\nProduct science(?)' },
+    { label: 'Method',     bg: M_YELLOW, fg: M_BLACK, text: 'Build first,\nexplain later.' },
+    { label: 'Off-screen', bg: M_RED,    fg: M_WHITE, text: 'Running, biking,\nplants, rare beers.' },
+  ];
   return (
-    <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '24px' }}>
+    <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: mobile ? '12px' : '24px' }}>
       <div style={{
-        display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1.4fr)', gridTemplateRows: 'auto auto',
-        gap: 0, border: `${M_LINE}px solid ${M_BLACK}`, background: M_BLACK,
+        display: 'flex', flexDirection: 'column',
+        minHeight: mobile ? 'auto' : '600px',
+        border: `${M_LINE}px solid ${M_BLACK}`,
+        background: M_BLACK,
       }}>
-        <div style={{ gridRow: '1 / 3', background: M_YELLOW, borderRight: `${M_LINE}px solid ${M_BLACK}`, padding: '40px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '600px' }}>
-          <div style={{ width: '75%', aspectRatio: '2/3', background: M_WHITE, position: 'relative', overflow: 'hidden', border: `${M_LINE}px solid ${M_BLACK}` }}>
-            {/* left eye */}
-            <div style={{ position: 'absolute', left: '25%', width: '18%', top: '28%', height: '7%', background: M_BLACK }} />
-            {/* right eye */}
-            <div style={{ position: 'absolute', right: '25%', width: '18%', top: '28%', height: '7%', background: M_BLACK }} />
-            {/* mouth */}
-            <div style={{ position: 'absolute', left: '34%', right: '34%', top: '44%', height: '6%', background: M_RED }} />
-            {/* body */}
-            <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: '46%', background: M_BLUE }} />
+        <div style={{
+          flex: 1, display: 'grid', minHeight: 0,
+          gridTemplateColumns: mobile ? '1fr' : '1fr 1fr',
+        }}>
+          <div style={{
+            background: M_WHITE, padding: '40px',
+            borderRight: mobile ? 'none' : `${M_LINE}px solid ${M_BLACK}`,
+            display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+          }}>
+            <h1 style={{ fontFamily: M_DISPLAY, fontSize: mobile ? 'clamp(52px,14vw,80px)' : 'clamp(56px, 8vw, 112px)', color: M_BLACK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase' }}>
+              Not a studio.<br/>
+              <span style={{ color: M_RED }}>Just me.</span><br/>
+              <span style={{ color: M_BLUE }}>Peter.</span>
+            </h1>
+
           </div>
+          {!mobile && (
+            <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr 1fr' }}>
+              {cards.map((l, i, arr) => (
+                <div key={l.label} style={{
+                  background: l.bg, padding: '28px 32px',
+                  borderBottom: i < arr.length - 1 ? `${M_LINE}px solid ${M_BLACK}` : 'none',
+                  display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', gap: '16px',
+                }}>
+                  <MLabel color={l.fg} style={{ fontWeight: 400 }}>{l.label}</MLabel>
+                  <div style={{ fontFamily: M_DISPLAY, fontSize: '24px', color: l.fg, letterSpacing: '-0.02em', lineHeight: 1.1, whiteSpace: 'pre-line' }}>{l.text}</div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-        <div style={{ background: M_WHITE, borderBottom: `${M_LINE}px solid ${M_BLACK}`, padding: '40px' }}>
-          <h1 style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(48px, 6vw, 88px)', color: M_BLACK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase', marginBottom: 24 }}>
-            Not a studio.<br/><span style={{ color: M_RED }}>Just me.</span><br/><span style={{ color: M_BLUE }}>Peter.</span>
-          </h1>
-        </div>
-        <div style={{ background: M_WHITE, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }}>
-          <div style={{ padding: '32px 32px 32px 40px', borderRight: `${M_LINE/2 + 1}px solid ${M_BLACK}` }}>
-            <MLabel size="10px">Origin</MLabel>
-            <p style={{ fontFamily: M_SANS, fontSize: '15px', fontWeight: 500, color: M_BLACK, lineHeight: 1.5, marginTop: 12 }}>Plant science → data → product. Curiosity doing the navigation.</p>
-          </div>
-          <div style={{ padding: '32px 40px 32px 32px' }}>
-            <MLabel size="10px">Method</MLabel>
-            <p style={{ fontFamily: M_SANS, fontSize: '15px', fontWeight: 500, color: M_BLACK, lineHeight: 1.5, marginTop: 12 }}>Build first, explain later.</p>
-          </div>
-          <div style={{ padding: '32px 32px 40px 40px', borderTop: `${M_LINE/2 + 1}px solid ${M_BLACK}`, borderRight: `${M_LINE/2 + 1}px solid ${M_BLACK}`, background: M_RED }}>
-            <MLabel size="10px" color={M_WHITE}>Off-screen</MLabel>
-            <p style={{ fontFamily: M_SANS, fontSize: '15px', fontWeight: 500, color: M_WHITE, lineHeight: 1.5, marginTop: 12 }}>Running, biking, plants, rare beers.</p>
-          </div>
-          <div style={{ padding: '32px 40px 40px 32px', borderTop: `${M_LINE/2 + 1}px solid ${M_BLACK}` }}>
-            <MLabel size="10px">Tagline</MLabel>
-            <p style={{ fontFamily: M_DISPLAY, fontSize: '32px', color: M_BLACK, lineHeight: 0.95, marginTop: 12, letterSpacing: '-0.02em' }}>Sometimes<br/>something useful<br/>comes out.</p>
-          </div>
+        <div style={{
+          background: M_BLUE, padding: '32px 40px',
+          borderTop: `${M_LINE}px solid ${M_BLACK}`, flexShrink: 0,
+        }}>
+          <p style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(28px, 3.5vw, 48px)', color: M_WHITE, letterSpacing: '-0.03em', lineHeight: 0.95, textTransform: 'uppercase' }}>
+            Sometimes Something Useful
+          </p>
         </div>
       </div>
     </section>
@@ -1842,7 +1946,7 @@ function MContact() {
           <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr 1fr', gap: 0 }}>
             {[
               { label: 'Response time', bg: M_RED,    fg: M_WHITE, text: 'Usually within\na day or two.' },
-              { label: 'Open to',       bg: M_BLUE,   fg: M_WHITE, text: 'Product work,\nside projects,\ninteresting ideas.' },
+              { label: 'Open to',       bg: M_BLUE,   fg: M_WHITE, text: 'Side projects.\nInteresting ideas.\nNot for hire.' },
               { label: 'Location',      bg: M_YELLOW, fg: M_BLACK, text: 'Rotterdam,\nthe Netherlands.' },
             ].map((l, i, arr) => (
               <div key={l.label} style={{
