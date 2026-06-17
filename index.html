@@ -135,6 +135,8 @@ const THEMES = [
     version: 'v1',
     tagline: 'primary · geometric · bold',
     mondriaan: true,
+    srcId: 'mondriaan-src',
+    appGlobal: 'MondriaanApp',
     fonts: {
       display: "'Archivo Black', 'Helvetica Neue', sans-serif",
       sans:    "'Space Grotesk', 'Helvetica Neue', sans-serif",
@@ -161,6 +163,38 @@ const THEMES = [
       yellow: '#fcc60b',
       black:  '#0a0a0a',
       white:  '#ffffff',
+    },
+  },
+  {
+    id: 'volt-v1',
+    name: 'Volt',
+    version: 'v1',
+    tagline: 'dark · minimal · systems',
+    mondriaan: true,
+    srcId: 'volt-src',
+    appGlobal: 'VoltApp',
+    mobileOptimized: true,
+    fonts: {
+      sans:  "'Geist', system-ui, 'Helvetica Neue', sans-serif",
+      mono:  "'Geist Mono', 'Space Mono', ui-monospace, monospace",
+      serif: "'Geist', system-ui, sans-serif",
+    },
+    googleFonts: 'https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap',
+    colors: {
+      bg:          '#0c0c0a',
+      bgDark:      '#080807',
+      bgInput:     '#161613',
+      surface:     '#14140f',
+      border:      '#26261f',
+      borderSubtle:'#1a1a15',
+      text:        '#f2f0e6',
+      textMuted:   '#b9b6a6',
+      textDim:     '#8a877a',
+      textFaint:   '#55534a',
+      textGhost:   '#3c3a33',
+      btnBg:       '#d4f932',
+      btnText:     '#0c0c0a',
+      lime:        '#d4f932',
     },
   },
 ];
@@ -251,6 +285,16 @@ function ThemeSwatch({ themeId }) {
       <div style={{ position:'absolute', bottom:'8%', left:'10%', width:'26%', height:'7%', background:'#aaaaaa' }} />
     </div>
   );
+  if (themeId === 'volt-v1') return (
+    <div style={{ width:'100%', aspectRatio:'16/9', background:'#0c0c0a', position:'relative', overflow:'hidden' }}>
+      <div style={{ position:'absolute', top:'15%', left:'8%', width:'5%', height:'9%', background:'#d4f932' }} />
+      <div style={{ position:'absolute', top:'34%', left:'8%', width:'58%', height:'9%', background:'#f2f0e6' }} />
+      <div style={{ position:'absolute', top:'49%', left:'8%', width:'34%', height:'9%', background:'#f2f0e6' }} />
+      <div style={{ position:'absolute', top:'74%', left:'8%', right:'8%', height:'1px', background:'#2a2a22' }} />
+      <div style={{ position:'absolute', top:'86%', left:'8%', right:'8%', height:'1px', background:'#2a2a22' }} />
+      <div style={{ position:'absolute', top:'79%', left:'8%', width:'4%', height:'4%', background:'#d4f932' }} />
+    </div>
+  );
   return (
     <div style={{ width:'100%', aspectRatio:'16/9', background:'#0a0a0a', display:'grid', gap:'3px', gridTemplateColumns:'2fr 1fr 0.8fr', gridTemplateRows:'3fr 2fr', overflow:'hidden' }}>
       <div style={{ background:'#ffffff', gridColumn:'1', gridRow:'1/3' }} />
@@ -267,7 +311,7 @@ function EditionModal() {
   const { theme, themes, themeIdx, setThemeById, pickRandom, closeEditions } = useTheme();
   const mobile = useMobile();
   const MONO = "'JetBrains Mono','Space Mono',monospace";
-  const dark = theme.id === 'ink-v1';
+  const dark = theme.id === 'ink-v1' || theme.id === 'volt-v1';
 
   const c = dark ? {
     overlay:      'rgba(0,0,0,0.88)',
@@ -323,7 +367,7 @@ function EditionModal() {
           <div style={{ marginBottom:'24px' }}>
             {themes.map((t, i) => {
               const isActive = t.id === theme.id;
-              const mobileAvailable = t.id === 'ink-v1' || t.id === 'chalk-v1';
+              const mobileAvailable = t.mobileOptimized === true;
               return (
                 <button
                   key={t.id}
@@ -699,6 +743,10 @@ function ProjectStrip({ onSelect, projects, onViewAll }) {
 }
 
 // ── ProjectGrid ────────────────────────────────────────────
+// Source of truth = content/projects.csv. build.js regenerates this array from
+// that CSV at build time. The literal below is the dev/preview snapshot — edit
+// the CSV (see CONTENT.md), not this. (markers below are used by build.js)
+/* CONTENT:PROJECTS:START */
 const PROJECTS = [
   {
     id: 'milk-me-not', featured: true,
@@ -713,6 +761,7 @@ const PROJECTS = [
     detail: 'A plant-based milk review app built for people who take oat milk seriously. Browse ratings, compare blends, and figure out which milk actually belongs in your coffee. Built because the answer to "which oat milk is best" shouldn\'t require a Reddit deep-dive.',
     role: 'Idea, design, build, ship.',
     stack: ['React', 'Supabase', 'Capacitor', 'GitHub Actions'],
+    tools: ['Claude', 'Stitch', 'Remember the Milk'],
   },
   {
     id: 'folio', featured: true,
@@ -726,6 +775,7 @@ const PROJECTS = [
     detail: 'A personal finance dashboard built for people who want to see everything in one place without handing over bank credentials. Crypto, gold, ETFs — tracked and backed up to your own Backblaze bucket. No third-party accounts, no monthly fee, no dark patterns. Just a clean view of where things stand.',
     role: 'Idea, design, build.',
     stack: ['FastAPI', 'Alpine.js', 'Backblaze', 'APIs'],
+    tools: ['Claude'],
   },
   {
     id: 'experiment-03', featured: true,
@@ -742,6 +792,7 @@ const PROJECTS = [
     detail: 'A single-file React app built as a hub for experiments and side projects. No build step, no framework overhead — just Babel in the browser, inline styles, and a theme system that lets you flip between named, versioned looks at runtime. The whole thing is a side project about side projects.',
     role: 'Idea, design, build, ship.',
     stack: ['React', 'GitHub Pages', 'Counterscale', 'Formspree'],
+    tools: ['Claude'],
   },
   {
     id: 'boer-transport', featured: false, public: false,
@@ -756,8 +807,10 @@ const PROJECTS = [
     detail: 'A refresh of the website for CV Transportbedrijf L. Boer & Zn. — a family container transport company from Nieuwerkerk aan den IJssel, active since 1878. The old site had been untouched for years. Rebuilt it clean: same character, mobile-friendly, no frameworks. Deployed on Netlify via GitHub with the contact form handled by Netlify Forms.',
     role: 'Review, rebuild, ship.',
     stack: ['HTML', 'CSS', 'Netlify', 'Behold'],
+    tools: ['Claude'],
   },
 ];
+/* CONTENT:PROJECTS:END */
 
 function ProjectGrid({ onSelect, featured, onViewAll }) {
   const { theme } = useTheme();
@@ -904,13 +957,16 @@ function About() {
 }
 
 // ── Tool Categories (shared across all themes) ─────────────
+// Source of truth = content/tools.csv (build.js regenerates this from it). The
+// literal below is the dev/preview snapshot — edit the CSV, not this.
+/* CONTENT:TOOLS:START */
 const TOOL_CATEGORIES = [
   {
     label: 'build',
     tools: [
       { name: 'Lovable',       desc: 'Prototype to product, fast.' },
       { name: 'Claude',        desc: "The whole suite. Design, code, research. It's become the default." },
-      { name: 'Stitch',        desc: 'Connecting data without the plumbing.' },
+      { name: 'Stitch',        desc: 'Connecting data without the plumbing.', status: 'retired' },
       { name: 'GitHub',        desc: 'Version control and a public record of trying.' },
       { name: 'APIs',          desc: 'First thing I check: does it have one.' },
       { name: 'Median',        desc: 'Web app to native mobile, without the native overhead.' },
@@ -932,16 +988,21 @@ const TOOL_CATEGORIES = [
     label: 'daily',
     tools: [
       { name: 'Arc',               desc: 'The only browser I\'ve actually looked forward to opening.' },
-      { name: 'Remember the Milk', desc: 'Task management that actually stuck.' },
       { name: 'Markpad',           desc: 'Notes in plain text, the way it should be.' },
       { name: 'Bitwarden',         desc: 'One password to rule them all. Safely.' },
     ],
   },
 ];
+/* CONTENT:TOOLS:END */
+
+// Tools the page shows as "what I use" — retired tools stay defined (and credited
+// on their projects) but drop off the Tools page. Shared by Tools() and MTools().
+const visibleToolCategories = () =>
+  TOOL_CATEGORIES.map(c => ({ ...c, tools: c.tools.filter(t => t.status !== 'retired') }));
 
 // ── Tools ──────────────────────────────────────────────────
 function Tools() {
-  const categories = TOOL_CATEGORIES;
+  const categories = visibleToolCategories();
   const mobile = useMobile();
   const { theme } = useTheme();
   const pad = mobile ? '48px 20px' : '80px 32px';
@@ -1100,10 +1161,28 @@ function ProjectDetail({ project, onBack }) {
         </p>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1fr 260px', gap: mobile ? '32px' : '64px', marginBottom: '48px', alignItems: 'start' }}>
-        <p style={{ fontFamily: theme.fonts.mono, fontSize: '14px', color: theme.colors.textMuted, lineHeight: 1.8, margin: 0 }}>
-          {project.detail || project.description}
-        </p>
+      <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1fr 260px', gap: mobile ? '32px' : '64px', alignItems: 'start' }}>
+        <div>
+          <p style={{ fontFamily: theme.fonts.mono, fontSize: '14px', color: theme.colors.textMuted, lineHeight: 1.8, margin: `0 0 ${mobile ? '32px' : '40px'}` }}>
+            {project.detail || project.description}
+          </p>
+          <div style={{
+            width: '100%', aspectRatio: '16/9', background: theme.colors.surface, border: `1px solid ${accent}22`,
+            borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            position: 'relative', overflow: 'hidden',
+          }}>
+            {project.screenshot
+              ? <img src={project.screenshot} alt={project.title} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} />
+              : <>
+                  <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse at 30% 50%, ${accent}11 0%, transparent 70%)` }} />
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontFamily: theme.fonts.serif, fontSize: '32px', color: accent, opacity: 0.2, marginBottom: '8px' }}>{project.title}</div>
+                    <div style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.1em' }}>screenshot coming soon</div>
+                  </div>
+                </>
+            }
+          </div>
+        </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {project.role && (
             <div>
@@ -1116,6 +1195,14 @@ function ProjectDetail({ project, onBack }) {
               <div style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.12em', marginBottom: '8px' }}>STACK</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                 {project.stack.map(s => <Tag key={s} muted>{s}</Tag>)}
+              </div>
+            </div>
+          )}
+          {project.tools && project.tools.length > 0 && (
+            <div>
+              <div style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.12em', marginBottom: '8px' }}>TOOLS</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                {project.tools.map(t => <Tag key={t} muted>{t}</Tag>)}
               </div>
             </div>
           )}
@@ -1133,23 +1220,6 @@ function ProjectDetail({ project, onBack }) {
           )}
         </div>
       </div>
-
-      <div style={{
-        width: '100%', aspectRatio: '16/9', background: theme.colors.surface, border: `1px solid ${accent}22`,
-        borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        position: 'relative', overflow: 'hidden',
-      }}>
-        {project.screenshot
-          ? <img src={project.screenshot} alt={project.title} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} />
-          : <>
-              <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse at 30% 50%, ${accent}11 0%, transparent 70%)` }} />
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontFamily: theme.fonts.serif, fontSize: '32px', color: accent, opacity: 0.2, marginBottom: '8px' }}>{project.title}</div>
-                <div style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.1em' }}>screenshot coming soon</div>
-              </div>
-            </>
-        }
-      </div>
     </section>
   );
 }
@@ -1157,22 +1227,23 @@ function ProjectDetail({ project, onBack }) {
 // ── App ────────────────────────────────────────────────
 function AppShell({ page, selectedProject, activePage, navigate, selectProject }) {
   const { theme, editionsOpen } = useTheme();
-  const [mondriaanReady, setMondriaanReady] = React.useState(false);
+  const [readyThemes, setReadyThemes] = React.useState([]);
   const modal = editionsOpen ? <EditionModal /> : null;
 
   React.useEffect(() => {
-    if (!theme.mondriaan || mondriaanReady) return;
-    const src = document.getElementById('mondriaan-src').textContent;
+    if (!theme.mondriaan || readyThemes.includes(theme.id)) return;
+    const src = document.getElementById(theme.srcId).textContent;
     const compiled = Babel.transform(src, { presets: ['react'] }).code;
     const s = document.createElement('script');
     s.text = compiled;
     document.head.appendChild(s);
-    setMondriaanReady(true);
-  }, [theme.mondriaan]);
+    setReadyThemes(ids => [...ids, theme.id]);
+  }, [theme, readyThemes]);
 
   if (theme.mondriaan) {
-    if (!mondriaanReady) return <>{modal}<div style={{ minHeight: '100vh', background: '#ffffff' }} /></>;
-    return <>{modal}<MondriaanApp page={page} selectedProject={selectedProject} navigate={navigate} selectProject={selectProject} activePage={activePage} /></>;
+    if (!readyThemes.includes(theme.id)) return <>{modal}<div style={{ minHeight: '100vh', background: theme.colors.bg }} /></>;
+    const TakeoverApp = window[theme.appGlobal];
+    return <>{modal}<TakeoverApp page={page} selectedProject={selectedProject} navigate={navigate} selectProject={selectProject} activePage={activePage} /></>;
   }
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>{modal}
@@ -1202,9 +1273,66 @@ function AppShell({ page, selectedProject, activePage, navigate, selectProject }
   );
 }
 
+// ── Live content (Sanity) ──────────────────────────────────
+// Projects + tools are edited in the Sanity Studio (see studio/) and read here at
+// load. The built-in PROJECTS / TOOL_CATEGORIES above are the fallback if Sanity
+// is unreachable, so the site never breaks. See CONTENT.md.
+const SANITY = { projectId: 'fas2xxna', dataset: 'production' };
+const sanityUrl = (q) =>
+  `https://${SANITY.projectId}.apicdn.sanity.io/v2024-01-01/data/query/${SANITY.dataset}?query=${encodeURIComponent(q)}`;
+const Q_PROJECTS = `*[_type=="project"]|order(order asc){"id":slug.current,title,description,tagline,detail,tags,year,url,href,"screenshot":screenshot.asset->url,role,stack,tools,featured,isPublic,"accent":{"default":accentDefault,"mondriaan-v1":accentMondriaan}}`;
+const Q_TOOLS = `*[_type=="tool"]|order(order asc){name,"desc":description,category,status}`;
+
+function mapSanityProjects(docs) {
+  return (docs || []).filter(d => d && d.title).map(d => {
+    const p = {
+      id: d.id || (d.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+      title: d.title, description: d.description, tagline: d.tagline, detail: d.detail,
+      tags: d.tags || [], year: d.year, url: d.url, role: d.role,
+      stack: d.stack || [], tools: d.tools || [], featured: !!d.featured,
+      accent: { default: (d.accent && d.accent.default) || '#818cf8', 'mondriaan-v1': (d.accent && d.accent['mondriaan-v1']) || (d.accent && d.accent.default) || '#d72027' },
+    };
+    if (d.href) p.href = d.href;
+    if (d.screenshot) p.screenshot = d.screenshot;
+    if (d.isPublic === false) p.public = false;
+    return p;
+  });
+}
+function mapSanityTools(docs) {
+  const order = ['build', 'infrastructure', 'daily'], byCat = {};
+  (docs || []).filter(d => d && d.name).forEach(d => {
+    const cat = (d.category || 'build');
+    (byCat[cat] = byCat[cat] || []).push({ name: d.name, desc: d.desc, ...(d.status === 'retired' ? { status: 'retired' } : {}) });
+  });
+  const cats = order.filter(c => byCat[c]).map(c => ({ label: c, tools: byCat[c] }));
+  Object.keys(byCat).forEach(c => { if (!order.includes(c)) cats.push({ label: c, tools: byCat[c] }); });
+  return cats;
+}
+async function loadSanityContent() {
+  try {
+    const [pr, tr] = await Promise.all([
+      fetch(sanityUrl(Q_PROJECTS)).then(r => r.json()),
+      fetch(sanityUrl(Q_TOOLS)).then(r => r.json()),
+    ]);
+    let changed = false;
+    const ps = mapSanityProjects(pr && pr.result);
+    const ts = mapSanityTools(tr && tr.result);
+    if (ps.length) { PROJECTS.splice(0, PROJECTS.length, ...ps); changed = true; }
+    if (ts.length) { TOOL_CATEGORIES.splice(0, TOOL_CATEGORIES.length, ...ts); changed = true; }
+    return changed;
+  } catch (e) { return false; }
+}
+
 function App() {
   const [page, setPage] = React.useState('home');
   const [selectedProject, setSelectedProject] = React.useState(null);
+  const [, setContentVersion] = React.useState(0);
+
+  React.useEffect(() => {
+    let alive = true;
+    loadSanityContent().then(changed => { if (alive && changed) setContentVersion(v => v + 1); });
+    return () => { alive = false; };
+  }, []);
 
   const navigate = (p) => {
     setPage(p);
@@ -1572,7 +1700,7 @@ function MAbout() {
 function MTools() {
   const mobile = useMobile();
   const M_CAT_COLORS = { build: [M_RED, M_WHITE], infrastructure: [M_BLUE, M_WHITE], daily: [M_YELLOW, M_BLACK] };
-  const cats = TOOL_CATEGORIES.map(cat => ({ ...cat, color: M_CAT_COLORS[cat.label][0], fg: M_CAT_COLORS[cat.label][1] }));
+  const cats = visibleToolCategories().map(cat => ({ ...cat, color: M_CAT_COLORS[cat.label][0], fg: M_CAT_COLORS[cat.label][1] }));
   return (
     <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: mobile ? '12px' : '24px' }}>
       <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1fr auto', gap: 0, border: `${M_LINE}px solid ${M_BLACK}`, marginBottom: `${M_LINE}px` }}>
@@ -1585,7 +1713,7 @@ function MTools() {
         {!mobile && (
           <div style={{ background: M_RED, borderLeft: `${M_LINE}px solid ${M_BLACK}`, padding: '24px 32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minWidth: '180px' }}>
             <MLabel color={M_WHITE}>Total</MLabel>
-            <div style={{ fontFamily: M_DISPLAY, fontSize: '88px', color: M_WHITE, lineHeight: 1.0, letterSpacing: '-0.04em' }}>{TOOL_CATEGORIES.reduce((n, c) => n + c.tools.length, 0)}</div>
+            <div style={{ fontFamily: M_DISPLAY, fontSize: '88px', color: M_WHITE, lineHeight: 1.0, letterSpacing: '-0.04em' }}>{cats.reduce((n, c) => n + c.tools.length, 0)}</div>
           </div>
         )}
       </div>
@@ -1931,6 +2059,453 @@ function MondriaanApp({ page, selectedProject, navigate, selectProject, activePa
         {page === 'project' && selectedProject && <MProjectDetail project={selectedProject} onBack={() => navigate('work')} />}
       </main>
       <MFooter />
+    </div>
+  );
+}
+</script>
+<script type="text/plain" id="volt-src">
+// ─────────────────────────────────────────────────────────
+// VOLT MODE — dark, minimal "design + code + systems" landing.
+// Restrained and terminal-flavored; GSAP for subtle reveals only.
+// ─────────────────────────────────────────────────────────
+const V_BG    = '#0c0c0a';
+const V_SUR   = '#14140f';
+const V_LINEC = '#26261f';
+const V_INK   = '#f2f0e6';
+const V_MUTE  = '#8a877a';
+const V_FAINT = '#7d7a6e';
+const V_LIME  = '#d4f932';
+
+const V_SANS = "'Geist', system-ui, 'Helvetica Neue', sans-serif";
+const V_MONO = "'Geist Mono', 'Space Mono', ui-monospace, monospace";
+
+const vReduced = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+(function vInjectStyle() {
+  if (document.getElementById('volt-style')) return;
+  const st = document.createElement('style');
+  st.id = 'volt-style';
+  st.textContent = [
+    '@keyframes v-blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }',
+    '.volt-root ::selection { background: #d4f932; color: #0c0c0a; }',
+    '.volt-root a, .volt-root button { -webkit-tap-highlight-color: transparent; }',
+    '.v-caret { display: inline-block; width: 0.5em; height: 1.05em; background: #d4f932; margin-left: 5px; vertical-align: -0.16em; animation: v-blink 1.1s step-end infinite; }',
+    '@media (prefers-reduced-motion: reduce) { .v-caret { animation: none; } }',
+  ].join('\n');
+  document.head.appendChild(st);
+})();
+
+// GSAP is loaded lazily, only when Volt activates
+let vGsapPromise = null;
+function vLoadGsap() {
+  if (window.gsap && window.ScrollTrigger) return Promise.resolve();
+  if (!vGsapPromise) {
+    const load = src => new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = src; s.onload = resolve; s.onerror = reject;
+      document.head.appendChild(s);
+    });
+    vGsapPromise = load('https://unpkg.com/gsap@3.12.5/dist/gsap.min.js')
+      .then(() => load('https://unpkg.com/gsap@3.12.5/dist/ScrollTrigger.min.js'))
+      .then(() => window.gsap.registerPlugin(window.ScrollTrigger));
+  }
+  return vGsapPromise;
+}
+function useVoltGsap() {
+  const [ready, setReady] = React.useState(() => !!(window.gsap && window.ScrollTrigger));
+  React.useEffect(() => {
+    if (ready) return;
+    let alive = true;
+    vLoadGsap().then(() => { if (alive) setReady(true); }).catch(() => {});
+    return () => { alive = false; };
+  }, []);
+  return ready;
+}
+
+// Three.js (UMD global THREE) loaded lazily, only when Volt activates
+let vThreePromise = null;
+function vLoadThree() {
+  if (window.THREE) return Promise.resolve(window.THREE);
+  if (!vThreePromise) {
+    vThreePromise = new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://unpkg.com/three@0.149.0/build/three.min.js';
+      s.onload = () => resolve(window.THREE);
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+  return vThreePromise;
+}
+
+function useRotterdamTime() {
+  const fmt = () => new Date().toLocaleTimeString('en-GB', { timeZone: 'Europe/Amsterdam', hour: '2-digit', minute: '2-digit' });
+  const [time, setTime] = React.useState(fmt);
+  React.useEffect(() => {
+    const id = setInterval(() => setTime(fmt()), 10000);
+    return () => clearInterval(id);
+  }, []);
+  return time;
+}
+
+// Static, near-flat backdrop — one faint lime bloom. No canvas, no motion.
+function VBackdrop() {
+  return (
+    <div aria-hidden="true" style={{
+      position: 'fixed', inset: 0, zIndex: -1, pointerEvents: 'none',
+      background: 'radial-gradient(70vw 70vh at 84% 6%, rgba(212,249,50,0.055), transparent 55%), radial-gradient(60vw 60vh at 6% 102%, rgba(242,240,230,0.02), transparent 55%), ' + V_BG,
+    }} />
+  );
+}
+
+// Scroll-reactive Three.js point field — a faint depth layer behind the content.
+// Camera travels + the field rotates with scroll progress; near-monochrome with a few lime motes.
+function VParticles({ mobile }) {
+  const ref = React.useRef(null);
+  React.useEffect(() => {
+    if (vReduced()) return;
+    let stop = false, raf = 0, dispose = () => {};
+    vLoadThree().then(THREE => {
+      if (stop || !ref.current || !THREE) return;
+      const el = ref.current;
+      const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+      renderer.setSize(el.clientWidth, el.clientHeight);
+      el.appendChild(renderer.domElement);
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(60, el.clientWidth / el.clientHeight, 0.1, 120);
+      camera.position.z = 24;
+
+      const N = mobile ? 700 : 1700;
+      const spread = 38, depth = 70;
+      const positions = new Float32Array(N * 3);
+      const colors = new Float32Array(N * 3);
+      const cInk = new THREE.Color('#cbc8bb'), cLime = new THREE.Color('#d4f932');
+      for (let i = 0; i < N; i++) {
+        positions[i * 3]     = (Math.random() - 0.5) * spread * 1.8;
+        positions[i * 3 + 1] = (Math.random() - 0.5) * spread;
+        positions[i * 3 + 2] = -Math.random() * depth;
+        const c = Math.random() < 0.07 ? cLime : cInk;
+        colors[i * 3] = c.r; colors[i * 3 + 1] = c.g; colors[i * 3 + 2] = c.b;
+      }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+      const mat = new THREE.PointsMaterial({
+        size: mobile ? 0.07 : 0.055, vertexColors: true, transparent: true, opacity: 0.6,
+        depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: true,
+      });
+      const points = new THREE.Points(geo, mat);
+      scene.add(points);
+
+      let targetScroll = window.scrollY || 0, curScroll = targetScroll, simT = 0, last = performance.now();
+      const onScroll = () => { targetScroll = window.scrollY || 0; };
+      const onResize = () => {
+        camera.aspect = el.clientWidth / el.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(el.clientWidth, el.clientHeight);
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onResize);
+
+      const tick = (now) => {
+        if (stop) return;
+        const dt = Math.min(0.05, (now - last) / 1000); last = now;
+        if (document.visibilityState === 'visible') {
+          simT += dt;
+          curScroll += (targetScroll - curScroll) * 0.06;
+          const docH = Math.max(1, document.body.scrollHeight - window.innerHeight);
+          const prog = Math.min(1, curScroll / docH);
+          points.rotation.y = simT * 0.02 + prog * 1.1;
+          points.rotation.x = prog * 0.4;
+          camera.position.z = 24 - prog * 15;
+          camera.position.x = Math.sin(simT * 0.1) * 0.7;
+          mat.opacity = 0.5 + prog * 0.3;
+          renderer.render(scene, camera);
+        }
+        raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+
+      dispose = () => {
+        window.removeEventListener('scroll', onScroll);
+        window.removeEventListener('resize', onResize);
+        cancelAnimationFrame(raf);
+        geo.dispose(); mat.dispose(); renderer.dispose();
+        if (renderer.domElement.parentNode) renderer.domElement.parentNode.removeChild(renderer.domElement);
+      };
+    }).catch(() => {});
+    return () => { stop = true; dispose(); };
+  }, [mobile]);
+  return <div ref={ref} aria-hidden="true" style={{ position: 'fixed', inset: 0, zIndex: -1, pointerEvents: 'none' }} />;
+}
+
+// Quiet mono "// label" used as section headers
+function VLabel({ children, color }) {
+  return (
+    <span style={{ fontFamily: V_MONO, fontSize: '12px', letterSpacing: '0.06em', color: color || V_FAINT }}>
+      <span style={{ color: V_LIME }}>// </span>{children}
+    </span>
+  );
+}
+
+// Minimal floating chrome — a mono wordmark and a single edition pill. No menu bar.
+function VFloatingChrome({ onTop }) {
+  const { openEditions } = useTheme();
+  const mobile = useMobile();
+  const [hot, setHot] = React.useState(false);
+  return (
+    <React.Fragment>
+      <button onClick={onTop} aria-label="Back to top" style={{
+        position: 'fixed', top: mobile ? '18px' : '26px', left: mobile ? '20px' : '32px', zIndex: 100,
+        background: 'none', border: 'none', cursor: 'pointer', padding: '6px 0',
+        fontFamily: V_MONO, fontSize: '13px', letterSpacing: '0.02em', color: V_INK,
+      }}>
+        peter<span style={{ color: V_LIME }}> &amp; </span>co.
+      </button>
+      <button
+        onClick={openEditions}
+        onMouseEnter={() => setHot(true)}
+        onMouseLeave={() => setHot(false)}
+        style={{
+          position: 'fixed', top: mobile ? '12px' : '18px', right: mobile ? '20px' : '32px', zIndex: 100,
+          display: 'flex', alignItems: 'center', gap: '9px', cursor: 'pointer',
+          padding: mobile ? '14px 18px' : '11px 16px', borderRadius: '999px',
+          background: 'rgba(12,12,10,0.6)', color: hot ? V_LIME : V_MUTE,
+          border: '1px solid ' + (hot ? V_LIME : V_LINEC),
+          backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
+          fontFamily: V_MONO, fontSize: '11px', letterSpacing: '0.12em',
+          transition: 'color 200ms ease, border-color 200ms ease',
+        }}>
+        <span aria-hidden="true" style={{ width: '6px', height: '6px', borderRadius: '50%', background: V_LIME, display: 'inline-block' }} />
+        edition
+      </button>
+    </React.Fragment>
+  );
+}
+
+function VHero({ mobile }) {
+  const time = useRotterdamTime();
+  const meta = { fontFamily: V_MONO, fontSize: '12px', letterSpacing: '0.04em', color: V_MUTE };
+  return (
+    <section id="v-hero" style={{
+      minHeight: mobile ? '88vh' : '92vh', display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+      maxWidth: '1120px', margin: '0 auto', width: '100%',
+      padding: mobile ? '120px 20px 36px' : '150px 32px 48px',
+    }}>
+      <div className="v-fade" style={meta}>
+        peter@rotterdam:~$ whoami<span className="v-caret" aria-hidden="true" />
+      </div>
+
+      <div style={{ maxWidth: '900px' }}>
+        <h1 className="v-fade" style={{
+          fontFamily: V_SANS, fontWeight: 500, margin: 0, color: V_INK,
+          fontSize: mobile ? 'clamp(32px, 8.5vw, 44px)' : 'clamp(44px, 6vw, 78px)',
+          lineHeight: 1.05, letterSpacing: '-0.025em',
+        }}>
+          I design and build digital products —<br />
+          from a first sketch to a <span style={{ color: V_LIME }}>live URL</span>.
+        </h1>
+        <p className="v-fade" style={{
+          fontFamily: V_SANS, fontWeight: 400, margin: mobile ? '24px 0 0' : '30px 0 0', color: V_MUTE,
+          fontSize: mobile ? '16px' : '18px', lineHeight: 1.6, maxWidth: '560px',
+        }}>
+          Product owner by day, builder the rest of the time. Not a developer — I bring the ideas, the taste and the stubbornness to ship; AI handles the code. Turns out that's finally enough.
+        </p>
+      </div>
+
+      <div className="v-fade" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '10px 24px' }}>
+        <span style={{ ...meta, color: V_FAINT }}>// available for good problems</span>
+        <span style={{ ...meta, color: V_FAINT }}>rotterdam {time} · scroll ↓</span>
+      </div>
+    </section>
+  );
+}
+
+function VRow({ p, i, mobile }) {
+  const [hov, setHov] = React.useState(false);
+  const live = !!p.href;
+  const mono = { fontFamily: V_MONO, fontSize: '12px', letterSpacing: '0.04em' };
+  const inner = (
+    <React.Fragment>
+      <span style={{ ...mono, color: hov ? V_LIME : V_FAINT, transition: 'color 200ms ease' }}>{String(i + 1).padStart(2, '0')}</span>
+      <span style={{
+        fontFamily: V_SANS, fontWeight: 500, color: hov ? V_LIME : V_INK,
+        fontSize: mobile ? '22px' : 'clamp(22px, 2.6vw, 32px)', letterSpacing: '-0.02em', display: 'inline-block',
+        transform: hov && !mobile ? 'translateX(8px)' : 'none',
+        transition: 'color 200ms ease, transform 320ms cubic-bezier(0.2,0.7,0.2,1)',
+      }}>{p.title}</span>
+      <span style={{ ...mono, color: V_MUTE }}>{p.tags.slice(0, 2).join(' · ')}</span>
+      <span style={{ ...mono, color: live ? (hov ? V_LIME : V_MUTE) : V_FAINT, textAlign: mobile ? 'left' : 'right', transition: 'color 200ms ease' }}>
+        {live ? p.year + ' ↗' : 'soon'}
+      </span>
+    </React.Fragment>
+  );
+  const style = {
+    display: mobile ? 'flex' : 'grid', flexDirection: mobile ? 'column' : undefined,
+    gridTemplateColumns: mobile ? undefined : '48px minmax(0,1fr) 170px 80px',
+    alignItems: mobile ? 'flex-start' : 'baseline', gap: mobile ? '6px' : '24px',
+    padding: mobile ? '22px 0' : '26px 0', borderTop: '1px solid ' + V_LINEC,
+    textDecoration: 'none', color: V_INK, cursor: live ? 'pointer' : 'default',
+  };
+  const handlers = { className: 'v-row', onMouseEnter: () => setHov(true), onMouseLeave: () => setHov(false) };
+  return live
+    ? <a href={p.href} target="_blank" rel="noopener noreferrer" {...handlers} style={style}>{inner}</a>
+    : <div {...handlers} style={style}>{inner}</div>;
+}
+
+function VWork({ projects, mobile }) {
+  return (
+    <section id="v-work" style={{ maxWidth: '1120px', margin: '0 auto', width: '100%', padding: mobile ? '88px 20px' : '140px 32px' }}>
+      <div className="v-reveal" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: mobile ? '32px' : '48px' }}>
+        <VLabel>selected work</VLabel>
+        <span style={{ fontFamily: V_MONO, fontSize: '12px', color: V_FAINT }}>{String(projects.length).padStart(2, '0')} projects</span>
+      </div>
+      <div>
+        {projects.map((p, i) => <VRow key={p.id} p={p} i={i} mobile={mobile} />)}
+        <div style={{ borderTop: '1px solid ' + V_LINEC }} />
+      </div>
+    </section>
+  );
+}
+
+function VBackground({ mobile }) {
+  const facts = [
+    ['based_in', 'Rotterdam, NL'],
+    ['day_job', 'Product Owner — 1.5 yrs'],
+    ['builds_with', 'AI (+ a 3D printer)'],
+    ['since', '2024'],
+    ['focus', 'Finance · Food · Making'],
+  ];
+  const tools = ['claude','lovable','stitch','github','supabase','netlify','median','mapbox','3d printer'];
+  return (
+    <section id="v-background" style={{ maxWidth: '1120px', margin: '0 auto', width: '100%', padding: mobile ? '88px 20px' : '140px 32px' }}>
+      <div className="v-reveal" style={{ marginBottom: mobile ? '28px' : '40px' }}><VLabel>background</VLabel></div>
+      <div style={{ display: mobile ? 'block' : 'grid', gridTemplateColumns: mobile ? undefined : '1fr 360px', gap: mobile ? '40px' : '64px' }}>
+        <div>
+          <p className="v-reveal" style={{
+            fontFamily: V_SANS, fontWeight: 500, margin: 0, color: V_INK,
+            fontSize: mobile ? 'clamp(20px, 5.4vw, 26px)' : 'clamp(24px, 2.6vw, 34px)',
+            lineHeight: 1.4, letterSpacing: '-0.02em',
+          }}>
+            I've wanted to build things for as long as I can remember — I just never wanted to learn to write the code. AI changed that. The gap between an idea and a working thing is finally small enough to cross in a weekend.
+          </p>
+          <p className="v-reveal" style={{
+            fontFamily: V_SANS, fontWeight: 400, margin: mobile ? '20px 0 0' : '24px 0 0', color: V_MUTE,
+            fontSize: '16px', lineHeight: 1.7, maxWidth: '560px',
+          }}>
+            I explore ideas by building them — a personal lab of experiments running on nights and weekends. Most start because a question wouldn't leave me alone. Peter &amp; Co. is where they live.
+          </p>
+          <div className="v-reveal" style={{ marginTop: mobile ? '36px' : '48px' }}>
+            <div style={{ marginBottom: '14px' }}><VLabel>tools</VLabel></div>
+            <div style={{ fontFamily: V_MONO, fontSize: '13px', lineHeight: 1.9, color: V_MUTE, letterSpacing: '0.02em' }}>
+              {tools.map((s, i) => (
+                <span key={s}>{i > 0 && <span style={{ color: V_FAINT }}> / </span>}{s}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="v-reveal">
+          <div style={{ border: '1px solid ' + V_LINEC, padding: mobile ? '20px' : '24px' }}>
+            <div style={{ fontFamily: V_MONO, fontSize: '11px', color: V_FAINT, marginBottom: '8px' }}>~/about.cfg</div>
+            {facts.map(([k, v]) => (
+              <div key={k} style={{ display: 'flex', justifyContent: 'space-between', gap: '16px', padding: '11px 0', borderTop: '1px solid ' + V_LINEC, fontFamily: V_MONO, fontSize: '12px' }}>
+                <span style={{ color: V_FAINT }}>{k}</span>
+                <span style={{ color: V_INK, textAlign: 'right' }}>{v}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function VContact({ mobile }) {
+  const time = useRotterdamTime();
+  const [hot, setHot] = React.useState(false);
+  const links = [
+    { label: 'github', href: 'https://github.com/preijm' },
+    { label: 'linkedin', href: 'https://www.linkedin.com/in/peter-reijm-47165b5b/' },
+    { label: 'email', href: 'mailto:peterreijm@live.nl' },
+  ];
+  return (
+    <section id="v-contact">
+      <div style={{ maxWidth: '1120px', margin: '0 auto', width: '100%', padding: mobile ? '88px 20px' : '140px 32px' }}>
+        <div className="v-reveal" style={{ marginBottom: mobile ? '24px' : '32px' }}><VLabel>contact</VLabel></div>
+        <h2 className="v-reveal" style={{
+          fontFamily: V_SANS, fontWeight: 500, margin: 0, color: V_INK,
+          fontSize: mobile ? 'clamp(28px, 8vw, 40px)' : 'clamp(40px, 5vw, 68px)',
+          lineHeight: 1.05, letterSpacing: '-0.025em',
+        }}>
+          Got a problem<br />worth building?
+        </h2>
+        <a
+          className="v-reveal"
+          href="mailto:peterreijm@live.nl"
+          onMouseEnter={() => setHot(true)}
+          onMouseLeave={() => setHot(false)}
+          style={{
+            display: 'inline-block', marginTop: mobile ? '28px' : '36px', textDecoration: 'none',
+            fontFamily: V_MONO, fontSize: mobile ? '15px' : '17px', letterSpacing: '0.02em',
+            color: hot ? V_LIME : V_INK, borderBottom: '1px solid ' + (hot ? V_LIME : V_LINEC),
+            paddingBottom: '5px', transition: 'color 200ms ease, border-color 200ms ease',
+          }}>
+          <span style={{ color: V_LIME }}>$</span> mail peterreijm@live.nl →
+        </a>
+      </div>
+      <footer style={{ borderTop: '1px solid ' + V_LINEC, padding: mobile ? '22px 20px' : '24px 32px' }}>
+        <div style={{
+          maxWidth: '1120px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          flexWrap: 'wrap', gap: '12px 24px', fontFamily: V_MONO, fontSize: '11px', letterSpacing: '0.03em',
+        }}>
+          <span style={{ color: V_FAINT }}><span style={{ color: V_LIME }}>// </span>origin.log — © 2026 peter &amp; co. · a playground, not a business. yet.</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: mobile ? '6px' : '14px', flexWrap: 'wrap' }}>
+            {links.map(l => (
+              <a key={l.label} href={l.href} target={l.href.indexOf('http') === 0 ? '_blank' : undefined} rel="noopener noreferrer" style={{ color: V_MUTE, textDecoration: 'none', padding: '12px 6px' }}
+                onMouseEnter={e => e.currentTarget.style.color = V_LIME}
+                onMouseLeave={e => e.currentTarget.style.color = V_MUTE}
+              >{l.label}</a>
+            ))}
+            {!mobile && <span style={{ color: V_FAINT }}>rotterdam {time}</span>}
+          </span>
+        </div>
+      </footer>
+    </section>
+  );
+}
+
+function VoltApp(props) {
+  const gsapReady = useVoltGsap();
+  const mobile = useMobile();
+  const rootRef = React.useRef(null);
+  const projects = PROJECTS.filter(p => p.public !== false);
+
+  const onTop = () => window.scrollTo({ top: 0, behavior: vReduced() ? 'auto' : 'smooth' });
+
+  React.useEffect(() => {
+    if (!gsapReady || vReduced()) return;
+    const gsap = window.gsap;
+    const ctx = gsap.context(() => {
+      gsap.from('.v-fade', { y: 16, opacity: 0, duration: 0.8, ease: 'power2.out', stagger: 0.09, delay: 0.12 });
+      gsap.utils.toArray('.v-reveal').forEach(el => {
+        gsap.from(el, { y: 22, opacity: 0, duration: 0.8, ease: 'power2.out', scrollTrigger: { trigger: el, start: 'top 90%' } });
+      });
+      gsap.from('.v-row', { y: 16, opacity: 0, duration: 0.6, ease: 'power2.out', stagger: 0.05, scrollTrigger: { trigger: '#v-work', start: 'top 80%' } });
+    }, rootRef);
+    return () => ctx.revert();
+  }, [gsapReady]);
+
+  return (
+    <div ref={rootRef} className="volt-root" style={{ background: 'transparent', color: V_INK, minHeight: '100vh', fontFamily: V_SANS, overflowX: 'clip' }}>
+      <VBackdrop />
+      <VParticles mobile={mobile} />
+      <VFloatingChrome onTop={onTop} />
+      <VHero mobile={mobile} />
+      <VWork projects={projects} mobile={mobile} />
+      <VBackground mobile={mobile} />
+      <VContact mobile={mobile} />
     </div>
   );
 }
