@@ -11,6 +11,9 @@ JSX is written directly in `index.html` but **pre-compiled by CI**, not in the b
 
 For local preview, the raw `index.html` still works in the browser via `npx serve .` (see `.claude/launch.json`). The Mondriaan theme is lazy-loaded and compiled at runtime in dev, but pre-compiled in the build.
 
+## Content (projects & tools)
+Projects and tools are **driven by `content/projects.csv` and `content/tools.csv`** — they are the source of truth. `build.js` reads them at build time and regenerates the `PROJECTS` / `TOOL_CATEGORIES` arrays in `index.html` between the `/* CONTENT:*:START */` markers. The inline arrays are only a dev/preview snapshot (the build overwrites them). **To change projects or tools, edit the CSVs**, not the arrays. See **[CONTENT.md](CONTENT.md)** for the column reference.
+
 ## Theme Work
 Before designing or modifying any theme, read **[THEMES.md](THEMES.md)** — it contains the canonical rules for theme structure, taglines, color tokens, the Editions modal, and the Mondriaan paint-in animation.
 
