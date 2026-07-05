@@ -62,6 +62,7 @@ function mapProjects(rows) {
     };
     if (r.href) p.href = r.href;
     if (r.screenshot) p.screenshot = r.screenshot;
+    if (r.screenshot_before) p.screenshotBefore = r.screenshot_before;
     if ((r.public || '').trim() !== '' && !csvBool(r.public)) p.public = false;
     return p;
   });
