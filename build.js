@@ -73,6 +73,7 @@ function mapTools(rows) {
     (byCat[cat] = byCat[cat] || []).push({
       name: r.name, desc: r.desc,
       ...(/retired/i.test(r.status || '') ? { status: 'retired' } : {}),
+      ...(csvBool(r.highlight) ? { highlight: true } : {}),
     });
   });
   const cats = order.filter(c => byCat[c]).map(c => ({ label: c, tools: byCat[c] }));

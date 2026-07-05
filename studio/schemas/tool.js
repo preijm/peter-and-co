@@ -18,6 +18,10 @@ export default defineType({
       initialValue: 'active',
     }),
     defineField({name: 'order', title: 'Sort order', type: 'number', initialValue: 0, description: 'Lower shows first'}),
+    defineField({
+      name: 'highlight', title: 'Highlight in summary', type: 'boolean', initialValue: false,
+      description: "Show in the short 'tools' list on the Volt edition's hero. Leave off for tools that only need to appear on the full Tools page.",
+    }),
   ],
   orderings: [{title: 'Manual order', name: 'orderAsc', by: [{field: 'order', direction: 'asc'}]}],
   preview: {select: {title: 'name', subtitle: 'category'}},

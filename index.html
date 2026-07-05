@@ -713,7 +713,7 @@ function ProjectStrip({ onSelect, projects, onViewAll }) {
                 onMouseLeave={() => setHovered(false)}
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '28px 1fr 72px 44px 180px 20px',
+                  gridTemplateColumns: '28px 1fr 72px 96px 150px 20px',
                   alignItems: 'center',
                   padding: '18px 32px',
                   borderBottom: `1px solid ${theme.colors.borderSubtle}`,
@@ -733,8 +733,8 @@ function ProjectStrip({ onSelect, projects, onViewAll }) {
                 <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textDim, letterSpacing: '0.08em' }}>
                   {p.tags[0]}
                 </span>
-                <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.06em' }}>
-                  {notLive ? 'soon' : p.year}
+                <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>
+                  {notLive ? 'coming soon' : p.year}
                 </span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: accent, display: 'inline-block', flexShrink: 0 }} />
@@ -1055,25 +1055,25 @@ const TOOL_CATEGORIES = [
   {
     label: 'build',
     tools: [
-      { name: 'Lovable',       desc: 'Prototype to product, fast.' },
-      { name: 'Claude',        desc: "The whole suite. Design, code, research. It's become the default." },
+      { name: 'Lovable',       desc: 'Prototype to product, fast.', highlight: true },
+      { name: 'Claude',        desc: "The whole suite. Design, code, research. It's become the default.", highlight: true },
       { name: 'Stitch',        desc: 'Connecting data without the plumbing.', status: 'retired' },
-      { name: 'GitHub',        desc: 'Version control and a public record of trying.' },
+      { name: 'GitHub',        desc: 'Version control and a public record of trying.', highlight: true },
       { name: 'APIs',          desc: 'First thing I check: does it have one.' },
-      { name: 'Median',        desc: 'Web app to native mobile, without the native overhead.' },
+      { name: 'Median',        desc: 'Web app to native mobile, without the native overhead.', highlight: true },
     ],
   },
   {
     label: 'infrastructure',
     tools: [
-      { name: 'Supabase',      desc: 'Backend without the backend work.' },
+      { name: 'Supabase',      desc: 'Backend without the backend work.', highlight: true },
       { name: 'Backblaze',     desc: 'Cheap, reliable storage. No drama.' },
       { name: 'Cloudflare',    desc: 'DNS, proxy, and Workers. Fast and safe.' },
       { name: 'IONOS',         desc: 'Domains and hosting, quietly doing its job.' },
-      { name: 'Mapbox',        desc: 'Maps that don\'t look like Google Maps.' },
+      { name: 'Mapbox',        desc: 'Maps that don\'t look like Google Maps.', highlight: true },
       { name: 'Counterscale',  desc: 'Self-hosted analytics. No cookies, no nonsense.' },
       { name: 'Formspree',     desc: 'Form submissions without the backend.' },
-      { name: 'Netlify',       desc: 'Deploy from GitHub, forms included. Done.' },
+      { name: 'Netlify',       desc: 'Deploy from GitHub, forms included. Done.', highlight: true },
     ],
   },
   {
@@ -1373,7 +1373,7 @@ const SANITY = { projectId: 'fas2xxna', dataset: 'production' };
 const sanityUrl = (q) =>
   `https://${SANITY.projectId}.apicdn.sanity.io/v2024-01-01/data/query/${SANITY.dataset}?query=${encodeURIComponent(q)}`;
 const Q_PROJECTS = `*[_type=="project"]|order(order asc){"id":slug.current,title,description,tagline,detail,tags,year,url,href,"screenshot":screenshot.asset->url,role,stack,tools,featured,isPublic,"accent":{"default":accentDefault,"mondriaan-v1":accentMondriaan}}`;
-const Q_TOOLS = `*[_type=="tool"]|order(order asc){name,"desc":description,category,status}`;
+const Q_TOOLS = `*[_type=="tool"]|order(order asc){name,"desc":description,category,status,highlight}`;
 
 function mapSanityProjects(docs) {
   return (docs || []).filter(d => d && d.title).map(d => {
@@ -1394,7 +1394,7 @@ function mapSanityTools(docs) {
   const order = ['build', 'infrastructure', 'daily'], byCat = {};
   (docs || []).filter(d => d && d.name).forEach(d => {
     const cat = (d.category || 'build');
-    (byCat[cat] = byCat[cat] || []).push({ name: d.name, desc: d.desc, ...(d.status === 'retired' ? { status: 'retired' } : {}) });
+    (byCat[cat] = byCat[cat] || []).push({ name: d.name, desc: d.desc, ...(d.status === 'retired' ? { status: 'retired' } : {}), ...(d.highlight ? { highlight: true } : {}) });
   });
   const cats = order.filter(c => byCat[c]).map(c => ({ label: c, tools: byCat[c] }));
   Object.keys(byCat).forEach(c => { if (!order.includes(c)) cats.push({ label: c, tools: byCat[c] }); });
@@ -2067,7 +2067,7 @@ function MWorkTable({ onSelect }) {
                   <span style={{ fontFamily: M_DISPLAY, fontSize: '20px', color: M_BLACK, letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1 }}>{p.title}</span>
                   <div style={{ display: 'flex', gap: '8px', marginTop: 2 }}>
                     <span style={{ fontFamily: M_MONO, fontSize: '10px', color: '#5a5a5a', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{p.tags[0]}</span>
-                    <span style={{ fontFamily: M_MONO, fontSize: '10px', color: '#5a5a5a', letterSpacing: '0.04em' }}>{notLive ? 'soon' : p.year}</span>
+                    <span style={{ fontFamily: M_MONO, fontSize: '10px', color: '#5a5a5a', letterSpacing: '0.04em' }}>{notLive ? 'coming soon' : p.year}</span>
                   </div>
                   <span style={{ fontFamily: M_MONO, fontSize: '10px', color: M_BLACK, letterSpacing: '0.02em', marginTop: 2 }}>{p.url}</span>
                 </div>
@@ -2084,7 +2084,7 @@ function MWorkTable({ onSelect }) {
               onClick={isClickable ? () => onSelect(p) : undefined}
               style={{
                 border: ROW_BORDER, borderBottom: idx === PROJECTS.length - 1 ? ROW_BORDER : 'none',
-                display: 'grid', gridTemplateColumns: '40px 1fr 120px 80px 180px 48px',
+                display: 'grid', gridTemplateColumns: '40px 1fr 120px 104px 156px 48px',
                 background: M_WHITE, cursor: isClickable ? 'pointer' : 'default',
                 opacity: notLive ? 0.2 : 1,
                 userSelect: notLive ? 'none' : 'auto',
@@ -2105,7 +2105,7 @@ function MWorkTable({ onSelect }) {
                 <span style={{ fontFamily: M_MONO, fontSize: '11px', color: M_BLACK, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{p.tags[0]}</span>
               </div>
               <div style={{ ...CELL, borderRight: ROW_BORDER }}>
-                <span style={{ fontFamily: M_MONO, fontSize: '11px', color: '#5a5a5a', letterSpacing: '0.04em' }}>{notLive ? 'soon' : p.year}</span>
+                <span style={{ fontFamily: M_MONO, fontSize: '11px', color: '#5a5a5a', letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>{notLive ? 'coming soon' : p.year}</span>
               </div>
               <div style={{ ...CELL, borderRight: ROW_BORDER }}>
                 <span style={{ fontFamily: M_MONO, fontSize: '11px', color: M_BLACK, letterSpacing: '0.02em' }}>{p.url}</span>
@@ -2464,13 +2464,13 @@ function VTerminal({ projects, mobile }) {
            'not a developer: i bring the ideas and the taste; AI handles the code.'];
     } else if (n === 'ls' || n === 'projects') {
       a = [projects.length + ' projects:'];
-      projects.forEach((p, idx) => a.push('  ' + String(idx + 1).padStart(2, '0') + '  ' + p.title + ' — ' + (p.tagline || (p.tags || []).join(' · ')) + (p.href ? '  ↗' : '  (soon)')));
+      projects.forEach((p, idx) => a.push('  ' + String(idx + 1).padStart(2, '0') + '  ' + p.title + ' — ' + (p.tagline || (p.tags || []).join(' · ')) + (p.public !== false && p.href ? '  ↗' : '  (soon)')));
       a.push("→ type 'open <n>' to visit one");
     } else if (n === 'open') {
       const idx = parseInt(args[0], 10);
       const p = projects[idx - 1] || projects.find(x => x.id === (args[0] || '').toLowerCase());
       if (!p) a = ["no such project. try 'projects'"];
-      else if (!p.href) a = [p.title + " isn't live yet — soon."];
+      else if (p.public === false || !p.href) a = [p.title + " isn't live yet — coming soon."];
       else { a = ['opening ' + p.title + ' → ' + p.href]; window.open(p.href, '_blank', 'noopener'); }
     } else if (n === 'about' || n === 'background') {
       a = ["i've wanted to build things forever — i just never wanted to learn to write the code.",
@@ -2536,7 +2536,6 @@ function VTerminal({ projects, mobile }) {
 }
 
 function VHero({ mobile, projects }) {
-  const time = useRotterdamTime();
   const meta = { fontFamily: V_MONO, fontSize: '12px', letterSpacing: '0.04em', color: V_MUTE };
   return (
     <section id="v-hero" style={{
@@ -2565,8 +2564,8 @@ function VHero({ mobile, projects }) {
       </div>
 
       <div className="v-fade" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '10px 24px' }}>
-        <span style={{ ...meta, color: V_FAINT }}>// based in rotterdam, nl</span>
-        <span style={{ ...meta, color: V_FAINT }}>local time {time} · scroll ↓</span>
+        <span style={{ ...meta, color: V_FAINT }}>// next — selected work</span>
+        <span style={{ ...meta, color: V_FAINT }}>scroll ↓</span>
       </div>
     </section>
   );
@@ -2574,12 +2573,14 @@ function VHero({ mobile, projects }) {
 
 function VRow({ p, i, mobile }) {
   const [hov, setHov] = React.useState(false);
-  const live = !!p.href;
+  const soon = p.public === false;      // not launched yet → shown faded as "coming soon"
+  const clickable = !soon && !!p.href;  // only live projects with a URL open
+  const hot = hov && clickable;
   const mono = { fontFamily: V_MONO, fontSize: '12px', letterSpacing: '0.04em' };
   const titleBlock = (
-    <div style={{ transform: hov && !mobile ? 'translateX(10px)' : 'none', transition: 'transform 320ms cubic-bezier(0.2,0.7,0.2,1)' }}>
+    <div style={{ transform: hot && !mobile ? 'translateX(10px)' : 'none', transition: 'transform 320ms cubic-bezier(0.2,0.7,0.2,1)' }}>
       <span style={{
-        fontFamily: V_SANS, fontWeight: 500, color: hov ? V_LIME : V_INK,
+        fontFamily: V_SANS, fontWeight: 500, color: hot ? V_LIME : V_INK,
         fontSize: mobile ? '22px' : 'clamp(24px, 2.8vw, 40px)', letterSpacing: '-0.02em', lineHeight: 1.08, display: 'block',
         transition: 'color 200ms ease',
       }}>{p.title}</span>
@@ -2592,19 +2593,27 @@ function VRow({ p, i, mobile }) {
     </div>
   );
   const metaBlock = (
-    <div style={{ ...mono, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-      {p.tags && p.tags.length > 0 && <span style={{ color: V_FAINT }}>{p.tags.slice(0, 3).join(' · ')}</span>}
-      {p.role && <span style={{ color: V_MUTE }}>{p.role}</span>}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      {p.tags && p.tags.length > 0 && (
+        <span style={{ fontFamily: V_MONO, fontSize: '11px', letterSpacing: '0.16em', textTransform: 'uppercase', color: V_FAINT }}>
+          {p.tags.slice(0, 3).join(' · ')}
+        </span>
+      )}
+      {p.role && (
+        <span style={{ fontFamily: V_SANS, fontSize: '14px', lineHeight: 1.35, color: V_MUTE }}>
+          {p.role}
+        </span>
+      )}
     </div>
   );
   const yearBlock = (
-    <span style={{ ...mono, color: live ? (hov ? V_LIME : V_MUTE) : V_FAINT, textAlign: mobile ? 'left' : 'right', transition: 'color 200ms ease' }}>
-      {live ? p.year + ' ↗' : 'soon'}
+    <span style={{ ...mono, color: soon ? V_FAINT : (hot ? V_LIME : V_MUTE), textAlign: mobile ? 'left' : 'right', whiteSpace: 'nowrap', transition: 'color 200ms ease' }}>
+      {soon ? 'coming soon' : (p.href ? p.year + ' ↗' : p.year)}
     </span>
   );
   const inner = mobile ? (
     <React.Fragment>
-      <span style={{ ...mono, color: hov ? V_LIME : V_FAINT }}>{String(i + 1).padStart(2, '0')}</span>
+      <span style={{ ...mono, color: hot ? V_LIME : V_FAINT }}>{String(i + 1).padStart(2, '0')}</span>
       {titleBlock}
       {metaBlock}
       {yearBlock}
@@ -2613,29 +2622,29 @@ function VRow({ p, i, mobile }) {
     <React.Fragment>
       <VGhostNum n={i + 1} size="clamp(64px, 6.2vw, 118px)" style={{
         position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)', zIndex: 0,
-        opacity: hov ? 0.9 : 0.5, transition: 'opacity 240ms ease',
+        opacity: hot ? 0.9 : 0.5, transition: 'opacity 240ms ease',
       }} />
       <div style={{ gridColumn: '2 / span 7', alignSelf: 'center', zIndex: 1 }}>{titleBlock}</div>
       <div style={{ gridColumn: '9 / span 2', alignSelf: 'center', zIndex: 1 }}>{metaBlock}</div>
-      <div style={{ gridColumn: '12', alignSelf: 'center', justifySelf: 'end', zIndex: 1 }}>{yearBlock}</div>
+      <div style={{ gridColumn: '11 / span 2', alignSelf: 'center', justifySelf: 'end', zIndex: 1 }}>{yearBlock}</div>
     </React.Fragment>
   );
+  const baseStyle = {
+    textDecoration: 'none', color: V_INK, borderTop: '1px solid ' + V_LINEC,
+    cursor: clickable ? 'pointer' : 'default', opacity: soon ? 0.45 : 1,
+  };
   const style = mobile ? {
-    display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '12px',
-    padding: '28px 0', borderTop: '1px solid ' + V_LINEC,
-    textDecoration: 'none', color: V_INK, cursor: live ? 'pointer' : 'default',
+    ...baseStyle, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '12px', padding: '28px 0',
   } : {
-    display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', columnGap: 'clamp(16px, 1.8vw, 30px)',
-    position: 'relative', alignItems: 'center',
-    padding: 'clamp(32px, 3.4vw, 60px) 0', borderTop: '1px solid ' + V_LINEC,
-    textDecoration: 'none', color: V_INK, cursor: live ? 'pointer' : 'default',
+    ...baseStyle, display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', columnGap: 'clamp(16px, 1.8vw, 30px)',
+    position: 'relative', alignItems: 'center', padding: 'clamp(32px, 3.4vw, 60px) 0',
   };
   const handlers = {
     className: 'v-row',
     onMouseEnter: () => setHov(true),
     onMouseLeave: () => setHov(false),
   };
-  return live
+  return clickable
     ? <a href={p.href} target="_blank" rel="noopener noreferrer" {...handlers} style={style}>{inner}</a>
     : <div {...handlers} style={style}>{inner}</div>;
 }
@@ -2656,19 +2665,30 @@ function VWork({ projects, mobile }) {
 }
 
 function VBackground({ mobile }) {
+  // Years as Product Owner, computed from the start date so it never goes stale.
+  const poStart = new Date('2025-01-01');
+  const poYrs = ((Date.now() - poStart) / (365.25 * 864e5)).toFixed(1).replace(/\.0$/, '');
   const facts = [
     ['based_in', 'Rotterdam, NL'],
-    ['day_job', 'Product Owner — 1.5 yrs'],
+    ['day_job', 'Product Owner — ' + poYrs + ' yrs'],
     ['builds_with', 'AI (+ a 3D printer)'],
-    ['since', '2024'],
+    ['since', '2025'],
     ['focus', 'Finance · Food · Making'],
   ];
-  const tools = ['claude','lovable','stitch','github','supabase','netlify','median','mapbox','3d printer'];
+  // Derived from TOOL_CATEGORIES (Sanity-managed via each tool's "Highlight in
+  // summary" flag), so this stays in sync automatically — no hand-typed list to
+  // go stale. The 3D printer is a physical tool, not part of the software stack
+  // in Sanity, so it's appended manually.
+  const tools = TOOL_CATEGORIES
+    .flatMap(c => c.tools)
+    .filter(t => t.highlight && t.status !== 'retired')
+    .map(t => t.name.toLowerCase())
+    .concat('3d printer');
   return (
     <section id="v-background" style={vWrap(mobile, mobile ? '88px' : '140px')}>
       <div className="v-reveal" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: mobile ? '28px' : '52px' }}>
         <VLabel>background</VLabel>
-        <span style={{ fontFamily: V_MONO, fontSize: '12px', color: V_FAINT }}>est. 2024 · nights &amp; weekends</span>
+        <span style={{ fontFamily: V_MONO, fontSize: '12px', color: V_FAINT }}>est. 2025 · nights &amp; weekends</span>
       </div>
       <div style={{ ...vCols(mobile), rowGap: mobile ? '36px' : 'clamp(32px, 4vw, 56px)', alignItems: 'start' }}>
         <p className="v-reveal" style={{
@@ -2782,7 +2802,8 @@ function VoltApp(props) {
   const gsapReady = useVoltGsap();
   const mobile = useMobile();
   const rootRef = React.useRef(null);
-  const projects = PROJECTS.filter(p => p.public !== false);
+  // Show all projects; live ones are clickable, coming-soon ones render faded.
+  const projects = PROJECTS;
 
   const onTop = () => window.scrollTo({ top: 0, behavior: vReduced() ? 'auto' : 'smooth' });
 
