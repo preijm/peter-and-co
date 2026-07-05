@@ -19,6 +19,10 @@ export default defineType({
     defineField({name: 'url', title: 'Display URL', type: 'string', description: 'Short, no https://'}),
     defineField({name: 'href', title: 'Live link', type: 'url', description: 'Full URL — leave empty if not live (shows "soon")'}),
     defineField({name: 'screenshot', title: 'Screenshot', type: 'image', options: {hotspot: true}, description: 'Optional — leave empty for the placeholder'}),
+    defineField({
+      name: 'screenshotBefore', title: 'Screenshot (before)', type: 'image', options: {hotspot: true},
+      description: 'Optional — for redesign case studies. When both this and Screenshot are set, the detail page shows a drag-to-reveal before/after slider instead of a single image.',
+    }),
     defineField({name: 'role', title: 'Role', type: 'string', description: 'e.g. Idea, design, build, ship.'}),
     defineField({name: 'stack', title: 'Stack', type: 'array', of: [{type: 'string'}], options: {layout: 'tags'}}),
     defineField({name: 'tools', title: 'Tools used', type: 'array', of: [{type: 'string'}], options: {layout: 'tags'}}),

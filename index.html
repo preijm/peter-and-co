@@ -522,7 +522,7 @@ function SiteHeader({ activePage, onNavigate }) {
           )}
           {!mobile && <ThemeDropdown />}
           {mobile && (
-            <button onClick={() => setMenuOpen(o => !o)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
+            <button onClick={() => setMenuOpen(o => !o)} aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
               <span style={{ display: 'block', width: '22px', height: '1.5px', background: theme.colors.text, transition: 'transform 200ms ease, opacity 200ms ease', transform: menuOpen ? 'translateY(6.5px) rotate(45deg)' : 'none' }} />
               <span style={{ display: 'block', width: '22px', height: '1.5px', background: theme.colors.text, transition: 'opacity 200ms ease', opacity: menuOpen ? 0 : 1 }} />
               <span style={{ display: 'block', width: '22px', height: '1.5px', background: theme.colors.text, transition: 'transform 200ms ease, opacity 200ms ease', transform: menuOpen ? 'translateY(-6.5px) rotate(-45deg)' : 'none' }} />
@@ -538,7 +538,7 @@ function SiteHeader({ activePage, onNavigate }) {
               <span style={{ fontFamily: theme.fonts.serif, fontSize: '26px', color: theme.colors.text, letterSpacing: '-0.03em', lineHeight: 1.0 }}>Peter</span>
               <span style={{ fontFamily: theme.fonts.serif, fontSize: '16px', color: theme.colors.textDim, letterSpacing: '-0.02em', lineHeight: 1.0 }}>&amp; Co.</span>
             </button>
-            <button onClick={() => setMenuOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
+            <button onClick={() => setMenuOpen(false)} aria-label="Close menu" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
               <span style={{ display: 'block', width: '22px', height: '1.5px', background: theme.colors.text, transform: 'translateY(6.5px) rotate(45deg)' }} />
               <span style={{ display: 'block', width: '22px', height: '1.5px', background: theme.colors.text, opacity: 0 }} />
               <span style={{ display: 'block', width: '22px', height: '1.5px', background: theme.colors.text, transform: 'translateY(-6.5px) rotate(-45deg)' }} />
@@ -671,23 +671,21 @@ function ProjectStrip({ onSelect, projects, onViewAll }) {
         {list.map((p, i) => {
           const [hovered, setHovered] = React.useState(false);
           const accent = resolveAccent(p, theme.id) || theme.colors.text;
-          const notLive = p.public === false;
-          const soonRowStyle = notLive ? { opacity: 0.2, userSelect: 'none' } : {};
+          const comingSoon = p.public === false; // not live yet — shown only via the year/status label, still clickable for the case study
           if (mobile) {
             return (
               <div key={p.id} style={{ position: 'relative' }}>
                 <div
-                  onClick={notLive ? undefined : () => onSelect(p)}
-                  onMouseEnter={() => { if (!notLive) setHovered(true); }}
+                  onClick={() => onSelect(p)}
+                  onMouseEnter={() => setHovered(true)}
                   onMouseLeave={() => setHovered(false)}
                   style={{
                     display: 'flex', alignItems: 'center', gap: '12px',
                     padding: '18px 0',
                     borderBottom: `1px solid ${theme.colors.borderSubtle}`,
-                    cursor: notLive ? 'default' : 'pointer',
+                    cursor: 'pointer',
                     background: hovered ? theme.colors.surface : 'transparent',
                     transition: 'background 120ms ease',
-                    ...soonRowStyle,
                   }}
                 >
                   <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.1em', flexShrink: 0 }}>
@@ -700,7 +698,7 @@ function ProjectStrip({ onSelect, projects, onViewAll }) {
                       <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: accent, letterSpacing: '0.04em' }}>{p.url}</span>
                     </div>
                   </div>
-                  {!notLive && <span style={{ fontFamily: theme.fonts.mono, fontSize: '13px', color: hovered ? theme.colors.text : theme.colors.textGhost, transition: 'color 150ms ease', flexShrink: 0 }}>→</span>}
+                  <span style={{ fontFamily: theme.fonts.mono, fontSize: '13px', color: hovered ? theme.colors.text : theme.colors.textGhost, transition: 'color 150ms ease', flexShrink: 0 }}>→</span>
                 </div>
               </div>
             );
@@ -708,8 +706,8 @@ function ProjectStrip({ onSelect, projects, onViewAll }) {
           return (
             <div key={p.id} style={{ position: 'relative' }}>
               <div
-                onClick={notLive ? undefined : () => onSelect(p)}
-                onMouseEnter={() => { if (!notLive) setHovered(true); }}
+                onClick={() => onSelect(p)}
+                onMouseEnter={() => setHovered(true)}
                 onMouseLeave={() => setHovered(false)}
                 style={{
                   display: 'grid',
@@ -717,11 +715,10 @@ function ProjectStrip({ onSelect, projects, onViewAll }) {
                   alignItems: 'center',
                   padding: '18px 32px',
                   borderBottom: `1px solid ${theme.colors.borderSubtle}`,
-                  cursor: notLive ? 'default' : 'pointer',
+                  cursor: 'pointer',
                   background: hovered ? theme.colors.surface : 'transparent',
                   margin: '0 -32px',
                   transition: 'background 120ms ease',
-                  ...soonRowStyle,
                 }}
               >
                 <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.1em' }}>
@@ -734,13 +731,13 @@ function ProjectStrip({ onSelect, projects, onViewAll }) {
                   {p.tags[0]}
                 </span>
                 <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>
-                  {notLive ? 'coming soon' : p.year}
+                  {comingSoon ? 'coming soon' : p.year}
                 </span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: accent, display: 'inline-block', flexShrink: 0 }} />
                   <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: accent, letterSpacing: '0.04em' }}>{p.url}</span>
                 </span>
-                {!notLive && <span style={{ fontFamily: theme.fonts.mono, fontSize: '13px', color: hovered ? theme.colors.text : theme.colors.textGhost, transition: 'color 150ms ease', textAlign: 'right' }}>→</span>}
+                <span style={{ fontFamily: theme.fonts.mono, fontSize: '13px', color: hovered ? theme.colors.text : theme.colors.textGhost, transition: 'color 150ms ease', textAlign: 'right' }}>→</span>
               </div>
             </div>
           );
@@ -1223,6 +1220,74 @@ function Contact() {
   );
 }
 
+// ── Before/After comparison slider ──────────────────────────
+// Drag-to-reveal case-study comparison: "before" clips over a full "after"
+// base layer. Used only when a project defines both screenshots.
+function BeforeAfterSlider({ before, after, alt, accent }) {
+  const [pos, setPos] = React.useState(50);
+  const draggingRef = React.useRef(false);
+  const ref = React.useRef(null);
+
+  const setFromClientX = (clientX) => {
+    const el = ref.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const pct = ((clientX - rect.left) / rect.width) * 100;
+    setPos(Math.min(100, Math.max(0, pct)));
+  };
+  const onPointerDown = (e) => {
+    draggingRef.current = true;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setFromClientX(e.clientX);
+  };
+  const onPointerMove = (e) => { if (draggingRef.current) setFromClientX(e.clientX); };
+  const onPointerUp = () => { draggingRef.current = false; };
+  const onKeyDown = (e) => {
+    if (e.key === 'ArrowLeft') { setPos(p => Math.max(0, p - 5)); e.preventDefault(); }
+    else if (e.key === 'ArrowRight') { setPos(p => Math.min(100, p + 5)); e.preventDefault(); }
+  };
+  const labelStyle = {
+    position: 'absolute', top: '10px', fontFamily: 'monospace', fontSize: '10px',
+    letterSpacing: '0.1em', textTransform: 'uppercase', color: '#fff',
+    background: 'rgba(0,0,0,0.55)', padding: '4px 8px', borderRadius: '2px',
+    pointerEvents: 'none',
+  };
+  const imgStyle = { width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top', display: 'block' };
+  return (
+    <div
+      ref={ref}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
+      style={{ position: 'absolute', inset: 0, cursor: 'ew-resize', userSelect: 'none', touchAction: 'none' }}
+    >
+      <img src={after} alt={alt} style={imgStyle} draggable={false} />
+      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', clipPath: `inset(0 ${100 - pos}% 0 0)` }}>
+        <img src={before} alt={alt + ' — before'} style={imgStyle} draggable={false} />
+      </div>
+      <div style={{ ...labelStyle, left: '10px' }}>before</div>
+      <div style={{ ...labelStyle, right: '10px' }}>after</div>
+      <div aria-hidden="true" style={{
+        position: 'absolute', top: 0, bottom: 0, left: `calc(${pos}% - 1px)`, width: '2px',
+        background: '#fff', boxShadow: '0 0 0 1px rgba(0,0,0,0.3)', pointerEvents: 'none',
+      }} />
+      <div
+        role="slider" tabIndex={0} aria-label="Before and after comparison"
+        aria-valuenow={Math.round(pos)} aria-valuemin={0} aria-valuemax={100}
+        onKeyDown={onKeyDown}
+        style={{
+          position: 'absolute', top: '50%', left: `${pos}%`, transform: 'translate(-50%, -50%)',
+          width: '36px', height: '36px', borderRadius: '50%', background: accent || '#fff',
+          border: '2px solid #fff', boxShadow: '0 2px 8px rgba(0,0,0,0.35)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: '13px', color: '#fff', cursor: 'ew-resize',
+        }}
+      >⟷</div>
+    </div>
+  );
+}
+
 // ── Project Detail ─────────────────────────────────────────
 function ProjectDetail({ project, onBack }) {
   const mobile = useMobile();
@@ -1263,7 +1328,9 @@ function ProjectDetail({ project, onBack }) {
             borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center',
             position: 'relative', overflow: 'hidden',
           }}>
-            {project.screenshot
+            {project.screenshot && project.screenshotBefore
+              ? <BeforeAfterSlider before={project.screenshotBefore} after={project.screenshot} alt={project.title} accent={accent} />
+              : project.screenshot
               ? <img src={project.screenshot} alt={project.title} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} />
               : <>
                   <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse at 30% 50%, ${accent}11 0%, transparent 70%)` }} />
@@ -1372,7 +1439,7 @@ function AppShell({ page, selectedProject, activePage, navigate, selectProject }
 const SANITY = { projectId: 'fas2xxna', dataset: 'production' };
 const sanityUrl = (q) =>
   `https://${SANITY.projectId}.apicdn.sanity.io/v2024-01-01/data/query/${SANITY.dataset}?query=${encodeURIComponent(q)}`;
-const Q_PROJECTS = `*[_type=="project"]|order(order asc){"id":slug.current,title,description,tagline,detail,tags,year,url,href,"screenshot":screenshot.asset->url,role,stack,tools,featured,isPublic,"accent":{"default":accentDefault,"mondriaan-v1":accentMondriaan}}`;
+const Q_PROJECTS = `*[_type=="project"]|order(order asc){"id":slug.current,title,description,tagline,detail,tags,year,url,href,"screenshot":screenshot.asset->url,"screenshotBefore":screenshotBefore.asset->url,role,stack,tools,featured,isPublic,"accent":{"default":accentDefault,"mondriaan-v1":accentMondriaan}}`;
 const Q_TOOLS = `*[_type=="tool"]|order(order asc){name,"desc":description,category,status,highlight}`;
 
 function mapSanityProjects(docs) {
@@ -1386,6 +1453,7 @@ function mapSanityProjects(docs) {
     };
     if (d.href) p.href = d.href;
     if (d.screenshot) p.screenshot = d.screenshot;
+    if (d.screenshotBefore) p.screenshotBefore = d.screenshotBefore;
     if (d.isPublic === false) p.public = false;
     return p;
   });
@@ -2039,10 +2107,10 @@ function MWorkTable({ onSelect }) {
         </div>
       )}
       {PROJECTS.map((p, idx) => {
-        const isClickable = !!p.detail && p.public !== false;
-        const notLive = p.public === false;
-        const accentCol = notLive ? M_WHITE : [M_RED, M_BLUE, M_YELLOW, M_BLACK][idx % 4];
-        const accentFg = notLive ? '#aaa' : (accentCol === M_YELLOW ? M_BLACK : M_WHITE);
+        const isClickable = !!(p.detail || p.description);
+        const comingSoon = p.public === false; // not live yet — shown only via the year label, still clickable for the case study
+        const accentCol = [M_RED, M_BLUE, M_YELLOW, M_BLACK][idx % 4];
+        const accentFg = accentCol === M_YELLOW ? M_BLACK : M_WHITE;
         if (mobile) {
           return (
             <div key={p.id} style={{ position: 'relative', marginBottom: `${M_LINE}px` }}>
@@ -2052,8 +2120,6 @@ function MWorkTable({ onSelect }) {
                   border: ROW_BORDER, borderBottom: 'none',
                   display: 'grid', gridTemplateColumns: '36px 1fr 32px',
                   background: M_WHITE, cursor: isClickable ? 'pointer' : 'default',
-                  opacity: notLive ? 0.2 : 1,
-                  userSelect: notLive ? 'none' : 'auto',
                 }}
                 onMouseEnter={e => { if (isClickable) e.currentTarget.style.background = '#f5f5f5'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = M_WHITE; }}
@@ -2067,7 +2133,7 @@ function MWorkTable({ onSelect }) {
                   <span style={{ fontFamily: M_DISPLAY, fontSize: '20px', color: M_BLACK, letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1 }}>{p.title}</span>
                   <div style={{ display: 'flex', gap: '8px', marginTop: 2 }}>
                     <span style={{ fontFamily: M_MONO, fontSize: '10px', color: '#5a5a5a', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{p.tags[0]}</span>
-                    <span style={{ fontFamily: M_MONO, fontSize: '10px', color: '#5a5a5a', letterSpacing: '0.04em' }}>{notLive ? 'coming soon' : p.year}</span>
+                    <span style={{ fontFamily: M_MONO, fontSize: '10px', color: '#5a5a5a', letterSpacing: '0.04em' }}>{comingSoon ? 'coming soon' : p.year}</span>
                   </div>
                   <span style={{ fontFamily: M_MONO, fontSize: '10px', color: M_BLACK, letterSpacing: '0.02em', marginTop: 2 }}>{p.url}</span>
                 </div>
@@ -2086,8 +2152,6 @@ function MWorkTable({ onSelect }) {
                 border: ROW_BORDER, borderBottom: idx === PROJECTS.length - 1 ? ROW_BORDER : 'none',
                 display: 'grid', gridTemplateColumns: '40px 1fr 120px 104px 156px 48px',
                 background: M_WHITE, cursor: isClickable ? 'pointer' : 'default',
-                opacity: notLive ? 0.2 : 1,
-                userSelect: notLive ? 'none' : 'auto',
               }}
               onMouseEnter={e => { if (isClickable) e.currentTarget.style.background = '#f5f5f5'; }}
               onMouseLeave={e => { e.currentTarget.style.background = M_WHITE; }}
@@ -2105,7 +2169,7 @@ function MWorkTable({ onSelect }) {
                 <span style={{ fontFamily: M_MONO, fontSize: '11px', color: M_BLACK, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{p.tags[0]}</span>
               </div>
               <div style={{ ...CELL, borderRight: ROW_BORDER }}>
-                <span style={{ fontFamily: M_MONO, fontSize: '11px', color: '#5a5a5a', letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>{notLive ? 'coming soon' : p.year}</span>
+                <span style={{ fontFamily: M_MONO, fontSize: '11px', color: '#5a5a5a', letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>{comingSoon ? 'coming soon' : p.year}</span>
               </div>
               <div style={{ ...CELL, borderRight: ROW_BORDER }}>
                 <span style={{ fontFamily: M_MONO, fontSize: '11px', color: M_BLACK, letterSpacing: '0.02em' }}>{p.url}</span>
