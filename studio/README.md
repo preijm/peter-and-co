@@ -29,6 +29,9 @@ Changes you publish here appear on the website on next refresh (the site reads l
 - `seed.ndjson` is a one-time import of the content that was hardcoded in the site.
   After importing once, the Studio is the source of truth — don't re-run `seed`.
 - Screenshots: the seed doesn't include images. Upload them per project in the Studio
-  (the `Screenshot` field). Projects without one show the placeholder.
-- If the website can't read Sanity (offline, etc.) it falls back to the built-in list
-  baked into `index.html`, so it never breaks.
+  (the `Screenshot` / `Screenshot (before)` fields). Projects without one show the
+  placeholder. For redesign case studies, set both `Screenshot` and
+  `Screenshot (before)` to show the drag-to-reveal comparison slider.
+- If the website can't read Sanity (offline, etc.) it falls back to a frozen
+  snapshot baked into `index.html`. That snapshot isn't auto-synced with Sanity —
+  it's just there so the site never fully breaks, not a live mirror of your content.
