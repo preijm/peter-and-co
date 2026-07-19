@@ -23,6 +23,10 @@ export default defineType({
       name: 'screenshotBefore', title: 'Screenshot (before)', type: 'image', options: {hotspot: true},
       description: 'Optional — for redesign case studies. When both this and Screenshot are set, the detail page shows a drag-to-reveal before/after slider instead of a single image.',
     }),
+    defineField({
+      name: 'livePreview', title: 'Show live embedded preview', type: 'boolean', initialValue: false,
+      description: 'Instead of a screenshot, embed the live site itself (scaled, interactive) on the detail page. Requires Live link to be set. Takes priority over Screenshot / Screenshot (before).',
+    }),
     defineField({name: 'role', title: 'Role', type: 'string', description: 'e.g. Idea, design, build, ship.'}),
     defineField({name: 'stack', title: 'Stack', type: 'array', of: [{type: 'string'}], options: {layout: 'tags'}}),
     defineField({name: 'tools', title: 'Tools used', type: 'array', of: [{type: 'string'}], options: {layout: 'tags'}}),

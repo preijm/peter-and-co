@@ -1331,6 +1331,8 @@ function ProjectDetail({ project, onBack }) {
           }}>
             {project.screenshot && project.screenshotBefore
               ? <BeforeAfterSlider before={project.screenshotBefore} after={project.screenshot} alt={project.title} accent={accent} />
+              : project.livePreview && project.href
+              ? <LivePreview href={project.href} themeId={theme.id} />
               : project.screenshot
               ? <img src={project.screenshot} alt={project.title} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} />
               : <>
@@ -1441,7 +1443,7 @@ function AppShell({ page, selectedProject, activePage, navigate, selectProject }
 const SANITY = { projectId: 'fas2xxna', dataset: 'production' };
 const sanityUrl = (q) =>
   `https://${SANITY.projectId}.apicdn.sanity.io/v2024-01-01/data/query/${SANITY.dataset}?query=${encodeURIComponent(q)}`;
-const Q_PROJECTS = `*[_type=="project"]|order(order asc){"id":slug.current,title,description,tagline,detail,tags,year,url,href,"screenshot":screenshot.asset->url,"screenshotBefore":screenshotBefore.asset->url,role,stack,tools,featured,isPublic,"accent":{"default":accentDefault,"mondriaan-v1":accentMondriaan}}`;
+const Q_PROJECTS = `*[_type=="project"]|order(order asc){"id":slug.current,title,description,tagline,detail,tags,year,url,href,"screenshot":screenshot.asset->url,"screenshotBefore":screenshotBefore.asset->url,livePreview,role,stack,tools,featured,isPublic,"accent":{"default":accentDefault,"mondriaan-v1":accentMondriaan}}`;
 const Q_TOOLS = `*[_type=="tool"]|order(order asc){name,"desc":description,category,status,highlight}`;
 
 function mapSanityProjects(docs) {
@@ -1456,6 +1458,7 @@ function mapSanityProjects(docs) {
     if (d.href) p.href = d.href;
     if (d.screenshot) p.screenshot = d.screenshot;
     if (d.screenshotBefore) p.screenshotBefore = d.screenshotBefore;
+    if (d.livePreview) p.livePreview = true;
     if (d.isPublic === false) p.public = false;
     return p;
   });
