@@ -781,7 +781,7 @@ const PROJECTS = [
   },
   {
     id: 'folio', featured: true,
-    title: 'Folio',
+    title: 'folio',
     description: 'Personal finance — crypto, gold & ETFs in one local-first view.',
     tags: ['tool', 'finance', 'data'],
     year: '2026',
@@ -1263,9 +1263,9 @@ function BeforeAfterSlider({ before, after, alt, accent }) {
       onPointerCancel={onPointerUp}
       style={{ position: 'absolute', inset: 0, cursor: 'ew-resize', userSelect: 'none', touchAction: 'none' }}
     >
-      <img src={after} alt={alt} style={imgStyle} draggable={false} />
+      <img src={sanityImg(after, 1400)} alt={alt} style={imgStyle} draggable={false} />
       <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', clipPath: `inset(0 ${100 - pos}% 0 0)` }}>
-        <img src={before} alt={alt + ' — before'} style={imgStyle} draggable={false} />
+        <img src={sanityImg(before, 1400)} alt={alt + ' — before'} style={imgStyle} draggable={false} />
       </div>
       <div style={{ ...labelStyle, left: '10px', opacity: beforeOpacity }}>before</div>
       <div style={{ ...labelStyle, right: '10px', opacity: afterOpacity }}>after</div>
@@ -1334,7 +1334,7 @@ function ProjectDetail({ project, onBack }) {
               : project.livePreview && project.href
               ? <LivePreview href={project.href} themeId={theme.id} />
               : project.screenshot
-              ? <img src={project.screenshot} alt={project.title} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} />
+              ? <img src={sanityImg(project.screenshot, 1400)} alt={project.title} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} />
               : <>
                   <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse at 30% 50%, ${accent}11 0%, transparent 70%)` }} />
                   <div style={{ textAlign: 'center' }}>
@@ -1443,6 +1443,13 @@ function AppShell({ page, selectedProject, activePage, navigate, selectProject }
 const SANITY = { projectId: 'fas2xxna', dataset: 'production' };
 const sanityUrl = (q) =>
   `https://${SANITY.projectId}.apicdn.sanity.io/v2024-01-01/data/query/${SANITY.dataset}?query=${encodeURIComponent(q)}`;
+// Sanity's image CDN resizes/recompresses/reformats on the fly via query params —
+// without this, <img> tags request the full original upload as-is (often several
+// MB). No-op for non-Sanity URLs (local paths, data URIs) so it's safe everywhere.
+const sanityImg = (url, w) => {
+  if (!url || typeof url !== 'string' || !url.includes('cdn.sanity.io')) return url;
+  return `${url}${url.includes('?') ? '&' : '?'}w=${w}&auto=format&q=75&fit=max`;
+};
 const Q_PROJECTS = `*[_type=="project"]|order(order asc){"id":slug.current,title,description,tagline,detail,tags,year,url,href,"screenshot":screenshot.asset->url,"screenshotBefore":screenshotBefore.asset->url,livePreview,role,stack,tools,featured,isPublic,"accent":{"default":accentDefault,"mondriaan-v1":accentMondriaan}}`;
 const Q_TOOLS = `*[_type=="tool"]|order(order asc){name,"desc":description,category,status,highlight}`;
 
@@ -1679,10 +1686,10 @@ function MHomeComposition({ onNavigate, onSelect }) {
         <div style={{ background: M_WHITE, gridColumn: '1 / 4', gridRow: '1', padding: '24px 40px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '20px', ...pnt('r', 0, 1000) }}>
           <MLabel size="11px">Rotterdam, NL · Digital Studio</MLabel>
           <h1 style={{
-            fontFamily: M_DISPLAY, fontSize: 'clamp(44px, 5.6vw, 88px)',
-            color: M_BLACK, lineHeight: 0.9, letterSpacing: '-0.04em', textTransform: 'uppercase',
+            fontFamily: M_DISPLAY, fontSize: 'clamp(30px, 5.6vw, 88px)',
+            color: M_BLACK, lineHeight: 0.9, letterSpacing: '-0.04em', textTransform: 'uppercase', overflowWrap: 'break-word',
           }}>
-            I build<br/>things.<br/>Sometimes<br/><span style={{ color: M_BLUE }}>they're useful.</span>
+            I build things.<br/>Sometimes<br/><span style={{ color: M_BLUE }}>they're useful.</span>
           </h1>
         </div>
 
@@ -2042,6 +2049,10 @@ function MProjectDetail({ project, onBack }) {
   const mobile = useMobile();
   const accent = resolveAccent(project, 'mondriaan-v1') || M_RED;
   const accentFg = accent === M_YELLOW ? M_BLACK : M_WHITE;
+  // Titles render huge and uppercase; a single long word (no space to wrap on)
+  // can overflow the colored box, so scale the whole clamp down for long words.
+  const longestWord = Math.max(...project.title.split(' ').map(w => w.length));
+  const titleFontSize = longestWord >= 10 ? 'clamp(32px, 6vw, 84px)' : 'clamp(56px, 9vw, 132px)';
   return (
     <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: mobile ? '12px' : '24px' }}>
       <button onClick={onBack} style={{
@@ -2057,7 +2068,7 @@ function MProjectDetail({ project, onBack }) {
               <span key={t} style={{ fontFamily: M_MONO, fontSize: '11px', fontWeight: 700, color: accentFg, padding: '4px 10px', border: `2px solid ${accentFg}`, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{t}</span>
             ))}
           </div>
-          <h1 style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(56px, 9vw, 132px)', color: accentFg, lineHeight: 0.9, letterSpacing: '-0.04em', textTransform: 'uppercase' }}>{project.title}</h1>
+          <h1 style={{ fontFamily: M_DISPLAY, fontSize: titleFontSize, color: accentFg, lineHeight: 0.9, letterSpacing: '-0.04em', textTransform: 'uppercase', overflowWrap: 'break-word' }}>{project.title}</h1>
           {project.tagline && <p style={{ fontFamily: M_SANS, fontWeight: 700, fontSize: '20px', color: accentFg, marginTop: 16, letterSpacing: '-0.01em' }}>{project.tagline}</p>}
         </div>
         {!mobile && (
@@ -2588,29 +2599,31 @@ function VTerminal({ projects, mobile }) {
         <span aria-hidden="true" style={{ width: '6px', height: '6px', borderRadius: '50%', background: V_LIME, display: 'inline-block' }} />
         available for good problems
       </div>
-      {history.length > 0 && (
-        <div ref={historyRef} className="v-term-scroll" style={{
-          ...mono, marginTop: '14px', height: mobile ? '150px' : '190px', overflowY: 'auto', overflowX: 'hidden',
-        }}>
-          {history.map((h, i) => (
-            <div key={i} style={{ marginBottom: '8px' }}>
-              <div style={{ color: V_INK }}>{prompt} {h.q}</div>
-              {h.a.map((line, j) => <div key={j} style={{ color: V_MUTE, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{line}</div>)}
-            </div>
-          ))}
+      {/* History + the live input line share one scrolling region, input last —
+          so output appears right below what you typed, like a real terminal,
+          and the whole thing auto-scrolls together. Fixed height, always
+          rendered (even empty), so nothing ever shifts the rest of the page. */}
+      <div ref={historyRef} className="v-term-scroll" style={{
+        ...mono, marginTop: '14px', height: mobile ? '150px' : '190px', overflowY: 'auto', overflowX: 'hidden',
+      }}>
+        {history.map((h, i) => (
+          <div key={i} style={{ marginBottom: '8px' }}>
+            <div style={{ color: V_INK }}>{prompt} {h.q}</div>
+            {h.a.map((line, j) => <div key={j} style={{ color: V_MUTE, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{line}</div>)}
+          </div>
+        ))}
+        <div style={{ display: 'flex', alignItems: 'center', color: V_INK }}>
+          <span style={{ marginRight: '8px', flexShrink: 0 }}>{prompt}</span>
+          <input
+            ref={inputRef} value={value} onChange={e => setValue(e.target.value)} onKeyDown={onKey}
+            spellCheck={false} autoComplete="off" autoCapitalize="off" aria-label="terminal command input"
+            placeholder="try: help, projects, contact"
+            style={{
+              flex: 1, minWidth: 0, background: 'transparent', border: 'none', outline: 'none', padding: 0,
+              color: V_INK, fontFamily: V_MONO, fontSize: mobile ? '12px' : '13px', letterSpacing: '0.02em', caretColor: V_LIME,
+            }}
+          />
         </div>
-      )}
-      <div style={{ ...mono, marginTop: history.length ? '6px' : '14px', display: 'flex', alignItems: 'center', color: V_INK }}>
-        <span style={{ marginRight: '8px', flexShrink: 0 }}>{prompt}</span>
-        <input
-          ref={inputRef} value={value} onChange={e => setValue(e.target.value)} onKeyDown={onKey}
-          spellCheck={false} autoComplete="off" autoCapitalize="off" aria-label="terminal command input"
-          placeholder="try: help, projects, contact"
-          style={{
-            flex: 1, minWidth: 0, background: 'transparent', border: 'none', outline: 'none', padding: 0,
-            color: V_INK, fontFamily: V_MONO, fontSize: mobile ? '12px' : '13px', letterSpacing: '0.02em', caretColor: V_LIME,
-          }}
-        />
       </div>
     </div>
   );
@@ -2840,7 +2853,7 @@ function VContact({ mobile }) {
           </h2>
           <div className="v-reveal" style={{ gridColumn: mobile ? undefined : '9 / span 4', marginTop: mobile ? '36px' : 0 }}>
             <p style={{ fontFamily: V_SANS, fontWeight: 400, margin: 0, color: V_MUTE, fontSize: '16px', lineHeight: 1.6, maxWidth: '380px' }}>
-              I'm always up for a good problem — paid work, a collaboration, or just a sharp idea worth chasing.
+              I'm always up for a good problem — work, a collaboration, or just a sharp idea worth chasing.
             </p>
             <a
               href="mailto:peterreijm@live.nl"
@@ -2871,7 +2884,6 @@ function VContact({ mobile }) {
                 onMouseLeave={e => e.currentTarget.style.color = V_MUTE}
               >{l.label}</a>
             ))}
-            {!mobile && <span style={{ color: V_FAINT }}>rotterdam {time}</span>}
           </span>
         </div>
       </footer>
