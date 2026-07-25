@@ -63,7 +63,14 @@ const staticFiles = [
 ];
 for (const f of staticFiles) {
   if (fs.existsSync(f)) {
-    fs.copyFileSync(f, path.join('dist', f));
+    if (f === 'sitemap.xml') {
+      // Stamp lastmod with today's date so it never goes stale between deploys
+      const today = new Date().toISOString().slice(0, 10);
+      const sitemap = fs.readFileSync(f, 'utf-8').replace(/<lastmod>[\d-]+<\/lastmod>/g, `<lastmod>${today}</lastmod>`);
+      fs.writeFileSync(path.join('dist', f), sitemap);
+    } else {
+      fs.copyFileSync(f, path.join('dist', f));
+    }
     console.log(`Copied ${f}`);
   }
 }
