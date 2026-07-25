@@ -45,7 +45,16 @@
 ]
 </script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' fill='%230a0a0a'/><text x='7' y='52' font-size='52' fill='%23ffffff' font-family='Georgia,serif' letter-spacing='-2'>P</text></svg>">
-<script id="counterscale-script" src="https://counterscale.peterreijm.workers.dev/tracker.js" data-site-id="peterandco.nl" defer></script>
+<script>
+if (!navigator.webdriver) {
+  var csScript = document.createElement('script');
+  csScript.id = 'counterscale-script';
+  csScript.src = 'https://counterscale.peterreijm.workers.dev/tracker.js';
+  csScript.setAttribute('data-site-id', 'peterandco.nl');
+  csScript.defer = true;
+  document.head.appendChild(csScript);
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link id="theme-fonts" rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@300;400;500;600&display=swap" onload="this.onload=null;this.rel='stylesheet'">
