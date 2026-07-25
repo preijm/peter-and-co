@@ -1402,6 +1402,17 @@ function AppShell({ page, selectedProject, activePage, navigate, selectProject }
   const modal = editionsOpen ? <EditionModal /> : null;
 
   React.useEffect(() => {
+    // Volt is a single-page takeover that ignores page/selectedProject entirely for
+    // its own rendering, so a stale selectedProject from before switching themes
+    // (e.g. viewing a project detail page, then picking Volt from the editions
+    // modal) must not leak into the tab title — it'd show a project that isn't
+    // actually visible anywhere on the page.
+    if (theme.appGlobal === 'VoltApp') { document.title = 'Peter & Co.'; return; }
+    const titles = { home: 'Peter & Co.', work: 'Work — Peter & Co.', tools: 'Tools — Peter & Co.', about: 'About — Peter & Co.', contact: 'Contact — Peter & Co.' };
+    document.title = selectedProject ? `${selectedProject.title} — Peter & Co.` : (titles[page] || 'Peter & Co.');
+  }, [theme, page, selectedProject]);
+
+  React.useEffect(() => {
     if (!theme.mondriaan || readyThemes.includes(theme.id)) return;
     const src = document.getElementById(theme.srcId).textContent;
     const compiled = Babel.transform(src, { presets: ['react'] }).code;
@@ -1528,11 +1539,6 @@ function App() {
   };
 
   const activePage = selectedProject ? 'work' : page;
-
-  React.useEffect(() => {
-    const titles = { home: 'Peter & Co.', work: 'Work — Peter & Co.', tools: 'Tools — Peter & Co.', about: 'About — Peter & Co.', contact: 'Contact — Peter & Co.' };
-    document.title = selectedProject ? `${selectedProject.title} — Peter & Co.` : (titles[page] || 'Peter & Co.');
-  }, [page, selectedProject]);
 
   return (
     <ThemeProvider>
