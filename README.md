@@ -2,32 +2,47 @@
 
 Personal portfolio and project hub — [peterandco.nl](https://peterandco.nl)
 
-A single self-contained HTML file. All components, themes, and data live in `index.html`. React and Babel run in-browser locally; JSX is pre-compiled by CI for production. Flip between three named themes at runtime.
+A single self-contained HTML file. All components, themes, and layout live in `index.html`. React and Babel run in-browser locally; JSX is pre-compiled by CI for production. Flip between four named themes at runtime. Project and tool content is managed in [Sanity](https://sanity.io) and fetched live at load.
 
 ---
 
 ## Themes
 
-The site ships with three named, versioned themes switchable at runtime:
+The site ships with four named, versioned themes switchable at runtime:
 
 | Theme | Style |
 |---|---|
-| **Ink** `v1` | Dark · minimal · editorial |
+| **Ink** `v1` | Dark · minimal · no noise |
 | **Chalk** `v1` | Light · open · breathing room |
-| **Mondriaan** `v1` | Primary colours · geometric · bold |
+| **Mondriaan** `v1` | Primary colours · geometric · De Stijl |
+| **Volt** `v1` | Dark · minimal · systems |
 
-Each theme has its own full-page layout variants for Work, Tools, About, and Contact. Projects have per-theme accent colours defined in their data — a `resolveAccent(project, themeId)` helper picks the right one at render time.
+Ink and Chalk share the default layout and component set. Mondriaan and Volt are full takeovers — each owns its own top-level component and every pixel of the page (see [THEMES.md](THEMES.md) for the rules governing theme structure, tokens, and the two takeover themes' internals).
+
+Projects have per-theme accent colours defined in their data — a `resolveAccent(project, themeId)` helper picks the right one at render time.
+
+---
+
+## Content: Sanity is the source of truth
+
+Projects and tools are **not** hardcoded — they're managed in a [Sanity Studio](studio/) and fetched live when the site loads (`loadSanityContent()` in `index.html`). The `PROJECTS` / `TOOL_CATEGORIES` arrays inline in `index.html` are only a **frozen fallback snapshot**, used if Sanity is ever unreachable, so the site never fully breaks — they are not kept in sync automatically and shouldn't be hand-edited for routine content changes.
+
+**To add or change a project or tool, edit it in Sanity Studio** — see [studio/README.md](studio/README.md) for setup and day-to-day use.
 
 ---
 
 ## Stack
 
 - React 18 (UMD via unpkg, no bundler)
-- Babel Standalone (JSX transpiled in-browser)
+- Babel Standalone (JSX transpiled in-browser in dev; pre-compiled by `build.js` for production)
+- Sanity (headless CMS — projects, tools)
 - DM Serif Display + JetBrains Mono (Ink/Chalk)
 - Archivo Black + Space Grotesk + Space Mono (Mondriaan)
+- Geist + Geist Mono (Volt)
+- GSAP + ScrollTrigger, Three.js (Volt — lazy-loaded only when the theme activates)
 - Formspree (contact form)
-- Counterscale (self-hosted analytics)
+- Counterscale (self-hosted analytics, on Cloudflare Workers)
+- Cloudflare (DNS/redirects)
 - GitHub Pages
 
 ---
@@ -40,7 +55,7 @@ CI runs on every push to `master`:
 npm ci → node build.js → dist/ → GitHub Pages
 ```
 
-`build.js` compiles the JSX with Babel and writes `dist/`. It also copies static assets (`screenshots/`, `social-card.png`, `CNAME`, `themes/`, `robots.txt`, `sitemap.xml`). **Never edit `dist/`** — it is generated and not tracked in git.
+`build.js` compiles the JSX with Babel and writes `dist/`. It also copies static assets (`screenshots/`, `social-card.png`, `CNAME`, `themes/`, `robots.txt`, `sitemap.xml`, `google*.html`) and stamps `sitemap.xml`'s `lastmod` on every build. **Never edit `dist/`** — it is generated and not tracked in git.
 
 ---
 
@@ -50,7 +65,7 @@ npm ci → node build.js → dist/ → GitHub Pages
 npx serve .
 ```
 
-Open [localhost:3456](http://localhost:3456). The Mondriaan theme is lazy-loaded and compiled at runtime in dev; it is pre-compiled in the production build.
+Open the served URL (see `.claude/launch.json` for the configured port). Mondriaan and Volt are lazy-loaded and compiled at runtime in dev; both are pre-compiled in the production build.
 
 ---
 
@@ -59,12 +74,13 @@ Open [localhost:3456](http://localhost:3456). The Mondriaan theme is lazy-loaded
 Everything lives in `index.html`. The file is structured in layers:
 
 ```
-THEMES          — named theme objects (colors, fonts, id)
-PROJECTS        — project data (title, stack, accent, etc.)
-TOOL_CATEGORIES — tools data shared across all themes
-resolveAccent() — picks per-theme accent color for a project
-Components      — Ink/Chalk variants first, Mondriaan variants below
-App             — routes between pages, switches renderer based on theme
+THEMES            — named theme objects (colors, fonts, id)
+PROJECTS          — fallback project data (title, stack, accent, etc.)
+TOOL_CATEGORIES   — fallback tools data shared across all themes
+resolveAccent()   — picks per-theme accent color for a project
+loadSanityContent() — fetches live content, overwrites PROJECTS / TOOL_CATEGORIES
+Components        — Ink/Chalk first, Mondriaan blob, then Volt blob
+App               — routes between pages, switches renderer based on theme
 ```
 
 ### Ink / Chalk components
@@ -77,7 +93,9 @@ App             — routes between pages, switches renderer based on theme
 | `ProjectCard` | Card in the featured grid |
 | `ProjectStrip` | Row-based list of all projects |
 | `ProjectGrid` | Card grid (featured or full) |
-| `ProjectDetail` | Full project page |
+| `ProjectDetail` | Full project page — screenshot, before/after slider, or live embedded preview |
+| `BeforeAfterSlider` | Drag-to-reveal comparison for redesign case studies |
+| `LivePreview` | Scaled, interactive iframe embed of a project's live site |
 | `About` | Bio, photo, background |
 | `Tools` | Tool list, row-aligned across categories |
 | `Contact` | Formspree-backed contact form |
@@ -85,9 +103,11 @@ App             — routes between pages, switches renderer based on theme
 
 ### Mondriaan components
 
+Lives in a `<script type="text/plain" id="mondriaan-src">` blob.
+
 | Component | What it does |
 |---|---|
-| `MHomeComposition` | Mondrian-grid homepage with animated paint-in |
+| `MHomeComposition` | Mondriaan-grid homepage with animated paint-in |
 | `MWorkTable` | Full-width table of all projects |
 | `MMiniProjectCard` | Compact card used in homepage grid |
 | `MProjectCard` | Full card for work page |
@@ -97,32 +117,30 @@ App             — routes between pages, switches renderer based on theme
 | `MContact` | Formspree form with Mondriaan styling |
 | `MHeader` / `MFooter` | Mondriaan nav and footer |
 
----
+### Volt components
 
-## Adding content
+Lives in a `<script type="text/plain" id="volt-src">` blob. A dark, restrained one-pager — see [THEMES.md](THEMES.md) for the full design description.
 
-Projects and tools are plain JS objects — edit the `PROJECTS` array and `TOOL_CATEGORIES` array near the top of `index.html`.
-
-**Project fields:** `id`, `featured`, `title`, `description`, `tags`, `year`, `url`, `href`, `accent`, `tagline`, `detail`, `role`, `stack`, `screenshot`, `livePreview`
-
-- `screenshot` — path to a static image shown in the project card (e.g. `screenshots/peterandco.png`)
-- `livePreview: true` — renders an interactive scaled iframe of `href` instead of a screenshot; hover to preview, click to interact, Escape or EXIT button to exit
-
-**Accent colour format:**
-```js
-accent: { default: '#22c55e', 'mondriaan-v1': '#fcc60b' }
-```
-Add a new key when adding a new theme.
+| Component | What it does |
+|---|---|
+| `VoltApp` | Top-level takeover — mounts hero, work, background, contact |
+| `VHero` | Headline + intro, with the interactive terminal |
+| `VTerminal` | Real command-line (`help`, `projects`, `open <n>`, `contact`, …) in the hero |
+| `VWork` / `VRow` | Project list with ghost index numbers |
+| `VBackground` | Bio blurb + `~/about.cfg` facts block |
+| `VContact` | Contact CTA + footer |
+| `VParticles` | Scroll-reactive Three.js point field backdrop (lazy-loaded) |
 
 ---
 
 ## Other files
 
-| File | Purpose |
+| File / folder | Purpose |
 |---|---|
-| `build.js` | Compiles JSX + bundles dist/ for production |
-| `THEMES.md` | Canonical rules for theme structure, tokens, and Mondriaan animation |
+| `build.js` | Compiles JSX + bundles `dist/` for production |
+| `studio/` | Sanity Studio — the content admin (see [studio/README.md](studio/README.md)) |
+| `THEMES.md` | Canonical rules for theme structure, tokens, and the Mondriaan/Volt internals |
 | `themes/` | Per-theme favicon SVG assets |
-| `screenshots/` | Static project screenshots copied to dist/ |
+| `screenshots/` | Static project screenshots copied to `dist/` |
 | `social-card.png` | OG/Twitter share image (1200×630) |
 | `CNAME` | GitHub Pages custom domain |
