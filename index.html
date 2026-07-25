@@ -2052,7 +2052,9 @@ function MProjectDetail({ project, onBack }) {
   // Titles render huge and uppercase; a single long word (no space to wrap on)
   // can overflow the colored box, so scale the whole clamp down for long words.
   const longestWord = Math.max(...project.title.split(' ').map(w => w.length));
-  const titleFontSize = longestWord >= 10 ? 'clamp(32px, 6vw, 84px)' : 'clamp(56px, 9vw, 132px)';
+  const titleFontSize = longestWord >= 10 ? 'clamp(28px, 5.4vw, 76px)'
+    : longestWord >= 8 ? 'clamp(40px, 7vw, 104px)'
+    : 'clamp(56px, 9vw, 132px)';
   return (
     <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: mobile ? '12px' : '24px' }}>
       <button onClick={onBack} style={{
@@ -2657,7 +2659,10 @@ function VHero({ mobile, projects }) {
         </p>
       </div>
 
-      <div className="v-fade" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '10px 24px' }}>
+      <div className="v-fade" style={{
+        display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '10px 24px',
+        marginTop: mobile ? '56px' : '64px',
+      }}>
         <span style={{ ...meta, color: V_FAINT }}>// next — selected work</span>
         <span style={{ ...meta, color: V_FAINT }}>scroll ↓</span>
       </div>
@@ -2873,8 +2878,9 @@ function VContact({ mobile }) {
       <footer style={{ borderTop: '1px solid ' + V_LINEC }}>
         <div style={{
           ...vWrap(mobile, mobile ? '22px' : '24px'),
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          flexWrap: 'wrap', gap: '12px 24px', fontFamily: V_MONO, fontSize: '11px', letterSpacing: '0.03em',
+          display: 'flex', flexDirection: mobile ? 'column' : 'row',
+          justifyContent: mobile ? 'flex-start' : 'space-between', alignItems: mobile ? 'flex-start' : 'center',
+          flexWrap: 'wrap', gap: mobile ? '14px' : '12px 24px', fontFamily: V_MONO, fontSize: '11px', letterSpacing: '0.03em',
         }}>
           <span style={{ color: V_FAINT }}><span style={{ color: V_LIME }}>// </span>origin.log — © 2026 peter &amp; co. · a playground, not a business. yet.</span>
           <span style={{ display: 'flex', alignItems: 'center', gap: mobile ? '6px' : '14px', flexWrap: 'wrap' }}>
