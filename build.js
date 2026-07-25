@@ -85,9 +85,5 @@ if (fs.existsSync('screenshots')) {
   copyDir('screenshots', 'dist/screenshots');
   console.log('Copied screenshots/');
 }
-if (fs.existsSync('assets')) {
-  copyDir('assets', 'dist/assets');
-  console.log('Copied assets/');
-}
 
 console.log('Build complete.');
