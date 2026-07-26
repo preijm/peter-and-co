@@ -2897,7 +2897,7 @@ function VContact({ mobile }) {
           justifyContent: mobile ? 'flex-start' : 'space-between', alignItems: mobile ? 'flex-start' : 'center',
           flexWrap: 'wrap', gap: mobile ? '14px' : '12px 24px', fontFamily: V_MONO, fontSize: '11px', letterSpacing: '0.03em',
         }}>
-          <span style={{ color: V_FAINT }}><span style={{ color: V_LIME }}>// </span>origin.log — © 2026 peter &amp; co. · a playground, not a business. yet.</span>
+          <span style={{ color: V_FAINT }}><span style={{ color: V_LIME }}>// </span>origin.log — © 2026 peter &amp; co.{mobile ? <br /> : ' '}a&nbsp;playground, not a business. yet.</span>
           <span style={{ display: 'flex', alignItems: 'center', gap: mobile ? '6px' : '14px', flexWrap: 'wrap' }}>
             {links.map(l => (
               <a key={l.label} href={l.href} target={l.href.indexOf('http') === 0 ? '_blank' : undefined} rel="noopener noreferrer" style={{ color: V_MUTE, textDecoration: 'none', padding: '12px 6px' }}
