@@ -36,9 +36,34 @@ reports from the archive rather than from disk:
   counting. `coverage.sessionsRetainedFromDeletedLogs` reports how many.
 - Numbers are therefore monotonic: they can only go up.
 
-**This file is the durable record. Commit it.** Deleting it permanently throws
-away every session whose log has already been cleaned up — there is no other
-copy. It grows by roughly 6KB per session.
+### Two files, because this repo is public
+
+| File | Committed? | Contents |
+|---|---|---|
+| `archive.local.json` | **No** — gitignored | Every project, plus absolute paths. The real record. |
+| `archive.json` | Yes | Only `--only` allowlisted projects. No paths, no branch names. |
+
+`archive.local.json` **is the durable record and must not be lost.** Deleting it
+throws away every session whose log has already been cleaned up. It is not in
+git, so it is not backed up by pushing — copy it if you move machines.
+
+`archive.json` is the redacted subset that ships publicly. File paths and branch
+names are stored as one-way SHA-256 prefixes, which still union correctly for
+distinct counts but disclose nothing. Project keys are root commit SHAs, or
+hashes when a project has no git history.
+
+### The publish allowlist
+
+`--only` gates **both** published artefacts — `footprint.json` on the website
+and `archive.json` in this repo:
+
+```bash
+node tools/footprint/extract.js --json footprint.json --only milk-me-not,folio
+```
+
+Without it, every project you have ever opened Claude Code in would be named
+publicly. The terminal table always shows everything; only the written files
+are filtered. Add a project here when, and only when, it goes on the site.
 
 To stop losing history in the first place, raise the retention window in
 `~/.claude/settings.json`:

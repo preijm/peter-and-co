@@ -36,6 +36,7 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const crypto = require('crypto');
 const { execFileSync } = require('child_process');
 
 // ---------------------------------------------------------------------------
@@ -44,7 +45,11 @@ const { execFileSync } = require('child_process');
 
 const PROJECTS_DIR = path.join(os.homedir(), '.claude', 'projects');
 const ARCHIVE_PATH = path.join(__dirname, 'archive.json');
-const ARCHIVE_VERSION = 1;
+// Local-only companion: maps a project key to its working directory so git
+// coverage still resolves after a project's logs are deleted. Gitignored,
+// because it holds absolute paths. The committed archive holds no paths.
+const ARCHIVE_LOCAL_PATH = path.join(__dirname, 'archive.local.json');
+const ARCHIVE_VERSION = 2;
 
 // Gap between consecutive log records that still counts as "actively working".
 // Anything longer is treated as the user having walked away.
@@ -149,11 +154,26 @@ function isDir(p) {
  */
 function projectIdentity(cwd) {
   if (!cwd || !isDir(cwd)) return null;
+
+  // In a worktree, --git-common-dir points at the MAIN repository's .git, so
+  // its parent is the real project directory. Without this a worktree reports
+  // its own directory name — which is the branch name — as the project name.
+  let repo = cwd;
+  const common = git(cwd, ['rev-parse', '--path-format=absolute', '--git-common-dir'])
+    || git(cwd, ['rev-parse', '--git-common-dir']);
+  if (common) {
+    const resolved = path.resolve(cwd, common);
+    const parent = path.dirname(resolved);
+    if (isDir(parent)) repo = parent;
+  }
+
   const root = git(cwd, ['rev-list', '--max-parents=0', 'HEAD']);
-  if (root) return { key: 'git:' + root.split('\n').pop(), repo: cwd };
+  if (root) return { key: 'git:' + root.split('\n').pop(), repo };
   const remote = git(cwd, ['remote', 'get-url', 'origin']);
-  if (remote) return { key: 'remote:' + remote, repo: cwd };
-  return { key: 'path:' + cwd.toLowerCase(), repo: null };
+  // Hashed: a remote URL names a private repository, and a bare path names the
+  // user. Neither belongs in a file committed to a public repo.
+  if (remote) return { key: 'remote:' + hashId(remote.toLowerCase()), repo };
+  return { key: 'path:' + hashId(cwd.toLowerCase()), repo: null };
 }
 
 function emptyTotals() {
@@ -161,6 +181,16 @@ function emptyTotals() {
 }
 
 const uniq = (arr) => Array.from(new Set(arr));
+
+/**
+ * One-way id for a file path or branch name.
+ *
+ * The archive is committed to a PUBLIC repo, and the only thing it needs from
+ * these values is a distinct count that unions correctly across sessions. A
+ * stable hash gives exactly that and discloses nothing — no absolute paths, no
+ * usernames, no branch names from private repositories.
+ */
+const hashId = (s) => crypto.createHash('sha256').update(String(s)).digest('hex').slice(0, 12);
 
 // ---------------------------------------------------------------------------
 // Log parsing — one record per SESSION, not per directory
@@ -324,14 +354,15 @@ function toArchiveEntry(s, identity, nowIso) {
   const intervals = busyIntervals(ts);
   const activeMs = unionMs(intervals);
 
+  // No absolute paths, no directory names, no branch names are persisted —
+  // this file is committed to a public repository. Paths and branches become
+  // one-way hashes, which is all the distinct counts need.
   return {
     intervals,
-    projectKey: identity ? identity.key : 'dir:' + s.dirName,
+    projectKey: identity ? identity.key : 'dir:' + hashId(s.dirName),
     projectName: identity && identity.repo
       ? path.basename(identity.repo)
-      : (s.cwd ? path.basename(s.cwd) : s.dirName),
-    cwd: s.cwd,
-    dirName: s.dirName,
+      : (s.cwd ? path.basename(s.cwd) : 'unknown'),
     firstSeen: new Date(ts[0]).toISOString(),
     lastSeen: new Date(ts[ts.length - 1]).toISOString(),
     activeMs,
@@ -345,9 +376,9 @@ function toArchiveEntry(s, identity, nowIso) {
     totals: s.totals,
     byModel: s.byModel,
     tools: s.tools,
-    files: Array.from(s.files),
-    branches: Array.from(s.branches),
-    prs: Array.from(s.prs),
+    fileHashes: Array.from(s.files).map(hashId),
+    branchHashes: Array.from(s.branches).map(hashId),
+    prCount: s.prs.size,
     skills: s.skills,
     archivedAt: nowIso,
   };
@@ -357,24 +388,62 @@ function toArchiveEntry(s, identity, nowIso) {
 // Archive
 // ---------------------------------------------------------------------------
 
+/**
+ * The archive lives in two files.
+ *
+ *   archive.local.json  gitignored, complete: every project, plus the absolute
+ *                       paths needed to resolve git coverage. The real record.
+ *   archive.json        committed to a PUBLIC repo, so it carries only the
+ *                       projects on the publish allowlist, with no paths and
+ *                       no branch names.
+ *
+ * Both are read back, local winning, so a fresh clone still has history for the
+ * published projects while this machine keeps history for everything else.
+ */
 function loadArchive() {
-  try {
-    const raw = JSON.parse(fs.readFileSync(ARCHIVE_PATH, 'utf8'));
-    if (raw && raw.sessions && typeof raw.sessions === 'object') return raw;
-  } catch {
-    // Missing or unreadable archive is normal on a first run.
+  const merged = { version: ARCHIVE_VERSION, sessions: {}, repoPaths: {} };
+  for (const p of [ARCHIVE_PATH, ARCHIVE_LOCAL_PATH]) {
+    try {
+      const raw = JSON.parse(fs.readFileSync(p, 'utf8'));
+      if (raw && raw.sessions) Object.assign(merged.sessions, raw.sessions);
+      if (raw && raw.repoPaths) Object.assign(merged.repoPaths, raw.repoPaths);
+    } catch {
+      // Missing file is normal: a first run, or a clone with no local archive.
+    }
   }
-  return { version: ARCHIVE_VERSION, sessions: {} };
+  return merged;
 }
 
-function saveArchive(archive) {
-  archive.version = ARCHIVE_VERSION;
-  archive.note =
-    'Durable record of measured Claude Code sessions, keyed by session ID. ' +
-    'Claude Code deletes session logs after cleanupPeriodDays (default 30), ' +
-    'so this file is the only lasting copy of anything already cleaned up. ' +
-    'Commit it. Deleting it loses that history permanently.';
-  fs.writeFileSync(ARCHIVE_PATH, JSON.stringify(archive, null, 2));
+function saveArchive(archive, allowlist) {
+  fs.writeFileSync(ARCHIVE_LOCAL_PATH, JSON.stringify({
+    version: ARCHIVE_VERSION,
+    note: 'LOCAL ONLY - gitignored. Complete record, including absolute paths. ' +
+          'This is the file that must not be lost; archive.json is a redacted subset.',
+    sessions: archive.sessions,
+    repoPaths: archive.repoPaths,
+  }, null, 2));
+
+  // Committed copy: allowlisted projects only, and never any repoPaths.
+  const publishable = {};
+  for (const [sid, e] of Object.entries(archive.sessions)) {
+    if (allowlist && !allowlist.has(String(e.projectName).toLowerCase())) continue;
+    publishable[sid] = e;
+  }
+  fs.writeFileSync(ARCHIVE_PATH, JSON.stringify({
+    version: ARCHIVE_VERSION,
+    note: 'Durable record of measured Claude Code sessions for the projects ' +
+          'published on the site, keyed by session ID. Claude Code deletes ' +
+          'session logs after cleanupPeriodDays (default 30), so this is the ' +
+          'only lasting copy of anything already cleaned up. Commit it. ' +
+          'Contains no absolute paths, directory names, or branch names - this ' +
+          'repository is public, so those are one-way hashes for counting only.',
+    sessions: publishable,
+  }, null, 2));
+
+  return {
+    local: Object.keys(archive.sessions).length,
+    published: Object.keys(publishable).length,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -388,7 +457,7 @@ function aggregate(entries) {
     webSearches: 0, webFetches: 0, intervals: [],
     sessions: 0, sessionsOnDisk: 0, sessionsFromArchive: 0,
     totals: emptyTotals(), byModel: {}, tools: {}, skills: {},
-    files: [], branches: [], prs: [], days: [],
+    files: [], branches: [], prs: 0, days: [],
     first: null, last: null,
   };
 
@@ -414,19 +483,17 @@ function aggregate(entries) {
     for (const [t, n] of Object.entries(e.tools || {})) g.tools[t] = (g.tools[t] || 0) + n;
     for (const [s, n] of Object.entries(e.skills || {})) g.skills[s] = (g.skills[s] || 0) + n;
 
-    g.files.push(...(e.files || []));
-    g.branches.push(...(e.branches || []));
-    g.prs.push(...(e.prs || []));
+    g.files.push(...(e.fileHashes || []));
+    g.branches.push(...(e.branchHashes || []));
+    g.prs += e.prCount || 0;
     g.days.push(...(e.days || []));
 
-    if (!g.cwd && e.cwd) g.cwd = e.cwd;
     if (e.firstSeen && (!g.first || e.firstSeen < g.first)) g.first = e.firstSeen;
     if (e.lastSeen && (!g.last || e.lastSeen > g.last)) g.last = e.lastSeen;
   }
 
   g.files = uniq(g.files);
   g.branches = uniq(g.branches);
-  g.prs = uniq(g.prs);
   g.days = uniq(g.days);
   g.activeMs = unionMs(g.intervals) + (g.legacyActiveMs || 0);
   return g;
@@ -530,8 +597,8 @@ function computeCoverage(repo, g) {
   const totalCommits = parseInt(total, 10);
   const commitsBefore = parseInt(before || '0', 10);
 
+  // repoPath deliberately omitted — absolute paths must not reach the site.
   return Object.assign(base, {
-    repoPath: repo,
     firstCommitDate: firstCommit.split('\n')[0],
     totalCommits,
     commitsBeforeMeasuredWindow: commitsBefore,
@@ -545,7 +612,7 @@ function computeCoverage(repo, g) {
 // Main
 // ---------------------------------------------------------------------------
 
-function collect(writeArchive) {
+function collect(writeArchive, allowlist) {
   const archive = loadArchive();
   const nowIso = new Date().toISOString();
   let seen = 0, fresh = 0;
@@ -567,12 +634,14 @@ function collect(writeArchive) {
         }
         if (!prior) fresh++;
         archive.sessions[s.sessionId] = next;
+        // Path stays local, never in the committed archive.
+        if (identity && identity.repo) archive.repoPaths[next.projectKey] = identity.repo;
         seen++;
       }
     }
   }
 
-  if (writeArchive) saveArchive(archive);
+  const written = writeArchive ? saveArchive(archive, allowlist) : null;
 
   // Pass 2: report from the archive, not from disk. Sessions whose logs are
   // gone still appear here — that is the entire point.
@@ -595,18 +664,18 @@ function collect(writeArchive) {
   }
 
   const projects = [];
-  for (const entries of groups.values()) {
+  for (const [key, entries] of groups.entries()) {
     const g = aggregate(entries);
-    const repo = g.cwd && isDir(g.cwd) ? g.cwd : null;
+    const candidate = archive.repoPaths[key];
+    const repo = candidate && isDir(candidate) ? candidate : null;
     const cost = computeCost(g.byModel);
     const t = g.totals;
     const total = t.input + t.output + t.cacheWrite + t.cacheRead;
     const edits = (g.tools.Edit || 0) + (g.tools.Write || 0) + (g.tools.NotebookEdit || 0);
 
+    // No `path` or `sourceDirs`: this file is served publicly from the site.
     projects.push({
       name: entries[0].projectName || 'unknown',
-      path: g.cwd,
-      sourceDirs: uniq(entries.map((e) => e.dirName).filter(Boolean)),
 
       measured: {
         prompts: g.prompts,
@@ -634,7 +703,7 @@ function collect(writeArchive) {
         bashCommands: g.tools.Bash || 0,
         filesTouched: g.files.length,
         branches: g.branches.length,
-        prs: g.prs.length,
+        prs: g.prs,
         webSearches: g.webSearches,
         compactions: g.compactions,
         apiErrors: g.apiErrors,
@@ -656,7 +725,15 @@ function collect(writeArchive) {
   }
 
   projects.sort((a, b) => b.tokens.total - a.tokens.total);
-  return { projects, stats: { sessionsSeen: seen, sessionsNew: fresh, archived: Object.keys(archive.sessions).length } };
+  return {
+    projects,
+    stats: {
+      sessionsSeen: seen,
+      sessionsNew: fresh,
+      archived: Object.keys(archive.sessions).length,
+      published: written ? written.published : null,
+    },
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -734,7 +811,6 @@ function printTable(projects, verbose, stats) {
         console.log('    skills       ' + Object.entries(p.skills)
           .map(([s, c]) => s + ' (' + c + ')').join(', '));
       }
-      console.log('    dirs         ' + p.sourceDirs.join(', '));
     }
     console.log('');
   }
@@ -750,18 +826,35 @@ function main() {
   const argv = process.argv.slice(2);
   const jsonIdx = argv.indexOf('--json');
   const projIdx = argv.indexOf('--project');
+  const onlyIdx = argv.indexOf('--only');
   const verbose = argv.includes('--verbose');
   const writeArchive = !argv.includes('--no-archive');
 
-  const { projects: all, stats } = collect(writeArchive);
+  // --only is the publish allowlist, and it gates BOTH published artefacts:
+  // footprint.json (served from the site) and archive.json (committed to a
+  // public repo). Which projects are named publicly has to be an explicit
+  // decision, not a side effect of which directories happen to have logs.
+  // Without it, every project you have ever opened would be disclosed.
+  const allowlist = onlyIdx !== -1 && argv[onlyIdx + 1]
+    ? new Set(argv[onlyIdx + 1].split(',').map((s) => s.trim().toLowerCase()))
+    : null;
+  if (!allowlist && jsonIdx !== -1) {
+    console.log('WARNING: no --only allowlist given; every measured project will be published.');
+  }
+
+  const { projects: all, stats } = collect(writeArchive, allowlist);
   let projects = all;
+
+  if (allowlist) {
+    const before = projects.length;
+    projects = projects.filter((p) => allowlist.has(p.name.toLowerCase()));
+    const dropped = before - projects.length;
+    if (dropped) console.log('Excluded ' + dropped + ' project(s) not in --only allowlist.');
+  }
 
   if (projIdx !== -1 && argv[projIdx + 1]) {
     const needle = argv[projIdx + 1].toLowerCase();
-    projects = projects.filter(
-      (p) => p.name.toLowerCase().includes(needle) ||
-             (p.path || '').toLowerCase().includes(needle)
-    );
+    projects = projects.filter((p) => p.name.toLowerCase().includes(needle));
   }
 
   if (!projects.length) {

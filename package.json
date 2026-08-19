@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build": "node build.js",
-    "footprint": "node tools/footprint/extract.js --json footprint.json"
+    "footprint": "node tools/footprint/extract.js --json footprint.json --only milk-me-not,folio"
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",

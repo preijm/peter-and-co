@@ -16,3 +16,5 @@ dist/
 
 # Internal reference files
 _intern/
+# Footprint tool: local-only absolute paths (never commit)
+tools/footprint/archive.local.json
