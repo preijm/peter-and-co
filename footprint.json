@@ -1,0 +1,635 @@
+{
+  "generatedAt": "2026-08-19T18:35:03.545Z",
+  "source": "claude-code-session-logs",
+  "disclaimer": "All figures are a measured floor, not a total. Only Claude Code usage is counted, and only sessions this archive recorded before their logs were deleted. Work in other tools is not included.",
+  "methodology": {
+    "pricing": "Anthropic list API rates. Not what was paid on a subscription.",
+    "emissions": {
+      "base": {
+        "input": 190,
+        "output": 1140
+      },
+      "multipliers": {
+        "sonnet": {
+          "factor": 1,
+          "extrapolated": false
+        },
+        "haiku": {
+          "factor": 0.5,
+          "extrapolated": true
+        },
+        "opus": {
+          "factor": 2,
+          "extrapolated": true
+        },
+        "fable": {
+          "factor": 2,
+          "extrapolated": true
+        }
+      }
+    },
+    "scenarios": {
+      "floor": {
+        "input": 0,
+        "cacheWrite": 0,
+        "cacheRead": 0
+      },
+      "midpoint": {
+        "input": 1,
+        "cacheWrite": 1.25,
+        "cacheRead": 0.1
+      },
+      "ceiling": {
+        "input": 1,
+        "cacheWrite": 1,
+        "cacheRead": 1
+      }
+    },
+    "activeTimeGapMs": 600000,
+    "archive": "Sessions are recorded by ID in tools/footprint/archive.json and stay counted after Claude Code deletes their logs."
+  },
+  "projects": [
+    {
+      "name": "folio",
+      "path": "C:\\Users\\Peter\\Projects\\folio",
+      "sourceDirs": [
+        "C--Users-Peter-Projects-folio",
+        "C--Users-Peter-Projects-folio--claude-worktrees-crypto-value-drop-8000-e180da",
+        "C--Users-Peter-Projects-folio--claude-worktrees-preview-servers-setup-b99db5"
+      ],
+      "measured": {
+        "prompts": 289,
+        "assistantMessages": 9375,
+        "sessions": 5,
+        "sessionsRetainedFromDeletedLogs": 0,
+        "activeHours": 20.5,
+        "calendarDays": 14,
+        "firstSeen": "2026-07-24",
+        "lastSeen": "2026-08-19"
+      },
+      "tokens": {
+        "output": 5917659,
+        "input": 18737,
+        "cacheWrite": 108372191,
+        "cacheRead": 4132817725,
+        "total": 4247126312,
+        "cacheReadShare": 97.3
+      },
+      "work": {
+        "toolCalls": 5035,
+        "edits": 788,
+        "bashCommands": 673,
+        "filesTouched": 78,
+        "branches": 6,
+        "prs": 6,
+        "webSearches": 0,
+        "compactions": 6,
+        "apiErrors": 11
+      },
+      "models": {
+        "claude-sonnet-5": 4113045624,
+        "claude-opus-5": 134080688,
+        "<synthetic>": 0
+      },
+      "skills": {},
+      "pricing": {
+        "equivalentListPriceUSD": 1775.99,
+        "unpricedModels": []
+      },
+      "emissions": {
+        "gramsCO2e": {
+          "floor": 7090.1,
+          "midpoint": 114956.8,
+          "ceiling": 838337.8
+        },
+        "headline": {
+          "kgCO2e": 115,
+          "kmDriven": 958,
+          "kettleBoils": 7664,
+          "phoneCharges": 63865
+        },
+        "caveats": [
+          "Range spans 118x between floor and ceiling; the variable is how cache reads are weighted.",
+          "Opus/Fable emission factors are extrapolated by parameter ratio, not measured.",
+          "Base factors: Jegham et al. 2025 (Sonnet-class, via the claude-carbon project)."
+        ]
+      },
+      "coverage": {
+        "tool": "claude-code",
+        "measuredFrom": "2026-07-24",
+        "measuredTo": "2026-08-19",
+        "isFloor": true,
+        "sessionsMeasured": 5,
+        "sessionsRetainedFromDeletedLogs": 0,
+        "unmeasured": [
+          "Sessions deleted before this archive first recorded them.",
+          "Any work done in other tools (Lovable, Antigravity, Cursor, OpenCode, ...).",
+          "Any work done outside an AI coding tool entirely."
+        ],
+        "repoPath": "C:\\Users\\Peter\\Projects\\folio",
+        "firstCommitDate": "2026-03-14",
+        "totalCommits": 26,
+        "commitsBeforeMeasuredWindow": 12,
+        "commitCoveragePct": 54
+      }
+    },
+    {
+      "name": "reijm-tuinaanleg",
+      "path": "C:\\Users\\Peter\\Projects\\reijm-tuinaanleg",
+      "sourceDirs": [
+        "C--Users-Peter-Projects-reijm-tuinaanleg"
+      ],
+      "measured": {
+        "prompts": 211,
+        "assistantMessages": 5583,
+        "sessions": 3,
+        "sessionsRetainedFromDeletedLogs": 0,
+        "activeHours": 16.9,
+        "calendarDays": 26,
+        "firstSeen": "2026-06-12",
+        "lastSeen": "2026-08-02"
+      },
+      "tokens": {
+        "output": 6392803,
+        "input": 196959,
+        "cacheWrite": 101161899,
+        "cacheRead": 1766161024,
+        "total": 1873912685,
+        "cacheReadShare": 94.2
+      },
+      "work": {
+        "toolCalls": 2888,
+        "edits": 736,
+        "bashCommands": 673,
+        "filesTouched": 231,
+        "branches": 15,
+        "prs": 22,
+        "webSearches": 0,
+        "compactions": 20,
+        "apiErrors": 16
+      },
+      "models": {
+        "claude-sonnet-5": 1499437235,
+        "claude-opus-4-8": 221542337,
+        "claude-sonnet-4-6": 150302452,
+        "claude-fable-5": 2630661,
+        "<synthetic>": 0
+      },
+      "skills": {
+        "frontend-design": 41,
+        "design-review": 95
+      },
+      "pricing": {
+        "equivalentListPriceUSD": 1105.71,
+        "unpricedModels": []
+      },
+      "emissions": {
+        "gramsCO2e": {
+          "floor": 9215.5,
+          "midpoint": 74436.3,
+          "ceiling": 406315.9
+        },
+        "headline": {
+          "kgCO2e": 74.4,
+          "kmDriven": 620,
+          "kettleBoils": 4962,
+          "phoneCharges": 41354
+        },
+        "caveats": [
+          "Range spans 44x between floor and ceiling; the variable is how cache reads are weighted.",
+          "Opus/Fable emission factors are extrapolated by parameter ratio, not measured.",
+          "Base factors: Jegham et al. 2025 (Sonnet-class, via the claude-carbon project)."
+        ]
+      },
+      "coverage": {
+        "tool": "claude-code",
+        "measuredFrom": "2026-06-12",
+        "measuredTo": "2026-08-02",
+        "isFloor": true,
+        "sessionsMeasured": 3,
+        "sessionsRetainedFromDeletedLogs": 0,
+        "unmeasured": [
+          "Sessions deleted before this archive first recorded them.",
+          "Any work done in other tools (Lovable, Antigravity, Cursor, OpenCode, ...).",
+          "Any work done outside an AI coding tool entirely."
+        ],
+        "repoPath": "C:\\Users\\Peter\\Projects\\reijm-tuinaanleg",
+        "firstCommitDate": "2026-06-19",
+        "totalCommits": 79,
+        "commitsBeforeMeasuredWindow": 0,
+        "commitCoveragePct": 100
+      }
+    },
+    {
+      "name": "peter-and-co",
+      "path": "C:\\Users\\Peter\\Projects\\peter-and-co",
+      "sourceDirs": [
+        "C--Users-Peter-Projects-peter-and-co"
+      ],
+      "measured": {
+        "prompts": 183,
+        "assistantMessages": 3209,
+        "sessions": 4,
+        "sessionsRetainedFromDeletedLogs": 0,
+        "activeHours": 11.9,
+        "calendarDays": 25,
+        "firstSeen": "2026-06-12",
+        "lastSeen": "2026-08-19"
+      },
+      "tokens": {
+        "output": 3050200,
+        "input": 85695,
+        "cacheWrite": 77077860,
+        "cacheRead": 1117897571,
+        "total": 1198111326,
+        "cacheReadShare": 93.3
+      },
+      "work": {
+        "toolCalls": 1467,
+        "edits": 261,
+        "bashCommands": 314,
+        "filesTouched": 33,
+        "branches": 13,
+        "prs": 11,
+        "webSearches": 0,
+        "compactions": 2,
+        "apiErrors": 9
+      },
+      "models": {
+        "claude-sonnet-5": 843526771,
+        "claude-opus-4-8": 301734827,
+        "claude-opus-5": 44124643,
+        "claude-sonnet-4-6": 4984100,
+        "claude-fable-5": 3740985,
+        "<synthetic>": 0
+      },
+      "skills": {
+        "frontend-design": 45,
+        "design-review": 14,
+        "portfolio-updater": 41,
+        "anthropic-skills:schedule": 5,
+        "claude-api": 7
+      },
+      "pricing": {
+        "equivalentListPriceUSD": 819.12,
+        "unpricedModels": []
+      },
+      "emissions": {
+        "gramsCO2e": {
+          "floor": 5609.9,
+          "midpoint": 56813.4,
+          "ceiling": 298740.1
+        },
+        "headline": {
+          "kgCO2e": 56.8,
+          "kmDriven": 473,
+          "kettleBoils": 3788,
+          "phoneCharges": 31563
+        },
+        "caveats": [
+          "Range spans 53x between floor and ceiling; the variable is how cache reads are weighted.",
+          "Opus/Fable emission factors are extrapolated by parameter ratio, not measured.",
+          "Base factors: Jegham et al. 2025 (Sonnet-class, via the claude-carbon project)."
+        ]
+      },
+      "coverage": {
+        "tool": "claude-code",
+        "measuredFrom": "2026-06-12",
+        "measuredTo": "2026-08-19",
+        "isFloor": true,
+        "sessionsMeasured": 4,
+        "sessionsRetainedFromDeletedLogs": 0,
+        "unmeasured": [
+          "Sessions deleted before this archive first recorded them.",
+          "Any work done in other tools (Lovable, Antigravity, Cursor, OpenCode, ...).",
+          "Any work done outside an AI coding tool entirely."
+        ],
+        "repoPath": "C:\\Users\\Peter\\Projects\\peter-and-co",
+        "firstCommitDate": "2026-04-20",
+        "totalCommits": 86,
+        "commitsBeforeMeasuredWindow": 73,
+        "commitCoveragePct": 15
+      }
+    },
+    {
+      "name": "milk-me-not",
+      "path": "C:\\Users\\Peter\\Projects\\milk-me-not",
+      "sourceDirs": [
+        "C--Users-Peter-Projects-milk-me-not"
+      ],
+      "measured": {
+        "prompts": 106,
+        "assistantMessages": 2940,
+        "sessions": 5,
+        "sessionsRetainedFromDeletedLogs": 0,
+        "activeHours": 8.3,
+        "calendarDays": 5,
+        "firstSeen": "2026-07-24",
+        "lastSeen": "2026-08-19"
+      },
+      "tokens": {
+        "output": 2586040,
+        "input": 41583,
+        "cacheWrite": 17603762,
+        "cacheRead": 1012695197,
+        "total": 1032926582,
+        "cacheReadShare": 98
+      },
+      "work": {
+        "toolCalls": 1573,
+        "edits": 256,
+        "bashCommands": 833,
+        "filesTouched": 184,
+        "branches": 3,
+        "prs": 4,
+        "webSearches": 0,
+        "compactions": 2,
+        "apiErrors": 7
+      },
+      "models": {
+        "claude-opus-5": 986071979,
+        "claude-sonnet-5": 46854603,
+        "<synthetic>": 0
+      },
+      "skills": {
+        "artifact-design": 34,
+        "gauntlet-loop": 13,
+        "dataviz": 90,
+        "design-review": 32
+      },
+      "pricing": {
+        "equivalentListPriceUSD": 664.67,
+        "unpricedModels": []
+      },
+      "emissions": {
+        "gramsCO2e": {
+          "floor": 5637.8,
+          "midpoint": 51140.1,
+          "ceiling": 388307.9
+        },
+        "headline": {
+          "kgCO2e": 51.1,
+          "kmDriven": 426,
+          "kettleBoils": 3409,
+          "phoneCharges": 28411
+        },
+        "caveats": [
+          "Range spans 69x between floor and ceiling; the variable is how cache reads are weighted.",
+          "Opus/Fable emission factors are extrapolated by parameter ratio, not measured.",
+          "Base factors: Jegham et al. 2025 (Sonnet-class, via the claude-carbon project)."
+        ]
+      },
+      "coverage": {
+        "tool": "claude-code",
+        "measuredFrom": "2026-07-24",
+        "measuredTo": "2026-08-19",
+        "isFloor": true,
+        "sessionsMeasured": 5,
+        "sessionsRetainedFromDeletedLogs": 0,
+        "unmeasured": [
+          "Sessions deleted before this archive first recorded them.",
+          "Any work done in other tools (Lovable, Antigravity, Cursor, OpenCode, ...).",
+          "Any work done outside an AI coding tool entirely."
+        ],
+        "repoPath": "C:\\Users\\Peter\\Projects\\milk-me-not",
+        "firstCommitDate": "2025-02-02",
+        "totalCommits": 2992,
+        "commitsBeforeMeasuredWindow": 2935,
+        "commitCoveragePct": 2
+      }
+    },
+    {
+      "name": "test",
+      "path": "C:\\Users\\Peter\\Projects\\test",
+      "sourceDirs": [
+        "C--Users-Peter-Projects-test"
+      ],
+      "measured": {
+        "prompts": 6,
+        "assistantMessages": 763,
+        "sessions": 1,
+        "sessionsRetainedFromDeletedLogs": 0,
+        "activeHours": 1.9,
+        "calendarDays": 2,
+        "firstSeen": "2026-07-21",
+        "lastSeen": "2026-07-22"
+      },
+      "tokens": {
+        "output": 438173,
+        "input": 1561,
+        "cacheWrite": 4266302,
+        "cacheRead": 183311496,
+        "total": 188017532,
+        "cacheReadShare": 97.5
+      },
+      "work": {
+        "toolCalls": 467,
+        "edits": 65,
+        "bashCommands": 21,
+        "filesTouched": 26,
+        "branches": 1,
+        "prs": 0,
+        "webSearches": 0,
+        "compactions": 0,
+        "apiErrors": 1
+      },
+      "models": {
+        "claude-sonnet-5": 188017532,
+        "<synthetic>": 0
+      },
+      "skills": {},
+      "pricing": {
+        "equivalentListPriceUSD": 77.57,
+        "unpricedModels": []
+      },
+      "emissions": {
+        "gramsCO2e": {
+          "floor": 499.5,
+          "midpoint": 4996,
+          "ceiling": 36139.6
+        },
+        "headline": {
+          "kgCO2e": 5,
+          "kmDriven": 42,
+          "kettleBoils": 333,
+          "phoneCharges": 2776
+        },
+        "caveats": [
+          "Range spans 72x between floor and ceiling; the variable is how cache reads are weighted.",
+          "All emission factors are measured for this model class.",
+          "Base factors: Jegham et al. 2025 (Sonnet-class, via the claude-carbon project)."
+        ]
+      },
+      "coverage": {
+        "tool": "claude-code",
+        "measuredFrom": "2026-07-21",
+        "measuredTo": "2026-07-22",
+        "isFloor": true,
+        "sessionsMeasured": 1,
+        "sessionsRetainedFromDeletedLogs": 0,
+        "unmeasured": [
+          "Sessions deleted before this archive first recorded them.",
+          "Any work done in other tools (Lovable, Antigravity, Cursor, OpenCode, ...).",
+          "Any work done outside an AI coding tool entirely."
+        ]
+      }
+    },
+    {
+      "name": "Documents",
+      "path": "C:\\Users\\Peter\\Documents",
+      "sourceDirs": [
+        "C--Users-Peter-Documents"
+      ],
+      "measured": {
+        "prompts": 31,
+        "assistantMessages": 277,
+        "sessions": 1,
+        "sessionsRetainedFromDeletedLogs": 0,
+        "activeHours": 2.3,
+        "calendarDays": 5,
+        "firstSeen": "2026-06-12",
+        "lastSeen": "2026-06-17"
+      },
+      "tokens": {
+        "output": 570366,
+        "input": 22299,
+        "cacheWrite": 3455171,
+        "cacheRead": 36176626,
+        "total": 40224462,
+        "cacheReadShare": 89.9
+      },
+      "work": {
+        "toolCalls": 83,
+        "edits": 14,
+        "bashCommands": 9,
+        "filesTouched": 6,
+        "branches": 1,
+        "prs": 0,
+        "webSearches": 0,
+        "compactions": 0,
+        "apiErrors": 1
+      },
+      "models": {
+        "claude-opus-4-8": 39867263,
+        "claude-fable-5": 357199,
+        "<synthetic>": 0
+      },
+      "skills": {},
+      "pricing": {
+        "equivalentListPriceUSD": 55.02,
+        "unpricedModels": []
+      },
+      "emissions": {
+        "gramsCO2e": {
+          "floor": 1300.4,
+          "midpoint": 4324.8,
+          "ceiling": 16369
+        },
+        "headline": {
+          "kgCO2e": 4.3,
+          "kmDriven": 36,
+          "kettleBoils": 288,
+          "phoneCharges": 2403
+        },
+        "caveats": [
+          "Range spans 13x between floor and ceiling; the variable is how cache reads are weighted.",
+          "Opus/Fable emission factors are extrapolated by parameter ratio, not measured.",
+          "Base factors: Jegham et al. 2025 (Sonnet-class, via the claude-carbon project)."
+        ]
+      },
+      "coverage": {
+        "tool": "claude-code",
+        "measuredFrom": "2026-06-12",
+        "measuredTo": "2026-06-17",
+        "isFloor": true,
+        "sessionsMeasured": 1,
+        "sessionsRetainedFromDeletedLogs": 0,
+        "unmeasured": [
+          "Sessions deleted before this archive first recorded them.",
+          "Any work done in other tools (Lovable, Antigravity, Cursor, OpenCode, ...).",
+          "Any work done outside an AI coding tool entirely."
+        ]
+      }
+    },
+    {
+      "name": "boer-transport",
+      "path": "C:\\Users\\Peter\\Projects\\boer-transport",
+      "sourceDirs": [
+        "C--Users-Peter-Projects-boer-transport"
+      ],
+      "measured": {
+        "prompts": 2,
+        "assistantMessages": 9,
+        "sessions": 1,
+        "sessionsRetainedFromDeletedLogs": 0,
+        "activeHours": 0,
+        "calendarDays": 1,
+        "firstSeen": "2026-07-24",
+        "lastSeen": "2026-07-24"
+      },
+      "tokens": {
+        "output": 1524,
+        "input": 18,
+        "cacheWrite": 47967,
+        "cacheRead": 396870,
+        "total": 446379,
+        "cacheReadShare": 88.9
+      },
+      "work": {
+        "toolCalls": 4,
+        "edits": 0,
+        "bashCommands": 0,
+        "filesTouched": 1,
+        "branches": 1,
+        "prs": 0,
+        "webSearches": 0,
+        "compactions": 0,
+        "apiErrors": 0
+      },
+      "models": {
+        "claude-sonnet-5": 446379
+      },
+      "skills": {},
+      "pricing": {
+        "equivalentListPriceUSD": 0.32,
+        "unpricedModels": []
+      },
+      "emissions": {
+        "gramsCO2e": {
+          "floor": 1.7,
+          "midpoint": 20.7,
+          "ceiling": 86.3
+        },
+        "headline": {
+          "kgCO2e": 0,
+          "kmDriven": 0,
+          "kettleBoils": 1,
+          "phoneCharges": 12
+        },
+        "caveats": [
+          "Range spans 51x between floor and ceiling; the variable is how cache reads are weighted.",
+          "All emission factors are measured for this model class.",
+          "Base factors: Jegham et al. 2025 (Sonnet-class, via the claude-carbon project)."
+        ]
+      },
+      "coverage": {
+        "tool": "claude-code",
+        "measuredFrom": "2026-07-24",
+        "measuredTo": "2026-07-24",
+        "isFloor": true,
+        "sessionsMeasured": 1,
+        "sessionsRetainedFromDeletedLogs": 0,
+        "unmeasured": [
+          "Sessions deleted before this archive first recorded them.",
+          "Any work done in other tools (Lovable, Antigravity, Cursor, OpenCode, ...).",
+          "Any work done outside an AI coding tool entirely."
+        ],
+        "repoPath": "C:\\Users\\Peter\\Projects\\boer-transport",
+        "firstCommitDate": "2026-05-17",
+        "totalCommits": 12,
+        "commitsBeforeMeasuredWindow": 12,
+        "commitCoveragePct": 0
+      }
+    }
+  ]
+}

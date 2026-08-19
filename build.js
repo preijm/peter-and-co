@@ -59,6 +59,9 @@ console.log('Written dist/index.html');
 const staticFiles = [
   'CNAME', 'robots.txt', 'sitemap.xml',
   'social-card.png',
+  // Generated locally by `npm run footprint` — CI can't see the session logs,
+  // so this is committed and copied through as-is.
+  'footprint.json',
   ...fs.readdirSync('.').filter(f => f.startsWith('google') && f.endsWith('.html')),
 ];
 for (const f of staticFiles) {
