@@ -1298,6 +1298,59 @@ function BeforeAfterSlider({ before, after, alt, accent }) {
   );
 }
 
+// ── Build Footprint ────────────────────────────────────────
+// One rule, three stats, one honest caveat. Renders nothing when there's no
+// measured data for this project.
+function BuildFootprint({ project }) {
+  const mobile = useMobile();
+  const { theme } = useTheme();
+  const fp = footprintFor(project);
+  if (!fp) return null;
+
+  const stats = [
+    { value: (fp.measured.prompts || 0).toLocaleString('en-US'), label: 'prompts' },
+    { value: fp.measured.activeHours, label: 'hours' },
+    { value: fmtTokens(fp.tokens.output), label: 'tokens out' },
+  ];
+
+  return (
+    <div style={{
+      borderTop: `1px solid ${theme.colors.border}`,
+      paddingTop: '16px',
+      marginTop: mobile ? '32px' : '40px',
+    }}>
+      <div style={{
+        fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost,
+        letterSpacing: '0.12em', marginBottom: '14px',
+      }}>BUILD FOOTPRINT</div>
+
+      <div style={{
+        display: 'flex', gap: mobile ? '28px' : '48px',
+        flexWrap: 'wrap', marginBottom: '14px',
+      }}>
+        {stats.map(s => (
+          <div key={s.label} style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+            <span style={{
+              fontFamily: theme.fonts.serif, fontSize: mobile ? '22px' : '26px',
+              color: theme.colors.text, letterSpacing: '-0.01em', lineHeight: 1,
+            }}>{s.value}</span>
+            <span style={{
+              fontFamily: theme.fonts.mono, fontSize: '12px', color: theme.colors.textDim,
+            }}>{s.label}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* textDim, not textFaint: this line is the disclosure, so it has to stay
+          legible. textFaint fails WCAG AA on both the light and dark themes. */}
+      <p style={{
+        fontFamily: theme.fonts.mono, fontSize: '11px', color: theme.colors.textDim,
+        lineHeight: 1.75, margin: 0, maxWidth: '62ch',
+      }}>{footprintCaveat(fp)}</p>
+    </div>
+  );
+}
+
 // ── Project Detail ─────────────────────────────────────────
 function ProjectDetail({ project, onBack }) {
   const mobile = useMobile();
@@ -1353,6 +1406,7 @@ function ProjectDetail({ project, onBack }) {
                 </>
             }
           </div>
+          <BuildFootprint project={project} />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {project.role && (
@@ -1470,7 +1524,7 @@ const sanityImg = (url, w) => {
   if (!url || typeof url !== 'string' || !url.includes('cdn.sanity.io')) return url;
   return `${url}${url.includes('?') ? '&' : '?'}w=${w}&auto=format&q=75&fit=max`;
 };
-const Q_PROJECTS = `*[_type=="project"]|order(order asc){"id":slug.current,title,description,tagline,detail,tags,year,url,href,"screenshot":screenshot.asset->url,"screenshotBefore":screenshotBefore.asset->url,livePreview,role,stack,tools,featured,isPublic,"accent":{"default":accentDefault,"mondriaan-v1":accentMondriaan}}`;
+const Q_PROJECTS = `*[_type=="project"]|order(order asc){"id":slug.current,title,description,tagline,detail,tags,year,url,href,"screenshot":screenshot.asset->url,"screenshotBefore":screenshotBefore.asset->url,livePreview,role,stack,tools,featured,isPublic,repo,"accent":{"default":accentDefault,"mondriaan-v1":accentMondriaan}}`;
 const Q_TOOLS = `*[_type=="tool"]|order(order asc){name,"desc":description,category,status,highlight}`;
 
 function mapSanityProjects(docs) {
@@ -1482,6 +1536,7 @@ function mapSanityProjects(docs) {
       stack: d.stack || [], tools: d.tools || [], featured: !!d.featured,
       accent: { default: (d.accent && d.accent.default) || '#818cf8', 'mondriaan-v1': (d.accent && d.accent['mondriaan-v1']) || (d.accent && d.accent.default) || '#d72027' },
     };
+    if (d.repo) p.repo = d.repo;
     if (d.href) p.href = d.href;
     if (d.screenshot) p.screenshot = d.screenshot;
     if (d.screenshotBefore) p.screenshotBefore = d.screenshotBefore;
@@ -1515,6 +1570,56 @@ async function loadSanityContent() {
   } catch (e) { return false; }
 }
 
+// ── Build footprint ────────────────────────────────────
+// Generated locally by `npm run footprint` from Claude Code session logs.
+// Absent until that runs, and absent for projects with no logs — every
+// consumer treats missing data as "show nothing".
+let FOOTPRINT = null;
+async function loadFootprint() {
+  try {
+    const r = await fetch('footprint.json', { cache: 'no-cache' });
+    if (!r.ok) return false;
+    const j = await r.json();
+    if (!j || !Array.isArray(j.projects)) return false;
+    FOOTPRINT = j;
+    return true;
+  } catch (e) { return false; }
+}
+
+// Match on the Sanity `repo` field first, then fall back to the project slug.
+// The extractor keys projects by repository folder name.
+function footprintFor(project) {
+  if (!FOOTPRINT || !project) return null;
+  const keys = [project.repo, project.id]
+    .filter(Boolean).map(s => String(s).toLowerCase());
+  if (!keys.length) return null;
+  return FOOTPRINT.projects.find(p => keys.includes(String(p.name).toLowerCase())) || null;
+}
+
+const fmtTokens = (n) => {
+  if (!n) return '0';
+  if (n >= 1e9) return (n / 1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return Math.round(n / 1e3) + 'K';
+  return String(n);
+};
+
+// The caveat is generated from the coverage data rather than written per
+// project, so it can never drift out of sync with the numbers beside it.
+function footprintCaveat(fp) {
+  const c = fp.coverage || {};
+  const window = c.measuredFrom && c.measuredTo
+    ? `${c.measuredFrom} to ${c.measuredTo}` : 'the logged sessions';
+  const pct = c.commitCoveragePct;
+  if (pct === 100) {
+    return `Measured from Claude Code, ${window} — the full life of this project. Only work done through Claude Code is counted.`;
+  }
+  if (typeof pct === 'number') {
+    return `Measured from Claude Code, ${window} — about ${pct}% of this project's commits. Earlier work, and anything built in other tools, isn't counted. The real number is higher.`;
+  }
+  return `Measured from Claude Code, ${window}. Work in other tools isn't counted, so the real number is higher.`;
+}
+
 function App() {
   const [page, setPage] = React.useState('home');
   const [selectedProject, setSelectedProject] = React.useState(null);
@@ -1522,7 +1627,9 @@ function App() {
 
   React.useEffect(() => {
     let alive = true;
-    loadSanityContent().then(changed => { if (alive && changed) setContentVersion(v => v + 1); });
+    Promise.all([loadSanityContent(), loadFootprint()]).then(results => {
+      if (alive && results.some(Boolean)) setContentVersion(v => v + 1);
+    });
     return () => { alive = false; };
   }, []);
 
