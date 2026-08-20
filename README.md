@@ -55,7 +55,27 @@ CI runs on every push to `master`:
 npm ci → node build.js → dist/ → GitHub Pages
 ```
 
-`build.js` compiles the JSX with Babel and writes `dist/`. It also copies static assets (`screenshots/`, `social-card.png`, `CNAME`, `themes/`, `robots.txt`, `sitemap.xml`, `google*.html`) and stamps `sitemap.xml`'s `lastmod` on every build. **Never edit `dist/`** — it is generated and not tracked in git.
+`build.js` compiles the JSX with Babel and writes `dist/`. It also copies static assets (`screenshots/`, `social-card.png`, `CNAME`, `themes/`, `robots.txt`, `sitemap.xml`, `google*.html`, `footprint.json`) and stamps `sitemap.xml`'s `lastmod` on every build. **Never edit `dist/`** — it is generated and not tracked in git.
+
+---
+
+## Build footprint
+
+Project pages show a "build footprint" rule — prompts, active hours, and tokens generated — measured from local Claude Code session logs.
+
+```bash
+npm run footprint
+```
+
+That regenerates `footprint.json`, which is committed and copied to `dist/`. CI cannot produce it: the session logs only exist on the machine that did the work, so it is generated locally and checked in. Re-run it whenever you want the numbers refreshed, then commit.
+
+Three things are worth knowing before touching it:
+
+- **Every figure is a floor, not a total.** Only Claude Code records per-message token counts; work done in other tools is invisible. Each project's caveat line is generated from its coverage data, so it cannot drift out of sync with the numbers beside it.
+- **`--only` is a publish allowlist**, and it gates both published files. Without it the command refuses to write, because `footprint.json` is served from the site and `tools/footprint/archive.json` is committed to a public repo — naming a project publicly has to be deliberate.
+- **`tools/footprint/archive.local.json` is the durable record and is gitignored.** Claude Code deletes session logs after `cleanupPeriodDays` (default 30), so this file is the only lasting copy of anything already cleaned up. It is not backed up by pushing.
+
+Full methodology, the emission factors, and why there is no tree metric: [tools/footprint/README.md](tools/footprint/README.md).
 
 ---
 
@@ -139,6 +159,8 @@ Lives in a `<script type="text/plain" id="volt-src">` blob. A dark, restrained o
 |---|---|
 | `build.js` | Compiles JSX + bundles `dist/` for production |
 | `studio/` | Sanity Studio — the content admin (see [studio/README.md](studio/README.md)) |
+| `tools/footprint/` | Build-footprint extractor (see [its README](tools/footprint/README.md)) |
+| `footprint.json` | Generated build-footprint data, served from the site |
 | `THEMES.md` | Canonical rules for theme structure, tokens, and the Mondriaan/Volt internals |
 | `themes/` | Per-theme favicon SVG assets |
 | `screenshots/` | Static project screenshots copied to `dist/` |
