@@ -415,6 +415,24 @@ function loadArchive() {
 }
 
 function saveArchive(archive, allowlist) {
+  // Guard: an allowlist that matches nothing is a typo, not an instruction to
+  // empty the published archive. Writing it would silently discard the history
+  // of every published project, and the local copy is the only thing that
+  // makes that recoverable. Refuse before touching either file.
+  if (allowlist) {
+    const known = new Set(
+      Object.values(archive.sessions).map((e) => String(e.projectName).toLowerCase())
+    );
+    const matched = [...allowlist].filter((n) => known.has(n));
+    if (!matched.length) {
+      throw new Error(
+        'The --only allowlist [' + [...allowlist].join(', ') + '] matches no measured project.\n' +
+        'Known projects: ' + [...known].sort().join(', ') + '\n' +
+        'Refusing to write, because publishing an empty archive would discard published history.'
+      );
+    }
+  }
+
   fs.writeFileSync(ARCHIVE_LOCAL_PATH, JSON.stringify({
     version: ARCHIVE_VERSION,
     note: 'LOCAL ONLY - gitignored. Complete record, including absolute paths. ' +
@@ -660,7 +678,7 @@ function collect(writeArchive, allowlist) {
   for (const [sid, e] of Object.entries(archive.sessions)) {
     const key = e.projectKey || 'unknown';
     if (!groups.has(key)) groups.set(key, []);
-    groups.get(key).push(Object.assign({}, e, { _onDisk: onDisk.has(sid) || onDisk.has(e.sessionId) }));
+    groups.get(key).push(Object.assign({}, e, { _onDisk: onDisk.has(sid) }));
   }
 
   const projects = [];
@@ -838,8 +856,17 @@ function main() {
   const allowlist = onlyIdx !== -1 && argv[onlyIdx + 1]
     ? new Set(argv[onlyIdx + 1].split(',').map((s) => s.trim().toLowerCase()))
     : null;
+  // Fail closed. A warning is too weak here: footprint.json is served from the
+  // site and archive.json is committed to a public repo, so forgetting --only
+  // once would republish every project you have ever opened.
   if (!allowlist && jsonIdx !== -1) {
-    console.log('WARNING: no --only allowlist given; every measured project will be published.');
+    console.error(
+      'Refusing to write ' + (argv[jsonIdx + 1] || 'footprint.json') + ' without --only.\n' +
+      'Both written files are published, so the project list has to be explicit.\n' +
+      'Example: --only milk-me-not,folio      (omit --json to just view the table)'
+    );
+    process.exitCode = 1;
+    return;
   }
 
   const { projects: all, stats } = collect(writeArchive, allowlist);
@@ -884,10 +911,18 @@ function main() {
     const out = argv[jsonIdx + 1] || 'footprint.json';
     fs.writeFileSync(out, JSON.stringify(payload, null, 2));
     console.log('Wrote ' + out + '  (' + projects.length + ' projects)');
-    console.log('Archive: ' + stats.archived + ' sessions (' + stats.sessionsNew + ' new this run)');
+    console.log('Archive: ' + stats.archived + ' sessions recorded locally, ' +
+                stats.published + ' published (' + stats.sessionsNew + ' new this run)');
   } else {
     printTable(projects, verbose, stats);
   }
 }
 
-main();
+try {
+  main();
+} catch (err) {
+  // The guards in saveArchive throw deliberately. A stack trace helps nobody
+  // read what went wrong, so print the message and exit non-zero.
+  console.error('\n' + (err && err.message ? err.message : err) + '\n');
+  process.exitCode = 1;
+}

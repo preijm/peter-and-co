@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-19T19:27:38.765Z",
+  "generatedAt": "2026-08-19T20:53:24.207Z",
   "source": "claude-code-session-logs",
   "disclaimer": "All figures are a measured floor, not a total. Only Claude Code usage is counted, and only sessions this archive recorded before their logs were deleted. Work in other tools is not included.",
   "methodology": {
@@ -52,27 +52,27 @@
     {
       "name": "folio",
       "measured": {
-        "prompts": 292,
-        "assistantMessages": 9509,
+        "prompts": 294,
+        "assistantMessages": 9653,
         "sessions": 5,
         "sessionsRetainedFromDeletedLogs": 0,
-        "activeHours": 20.9,
+        "activeHours": 21.3,
         "calendarDays": 14,
         "firstSeen": "2026-07-24",
         "lastSeen": "2026-08-19"
       },
       "tokens": {
-        "output": 6133903,
-        "input": 19003,
-        "cacheWrite": 108610128,
-        "cacheRead": 4237927294,
-        "total": 4352690328,
+        "output": 6261785,
+        "input": 19291,
+        "cacheWrite": 111287564,
+        "cacheRead": 4363367862,
+        "total": 4480936502,
         "cacheReadShare": 97.4
       },
       "work": {
-        "toolCalls": 5101,
-        "edits": 799,
-        "bashCommands": 680,
+        "toolCalls": 5177,
+        "edits": 814,
+        "bashCommands": 687,
         "filesTouched": 78,
         "branches": 6,
         "prs": 7,
@@ -81,29 +81,29 @@
         "apiErrors": 11
       },
       "models": {
-        "claude-sonnet-5": 4218609640,
+        "claude-sonnet-5": 4346855814,
         "claude-opus-5": 134080688,
         "<synthetic>": 0
       },
       "skills": {},
       "pricing": {
-        "equivalentListPriceUSD": 1811.66,
+        "equivalentListPriceUSD": 1861.25,
         "unpricedModels": []
       },
       "emissions": {
         "gramsCO2e": {
-          "floor": 7336.6,
-          "midpoint": 117256.9,
-          "ceiling": 858600.4
+          "floor": 7482.4,
+          "midpoint": 120422,
+          "ceiling": 883088.6
         },
         "headline": {
-          "kgCO2e": 117.3,
-          "kmDriven": 977,
-          "kettleBoils": 7817,
-          "phoneCharges": 65143
+          "kgCO2e": 120.4,
+          "kmDriven": 1004,
+          "kettleBoils": 8028,
+          "phoneCharges": 66901
         },
         "caveats": [
-          "Range spans 117x between floor and ceiling; the variable is how cache reads are weighted.",
+          "Range spans 118x between floor and ceiling; the variable is how cache reads are weighted.",
           "Opus/Fable emission factors are extrapolated by parameter ratio, not measured.",
           "Base factors: Jegham et al. 2025 (Sonnet-class, via the claude-carbon project)."
         ]
@@ -129,36 +129,36 @@
     {
       "name": "milk-me-not",
       "measured": {
-        "prompts": 123,
-        "assistantMessages": 3203,
+        "prompts": 135,
+        "assistantMessages": 3371,
         "sessions": 5,
         "sessionsRetainedFromDeletedLogs": 0,
-        "activeHours": 8.8,
+        "activeHours": 9.1,
         "calendarDays": 5,
         "firstSeen": "2026-07-24",
         "lastSeen": "2026-08-19"
       },
       "tokens": {
-        "output": 2744563,
-        "input": 42109,
-        "cacheWrite": 21634511,
-        "cacheRead": 1147080952,
-        "total": 1171502135,
+        "output": 2891083,
+        "input": 42445,
+        "cacheWrite": 23255216,
+        "cacheRead": 1230716911,
+        "total": 1256905655,
         "cacheReadShare": 97.9
       },
       "work": {
-        "toolCalls": 1700,
-        "edits": 262,
-        "bashCommands": 935,
-        "filesTouched": 184,
+        "toolCalls": 1778,
+        "edits": 267,
+        "bashCommands": 1002,
+        "filesTouched": 185,
         "branches": 3,
-        "prs": 10,
+        "prs": 15,
         "webSearches": 0,
         "compactions": 2,
         "apiErrors": 7
       },
       "models": {
-        "claude-opus-5": 1124647532,
+        "claude-opus-5": 1210051052,
         "claude-sonnet-5": 46854603,
         "<synthetic>": 0
       },
@@ -169,23 +169,23 @@
         "design-review": 32
       },
       "pricing": {
-        "equivalentListPriceUSD": 761.02,
+        "equivalentListPriceUSD": 816.63,
         "unpricedModels": []
       },
       "emissions": {
         "gramsCO2e": {
-          "floor": 5999.3,
-          "midpoint": 58523,
-          "ceiling": 441267.8
+          "floor": 6333.3,
+          "midpoint": 62805.2,
+          "ceiling": 473999.6
         },
         "headline": {
-          "kgCO2e": 58.5,
-          "kmDriven": 488,
-          "kettleBoils": 3902,
-          "phoneCharges": 32513
+          "kgCO2e": 62.8,
+          "kmDriven": 523,
+          "kettleBoils": 4187,
+          "phoneCharges": 34892
         },
         "caveats": [
-          "Range spans 74x between floor and ceiling; the variable is how cache reads are weighted.",
+          "Range spans 75x between floor and ceiling; the variable is how cache reads are weighted.",
           "Opus/Fable emission factors are extrapolated by parameter ratio, not measured.",
           "Base factors: Jegham et al. 2025 (Sonnet-class, via the claude-carbon project)."
         ]
@@ -203,7 +203,7 @@
           "Any work done outside an AI coding tool entirely."
         ],
         "firstCommitDate": "2025-02-02",
-        "totalCommits": 3014,
+        "totalCommits": 3019,
         "commitsBeforeMeasuredWindow": 2935,
         "commitCoveragePct": 3
       }

@@ -100,7 +100,7 @@
       ],
       "prCount": 0,
       "skills": {},
-      "archivedAt": "2026-08-19T19:27:36.194Z"
+      "archivedAt": "2026-08-19T20:53:21.562Z"
     },
     "3b58d538-ea23-42d9-bf93-4b2e25291e28": {
       "intervals": [
@@ -357,7 +357,7 @@
       ],
       "prCount": 3,
       "skills": {},
-      "archivedAt": "2026-08-19T19:27:36.194Z"
+      "archivedAt": "2026-08-19T20:53:21.562Z"
     },
     "6fa23323-2a90-47e5-ae50-7f513831a1e7": {
       "intervals": [
@@ -445,7 +445,7 @@
       ],
       "prCount": 1,
       "skills": {},
-      "archivedAt": "2026-08-19T19:27:36.194Z"
+      "archivedAt": "2026-08-19T20:53:21.562Z"
     },
     "5af3ea58-0b99-4148-b5ab-1a688ced8e89": {
       "intervals": [
@@ -584,7 +584,7 @@
       ],
       "prCount": 3,
       "skills": {},
-      "archivedAt": "2026-08-19T19:27:36.194Z"
+      "archivedAt": "2026-08-19T20:53:21.562Z"
     },
     "be0658f7-6503-4318-9ce0-cf5de4e78c85": {
       "intervals": [
@@ -638,38 +638,42 @@
         ],
         [
           1787166866475,
-          1787167628660
+          1787168247846
+        ],
+        [
+          1787172098690,
+          1787172646981
         ]
       ],
       "projectKey": "git:31366172e2eb4de603359875c8027a28ab914eee",
       "projectName": "folio",
       "firstSeen": "2026-08-16T12:36:36.939Z",
-      "lastSeen": "2026-08-19T19:27:08.660Z",
-      "activeMs": 21872283,
+      "lastSeen": "2026-08-19T20:50:46.981Z",
+      "activeMs": 23039760,
       "days": [
         "2026-08-16",
         "2026-08-17",
         "2026-08-18",
         "2026-08-19"
       ],
-      "prompts": 58,
-      "assistantMessages": 2622,
+      "prompts": 60,
+      "assistantMessages": 2766,
       "compactions": 2,
       "apiErrors": 1,
       "webSearches": 0,
       "webFetches": 0,
       "totals": {
-        "input": 5308,
-        "output": 1977050,
-        "cacheWrite": 10512414,
-        "cacheRead": 1251149668
+        "input": 5596,
+        "output": 2104932,
+        "cacheWrite": 13189850,
+        "cacheRead": 1376590236
       },
       "byModel": {
         "claude-sonnet-5": {
-          "input": 5308,
-          "output": 1977050,
-          "cacheWrite": 10512414,
-          "cacheRead": 1251149668
+          "input": 5596,
+          "output": 2104932,
+          "cacheWrite": 13189850,
+          "cacheRead": 1376590236
         },
         "<synthetic>": {
           "input": 0,
@@ -679,24 +683,24 @@
         }
       },
       "tools": {
-        "Bash": 77,
+        "Bash": 84,
         "Glob": 2,
-        "Read": 237,
+        "Read": 254,
         "mcp__Claude_Browser__preview_start": 13,
-        "mcp__Claude_Browser__navigate": 83,
-        "mcp__Claude_Browser__computer": 137,
-        "mcp__Claude_Browser__get_page_text": 60,
-        "Grep": 170,
+        "mcp__Claude_Browser__navigate": 90,
+        "mcp__Claude_Browser__computer": 139,
+        "mcp__Claude_Browser__get_page_text": 61,
+        "Grep": 172,
         "AskUserQuestion": 4,
-        "Edit": 242,
+        "Edit": 257,
         "mcp__Claude_Browser__read_console_messages": 45,
         "mcp__visualize__read_me": 1,
         "mcp__visualize__show_widget": 1,
         "mcp__Claude_Browser__zoom": 1,
-        "mcp__Claude_Browser__javascript_tool": 235,
+        "mcp__Claude_Browser__javascript_tool": 258,
         "mcp__Claude_Browser__find": 5,
         "mcp__Claude_Browser__read_page": 24,
-        "mcp__Claude_Browser__resize_window": 4,
+        "mcp__Claude_Browser__resize_window": 6,
         "mcp__Claude_Browser__tabs_context": 4,
         "mcp__Claude_Browser__tabs_select": 1,
         "mcp__Claude_Browser__preview_logs": 17,
@@ -736,7 +740,7 @@
       ],
       "prCount": 0,
       "skills": {},
-      "archivedAt": "2026-08-19T19:27:36.194Z"
+      "archivedAt": "2026-08-19T20:53:21.562Z"
     },
     "04a0ba75-d5e9-4bbc-bfbc-f099468a19b3": {
       "intervals": [
@@ -782,7 +786,7 @@
       ],
       "prCount": 0,
       "skills": {},
-      "archivedAt": "2026-08-19T19:27:36.194Z"
+      "archivedAt": "2026-08-19T20:53:21.562Z"
     },
     "4ea5a860-072c-4306-8013-41737f8f0ce1": {
       "intervals": [
@@ -792,39 +796,39 @@
         ],
         [
           1787166922482,
-          1787167649918
+          1787168354376
         ]
       ],
       "projectKey": "git:d10143ad3128e919bef93e310937b12bbbb9a7ea",
       "projectName": "milk-me-not",
       "firstSeen": "2026-08-19T17:53:11.378Z",
-      "lastSeen": "2026-08-19T19:27:29.918Z",
-      "activeMs": 3031951,
+      "lastSeen": "2026-08-19T19:39:14.376Z",
+      "activeMs": 3736409,
       "days": [
         "2026-08-19"
       ],
-      "prompts": 9,
-      "assistantMessages": 303,
+      "prompts": 13,
+      "assistantMessages": 357,
       "compactions": 0,
       "apiErrors": 0,
       "webSearches": 0,
       "webFetches": 0,
       "totals": {
-        "input": 606,
-        "output": 170348,
-        "cacheWrite": 626712,
-        "cacheRead": 42183138
+        "input": 714,
+        "output": 198958,
+        "cacheWrite": 657870,
+        "cacheRead": 54761607
       },
       "byModel": {
         "claude-opus-5": {
-          "input": 606,
-          "output": 170348,
-          "cacheWrite": 626712,
-          "cacheRead": 42183138
+          "input": 714,
+          "output": 198958,
+          "cacheWrite": 657870,
+          "cacheRead": 54761607
         }
       },
       "tools": {
-        "Bash": 111,
+        "Bash": 133,
         "mcp__Claude_Browser__preview_start": 2,
         "mcp__Claude_Browser__navigate": 6,
         "mcp__Claude_Browser__javascript_tool": 30,
@@ -835,15 +839,18 @@
         "mcp__Claude_Browser__get_page_text": 2,
         "mcp__ccd_session__mark_chapter": 1,
         "mcp__Claude_Browser__read_console_messages": 4,
-        "mcp__Claude_Browser__preview_stop": 1
+        "mcp__Claude_Browser__preview_stop": 1,
+        "ToolSearch": 2,
+        "Monitor": 1,
+        "TaskStop": 1
       },
       "fileHashes": [],
       "branchHashes": [
         "322b0532ad86"
       ],
-      "prCount": 1,
+      "prCount": 3,
       "skills": {},
-      "archivedAt": "2026-08-19T19:27:36.194Z"
+      "archivedAt": "2026-08-19T20:53:21.562Z"
     },
     "7df9be12-70d7-4b01-8245-c2e68deb81f2": {
       "intervals": [
@@ -905,38 +912,42 @@
         ],
         [
           1787166898162,
-          1787167472263
+          1787168159982
+        ],
+        [
+          1787172216862,
+          1787172273000
         ]
       ],
       "projectKey": "git:d10143ad3128e919bef93e310937b12bbbb9a7ea",
       "projectName": "milk-me-not",
       "firstSeen": "2026-08-16T16:14:59.515Z",
-      "lastSeen": "2026-08-19T19:24:32.263Z",
-      "activeMs": 28046817,
+      "lastSeen": "2026-08-19T20:44:33.000Z",
+      "activeMs": 28790674,
       "days": [
         "2026-08-16",
         "2026-08-17",
         "2026-08-18",
         "2026-08-19"
       ],
-      "prompts": 54,
-      "assistantMessages": 1900,
+      "prompts": 58,
+      "assistantMessages": 1936,
       "compactions": 2,
       "apiErrors": 7,
       "webSearches": 0,
       "webFetches": 0,
       "totals": {
-        "input": 5698,
-        "output": 1768826,
-        "cacheWrite": 14460453,
-        "cacheRead": 806895516
+        "input": 5770,
+        "output": 1792904,
+        "cacheWrite": 15961964,
+        "cacheRead": 832948647
       },
       "byModel": {
         "claude-opus-5": {
-          "input": 5698,
-          "output": 1768826,
-          "cacheWrite": 14460453,
-          "cacheRead": 806895516
+          "input": 5770,
+          "output": 1792904,
+          "cacheWrite": 15961964,
+          "cacheRead": 832948647
         },
         "<synthetic>": {
           "input": 0,
@@ -946,7 +957,7 @@
         }
       },
       "tools": {
-        "Bash": 623,
+        "Bash": 638,
         "Read": 103,
         "mcp__Claude_Browser__preview_start": 8,
         "mcp__Claude_Browser__computer": 5,
@@ -1132,11 +1143,11 @@
         "322b0532ad86",
         "0d6e4079e367"
       ],
-      "prCount": 5,
+      "prCount": 6,
       "skills": {
         "artifact-design": 34
       },
-      "archivedAt": "2026-08-19T19:27:36.194Z"
+      "archivedAt": "2026-08-19T20:53:21.562Z"
     },
     "de86e295-8be4-4986-96c0-5d4521ec0da1": {
       "intervals": [
@@ -1178,14 +1189,14 @@
         ],
         [
           1787166917031,
-          1787167643402
+          1787168836230
         ]
       ],
       "projectKey": "git:d10143ad3128e919bef93e310937b12bbbb9a7ea",
       "projectName": "milk-me-not",
       "firstSeen": "2026-07-24T19:56:08.251Z",
-      "lastSeen": "2026-08-19T19:27:23.402Z",
-      "activeMs": 11692348,
+      "lastSeen": "2026-08-19T19:47:16.230Z",
+      "activeMs": 12885176,
       "days": [
         "2026-07-24",
         "2026-08-16",
@@ -1193,17 +1204,17 @@
         "2026-08-18",
         "2026-08-19"
       ],
-      "prompts": 57,
-      "assistantMessages": 965,
+      "prompts": 61,
+      "assistantMessages": 1043,
       "compactions": 0,
       "apiErrors": 0,
       "webSearches": 0,
       "webFetches": 0,
       "totals": {
-        "input": 34081,
-        "output": 782918,
-        "cacheWrite": 6404595,
-        "cacheRead": 296354635
+        "input": 34237,
+        "output": 876750,
+        "cacheWrite": 6492631,
+        "cacheRead": 341358994
       },
       "byModel": {
         "claude-sonnet-5": {
@@ -1213,23 +1224,23 @@
           "cacheRead": 44463795
         },
         "claude-opus-5": {
-          "input": 11256,
-          "output": 556306,
-          "cacheWrite": 4263224,
-          "cacheRead": 251890840
+          "input": 11412,
+          "output": 650138,
+          "cacheWrite": 4351260,
+          "cacheRead": 296895199
         }
       },
       "tools": {
         "mcp__Claude_Browser__preview_start": 6,
-        "Bash": 189,
-        "Write": 13,
+        "Bash": 219,
+        "Write": 14,
         "mcp__Claude_Browser__preview_logs": 1,
         "mcp__Claude_Browser__computer": 12,
-        "Read": 48,
+        "Read": 50,
         "Skill": 3,
         "Grep": 25,
         "Glob": 2,
-        "Edit": 91,
+        "Edit": 95,
         "ToolSearch": 1,
         "WebSearch": 36,
         "WebFetch": 35,
@@ -1281,20 +1292,21 @@
         "e7f4f19d60f7",
         "5729a38d9383",
         "e582a8fe6f88",
-        "99c1a724a2e7"
+        "99c1a724a2e7",
+        "aa38aa14bef9"
       ],
       "branchHashes": [
         "0d6e4079e367",
         "322b0532ad86",
         "3535fa353d40"
       ],
-      "prCount": 4,
+      "prCount": 6,
       "skills": {
         "gauntlet-loop": 13,
         "dataviz": 90,
         "design-review": 32
       },
-      "archivedAt": "2026-08-19T19:27:36.194Z"
+      "archivedAt": "2026-08-19T20:53:21.562Z"
     },
     "fec13739-8cbd-49eb-8d69-9cb811c6e69c": {
       "intervals": [
@@ -1344,7 +1356,7 @@
       ],
       "prCount": 0,
       "skills": {},
-      "archivedAt": "2026-08-19T19:27:36.194Z"
+      "archivedAt": "2026-08-19T20:53:21.562Z"
     }
   }
 }
