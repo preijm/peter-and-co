@@ -1307,6 +1307,11 @@ function BuildFootprint({ project }) {
   const fp = footprintFor(project);
   if (!fp) return null;
 
+  // Prompts is the only figure that combines across tools — a prompt is a
+  // prompt anywhere. Hours and tokens stay Claude Code only, because no other
+  // tool reports them; the caveat below says so explicitly.
+  const prompts = (fp.combined ? fp.combined.prompts : fp.measured.prompts) || 0;
+
   const stats = [
     { value: prompts.toLocaleString('en-US'), label: 'prompts' },
     { value: fp.measured.activeHours, label: 'hours' },
@@ -1396,11 +1401,6 @@ function ProjectDetail({ project, onBack }) {
               : project.livePreview && project.href
               ? <LivePreview href={project.href} themeId={theme.id} />
               : project.screenshot
-  // Prompts is the only figure that combines across tools — a prompt is a
-  // prompt anywhere. Hours and tokens stay Claude Code only, because no other
-  // tool reports them; the caveat below says so explicitly.
-  const prompts = (fp.combined ? fp.combined.prompts : fp.measured.prompts) || 0;
-
               ? <img src={sanityImg(project.screenshot, 1400)} alt={project.title} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} />
               : <>
                   <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse at 30% 50%, ${accent}11 0%, transparent 70%)` }} />
@@ -1611,11 +1611,31 @@ const fmtTokens = (n) => {
 
 // The caveat is generated from the coverage data rather than written per
 // project, so it can never drift out of sync with the numbers beside it.
+const monthLabel = (ym) => {
+  if (!ym) return '';
+  const [y, m] = String(ym).split('-');
+  const names = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return m ? `${names[+m - 1]} ${y}` : y;
+};
+
 function footprintCaveat(fp) {
   const c = fp.coverage || {};
   const window = c.measuredFrom && c.measuredTo
     ? `${c.measuredFrom} to ${c.measuredTo}` : 'the logged sessions';
   const pct = c.commitCoveragePct;
+
+  // With a hand-entered source, prompts span both tools but everything else
+  // still doesn't. Naming the split is the whole point of showing it.
+  if (fp.combined && fp.manualSources && fp.manualSources.length) {
+    const parts = fp.manualSources.map(s =>
+      `${(s.prompts || 0).toLocaleString('en-US')} in ${s.tool}` +
+      (s.from ? ` (${monthLabel(s.from)}–${monthLabel(s.to)})` : '')
+    );
+    return `${parts.join(', ')}, ${(fp.measured.prompts || 0).toLocaleString('en-US')} in Claude Code. ` +
+           `Hours and tokens cover the Claude Code portion only — ${fp.manualSources.map(s => s.tool).join(' and ')} ` +
+           `${fp.manualSources.length > 1 ? "don't" : "doesn't"} report them.`;
+  }
+
   if (pct === 100) {
     return `Measured from Claude Code, ${window} — the full life of this project. Only work done through Claude Code is counted.`;
   }
@@ -1700,31 +1720,11 @@ function MLogo({ onClick, size }) {
         fontFamily: M_DISPLAY, fontSize: `${sz*0.6}px`, color: M_WHITE,
         lineHeight: 1, paddingTop: 4,
       }}>P</div>
-const monthLabel = (ym) => {
-  if (!ym) return '';
-  const [y, m] = String(ym).split('-');
-  const names = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return m ? `${names[+m - 1]} ${y}` : y;
-};
-
       <div style={{
         display: 'flex', flexDirection: 'column',
         borderTop: `${M_LINE/2 + 1}px solid ${M_BLACK}`,
         borderRight: `${M_LINE/2 + 1}px solid ${M_BLACK}`,
         borderBottom: `${M_LINE/2 + 1}px solid ${M_BLACK}`,
-
-  // With a hand-entered source, prompts span both tools but everything else
-  // still doesn't. Naming the split is the whole point of showing it.
-  if (fp.combined && fp.manualSources && fp.manualSources.length) {
-    const parts = fp.manualSources.map(s =>
-      `${(s.prompts || 0).toLocaleString('en-US')} in ${s.tool}` +
-      (s.from ? ` (${monthLabel(s.from)}–${monthLabel(s.to)})` : '')
-    );
-    return `${parts.join(', ')}, ${(fp.measured.prompts || 0).toLocaleString('en-US')} in Claude Code. ` +
-           `Hours and tokens cover the Claude Code portion only — ${fp.manualSources.map(s => s.tool).join(' and ')} ` +
-           `${fp.manualSources.length > 1 ? "don't" : "doesn't"} report them.`;
-  }
-
         borderLeft: 'none',
       }}>
         <div style={{
