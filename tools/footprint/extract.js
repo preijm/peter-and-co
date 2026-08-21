@@ -49,6 +49,10 @@ const ARCHIVE_PATH = path.join(__dirname, 'archive.json');
 // coverage still resolves after a project's logs are deleted. Gitignored,
 // because it holds absolute paths. The committed archive holds no paths.
 const ARCHIVE_LOCAL_PATH = path.join(__dirname, 'archive.local.json');
+// Hand-entered figures for tools that expose nothing locally (Lovable, etc).
+// Committed, and only ever reported alongside the measured numbers — never
+// folded into the token, energy, or time totals.
+const MANUAL_SOURCES_PATH = path.join(__dirname, 'manual-sources.json');
 const ARCHIVE_VERSION = 2;
 
 // Gap between consecutive log records that still counts as "actively working".
@@ -400,6 +404,24 @@ function toArchiveEntry(s, identity, nowIso) {
  * Both are read back, local winning, so a fresh clone still has history for the
  * published projects while this machine keeps history for everything else.
  */
+/**
+ * Hand-entered per-project figures from tools that cannot be measured.
+ *
+ * Deliberately kept apart from everything the extractor measures. A prompt
+ * count from another tool is comparable to a Claude Code prompt count; its
+ * tokens, energy, and active time are not, because the tool does not report
+ * them. Combining only the comparable field is what keeps the page honest.
+ */
+function loadManualSources() {
+  try {
+    const raw = JSON.parse(fs.readFileSync(MANUAL_SOURCES_PATH, 'utf8'));
+    if (raw && raw.projects) return raw.projects;
+  } catch {
+    // Optional file — absent means every project is measured-only.
+  }
+  return {};
+}
+
 function loadArchive() {
   const merged = { version: ARCHIVE_VERSION, sessions: {}, repoPaths: {} };
   for (const p of [ARCHIVE_PATH, ARCHIVE_LOCAL_PATH]) {
@@ -681,6 +703,8 @@ function collect(writeArchive, allowlist) {
     groups.get(key).push(Object.assign({}, e, { _onDisk: onDisk.has(sid) }));
   }
 
+  const manual = loadManualSources();
+
   const projects = [];
   for (const [key, entries] of groups.entries()) {
     const g = aggregate(entries);
@@ -691,9 +715,27 @@ function collect(writeArchive, allowlist) {
     const total = t.input + t.output + t.cacheWrite + t.cacheRead;
     const edits = (g.tools.Edit || 0) + (g.tools.Write || 0) + (g.tools.NotebookEdit || 0);
 
+    const name = entries[0].projectName || 'unknown';
+    const manualSources = manual[name] || [];
+    const manualPrompts = manualSources.reduce((a, s) => a + (s.prompts || 0), 0);
+
     // No `path` or `sourceDirs`: this file is served publicly from the site.
     projects.push({
-      name: entries[0].projectName || 'unknown',
+      name,
+
+      // Only `prompts` combines across tools. Tokens, hours, and emissions stay
+      // measured-only, because no other tool reports them — see `scope`.
+      manualSources,
+      combined: manualSources.length ? {
+        prompts: g.prompts + manualPrompts,
+        tools: ['Claude Code', ...manualSources.map((s) => s.tool)],
+        scope: {
+          prompts: 'all tools',
+          activeHours: 'Claude Code only',
+          tokens: 'Claude Code only',
+          emissions: 'Claude Code only',
+        },
+      } : null,
 
       measured: {
         prompts: g.prompts,
