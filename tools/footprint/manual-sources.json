@@ -1,0 +1,26 @@
+{
+  "note": "Hand-entered figures from tools that do not expose usage data locally. These are NEVER merged into the measured token, energy, or time totals — those come only from Claude Code session logs. Prompt counts are combined, because a prompt is a prompt in either tool; nothing else is comparable. Keyed by project name, matching the extractor's output.",
+  "schema": {
+    "tool": "Name of the tool, shown to readers",
+    "prompts": "Typed prompts. Exclude canned approvals, empty messages, and any synced commit/build notices.",
+    "words": "Optional. Words written across those prompts.",
+    "from / to": "Range the figure covers (YYYY-MM). Use git history if the source has no timestamps.",
+    "snapshotAt": "When the figure was captured. Re-exporting later gives a higher number.",
+    "method": "How it was obtained, so the number can be re-derived or challenged.",
+    "reportsTokens": "false when the tool does not expose token counts — keeps the token figure honestly scoped."
+  },
+  "projects": {
+    "milk-me-not": [
+      {
+        "tool": "Lovable",
+        "prompts": 2315,
+        "words": 63734,
+        "from": "2025-02",
+        "to": "2026-08",
+        "snapshotAt": "2026-08-21",
+        "method": "Chat history exported with lovable-chat-exporter, counted user-side messages (id suffix `copy`/`usr`), excluding 14 empty, 63 canned approvals, and all 258 GitHub sync cards. Cross-checks against 2,866 gpt-engineer-app[bot] commits in git at ~1.24 commits per prompt.",
+        "reportsTokens": false
+      }
+    ]
+  }
+}

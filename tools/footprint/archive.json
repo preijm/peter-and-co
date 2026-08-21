@@ -100,7 +100,7 @@
       ],
       "prCount": 0,
       "skills": {},
-      "archivedAt": "2026-08-19T20:53:21.562Z"
+      "archivedAt": "2026-08-21T19:31:04.841Z"
     },
     "3b58d538-ea23-42d9-bf93-4b2e25291e28": {
       "intervals": [
@@ -357,7 +357,7 @@
       ],
       "prCount": 3,
       "skills": {},
-      "archivedAt": "2026-08-19T20:53:21.562Z"
+      "archivedAt": "2026-08-21T19:31:04.841Z"
     },
     "6fa23323-2a90-47e5-ae50-7f513831a1e7": {
       "intervals": [
@@ -445,7 +445,7 @@
       ],
       "prCount": 1,
       "skills": {},
-      "archivedAt": "2026-08-19T20:53:21.562Z"
+      "archivedAt": "2026-08-21T19:31:04.841Z"
     },
     "5af3ea58-0b99-4148-b5ab-1a688ced8e89": {
       "intervals": [
@@ -584,7 +584,7 @@
       ],
       "prCount": 3,
       "skills": {},
-      "archivedAt": "2026-08-19T20:53:21.562Z"
+      "archivedAt": "2026-08-21T19:31:04.841Z"
     },
     "be0658f7-6503-4318-9ce0-cf5de4e78c85": {
       "intervals": [
@@ -642,38 +642,60 @@
         ],
         [
           1787172098690,
-          1787172646981
+          1787173174288
+        ],
+        [
+          1787255733446,
+          1787256491133
+        ],
+        [
+          1787257532168,
+          1787258099767
+        ],
+        [
+          1787290065706,
+          1787290102824
+        ],
+        [
+          1787332790976,
+          1787334529380
+        ],
+        [
+          1787335314926,
+          1787340639193
         ]
       ],
       "projectKey": "git:31366172e2eb4de603359875c8027a28ab914eee",
       "projectName": "folio",
       "firstSeen": "2026-08-16T12:36:36.939Z",
-      "lastSeen": "2026-08-19T20:50:46.981Z",
-      "activeMs": 23039760,
+      "lastSeen": "2026-08-21T19:30:39.193Z",
+      "activeMs": 31992142,
       "days": [
         "2026-08-16",
         "2026-08-17",
         "2026-08-18",
-        "2026-08-19"
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21"
       ],
-      "prompts": 60,
-      "assistantMessages": 2766,
-      "compactions": 2,
+      "prompts": 81,
+      "assistantMessages": 3863,
+      "compactions": 4,
       "apiErrors": 1,
       "webSearches": 0,
       "webFetches": 0,
       "totals": {
-        "input": 5596,
-        "output": 2104932,
-        "cacheWrite": 13189850,
-        "cacheRead": 1376590236
+        "input": 7786,
+        "output": 2897931,
+        "cacheWrite": 15889415,
+        "cacheRead": 1773424378
       },
       "byModel": {
         "claude-sonnet-5": {
-          "input": 5596,
-          "output": 2104932,
-          "cacheWrite": 13189850,
-          "cacheRead": 1376590236
+          "input": 7786,
+          "output": 2897931,
+          "cacheWrite": 15889415,
+          "cacheRead": 1773424378
         },
         "<synthetic>": {
           "input": 0,
@@ -683,32 +705,33 @@
         }
       },
       "tools": {
-        "Bash": 84,
+        "Bash": 190,
         "Glob": 2,
-        "Read": 254,
-        "mcp__Claude_Browser__preview_start": 13,
-        "mcp__Claude_Browser__navigate": 90,
-        "mcp__Claude_Browser__computer": 139,
+        "Read": 325,
+        "mcp__Claude_Browser__preview_start": 18,
+        "mcp__Claude_Browser__navigate": 120,
+        "mcp__Claude_Browser__computer": 144,
         "mcp__Claude_Browser__get_page_text": 61,
-        "Grep": 172,
-        "AskUserQuestion": 4,
-        "Edit": 257,
-        "mcp__Claude_Browser__read_console_messages": 45,
+        "Grep": 229,
+        "AskUserQuestion": 5,
+        "Edit": 320,
+        "mcp__Claude_Browser__read_console_messages": 71,
         "mcp__visualize__read_me": 1,
         "mcp__visualize__show_widget": 1,
         "mcp__Claude_Browser__zoom": 1,
-        "mcp__Claude_Browser__javascript_tool": 258,
-        "mcp__Claude_Browser__find": 5,
-        "mcp__Claude_Browser__read_page": 24,
-        "mcp__Claude_Browser__resize_window": 6,
+        "mcp__Claude_Browser__javascript_tool": 491,
+        "mcp__Claude_Browser__find": 7,
+        "mcp__Claude_Browser__read_page": 27,
+        "mcp__Claude_Browser__resize_window": 10,
         "mcp__Claude_Browser__tabs_context": 4,
         "mcp__Claude_Browser__tabs_select": 1,
         "mcp__Claude_Browser__preview_logs": 17,
-        "mcp__Claude_Browser__preview_list": 9,
+        "mcp__Claude_Browser__preview_list": 14,
         "Write": 3,
         "PowerShell": 11,
         "mcp__Claude_Browser__preview_stop": 1,
-        "mcp__Claude_Browser__read_network_requests": 3
+        "mcp__Claude_Browser__read_network_requests": 3,
+        "Agent": 1
       },
       "fileHashes": [
         "bba49b9d54c9",
@@ -733,14 +756,17 @@
         "b11beabfe30c",
         "c4d2f3ca37c1",
         "bc4deae7a27b",
-        "6e5b331d3af7"
+        "6e5b331d3af7",
+        "85a277eddf21",
+        "6deaa6ab32ca",
+        "da4379f45fc4"
       ],
       "branchHashes": [
         "d6a7b94b81a2"
       ],
-      "prCount": 0,
+      "prCount": 1,
       "skills": {},
-      "archivedAt": "2026-08-19T20:53:21.562Z"
+      "archivedAt": "2026-08-21T19:31:04.841Z"
     },
     "04a0ba75-d5e9-4bbc-bfbc-f099468a19b3": {
       "intervals": [
@@ -786,7 +812,7 @@
       ],
       "prCount": 0,
       "skills": {},
-      "archivedAt": "2026-08-19T20:53:21.562Z"
+      "archivedAt": "2026-08-21T19:31:04.841Z"
     },
     "4ea5a860-072c-4306-8013-41737f8f0ce1": {
       "intervals": [
@@ -850,7 +876,7 @@
       ],
       "prCount": 3,
       "skills": {},
-      "archivedAt": "2026-08-19T20:53:21.562Z"
+      "archivedAt": "2026-08-21T19:31:04.841Z"
     },
     "7df9be12-70d7-4b01-8245-c2e68deb81f2": {
       "intervals": [
@@ -917,37 +943,63 @@
         [
           1787172216862,
           1787172273000
+        ],
+        [
+          1787245188716,
+          1787245261168
+        ],
+        [
+          1787249714636,
+          1787250025128
+        ],
+        [
+          1787254520190,
+          1787255461067
+        ],
+        [
+          1787257335247,
+          1787257766195
+        ],
+        [
+          1787258394044,
+          1787259130315
+        ],
+        [
+          1787332859436,
+          1787340628280
         ]
       ],
       "projectKey": "git:d10143ad3128e919bef93e310937b12bbbb9a7ea",
       "projectName": "milk-me-not",
       "firstSeen": "2026-08-16T16:14:59.515Z",
-      "lastSeen": "2026-08-19T20:44:33.000Z",
-      "activeMs": 28790674,
+      "lastSeen": "2026-08-21T19:30:28.280Z",
+      "activeMs": 39050558,
       "days": [
         "2026-08-16",
         "2026-08-17",
         "2026-08-18",
-        "2026-08-19"
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21"
       ],
-      "prompts": 58,
-      "assistantMessages": 1936,
-      "compactions": 2,
+      "prompts": 90,
+      "assistantMessages": 2427,
+      "compactions": 4,
       "apiErrors": 7,
       "webSearches": 0,
       "webFetches": 0,
       "totals": {
-        "input": 5770,
-        "output": 1792904,
-        "cacheWrite": 15961964,
-        "cacheRead": 832948647
+        "input": 6750,
+        "output": 2220769,
+        "cacheWrite": 28855915,
+        "cacheRead": 1121978531
       },
       "byModel": {
         "claude-opus-5": {
-          "input": 5770,
-          "output": 1792904,
-          "cacheWrite": 15961964,
-          "cacheRead": 832948647
+          "input": 6750,
+          "output": 2220769,
+          "cacheWrite": 28855915,
+          "cacheRead": 1121978531
         },
         "<synthetic>": {
           "input": 0,
@@ -957,18 +1009,18 @@
         }
       },
       "tools": {
-        "Bash": 638,
-        "Read": 103,
-        "mcp__Claude_Browser__preview_start": 8,
-        "mcp__Claude_Browser__computer": 5,
+        "Bash": 816,
+        "Read": 104,
+        "mcp__Claude_Browser__preview_start": 13,
+        "mcp__Claude_Browser__computer": 13,
         "mcp__Claude_Browser__get_page_text": 2,
-        "Write": 70,
-        "mcp__Claude_Browser__read_console_messages": 1,
+        "Write": 71,
+        "mcp__Claude_Browser__read_console_messages": 3,
         "mcp__Claude_Browser__preview_logs": 3,
         "mcp__Claude_Browser__preview_stop": 5,
         "ToolSearch": 1,
         "TaskCreate": 12,
-        "mcp__Claude_Browser__javascript_tool": 5,
+        "mcp__Claude_Browser__javascript_tool": 34,
         "TaskUpdate": 16,
         "Edit": 88,
         "Agent": 32,
@@ -976,10 +1028,11 @@
         "Artifact": 7,
         "SendMessage": 3,
         "PowerShell": 1,
-        "AskUserQuestion": 3,
-        "mcp__Claude_Browser__navigate": 2,
+        "AskUserQuestion": 5,
+        "mcp__Claude_Browser__navigate": 4,
         "mcp__Claude_Browser__preview_list": 2,
-        "Grep": 1
+        "Grep": 2,
+        "mcp__Claude_Browser__resize_window": 6
       },
       "fileHashes": [
         "9748f657a90d",
@@ -1137,17 +1190,19 @@
         "daa57bf395dd",
         "c51c82323fb0",
         "e297f226cb5a",
-        "f5a0e25c35fd"
+        "f5a0e25c35fd",
+        "695dd7222bd2",
+        "d48b1b78e790"
       ],
       "branchHashes": [
         "322b0532ad86",
         "0d6e4079e367"
       ],
-      "prCount": 6,
+      "prCount": 13,
       "skills": {
         "artifact-design": 34
       },
-      "archivedAt": "2026-08-19T20:53:21.562Z"
+      "archivedAt": "2026-08-21T19:31:04.841Z"
     },
     "de86e295-8be4-4986-96c0-5d4521ec0da1": {
       "intervals": [
@@ -1190,31 +1245,36 @@
         [
           1787166917031,
           1787168836230
+        ],
+        [
+          1787257414332,
+          1787257496980
         ]
       ],
       "projectKey": "git:d10143ad3128e919bef93e310937b12bbbb9a7ea",
       "projectName": "milk-me-not",
       "firstSeen": "2026-07-24T19:56:08.251Z",
-      "lastSeen": "2026-08-19T19:47:16.230Z",
-      "activeMs": 12885176,
+      "lastSeen": "2026-08-20T20:24:56.980Z",
+      "activeMs": 12967824,
       "days": [
         "2026-07-24",
         "2026-08-16",
         "2026-08-17",
         "2026-08-18",
-        "2026-08-19"
+        "2026-08-19",
+        "2026-08-20"
       ],
-      "prompts": 61,
-      "assistantMessages": 1043,
+      "prompts": 62,
+      "assistantMessages": 1049,
       "compactions": 0,
       "apiErrors": 0,
       "webSearches": 0,
       "webFetches": 0,
       "totals": {
-        "input": 34237,
-        "output": 876750,
-        "cacheWrite": 6492631,
-        "cacheRead": 341358994
+        "input": 34249,
+        "output": 886087,
+        "cacheWrite": 8192564,
+        "cacheRead": 343286624
       },
       "byModel": {
         "claude-sonnet-5": {
@@ -1224,15 +1284,15 @@
           "cacheRead": 44463795
         },
         "claude-opus-5": {
-          "input": 11412,
-          "output": 650138,
-          "cacheWrite": 4351260,
-          "cacheRead": 296895199
+          "input": 11424,
+          "output": 659475,
+          "cacheWrite": 6051193,
+          "cacheRead": 298822829
         }
       },
       "tools": {
         "mcp__Claude_Browser__preview_start": 6,
-        "Bash": 219,
+        "Bash": 221,
         "Write": 14,
         "mcp__Claude_Browser__preview_logs": 1,
         "mcp__Claude_Browser__computer": 12,
@@ -1306,57 +1366,64 @@
         "dataviz": 90,
         "design-review": 32
       },
-      "archivedAt": "2026-08-19T20:53:21.562Z"
+      "archivedAt": "2026-08-21T19:31:04.841Z"
     },
     "fec13739-8cbd-49eb-8d69-9cb811c6e69c": {
       "intervals": [
         [
           1786992035914,
           1786992405996
+        ],
+        [
+          1787338738086,
+          1787340663183
         ]
       ],
       "projectKey": "git:d10143ad3128e919bef93e310937b12bbbb9a7ea",
       "projectName": "milk-me-not",
       "firstSeen": "2026-08-17T18:40:35.914Z",
-      "lastSeen": "2026-08-17T18:46:45.996Z",
-      "activeMs": 370082,
+      "lastSeen": "2026-08-21T19:31:03.183Z",
+      "activeMs": 2295179,
       "days": [
-        "2026-08-17"
+        "2026-08-17",
+        "2026-08-21"
       ],
-      "prompts": 2,
-      "assistantMessages": 24,
+      "prompts": 12,
+      "assistantMessages": 144,
       "compactions": 0,
       "apiErrors": 0,
       "webSearches": 0,
       "webFetches": 0,
       "totals": {
-        "input": 1702,
-        "output": 13865,
-        "cacheWrite": 71532,
-        "cacheRead": 1113838
+        "input": 1942,
+        "output": 94803,
+        "cacheWrite": 265122,
+        "cacheRead": 12836034
       },
       "byModel": {
         "claude-opus-5": {
-          "input": 1702,
-          "output": 13865,
-          "cacheWrite": 71532,
-          "cacheRead": 1113838
+          "input": 1942,
+          "output": 94803,
+          "cacheWrite": 265122,
+          "cacheRead": 12836034
         }
       },
       "tools": {
-        "Bash": 7,
+        "Bash": 54,
         "ToolSearch": 1,
-        "WebFetch": 2,
-        "WebSearch": 2
+        "WebFetch": 6,
+        "WebSearch": 3,
+        "AskUserQuestion": 1,
+        "mcp__ccd_session__spawn_task": 1
       },
       "fileHashes": [],
       "branchHashes": [
         "0d6e4079e367",
         "322b0532ad86"
       ],
-      "prCount": 0,
+      "prCount": 3,
       "skills": {},
-      "archivedAt": "2026-08-19T20:53:21.562Z"
+      "archivedAt": "2026-08-21T19:31:04.841Z"
     }
   }
 }
