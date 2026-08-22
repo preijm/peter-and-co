@@ -1,6 +1,6 @@
 # Footage
 
-Photographs for the **Reel** edition. Drop a file in here, run `npm run footage`, done —
+Photographs for the **Silver** edition. Drop a file in here, run `npm run footage`, done —
 nothing in `index.html` ever names your pictures.
 
 ```bash
@@ -49,7 +49,7 @@ makes it safe to leave your colour master sitting next to the encoded file.
 ### Grayscale WebP
 
 `npm run footage` also re-encodes every `.jpg`/`.png` here as a grayscale `.webp`. The
-Reel palette is achromatic — every plane renders through `grayscale(1)` — so a colour
+Silver palette is achromatic — every plane renders through `grayscale(1)` — so a colour
 JPEG makes the browser decode two chroma planes it is about to discard. Encoding the
 colour out at rest is invisible on the page and roughly halves the bytes: the hero went
 from 603 KB to 349 KB, and it is the largest thing the edition loads.

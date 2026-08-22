@@ -28,7 +28,7 @@ Themes that fully replace the page layout also set `mondriaan: true`.
 | Chalk      | `light · open · breathing room`  |
 | Mondriaan  | `primary · geometric · De Stijl` |
 | Volt       | `dark · minimal · systems`       |
-| Reel       | `cinematic · achromatic · full-bleed` |
+| Silver     | `cinematic · achromatic · full-bleed` |
 
 **Default edition.** A first-time visitor lands on **Volt** (`DEFAULT_THEME_ID` in
 `index.html`). It leads because its terminal demonstrates the site's claim rather than
@@ -85,7 +85,12 @@ Themes that set `mondriaan: true` bypass the default layout and render their own
 ### Volt (v1) — minimal "design + code + systems" landing
 A dark, restrained one-pager in the spirit of premium studio sites (e.g. Ouro Labs). Warm near-black (`#0c0c0a`), a single electric-lime accent (`#d4f932`) used sparingly, and a two-family type system: **Geist** (sans, headings + body) + **Geist Mono** (labels, terminal touches). Light terminal flavor: a `whoami` hero prompt with a blinking caret, `// section` mono labels, a `~/about.cfg` facts block, and an `origin.log` footer line. Sections — hero → selected work → background → contact — flow over the backdrop. The backdrop layers a faint CSS radial bloom under a **scroll-reactive Three.js point field** (`three@0.149` UMD, lazy-loaded on activation): the camera travels into the field and it rotates as scroll progresses, near-monochrome with a few lime motes, additive-blended, fixed at `z-index:-1` behind all content. GSAP + ScrollTrigger (also lazy-loaded) drive **subtle fade-up reveals only** (`.v-fade` on load, `.v-reveal`/`.v-row` on scroll). All motion — Three.js field included — is gated behind `!prefers-reduced-motion` (the point field is skipped entirely when reduced, leaving just the CSS bloom) and the render loop pauses when the tab is hidden.
 
-### Reel (v1) — cinematic, achromatic, full-bleed
+### Silver (v1) — cinematic, achromatic, full-bleed
+
+Named for silver halide, which is what a black-and-white photograph is physically made
+of, and which carries “silver screen” for free. It sits with Ink and Chalk: three
+substances you make marks and images with. It was called Reel until it became clear that
+reads as short vertical phone video before it reads as a film reel.
 
 A portfolio read as a film reel, built on the Freytag Anderson design system (their
 published tokens live in `DESIGN.md` / `tokens.json` upstream; the values below are

@@ -69,7 +69,7 @@ if (!navigator.webdriver) {
     'chalk-v1':     'https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@300;400;500;600&display=swap',
     'mondriaan-v1': 'https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap',
     'volt-v1':      'https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap',
-    'reel-v1':      'https://fonts.googleapis.com/css2?family=Inter:wght@300;400&display=swap'
+    'silver-v1':    'https://fonts.googleapis.com/css2?family=Inter:wght@300;400&display=swap'
   };
   // Must match DEFAULT_THEME_ID in the app below. A first-time visitor has no saved
   // edition, so this is the face the page actually opens with.
@@ -81,13 +81,13 @@ if (!navigator.webdriver) {
   l.href = FONTS[id] || FONTS[DEFAULT_ID];
   l.onload = function () { this.onload = null; this.rel = 'stylesheet'; };
   document.head.appendChild(l);
-  // Reel's hero photograph is the LCP element and sits four sequential hops deep:
+  // Silver's hero photograph is the LCP element and sits four sequential hops deep:
   // HTML → app.js → React mount → fetch(footage/manifest.json) → render. Starting it
   // during parse skips all four. The filename is stamped by build.js from the
   // manifest, so this can never preload a file that does not ship; an empty value
   // (no hero in footage/) means the plane falls back to its generated field.
   var HERO = 'hero.webp'; /* build:hero */
-  if (id === 'reel-v1' && HERO) {
+  if (id === 'silver-v1' && HERO) {
     var p = document.createElement('link');
     p.rel = 'preload'; p.as = 'image'; p.href = 'footage/' + HERO;
     p.setAttribute('fetchpriority', 'high');
@@ -256,13 +256,13 @@ const THEMES = [
     },
   },
   {
-    id: 'reel-v1',
-    name: 'Reel',
+    id: 'silver-v1',
+    name: 'Silver',
     version: 'v1',
     tagline: 'cinematic · achromatic · full-bleed',
     mondriaan: true,
-    srcId: 'reel-src',
-    appGlobal: 'ReelApp',
+    srcId: 'silver-src',
+    appGlobal: 'SilverApp',
     mobileOptimized: true,
     fonts: {
       // One grotesque for everything — headlines, body, buttons. Inter is the
@@ -408,7 +408,7 @@ function ThemeSwatch({ themeId }) {
       <div style={{ position:'absolute', top:'79%', left:'8%', width:'4%', height:'4%', background:'#d4f932' }} />
     </div>
   );
-  if (themeId === 'reel-v1') return (
+  if (themeId === 'silver-v1') return (
     <div style={{ width:'100%', aspectRatio:'16/9', background:'#141109', position:'relative', overflow:'hidden' }}>
       <div style={{ position:'absolute', inset:0, background:'radial-gradient(70% 90% at 22% 14%, rgba(194,181,174,0.42), rgba(20,17,9,0) 70%)' }} />
       <div style={{ position:'absolute', inset:0, background:'radial-gradient(60% 70% at 82% 78%, rgba(220,220,220,0.22), rgba(20,17,9,0) 70%)' }} />
@@ -435,11 +435,11 @@ function ThemeSwatch({ themeId }) {
 function EditionModal() {
   const { theme, themes, themeIdx, setThemeById, pickRandom, closeEditions } = useTheme();
   const mobile = useMobile();
-  // Reel loads Inter only, so JetBrains Mono would resolve to the generic monospace
+  // Silver loads Inter only, so JetBrains Mono would resolve to the generic monospace
   // fallback and get a synthesised 600 — the one heavy face in an edition that forbids
-  // weights above 400. Under Reel the modal speaks the edition's own single family.
-  const MONO = theme.id === 'reel-v1' ? theme.fonts.sans : "'JetBrains Mono','Space Mono',monospace";
-  const NAME_WEIGHT = theme.id === 'reel-v1' ? 400 : 600;
+  // weights above 400. Under Silver the modal speaks the edition's own single family.
+  const MONO = theme.id === 'silver-v1' ? theme.fonts.sans : "'JetBrains Mono','Space Mono',monospace";
+  const NAME_WEIGHT = theme.id === 'silver-v1' ? 400 : 600;
   const dark = theme.id === 'ink-v1' || theme.id === 'volt-v1';
 
   const c = dark ? {
@@ -1131,7 +1131,7 @@ function About() {
             Not a studio.<br />Just me.<br />Peter.
           </h1>
           <p style={{ fontFamily: theme.fonts.mono, fontSize: '13px', color: theme.colors.textMuted, lineHeight: 1.8, maxWidth: '44ch', marginBottom: '24px' }}>
-            Background in plant science. Ended up in data. Now doing product. None of it was planned — just curiosity pointing in the right direction.
+            Background in plant science. Ended up in data. Now doing product. None of it was planned, just curiosity pointing in the right direction.
           </p>
           <p style={{ fontFamily: theme.fonts.mono, fontSize: '13px', color: theme.colors.textDim, lineHeight: 1.8, maxWidth: '44ch', marginBottom: '24px' }}>
             I explore ideas by building them. Curious about the tech, focused on the output. These projects are the random ideas that wouldn't leave me alone.
@@ -1377,7 +1377,7 @@ function BeforeAfterSlider({ before, after, alt, accent }) {
     >
       <img src={sanityImg(after, 1400)} alt={alt} style={imgStyle} draggable={false} />
       <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', clipPath: `inset(0 ${100 - pos}% 0 0)` }}>
-        <img src={sanityImg(before, 1400)} alt={alt + ' — before'} style={imgStyle} draggable={false} />
+        <img src={sanityImg(before, 1400)} alt={alt + ', before'} style={imgStyle} draggable={false} />
       </div>
       <div style={{ ...labelStyle, left: '10px', opacity: beforeOpacity }}>before</div>
       <div style={{ ...labelStyle, right: '10px', opacity: afterOpacity }}>after</div>
@@ -1576,14 +1576,14 @@ function AppShell({ page, selectedProject, activePage, navigate, selectProject }
   const modal = editionsOpen ? <EditionModal /> : null;
 
   React.useEffect(() => {
-    // Volt and Reel are single-page takeovers that ignore page/selectedProject for
+    // Volt and Silver are single-page takeovers that ignore page/selectedProject for
     // their own rendering, so a stale selectedProject from before switching themes
     // (e.g. viewing a project detail page, then picking one of them from the editions
     // modal) must not leak into the tab title — it'd show a project that isn't
     // actually visible anywhere on the page.
     if (theme.appGlobal === 'VoltApp') { document.title = 'Peter & Co.'; return; }
-    const titles = { home: 'Peter & Co.', work: 'Work — Peter & Co.', tools: 'Tools — Peter & Co.', about: 'About — Peter & Co.', contact: 'Contact — Peter & Co.' };
-    document.title = selectedProject ? `${selectedProject.title} — Peter & Co.` : (titles[page] || 'Peter & Co.');
+    const titles = { home: 'Peter & Co.', work: 'Work · Peter & Co.', tools: 'Tools · Peter & Co.', about: 'About · Peter & Co.', contact: 'Contact · Peter & Co.' };
+    document.title = selectedProject ? `${selectedProject.title} · Peter & Co.` : (titles[page] || 'Peter & Co.');
   }, [theme, page, selectedProject]);
 
   React.useEffect(() => {
@@ -1766,10 +1766,10 @@ function footprintCaveat(fp) {
   }
 
   if (pct === 100) {
-    return `Measured from Claude Code, ${window} — the full life of this project. Only work done through Claude Code is counted.`;
+    return `Measured from Claude Code, ${window}. The full life of this project. Only work done through Claude Code is counted.`;
   }
   if (typeof pct === 'number') {
-    return `Measured from Claude Code, ${window} — about ${pct}% of this project's commits. Earlier work, and anything built in other tools, isn't counted. The real number is higher.`;
+    return `Measured from Claude Code, ${window}. About ${pct}% of this project's commits. Earlier work, and anything built in other tools, isn't counted. The real number is higher.`;
   }
   return `Measured from Claude Code, ${window}. Work in other tools isn't counted, so the real number is higher.`;
 }
@@ -2821,20 +2821,20 @@ function VTerminal({ projects, mobile }) {
            '  editions     switch site edition   (alias: theme)',
            '  clear        clear the screen'];
     } else if (n === 'whoami') {
-      a = ['peter reijm — product owner by day, builder the rest of the time.',
+      a = ['peter reijm, product owner by day, builder the rest of the time.',
            'not a developer: i bring the ideas and the taste; AI handles the code.'];
     } else if (n === 'ls' || n === 'projects') {
       a = [projects.length + ' projects:'];
-      projects.forEach((p, idx) => a.push('  ' + String(idx + 1).padStart(2, '0') + '  ' + p.title + ' — ' + (p.tagline || (p.tags || []).join(' · ')) + (p.public !== false && p.href ? '  ↗' : '  (soon)')));
+      projects.forEach((p, idx) => a.push('  ' + String(idx + 1).padStart(2, '0') + '  ' + p.title + ' \u00b7 ' + (p.tagline || (p.tags || []).join(' · ')) + (p.public !== false && p.href ? '  ↗' : '  (soon)')));
       a.push("→ type 'open <n>' to visit one");
     } else if (n === 'open') {
       const idx = parseInt(args[0], 10);
       const p = projects[idx - 1] || projects.find(x => x.id === (args[0] || '').toLowerCase());
       if (!p) a = ["no such project. try 'projects'"];
-      else if (p.public === false || !p.href) a = [p.title + " isn't live yet — coming soon."];
+      else if (p.public === false || !p.href) a = [p.title + " isn't live yet. coming soon."];
       else { a = ['opening ' + p.title + ' → ' + p.href]; window.open(p.href, '_blank', 'noopener'); }
     } else if (n === 'about' || n === 'background') {
-      a = ["i've wanted to build things forever — i just never wanted to learn to write the code.",
+      a = ["i've wanted to build things forever. i just never wanted to learn to write the code.",
            'AI changed that. a personal lab of experiments, running on nights and weekends.'];
     } else if (n === 'stack') {
       a = ['build:  claude · lovable · stitch',
@@ -2849,9 +2849,9 @@ function VTerminal({ projects, mobile }) {
     } else if (n === 'clear') {
       setHistory([]); return;
     } else if (n === 'sudo') {
-      a = ["nice try — you don't have root here :)"];
+      a = ["nice try, you don't have root here :)"];
     } else {
-      a = ['command not found: ' + name + " — try 'help'"];
+      a = ['command not found: ' + name + ". try 'help'"];
     }
     setHistory(h => [...h.slice(-5), { q: cmd, a }]);
   };
@@ -2923,7 +2923,7 @@ function VHero({ mobile, projects }) {
           fontSize: mobile ? 'clamp(32px, 8.5vw, 44px)' : 'clamp(44px, 6.4vw, 96px)',
           lineHeight: 1.04, letterSpacing: '-0.025em',
         }}>
-          I design and build digital products —<br />
+          I design and build digital products,<br />
           from a first sketch to a <span style={{ color: V_LIME }}>live URL</span>.
         </h1>
         <p className="v-fade" style={{
@@ -2931,7 +2931,7 @@ function VHero({ mobile, projects }) {
           gridColumn: mobile ? undefined : '7 / span 6', marginTop: mobile ? '24px' : '18px',
           fontSize: mobile ? '16px' : '18px', lineHeight: 1.6, maxWidth: mobile ? '520px' : undefined,
         }}>
-          Product owner by day, builder the rest of the time. Not a developer — I bring the ideas, the taste and the stubbornness to ship; AI handles the code. Turns out that's finally enough.
+          Product owner by day, builder the rest of the time. Not a developer. I bring the ideas, the taste and the stubbornness to ship; AI handles the code. Turns out that's finally enough.
         </p>
       </div>
 
@@ -2939,7 +2939,7 @@ function VHero({ mobile, projects }) {
         display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '10px 24px',
         marginTop: mobile ? '56px' : '64px',
       }}>
-        <span style={{ ...meta, color: V_FAINT }}>// next — selected work</span>
+        <span style={{ ...meta, color: V_FAINT }}>// next: selected work</span>
         <span style={{ ...meta, color: V_FAINT }}>scroll ↓</span>
       </div>
     </section>
@@ -3045,7 +3045,7 @@ function VBackground({ mobile }) {
   const poYrs = ((Date.now() - poStart) / (365.25 * 864e5)).toFixed(1).replace(/\.0$/, '');
   const facts = [
     ['based_in', 'Rotterdam, NL'],
-    ['day_job', 'Product Owner — ' + poYrs + ' yrs'],
+    ['day_job', 'Product Owner, ' + poYrs + ' yrs'],
     ['builds_with', 'AI (+ a 3D printer)'],
     ['since', '2025'],
     ['focus', 'Finance · Food · Making'],
@@ -3072,14 +3072,14 @@ function VBackground({ mobile }) {
           fontSize: mobile ? 'clamp(20px, 5.4vw, 26px)' : 'clamp(24px, 2.6vw, 34px)',
           lineHeight: 1.4, letterSpacing: '-0.02em',
         }}>
-          I've wanted to build things for as long as I can remember — I just never wanted to learn to write the code. AI changed that. The gap between an idea and a working thing is finally small enough to cross in a weekend.
+          I've wanted to build things for as long as I can remember. I just never wanted to learn to write the code. AI changed that. The gap between an idea and a working thing is finally small enough to cross in a weekend.
         </p>
         <p className="v-reveal" style={{
           fontFamily: V_SANS, fontWeight: 400, margin: 0, color: V_MUTE,
           gridColumn: mobile ? undefined : '1 / span 6', gridRow: mobile ? undefined : 2,
           fontSize: '16px', lineHeight: 1.7, maxWidth: '560px', marginTop: mobile ? '20px' : 0,
         }}>
-          I explore ideas by building them — a personal lab of experiments running on nights and weekends. Most start because a question wouldn't leave me alone. Peter &amp; Co. is where they live.
+          I explore ideas by building them: a personal lab of experiments running on nights and weekends. Most start because a question wouldn't leave me alone. Peter &amp; Co. is where they live.
         </p>
         <div className="v-reveal" style={{ gridColumn: mobile ? undefined : '1 / span 8', gridRow: mobile ? undefined : 3, marginTop: mobile ? '36px' : '8px' }}>
           <div style={{ marginBottom: '14px' }}><VLabel>tools</VLabel></div>
@@ -3134,7 +3134,7 @@ function VContact({ mobile }) {
           </h2>
           <div className="v-reveal" style={{ gridColumn: mobile ? undefined : '9 / span 4', marginTop: mobile ? '36px' : 0 }}>
             <p style={{ fontFamily: V_SANS, fontWeight: 400, margin: 0, color: V_MUTE, fontSize: '16px', lineHeight: 1.6, maxWidth: '380px' }}>
-              I'm always up for a good problem — work, a collaboration, or just a sharp idea worth chasing.
+              I'm always up for a good problem: work, a collaboration, or just a sharp idea worth chasing.
             </p>
             <a
               href="mailto:peterreijm@live.nl"
@@ -3158,7 +3158,7 @@ function VContact({ mobile }) {
           justifyContent: mobile ? 'flex-start' : 'space-between', alignItems: mobile ? 'flex-start' : 'center',
           flexWrap: 'wrap', gap: mobile ? '14px' : '12px 24px', fontFamily: V_MONO, fontSize: '11px', letterSpacing: '0.03em',
         }}>
-          <span style={{ color: V_FAINT }}><span style={{ color: V_LIME }}>// </span>origin.log — © 2026 peter &amp; co.{mobile ? <br /> : ' '}a&nbsp;playground, not a business. yet.</span>
+          <span style={{ color: V_FAINT }}><span style={{ color: V_LIME }}>// </span>origin.log &middot; © 2026 peter &amp; co.{mobile ? <br /> : ' '}a&nbsp;playground, not a business. yet.</span>
           <span style={{ display: 'flex', alignItems: 'center', gap: mobile ? '6px' : '14px', flexWrap: 'wrap' }}>
             {links.map(l => (
               <a key={l.label} href={l.href} target={l.href.indexOf('http') === 0 ? '_blank' : undefined} rel="noopener noreferrer" style={{ color: V_MUTE, textDecoration: 'none', padding: '12px 6px' }}
@@ -3208,9 +3208,13 @@ function VoltApp(props) {
   );
 }
 </script>
-<script type="text/plain" id="reel-src">
+<script type="text/plain" id="silver-src">
 // ─────────────────────────────────────────────────────────
-// REEL MODE — cinematic, achromatic, full-bleed.
+// SILVER MODE - cinematic, achromatic, full-bleed.
+// Named for silver halide: what a black-and-white photograph is actually made of.
+// The R_ constants and r-* class names predate the rename from "Reel" and were left
+// alone deliberately - renaming 183 internal identifiers on a live theme risks a great
+// deal and changes nothing anyone can see.
 // A portfolio read as a film reel: edge-to-edge planes, one statement per screen,
 // text pinned to the top-left corner like a title card, and a single hamburger
 // standing in for navigation. Six neutrals, one typeface, weights 300 and 400 only
@@ -3249,15 +3253,15 @@ const R_GRAIN = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
 );
 
 (function rInjectStyle() {
-  if (document.getElementById('reel-style')) return;
+  if (document.getElementById('silver-style')) return;
   const st = document.createElement('style');
-  st.id = 'reel-style';
+  st.id = 'silver-style';
   st.textContent = [
-    '.reel-root ::selection { background: #000000; color: #fafafa; }',
-    '.reel-root a, .reel-root button { -webkit-tap-highlight-color: transparent; }',
-    // The site-wide ring is `2px solid var(--color-text)`, and Reel sets --color-text
+    '.silver-root ::selection { background: #000000; color: #fafafa; }',
+    '.silver-root a, .silver-root button { -webkit-tap-highlight-color: transparent; }',
+    // The site-wide ring is `2px solid var(--color-text)`, and Silver sets --color-text
     // to #000000 — 1.05:1 on soil, i.e. no ring at all. Dark planes re-declare it in paper.
-    '.reel-root [data-r-tone="dark"] button:focus-visible, .reel-root [data-r-tone="dark"] a:focus-visible { outline-color: #fafafa; }',
+    '.silver-root [data-r-tone="dark"] button:focus-visible, .silver-root [data-r-tone="dark"] a:focus-visible { outline-color: #fafafa; }',
     // Planes fill the viewport; svh keeps mobile browser chrome from cropping them.
     '.r-plane { min-height: 100vh; min-height: 100svh; content-visibility: auto; contain-intrinsic-size: auto 100vh; }',
     '@keyframes r-drift-a { 0% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(5%,-4%,0) scale(1.16); } 100% { transform: translate3d(0,0,0) scale(1); } }',
@@ -3278,7 +3282,7 @@ const R_GRAIN = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
     '@media (hover: none) { .r-arrow { opacity: 1 !important; transform: none !important; } }',
     // scroll-behavior needs !important to beat the global `html { scroll-behavior: smooth }`:
     // behavior:'auto' at the call sites means "use the computed value", which is smooth.
-    '@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto !important; } .r-in { opacity: 1; transform: none; transition: none; } .r-blob, .r-grain, .r-ken { animation: none !important; } .reel-root *, .reel-root *::before, .reel-root *::after { transition-property: opacity, background-color, color, border-color !important; } }',
+    '@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto !important; } .r-in { opacity: 1; transform: none; transition: none; } .r-blob, .r-grain, .r-ken { animation: none !important; } .silver-root *, .silver-root *::before, .silver-root *::after { transition-property: opacity, background-color, color, border-color !important; } }',
   ].join('\n');
   document.head.appendChild(st);
 })();
@@ -3358,8 +3362,8 @@ function useFootage() {
 // .local address is the signal, and the address itself is the more useful caption.
 function rStatus(project) {
   const url = project.url || '';
-  if (/\.local$/i.test(url)) return url + ' — runs locally';
-  return 'In progress — not public yet';
+  if (/\.local$/i.test(url)) return 'Runs locally at ' + url;
+  return 'In progress, not public yet';
 }
 
 // A photograph wins; a project screenshot is the fallback; with neither, the plane
@@ -3656,7 +3660,7 @@ function RMenu({ open, onClose, onNav }) {
         ))}
       </nav>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '17px', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid ' + R_ASH, paddingTop: '20px' }}>
-        <RCaption>Rotterdam, NL — est. 2025</RCaption>
+        <RCaption>Rotterdam, NL &middot; est. 2025</RCaption>
         <RPill onClick={() => { onClose(); openEditions(); }}>Editions</RPill>
       </div>
     </div>
@@ -3668,11 +3672,11 @@ function RHero({ mobile, footage }) {
   const { openEditions } = useTheme();
   return (
     <section className="r-plane" data-r-tone="dark" style={{ position: 'relative', overflow: 'hidden', background: R_SOIL, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-      <RField seed="reel-hero" media={rMedia(footage, 'hero')} dark eager />
+      <RField seed="silver-hero" media={rMedia(footage, 'hero')} dark eager />
       <div style={{ position: 'relative', padding: R_EDGE, maxWidth: '760px' }}>
-        <RCaption light style={{ marginBottom: '17px' }}>Peter &amp; Co. — Reel, edition v1</RCaption>
+        <RCaption light style={{ marginBottom: '17px' }}>Peter &amp; Co. &middot; Silver, edition v1</RCaption>
         <RDisplay as="h1" light>
-          A personal lab for ideas worth building — run on nights, weekends, and a lot of AI.
+          A personal lab for ideas worth building, run on nights, weekends, and a lot of AI.
         </RDisplay>
       </div>
       <div style={{
@@ -3700,7 +3704,7 @@ function RStatement({ footage }) {
   if (!media) return null;
   return (
     <section className="r-plane" data-r-tone="dark" style={{ position: 'relative', overflow: 'hidden', background: R_SOIL, display: 'flex', alignItems: 'flex-start' }}>
-      <RField seed="reel-statement" media={media} dark />
+      <RField seed="silver-statement" media={media} dark />
       <div className="r-in" style={{ position: 'relative', padding: R_EDGE, paddingTop: 'calc(' + R_EDGE + ' + ' + R_CHROME + ')', maxWidth: '720px' }}>
         <RCaption light style={{ marginBottom: '17px' }}>Where the time comes from</RCaption>
         <RDisplay light>
@@ -3716,9 +3720,9 @@ function RIntertitle({ mobile }) {
   const poStart = new Date('2025-01-01');
   const poYrs = ((Date.now() - poStart) / (365.25 * 864e5)).toFixed(1).replace(/\.0$/, '');
   const cols = [
-    "I've wanted to build things for as long as I can remember — I just never wanted to learn to write the code. AI closed that gap. The distance between an idea and a working thing is short enough to cross in a weekend now, and I'd rather ship something small than plan something large.",
+    "I've wanted to build things for as long as I can remember. I just never wanted to learn to write the code. AI closed that gap. The distance between an idea and a working thing is short enough to cross in a weekend now, and I'd rather ship something small than plan something large.",
     "So this is a lab, not a business. Which oat milk is actually best. Where my money is really sitting. What a transport company that has been running since 1878 would look like if someone just rebuilt its website properly.",
-    'Product Owner for ' + poYrs + ' years by day. Not a developer, not a designer — I bring the idea, the taste, and the stubbornness. A 3D printer handles the things that need to exist off-screen.',
+    'Product Owner for ' + poYrs + ' years by day. Not a developer, not a designer. I bring the idea, the taste, and the stubbornness. A 3D printer handles the things that need to exist off-screen.',
   ];
   return (
     <section id="r-background" data-r-tone="dark" style={{ background: R_CHAR, padding: R_EDGE, paddingTop: R_BREATH, paddingBottom: R_BREATH }}>
@@ -3748,7 +3752,7 @@ function RWorkIntro({ count }) {
   return (
     <section data-r-tone="light" style={{ background: R_PAPER, padding: R_EDGE, paddingTop: R_BREATH, paddingBottom: R_HALF }}>
       <div className="r-in" style={{ maxWidth: '720px' }}>
-        <RCaption style={{ marginBottom: '17px' }}>Selected work — {String(count).padStart(2, '0')} reels</RCaption>
+        <RCaption style={{ marginBottom: '17px' }}>Selected work &middot; {String(count).padStart(2, '0')} projects</RCaption>
         <RDisplay>
           Each one shipped, or on its way. Nothing here is a mockup.
         </RDisplay>
@@ -3773,7 +3777,7 @@ function RProjectPlane({ project, index, total, footage, onSelect }) {
       onMouseLeave={() => setHot(false)}
       style={{ position: 'relative', overflow: 'hidden', background: R_SOIL, display: 'flex', alignItems: 'flex-start', cursor: 'pointer' }}
     >
-      <RField seed={'reel-' + project.id} media={rMedia(footage, project.id, project.screenshot)} dark />
+      <RField seed={'silver-' + project.id} media={rMedia(footage, project.id, project.screenshot)} dark />
       <div className="r-in" style={{ position: 'relative', padding: R_EDGE, paddingTop: 'calc(' + R_EDGE + ' + ' + R_CHROME + ')', maxWidth: '620px' }}>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'baseline', marginBottom: '17px' }}>
           <RCaption light>{String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}</RCaption>
@@ -3879,7 +3883,7 @@ function RContact({ mobile }) {
         <RCaption light style={{ marginBottom: '17px' }}>Contact</RCaption>
         <RDisplay light style={{ marginBottom: '29px' }}>Got a problem worth building?</RDisplay>
         <RBody light style={{ maxWidth: '44ch', marginBottom: '43px', color: 'rgba(250,250,250,0.78)' }}>
-          Work, a collaboration, or just a sharp idea worth chasing — I&rsquo;m always up for a good problem.
+          Work, a collaboration, or just a sharp idea worth chasing. I&rsquo;m always up for a good problem.
         </RBody>
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
           {links.map(l => (
@@ -3891,8 +3895,8 @@ function RContact({ mobile }) {
         marginTop: R_HALF, borderTop: '1px solid rgba(250,250,250,0.18)', paddingTop: '20px',
         display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: '12px', justifyContent: 'space-between',
       }}>
-        <RCaption light>Peter &amp; Co. — Rotterdam, NL</RCaption>
-        <RCaption light>Reel, edition v1</RCaption>
+        <RCaption light>Peter &amp; Co. &middot; Rotterdam, NL</RCaption>
+        <RCaption light>Silver, edition v1</RCaption>
       </div>
     </section>
   );
@@ -3919,7 +3923,7 @@ function RProjectDetail({ project, projects, footage, mobile, onSelect }) {
       position: 'relative', overflow: 'hidden', background: R_SOIL,
       display: 'flex', flexDirection: 'column',
     }}>
-      <RField seed={'reel-' + project.id} media={rMedia(footage, project.id, project.screenshot)} dark eager />
+      <RField seed={'silver-' + project.id} media={rMedia(footage, project.id, project.screenshot)} dark eager />
 
       {/* The type covers most of the plane here, not just the corner, so the falloff
           has to reach further left and down than RField's own. Still a falloff rather
@@ -3998,7 +4002,7 @@ function RProjectDetail({ project, projects, footage, mobile, onSelect }) {
   );
 }
 
-function ReelApp({ selectedProject, navigate, selectProject }) {
+function SilverApp({ selectedProject, navigate, selectProject }) {
   const mobile = useMobile();
   const tone = useSurfaceTone();
   const footage = useFootage();
@@ -4040,7 +4044,7 @@ function ReelApp({ selectedProject, navigate, selectProject }) {
   };
 
   return (
-    <div ref={rootRef} className="reel-root" style={{
+    <div ref={rootRef} className="silver-root" style={{
       background: R_SOIL, color: R_INK, minHeight: '100vh',
       fontFamily: R_SANS, fontFeatureSettings: R_FEAT, overflowX: 'clip',
     }}>

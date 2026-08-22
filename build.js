@@ -101,11 +101,16 @@ function copyDir(src, dest) {
     entry.isDirectory() ? copyDir(s, d) : fs.copyFileSync(s, d);
   }
 }
+// Cleared before copying: copyDir only adds, so a renamed or deleted theme would keep
+// its old folder in dist/ forever. That is how themes/reel-v1 survived the rename to
+// silver-v1 and would have shipped as a dead directory.
 if (fs.existsSync('themes')) {
+  fs.rmSync('dist/themes', { recursive: true, force: true });
   copyDir('themes', 'dist/themes');
   console.log('Copied themes/');
 }
 if (fs.existsSync('screenshots')) {
+  fs.rmSync('dist/screenshots', { recursive: true, force: true });
   copyDir('screenshots', 'dist/screenshots');
   console.log('Copied screenshots/');
 }
