@@ -54,9 +54,20 @@ JPEG makes the browser decode two chroma planes it is about to discard. Encoding
 colour out at rest is invisible on the page and roughly halves the bytes: the hero went
 from 603 KB to 349 KB, and it is the largest thing the edition loads.
 
-The original stays where it is, as the colour master. It just stops being the file the
-site downloads. Dimensions are never touched — Ken Burns pushes the hero to 1.13x, so a
-1920px window is already displaying it at 2170 CSS px.
+The original stays where it is on your machine, as the colour master. It just stops being
+the file the site downloads. Dimensions are never touched — Ken Burns pushes the hero to
+1.13x, so a 1920px window is already displaying it at 2170 CSS px.
+
+**Only the `.webp` is committed.** `.jpg`, `.jpeg`, `.png` and `.heic` in this folder are
+all gitignored: the deployed site never requests them — `build.js` copies only the file
+the manifest names — so carrying them in git would be permanent weight for no delivery.
+Keep your originals in OneDrive.
+
+The one hazard is a slot whose encoded sibling was never produced, usually because ffmpeg
+was missing. The manifest then names the `.jpg`, which is ignored, so the file never
+reaches the repo and the plane silently falls back to its generated field once deployed.
+`npm run footage` warns loudly when that happens. If you ever genuinely want a raw file
+committed, `git add -f footage/<name>.jpg` overrides the ignore.
 
 This step needs `ffmpeg` on your PATH. Without it the command says so and moves on; the
 `.webp` files are committed, so CI and other machines are unaffected.

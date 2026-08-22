@@ -47,8 +47,29 @@ function write(dir = DIR) {
 
 module.exports = { build, write };
 
+// A slot whose winner is still a raw master means no encoded sibling was produced —
+// usually ffmpeg missing. Those extensions are gitignored, so the manifest would name a
+// file that never reaches the repo and the plane would quietly fall back to its
+// generated field on the deployed site. Worth shouting about.
+const UNENCODED = /\.(jpe?g|png)$/i;
+function unencoded(map) {
+  return Object.entries(map).filter(([, file]) => UNENCODED.test(file)).map(([slot, file]) => slot + ' -> ' + file);
+}
+
+module.exports.unencoded = unencoded;
+
 if (require.main === module) {
   const map = write();
   const names = Object.keys(map);
   console.log(`footage/manifest.json — ${names.length} photograph(s)${names.length ? ': ' + names.join(', ') : ' (planes fall back to generated fields)'}`);
+  const raw = unencoded(map);
+  if (raw.length) {
+    console.warn('');
+    console.warn('  WARNING: ' + raw.length + ' slot(s) still point at an un-encoded master:');
+    raw.forEach(r => console.warn('    ' + r));
+    console.warn('  Those extensions are gitignored, so they will not be committed and the');
+    console.warn('  plane will fall back to its generated field once deployed.');
+    console.warn('  Install ffmpeg and re-run, or commit the file explicitly with git add -f.');
+    console.warn('');
+  }
 }
