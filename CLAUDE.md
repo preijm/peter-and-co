@@ -39,4 +39,16 @@ const M_MONO    = 'Space Mono, monospace'
 
 ## Build Output
 `build.js` copies these to `dist/` alongside the compiled HTML:
-`screenshots/`, `social-card.png`, `CNAME`, `themes/`, `robots.txt`, `sitemap.xml`, `google*.html`
+`screenshots/`, `footage/`, `social-card.png`, `CNAME`, `themes/`, `robots.txt`, `sitemap.xml`, `google*.html`
+
+It also regenerates `footage/manifest.json` from the contents of `footage/` before
+copying, so the Reel edition always sees the photographs that are actually there.
+**`footage/` is copied selectively** — only the files the manifest names, plus the
+manifest itself. The folder is a working directory (HEIC originals, colour masters,
+the shooting guide) and none of that can be requested by the page.
+
+Run `npm run footage` after adding a photo locally. It converts any HEIC to JPEG
+(Windows HEIF codec), re-encodes every JPEG/PNG as a grayscale WebP (ffmpeg — the Reel
+planes render `grayscale(1)`, so shipping colour is bytes thrown away), and rewrites
+the manifest, which prefers the best format per slot. Both steps no-op with a note when
+their tool is missing, so CI is unaffected. See [footage/README.md](footage/README.md).

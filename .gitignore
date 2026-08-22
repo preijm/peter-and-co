@@ -16,5 +16,10 @@ dist/
 
 # Internal reference files
 _intern/
+# Footage: HEIC originals are converted to .jpg by `npm run footage` and it's the
+# JPEG that ships. Keep the originals in OneDrive, not in git.
+footage/*.heic
+footage/*.HEIC
+footage/*.heif
 # Footprint tool: local-only absolute paths (never commit)
 tools/footprint/archive.local.json

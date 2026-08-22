@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const babel = require('@babel/core');
+const footage = require('./tools/footage/manifest');
 
 const babelConfig = {
   presets: [
@@ -12,6 +13,11 @@ const babelConfig = {
     }],
   ],
 };
+
+// Regenerate the footage listing from the folder so a stale committed manifest
+// can never ship — the Reel edition reads this to find its photographs.
+const shots = footage.write();
+console.log("Footage manifest: " + Object.keys(shots).length + " photograph(s)");
 
 fs.mkdirSync('dist', { recursive: true });
 
@@ -42,6 +48,14 @@ html = html.replace(
     const { code } = babel.transformSync(src.trim(), babelConfig);
     return `${open}\n${code}\n${close}`;
   }
+);
+
+// 2b. Stamp the Reel hero preload with the file the manifest actually names, so the
+// <head> can start the LCP image during parse without hardcoding a filename that
+// could drift out of the folder.
+html = html.replace(
+  /var HERO = '[^']*'; \/\* build:hero \*\//,
+  `var HERO = '${shots.hero || ''}'; /* build:hero */`
 );
 
 // 3. Remove Babel CDN script (no longer needed)
@@ -94,6 +108,23 @@ if (fs.existsSync('themes')) {
 if (fs.existsSync('screenshots')) {
   copyDir('screenshots', 'dist/screenshots');
   console.log('Copied screenshots/');
+}
+// Copy only the photographs the manifest actually names, plus the manifest itself.
+// The folder is a working directory: it holds HEIC originals no browser renders
+// (1.7 MB), the colour masters the WebP encodes replaced, and the shooting guide.
+// Nothing on the page can ever request those, and copying them wholesale doubled the
+// deploy payload and published footage/README.md at the site root.
+if (fs.existsSync('footage')) {
+  // Cleared first: dist/ is not wiped between local builds, so a photograph that was
+  // renamed or re-encoded would otherwise linger in the output forever.
+  fs.rmSync('dist/footage', { recursive: true, force: true });
+  fs.mkdirSync('dist/footage', { recursive: true });
+  for (const file of [...new Set(Object.values(shots)), 'manifest.json']) {
+    if (fs.existsSync(path.join('footage', file))) {
+      fs.copyFileSync(path.join('footage', file), path.join('dist/footage', file));
+    }
+  }
+  console.log(`Copied footage/ (${Object.keys(shots).length} photograph(s))`);
 }
 
 console.log('Build complete.');
