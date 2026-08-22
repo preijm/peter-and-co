@@ -3265,7 +3265,11 @@ const R_GRAIN = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
     '@keyframes r-grain { 0%,100% { transform: translate(0,0); } 20% { transform: translate(-3%,2%); } 40% { transform: translate(2%,-3%); } 60% { transform: translate(-2%,-2%); } 80% { transform: translate(3%,1%); } }',
     // A reel is tall: a dozen planes of blurred, animated layers. Only the ones
     // near the viewport are allowed to run — the rest sit paused and cost nothing.
-    '@keyframes r-ken { from { transform: scale(1.04); } to { transform: scale(1.13) translate3d(-1.5%, 1.2%, 0); } }',
+    // Starts at 1, not 1.04: a plane is whatever shape the window is, so cover already
+    // discards a slice of the photograph before any transform. Beginning zoomed threw
+    // the top away permanently. 1.06 also keeps a 2000px source from being upscaled
+    // past ~2100 on a normal window.
+    '@keyframes r-ken { from { transform: scale(1); } to { transform: scale(1.06) translate3d(-1%, 0.8%, 0); } }',
     '.r-field .r-blob, .r-field .r-grain, .r-field .r-ken { animation-play-state: paused; }',
     '.r-field.r-live .r-blob, .r-field.r-live .r-grain, .r-field.r-live .r-ken { animation-play-state: running; }',
     // The only entrance motion in the system: a slow fade up, nothing else.
@@ -3293,6 +3297,50 @@ function rLoadFootage() {
       .catch(() => ({}));
   }
   return rFootagePromise;
+}
+
+// Photograph credits, kept in their own file so adding a picture and crediting it are
+// the same size of job. Pexels does not require attribution; this is here because the
+// work is someone else's. A missing file simply means no credit line.
+let rCreditsPromise = null;
+function rLoadCredits() {
+  if (!rCreditsPromise) {
+    rCreditsPromise = fetch('footage/credits.json')
+      .then(r => r.ok ? r.json() : {})
+      .catch(() => ({}));
+  }
+  return rCreditsPromise;
+}
+
+function useCredits() {
+  const [credits, setCredits] = React.useState(null);
+  React.useEffect(() => {
+    let alive = true;
+    rLoadCredits().then(c => { if (alive) setCredits(c || {}); });
+    return () => { alive = false; };
+  }, []);
+  return credits || {};
+}
+
+// The credit reads at the same weight as the lines beside it. Stacking an opacity on
+// top of RCaption's own 0.78 alpha made it the faintest thing on the page — quiet is
+// the register, invisible is a different thing.
+function RCredit({ credit, style, dim }) {
+  if (!credit || !credit.name) return null;
+  // 0.5 alpha over the plane's scrim lands about 5:1, so it stays legible while
+  // reading as a corner mark rather than as content.
+  // `source` is optional: stock needs "via Pexels", a company's own archive photo does
+  // not, and asserting a source that is not true is worse than omitting it.
+  const col = dim ? { color: 'rgba(250,250,250,0.5)' } : null;
+  return (
+    <RCaption light style={{ ...col, ...(style || {}) }}>
+      Photo:{' '}
+      {credit.url
+        ? <a href={credit.url} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none', borderBottom: '1px solid rgba(250,250,250,0.28)' }}>{credit.name}</a>
+        : credit.name}
+      {credit.source ? ' via ' + credit.source : ''}
+    </RCaption>
+  );
 }
 
 function useFootage() {
@@ -3710,7 +3758,6 @@ function RWorkIntro({ count }) {
 }
 
 function RProjectPlane({ project, index, total, footage, onSelect }) {
-  const live = project.public !== false && !!project.href;
   const [hot, setHot] = React.useState(false);
   // A plane is a title card: reel counter, year, name, one statement, one link.
   // The tagline is that statement — the project as a claim rather than a summary.
@@ -3722,6 +3769,8 @@ function RProjectPlane({ project, index, total, footage, onSelect }) {
       className="r-plane"
       data-r-tone="dark"
       onClick={() => onSelect(project)}
+      onMouseEnter={() => setHot(true)}
+      onMouseLeave={() => setHot(false)}
       style={{ position: 'relative', overflow: 'hidden', background: R_SOIL, display: 'flex', alignItems: 'flex-start', cursor: 'pointer' }}
     >
       <RField seed={'reel-' + project.id} media={rMedia(footage, project.id, project.screenshot)} dark />
@@ -3730,14 +3779,16 @@ function RProjectPlane({ project, index, total, footage, onSelect }) {
           <RCaption light>{String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}</RCaption>
           <RCaption light>{project.year}</RCaption>
         </div>
-        {/* The section carries the click for the mouse; the title is a real button so
-            the plane is reachable by keyboard and announced properly. Its own handler
-            stops the event so selecting does not fire twice. */}
+        {/* The section carries the click and the hover: the whole plane is the link, so
+            the affordance has to follow the whole plane, not the four words of the
+            title. A plane fills the viewport, so the arrow is effectively on whenever
+            the cursor is over that project — which is the honest signal, even though it
+            means the slide-in only plays as you move between planes. The title is still
+            a real button so the plane is keyboard-reachable and announced; its handler
+            stops the event so selecting cannot fire twice. */}
         <RDisplay light style={{ marginBottom: '17px' }}>
           <button
             onClick={e => { e.stopPropagation(); onSelect(project); }}
-            onMouseEnter={() => setHot(true)}
-            onMouseLeave={() => setHot(false)}
             onFocus={() => setHot(true)}
             onBlur={() => setHot(false)}
             style={{
@@ -3754,7 +3805,6 @@ function RProjectPlane({ project, index, total, footage, onSelect }) {
           </button>
         </RDisplay>
         <RBody light style={{ maxWidth: '48ch' }}>{lead}</RBody>
-        {!live && <RCaption light style={{ marginTop: '17px' }}>{rStatus(project)}</RCaption>}
       </div>
     </section>
   );
@@ -3856,6 +3906,9 @@ function RContact({ mobile }) {
 //
 function RProjectDetail({ project, projects, footage, mobile, onSelect }) {
   const live = project.public !== false && !!project.href;
+  // The colophon on the reel is the site-wide credit; this is the one that matters,
+  // because here the photograph is the whole screen.
+  const credit = useCredits()[project.id];
   const index = projects.findIndex(p => p.id === project.id);
   const next = projects.length > 1 ? projects[(index + 1) % projects.length] : null;
 
@@ -3887,17 +3940,33 @@ function RProjectDetail({ project, projects, footage, mobile, onSelect }) {
         <div style={{ maxWidth: '62ch' }}>
           {/* Kept at body size: a 41px statement under a 41px title reads as two
               competing headlines, and it costs the height this page cannot spare. */}
-            <RBody className="r-in" light style={{ marginBottom: '17px' }}>{project.tagline || project.description}</RBody>
-            <RBody className="r-in" light style={{ marginBottom: '29px', color: 'rgba(250,250,250,0.80)' }}>
+            {/* The claim and the explanation were both 17px/400, so neither led. The system
+                separates them by weight rather than by size or boldness: 400 states, 300
+                explains. Nothing grows, and both values stay on the published scale. */}
+            <RBody className="r-in" light style={{ marginBottom: '20px' }}>{project.tagline || project.description}</RBody>
+            <RBody className="r-in" light style={{ marginBottom: '29px', fontWeight: 300, color: 'rgba(250,250,250,0.80)' }}>
               {project.detail || project.description}
             </RBody>
             <div className="r-in">
               {live
                 ? <RPill light newTab href={project.href}>{project.url} <span aria-hidden="true">&#8599;</span></RPill>
-                : <RCaption light style={{ opacity: 0.8 }}>{rStatus(project)}</RCaption>}
+                : <RCaption light>{rStatus(project)}</RCaption>}
+
           </div>
         </div>
       </div>
+
+      {/* The credit sits in the corner opposite the title, above the Next bar: out of
+          the reading column entirely, present where the photograph fills the screen. */}
+      {credit && (
+        <div style={{
+          position: 'relative', flexShrink: 0,
+          padding: '0 ' + R_EDGE, paddingBottom: '12px',
+          display: 'flex', justifyContent: 'flex-end',
+        }}>
+          <RCredit credit={credit} dim />
+        </div>
+      )}
 
       {/* Pinned to the foot of the screen, hairline above it — the one piece of chrome
           on the page, and the way through the reel without going back to it. */}

@@ -54,9 +54,20 @@ JPEG makes the browser decode two chroma planes it is about to discard. Encoding
 colour out at rest is invisible on the page and roughly halves the bytes: the hero went
 from 603 KB to 349 KB, and it is the largest thing the edition loads.
 
-The original stays where it is, as the colour master. It just stops being the file the
-site downloads. Dimensions are never touched — Ken Burns pushes the hero to 1.13x, so a
-1920px window is already displaying it at 2170 CSS px.
+The original stays where it is on your machine, as the colour master. It just stops being
+the file the site downloads. Dimensions are never touched: Ken Burns pushes to 1.06x, so
+a 1920px window can display a 2000px file at up to 2035 CSS px.
+
+**Only the `.webp` is committed.** `.jpg`, `.jpeg`, `.png` and `.heic` in this folder are
+all gitignored: the deployed site never requests them — `build.js` copies only the file
+the manifest names — so carrying them in git would be permanent weight for no delivery.
+Keep your originals in OneDrive.
+
+The one hazard is a slot whose encoded sibling was never produced, usually because ffmpeg
+was missing. The manifest then names the `.jpg`, which is ignored, so the file never
+reaches the repo and the plane silently falls back to its generated field once deployed.
+`npm run footage` warns loudly when that happens. If you ever genuinely want a raw file
+committed, `git add -f footage/<name>.jpg` overrides the ignore.
 
 This step needs `ffmpeg` on your PATH. Without it the command says so and moves on; the
 `.webp` files are committed, so CI and other machines are unaffected.
@@ -111,9 +122,19 @@ OK before it goes on your site, and don't pull images off their website instead.
 
 ## Format
 
-- **Landscape**, roughly 16:9 or wider. Portrait crops badly — planes are viewport-shaped.
-  A 3:4 phone photo loses about half its height to the crop, usually the half that made
-  the shot work.
+- **Landscape, and nearer 4:3 than 16:9.** This is the one that catches people out. A
+  plane is not 16:9 — it is whatever shape the browser window is, and a typical laptop
+  window is around 5:4. The image is `object-fit: cover`, so whatever does not match the
+  window gets thrown away.
+
+  | Source | On a 1439×1158 window | Discarded |
+  |--------|----------------------|-----------|
+  | 16:9   | crops the sides hard  | **43% of the width** |
+  | 4:3    | crops the sides a little | 7% of the width |
+
+  A 16:9 crop feels right in the folder and then shows a near-square window punched
+  through its middle. Portrait is worse in the other direction: a 3:4 phone photo loses
+  about half its height, usually the half that made the shot work.
 - **2000px wide, JPEG around 400–500KB.** These render desaturated, dimmed to 82% and
   under film grain, so finer detail is invisible weight on a page that stacks several
   full-screen images.
@@ -125,7 +146,11 @@ OK before it goes on your site, and don't pull images off their website instead.
 ## Treatment applied automatically
 
 `grayscale(1)`, mild contrast lift, brightness pulled down to 0.68, 82% opacity over
-the plane's generated field, plus film grain and a very slow Ken Burns drift. The
-drift pauses whenever the plane is off-screen and is disabled entirely under
+the plane's generated field, plus film grain and a very slow Ken Burns drift from 1.0 to
+1.06. The drift pauses whenever the plane is off-screen and is disabled entirely under
 `prefers-reduced-motion`. You do not need to edit or grade anything — shoot for
 structure and let the theme do the rest.
+
+**It starts at 1.0 on purpose.** An earlier version began at 1.04, so a photograph was
+permanently zoomed and lost its top edge before the animation had even moved. If you
+ever raise the start above 1, you are cropping every photograph on the site.

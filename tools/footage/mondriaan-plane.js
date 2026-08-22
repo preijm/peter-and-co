@@ -27,34 +27,40 @@ const BLUE = [29, 78, 216];
 const YELLOW = [252, 198, 11];
 const WHITE = [255, 255, 255];
 
-const W = 2000, H = 1125;                    // 16:9, the shape of a plane
+// 4:3, not 16:9. A plane is whatever shape the browser window is — typically nearer
+// 5:4 on a laptop — and object-fit: cover discards the mismatch. A 16:9 source loses
+// about 43% of its width on a 1439x1158 window, which cropped this composition to its
+// middle and cut the outer blocks off entirely.
+const W = 2000, H = 1500;
 const LINE = Math.round(6 * (W / 1400));     // M_LINE scaled from the site's content width
 
 // Composed the way Mondriaan actually composed, not as an even grid:
-//   - White dominates. The colours are a minority, and there are only three of them.
-//   - Black is a LINE colour, not a field. One small black cell is the most the
-//     paintings ever allow, and the "lines" here are the ground showing through.
-//   - Cell sizes vary wildly — one dominant field, several small ones clustered
+//   - Black and white share the frame roughly evenly. A white-dominant grid measured
+//     120 on screen against 27-86 for the photographs either side of it and flared in
+//     the sequence; an all-black ground fixed that but swallowed the lines, since a
+//     black block on a black ground has no edge. Half and half keeps every line
+//     visible and lands the plane mid-range.
+//   - The grid lines are still the ground showing through between blocks; here the
+//     ground and the dominant field happen to be the same colour.
+//   - Cell sizes vary wildly — one dominant light field, several small ones clustered
 //     toward an edge — and the grid is deliberately irregular.
 //
-// The title still needs dark ground in the top-left, which is why the large field
-// there is red rather than white: red resolves to grey 43 on screen, dark enough to
-// carry white type, and a dominant red plane is squarely within the vocabulary
-// ("Composition with Large Red Plane", 1921). Blue sits bottom-left, as far from the
-// red as the frame allows, since the two are indistinguishable once desaturated.
+// The title's block is black, so its corner needs no help from the falloff. Red and
+// blue sit as far apart as the frame allows — bottom-left and mid-right — because they
+// land 7 greys apart once desaturated and would read as one blob if they touched.
 const BLOCKS = [
-  { x: [0, 0.38], y: [0, 0.52], c: RED },      // the title's ground — must stay dark
+  { x: [0, 0.38], y: [0, 0.52], c: BLACK },      // the title's ground
   { x: [0.38, 0.90], y: [0, 0.30], c: WHITE },
-  { x: [0.90, 1], y: [0, 0.30], c: YELLOW },   // thin accent running off the edge
+  { x: [0.90, 1], y: [0, 0.30], c: YELLOW },     // thin accent running off the edge
   { x: [0.38, 0.62], y: [0.30, 0.52], c: WHITE },
-  { x: [0.62, 1], y: [0.30, 0.52], c: WHITE },
+  { x: [0.62, 1], y: [0.30, 0.52], c: BLACK },
   { x: [0, 0.20], y: [0.52, 1], c: WHITE },
   { x: [0.20, 0.38], y: [0.52, 0.74], c: BLUE },
-  { x: [0.20, 0.38], y: [0.74, 1], c: WHITE },
-  { x: [0.38, 0.78], y: [0.52, 1], c: WHITE },  // the dominant white field
-  { x: [0.78, 0.90], y: [0.52, 0.74], c: BLACK }, // the one black cell
-  { x: [0.90, 1], y: [0.52, 0.74], c: WHITE },
-  { x: [0.78, 1], y: [0.74, 1], c: YELLOW },
+  { x: [0.20, 0.38], y: [0.74, 1], c: BLACK },
+  { x: [0.38, 0.78], y: [0.52, 1], c: WHITE },
+  { x: [0.78, 0.90], y: [0.52, 0.74], c: RED },
+  { x: [0.90, 1], y: [0.52, 0.74], c: BLACK },
+  { x: [0.78, 1], y: [0.74, 1], c: BLACK },
 ];
 
 // Black ground: every gap between blocks becomes a grid line for free.

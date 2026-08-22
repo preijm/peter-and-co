@@ -119,7 +119,10 @@ if (fs.existsSync('footage')) {
   // renamed or re-encoded would otherwise linger in the output forever.
   fs.rmSync('dist/footage', { recursive: true, force: true });
   fs.mkdirSync('dist/footage', { recursive: true });
-  for (const file of [...new Set(Object.values(shots)), 'manifest.json']) {
+  // credits.json rides along with the manifest: the page fetches it at runtime, so
+  // leaving it behind means the photographers silently lose their credit in production
+  // while it still renders locally.
+  for (const file of [...new Set(Object.values(shots)), 'manifest.json', 'credits.json']) {
     if (fs.existsSync(path.join('footage', file))) {
       fs.copyFileSync(path.join('footage', file), path.join('dist/footage', file));
     }

@@ -12,7 +12,7 @@
 //
 // Dimensions are untouched: downscaling to 1600px saves another ~200 KB but drops
 // the hero to 27.8 dB PSNR against its own grayscale original, and Ken Burns already
-// pushes the photograph to 1.13x, so a 1920px window displays it at 2170 CSS px.
+// pushes the photograph to 1.06x, so a 1920px window displays it at up to 2035 CSS px.
 //
 // Needs ffmpeg on PATH. Without it this no-ops with a note — the encoded files are
 // committed, so CI and non-Windows machines are unaffected, exactly like heic.js.
