@@ -1312,11 +1312,24 @@ function BuildFootprint({ project }) {
   // tool reports them; the caveat below says so explicitly.
   const prompts = (fp.combined ? fp.combined.prompts : fp.measured.prompts) || 0;
 
-  const stats = [
-    { value: prompts.toLocaleString('en-US'), label: 'prompts' },
-    { value: fp.measured.activeHours, label: 'hours' },
-    { value: fmtTokens(fp.tokens.output), label: 'tokens out' },
-  ];
+  const mixed = !!(fp.combined && fp.manualSources && fp.manualSources.length);
+
+  // Every stat on the rule has to share one scope, or the reader reads a
+  // parity that isn't there. Where another tool did most of the building,
+  // hours and tokens describe only the Claude Code sliver while prompts
+  // describe the whole project — so those two are dropped rather than shown
+  // at equal weight beside a number that means something different. Months
+  // spans the real work in either case, and comes from git.
+  const stats = mixed
+    ? [
+        { value: prompts.toLocaleString('en-US'), label: 'prompts' },
+        { value: spanMonths(fp), label: 'months' },
+      ]
+    : [
+        { value: prompts.toLocaleString('en-US'), label: 'prompts' },
+        { value: fp.measured.activeHours, label: 'hours' },
+        { value: fmtTokens(fp.tokens.output), label: 'tokens out' },
+      ];
 
   return (
     <div style={{
@@ -1611,6 +1624,18 @@ const fmtTokens = (n) => {
 
 // The caveat is generated from the coverage data rather than written per
 // project, so it can never drift out of sync with the numbers beside it.
+// Whole months from the project's first commit to its last measured activity.
+// Git-derived, so it covers work done in any tool — unlike hours, which only
+// exist for sessions Claude Code logged.
+const spanMonths = (fp) => {
+  const from = fp.coverage && fp.coverage.firstCommitDate;
+  const to = fp.measured && fp.measured.lastSeen;
+  if (!from || !to) return '—';
+  const a = new Date(from), b = new Date(to);
+  const m = (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth());
+  return Math.max(1, m);
+};
+
 const monthLabel = (ym) => {
   if (!ym) return '';
   const [y, m] = String(ym).split('-');
@@ -1631,9 +1656,11 @@ function footprintCaveat(fp) {
       `${(s.prompts || 0).toLocaleString('en-US')} in ${s.tool}` +
       (s.from ? ` (${monthLabel(s.from)}–${monthLabel(s.to)})` : '')
     );
+    const tools = fp.manualSources.map(s => s.tool).join(' and ');
     return `${parts.join(', ')}, ${(fp.measured.prompts || 0).toLocaleString('en-US')} in Claude Code. ` +
-           `Hours and tokens cover the Claude Code portion only — ${fp.manualSources.map(s => s.tool).join(' and ')} ` +
-           `${fp.manualSources.length > 1 ? "don't" : "doesn't"} report them.`;
+           `Hours and token counts aren't shown for this one: ${tools} ` +
+           `${fp.manualSources.length > 1 ? "don't" : "doesn't"} report them, ` +
+           `so they'd describe only the smaller half of the work.`;
   }
 
   if (pct === 100) {
