@@ -128,12 +128,16 @@
   };
   // Must match DEFAULT_THEME_ID in the app below. A first-time visitor has no saved
   // edition, so this is the face the page actually opens with.
-  var DEFAULT_ID = 'volt-v1';
+  var DEFAULT_ID = 'grain-v1';
   var id = null;
   try { id = new URLSearchParams(location.search).get('theme') || localStorage.getItem('pco-theme'); } catch (e) {}
+  // What will actually render. A first-time visitor has no explicit choice, so id is
+  // null for them, and everything below has to reason about the resolved edition
+  // rather than the requested one.
+  var active = FONTS[id] ? id : DEFAULT_ID;
   var l = document.createElement('link');
   l.id = 'theme-fonts'; l.rel = 'preload'; l.as = 'style';
-  l.href = FONTS[id] || FONTS[DEFAULT_ID];
+  l.href = FONTS[active];
   l.onload = function () { this.onload = null; this.rel = 'stylesheet'; };
   document.head.appendChild(l);
   // Grain's hero photograph is the LCP element and sits four sequential hops deep:
@@ -142,7 +146,7 @@
   // manifest, so this can never preload a file that does not ship; an empty value
   // (no hero in footage/) means the plane falls back to its generated field.
   var HERO = 'hero.webp'; /* build:hero */
-  if (id === 'grain-v1' && HERO) {
+  if (active === 'grain-v1' && HERO) {
     var p = document.createElement('link');
     p.rel = 'preload'; p.as = 'image'; p.href = 'footage/' + HERO;
     p.setAttribute('fetchpriority', 'high');
@@ -150,7 +154,7 @@
   }
 })();
 </script>
-<noscript><link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"></noscript>
+<noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&display=swap" rel="stylesheet"></noscript>
 <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous" defer></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous" defer></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous" defer></script>
@@ -351,11 +355,21 @@ const THEMES = [
   },
 ];
 
-// The edition a first-time visitor lands on. Volt leads because its terminal is the
-// one thing on the site that demonstrates the claim rather than describing it, and
-// because it is composed rather than adapted from a named studio's system.
-// Keep in sync with DEFAULT_ID in the parse-time font resolver in <head>.
-const DEFAULT_THEME_ID = 'volt-v1';
+// The edition a first-time visitor lands on. Grain leads: it is the only edition
+// built around real photography, and a full-bleed photograph is the strongest
+// opening the site has.
+//
+// Worth keeping the trade visible rather than deleting it. Volt led before this
+// because its terminal demonstrates the claim rather than describing it, and because
+// it is composed rather than adapted from a named studio's system. Grain follows
+// Freytag Anderson's published tokens closely, so the front door is now built on
+// someone else's design language. Deliberate, not an oversight - Editions is one
+// press away and Volt is still in it.
+//
+// Keep in sync with DEFAULT_ID in the parse-time font resolver in <head>. That
+// resolver also gates Grain's hero preload on the resolved edition, so the two
+// cannot drift apart without costing a first-time visitor the LCP preload.
+const DEFAULT_THEME_ID = 'grain-v1';
 
 // ── Theme Context ──────────────────────────────────────────
 const ThemeContext = React.createContext();
