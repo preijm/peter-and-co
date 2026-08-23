@@ -3286,26 +3286,32 @@ const R_GRAIN = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
     // tier, which on a filtered full-screen photograph is the hitch you feel rather
     // than see. Promoting it while it is live rasters once and transforms after that.
     // Scoped to .r-live so at most the two or three planes near the viewport hold a
-    // layer, not all six.
-    '.r-field.r-live .r-ken { will-change: transform; }',
-    // Touch devices: freeze the decorative layers.
+    // layer, not all six, and to a pointer that hovers because nothing moves at all
+    // on touch - see below - so a layer there would be held for no motion.
+    '@media (hover: hover) { .r-field.r-live .r-ken { will-change: transform; } }',
+    // Touch devices: the plane is a still photograph.
     //
-    // The grain steps five times a second and the five blobs scale continuously, and
-    // every one of those layers carries mix-blend-mode. A blended layer cannot be
-    // composited on its own - the browser needs the backdrop rasterised alongside it -
-    // so each of those seven animations dirties the whole plane, photograph and filter
-    // chain included. At 375x812 on a DPR-3 phone that is 2.7M pixels re-rastered and
-    // blended seven ways, sixty times a second.
+    // Every layer in a field carries mix-blend-mode, and a blended layer cannot be
+    // composited on its own - the browser needs the backdrop rasterised alongside it.
+    // So any one of the seven animations dirties the whole plane, photograph and
+    // filter chain included: at 375x812 on a DPR-3 phone, 2.7M pixels re-rastered and
+    // blended seven ways, sixty times a second. The grain was the worst of them,
+    // stepping five times a second forever.
     //
-    // Nothing is lost by stopping them. The grain tile is 200px on a 375px screen and
-    // its shimmer is invisible at that size; the blobs are a tonal wash that takes 40
-    // to 74 seconds to travel, which is not motion anyone perceives on a phone. Both
-    // still paint - the texture and the tone are exactly as they were - they just hold
-    // still, leaving the Ken Burns as the single moving layer and one invalidation per
-    // frame instead of seven.
+    // Freezing the decorative two cost nothing - a 200px grain tile does not read as
+    // shimmer on a 375px screen, and a wash that takes 40 to 74 seconds to cross is
+    // not motion anyone perceives - but it left the Ken Burns pushing a full-screen
+    // filtered image on its own, which is the expensive one. On a phone that drift
+    // buys little: it travels 3% of the plane, settles inside twenty seconds and then
+    // holds, so most of the time a plane is on screen it is already still. Holding it
+    // still from the start is the honest version of what it was going to be anyway,
+    // and it means a phone composites nothing at all.
     //
-    // !important because both animations are set inline from JS.
-    '@media (hover: none) { .r-blob, .r-grain { animation: none !important; } }',
+    // Desktop keeps the drift. The layers still paint identically in both places;
+    // only the motion differs.
+    //
+    // !important because all three animations are set inline from JS.
+    '@media (hover: none) { .r-blob, .r-grain, .r-ken { animation: none !important; } }',
     // The only entrance motion in the system: a slow fade up, nothing else.
     '.r-in { opacity: 0; transform: translateY(14px); transition: opacity 1100ms cubic-bezier(0.22,0.61,0.36,1), transform 1100ms cubic-bezier(0.22,0.61,0.36,1); }',
     '.r-in.r-on { opacity: 1; transform: none; }',
