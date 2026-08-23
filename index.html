@@ -128,7 +128,7 @@
   };
   // Must match DEFAULT_THEME_ID in the app below. A first-time visitor has no saved
   // edition, so this is the face the page actually opens with.
-  var DEFAULT_ID = 'grain-v1';
+  var DEFAULT_ID = 'volt-v1';
   var id = null;
   try { id = new URLSearchParams(location.search).get('theme') || localStorage.getItem('pco-theme'); } catch (e) {}
   // What will actually render. A first-time visitor has no explicit choice, so id is
@@ -154,7 +154,7 @@
   }
 })();
 </script>
-<noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&display=swap" rel="stylesheet"></noscript>
+<noscript><link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"></noscript>
 <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous" defer></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous" defer></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous" defer></script>
@@ -319,6 +319,10 @@ const THEMES = [
     name: 'Grain',
     version: 'v1',
     tagline: 'cinematic · achromatic · full-bleed',
+    // Shown in Editions. Grain follows a working studio's published design system
+    // closely, and nothing a visitor could see said so. The other editions are
+    // composed or draw on a movement rather than a practice, so none of them carry one.
+    credit: 'after the Freytag Anderson design system',
     mondriaan: true,
     srcId: 'grain-src',
     appGlobal: 'GrainApp',
@@ -355,21 +359,20 @@ const THEMES = [
   },
 ];
 
-// The edition a first-time visitor lands on. Grain leads: it is the only edition
-// built around real photography, and a full-bleed photograph is the strongest
-// opening the site has.
+// The edition a first-time visitor lands on. Volt leads, and the reason is not that
+// it is the best looking - Grain probably is. It is that Volt is composed, and Grain
+// follows Freytag Anderson's published design system closely. A portfolio whose own
+// intertitle says "I bring the idea, the taste, and the stubbornness" should not open
+// on a working studio's design language, and the visitor most likely to recognise it
+// is exactly the one this site is for. Volt also demonstrates the claim rather than
+// describing it: the terminal is a thing that works, not a thing that says so.
 //
-// Worth keeping the trade visible rather than deleting it. Volt led before this
-// because its terminal demonstrates the claim rather than describing it, and because
-// it is composed rather than adapted from a named studio's system. Grain follows
-// Freytag Anderson's published tokens closely, so the front door is now built on
-// someone else's design language. Deliberate, not an oversight - Editions is one
-// press away and Volt is still in it.
+// Grain is one press away, and Editions credits its source.
 //
 // Keep in sync with DEFAULT_ID in the parse-time font resolver in <head>. That
-// resolver also gates Grain's hero preload on the resolved edition, so the two
-// cannot drift apart without costing a first-time visitor the LCP preload.
-const DEFAULT_THEME_ID = 'grain-v1';
+// resolver gates Grain's hero preload on the resolved edition rather than on this
+// constant, so switching the default does not cost or misfire that preload.
+const DEFAULT_THEME_ID = 'volt-v1';
 
 // ── Theme Context ──────────────────────────────────────────
 const ThemeContext = React.createContext();
@@ -584,6 +587,7 @@ function EditionModal() {
                       {isActive && <span style={{ fontFamily:MONO, fontSize:'9px', letterSpacing:'0.1em', color:c.tagline, textTransform:'uppercase' }}>current</span>}
                     </div>
                     <span style={{ fontFamily:MONO, fontSize:'10px', color:c.tagline, letterSpacing:'0.04em' }}>{t.tagline}</span>
+                    {t.credit && <span style={{ display:'block', fontFamily:MONO, fontSize:'9px', color:c.tagline, opacity:0.72, letterSpacing:'0.04em', marginTop:'2px' }}>{t.credit}</span>}
                   </div>
                   <span style={{ fontFamily:MONO, fontSize:'10px', color: mobileAvailable ? c.randomColor : c.tagline, letterSpacing:'0.08em', flexShrink:0, marginLeft:'12px' }}>
                     {mobileAvailable ? (isActive ? '✓' : '→') : 'desktop'}
@@ -615,6 +619,7 @@ function EditionModal() {
                       {isActive && <span style={{ fontFamily:MONO, fontSize:'9px', letterSpacing:'0.1em', color:c.tagline, textTransform:'uppercase' }}>current</span>}
                     </div>
                     <div style={{ fontFamily:MONO, fontSize:'10px', color:c.tagline, letterSpacing:'0.04em', lineHeight:1.5, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{t.tagline}</div>
+                    {t.credit && <div style={{ fontFamily:MONO, fontSize:'9px', color:c.tagline, opacity:0.72, letterSpacing:'0.04em', lineHeight:1.45, marginTop:'3px' }}>{t.credit}</div>}
                   </div>
                 </button>
               );
