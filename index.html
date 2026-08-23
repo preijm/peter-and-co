@@ -4050,14 +4050,23 @@ function RProjectDetail({ project, projects, footage, mobile, onSelect }) {
             // open. The separation it bought is bought here by alpha instead, which
             // is also the more honest reading of "no elevation, no card surfaces".
             background: 'rgba(20,17,9,0.72)', border: 'none', borderTop: '1px solid rgba(250,250,250,0.22)',
-            padding: mobile ? '17px 20px' : '20px clamp(20px, 3.4vw, 43px)',
+            // Tighter on a phone. R_BODY carries line-height 1.7, which is a prose
+            // value: in a one-line bar it wraps ~20px of glyph in a 28.9px box and
+            // leaves the bar 64px tall, near 8% of an 812px screen, more than half of
+            // it air. Desktop has the room for that and reads correctly, so it keeps
+            // the original numbers - this only trims the phone.
+            padding: mobile ? '12px 20px' : '20px clamp(20px, 3.4vw, 43px)',
             display: 'flex', alignItems: 'baseline', gap: '16px',
           }}
           onMouseEnter={e => e.currentTarget.style.background = 'rgba(20,17,9,0.88)'}
           onMouseLeave={e => e.currentTarget.style.background = 'rgba(20,17,9,0.72)'}
         >
           <RCaption light>Next</RCaption>
-          <span style={{ fontFamily: R_SANS, fontFeatureSettings: R_FEAT, ...R_BODY, color: R_PAPER }}>
+          {/* 1.25 rather than R_BODY's 1.7: the leading exists to space stacked lines
+              of prose and there is only ever one line here. Type size is untouched -
+              the destination is the point of the bar - and baseline alignment keeps it
+              sitting with "Next" regardless. The button still clears 44px. */}
+          <span style={{ fontFamily: R_SANS, fontFeatureSettings: R_FEAT, ...R_BODY, lineHeight: mobile ? 1.25 : R_BODY.lineHeight, color: R_PAPER }}>
             {next.title} <span aria-hidden="true">&rarr;</span>
           </span>
         </button>
