@@ -3590,8 +3590,11 @@ function RChrome({ tone, menuOpen, onMenu, onTop, marked }) {
       <button
         onClick={onTop}
         style={{
-          position: 'fixed', top: 'calc(' + R_EDGE + ' - 6px)', left: R_EDGE, zIndex: 120,
-          background: 'none', border: 'none', padding: '6px 0', cursor: 'pointer', outlineColor: line,
+          position: 'fixed', top: 'calc(' + R_EDGE + ' - 18px)', left: R_EDGE, zIndex: 120,
+          // 45px tall so the back-to-top target matches the hamburger opposite it. The
+          // extra padding is cancelled by the top offset, so the wordmark itself does
+          // not move; only the region that responds to a thumb grows.
+          background: 'none', border: 'none', padding: '12px 12px 12px 0', cursor: 'pointer', outlineColor: line,
           fontFamily: R_SANS, fontFeatureSettings: R_FEAT, ...R_CAPTION, color: line,
           opacity: marked ? 1 : 0, pointerEvents: marked ? 'auto' : 'none',
           visibility: marked ? 'visible' : 'hidden',
