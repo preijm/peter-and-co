@@ -3282,6 +3282,30 @@ const R_GRAIN = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
     '@keyframes r-ken { from { transform: scale(1); } to { transform: scale(1.06) translate3d(-1%, 0.8%, 0); } }',
     '.r-field .r-blob, .r-field .r-grain, .r-field .r-ken { animation-play-state: paused; }',
     '.r-field.r-live .r-blob, .r-field.r-live .r-grain, .r-field.r-live .r-ken { animation-play-state: running; }',
+    // A slowly-scaling element gets re-rastered every time Chrome crosses a scale
+    // tier, which on a filtered full-screen photograph is the hitch you feel rather
+    // than see. Promoting it while it is live rasters once and transforms after that.
+    // Scoped to .r-live so at most the two or three planes near the viewport hold a
+    // layer, not all six.
+    '.r-field.r-live .r-ken { will-change: transform; }',
+    // Touch devices: freeze the decorative layers.
+    //
+    // The grain steps five times a second and the five blobs scale continuously, and
+    // every one of those layers carries mix-blend-mode. A blended layer cannot be
+    // composited on its own - the browser needs the backdrop rasterised alongside it -
+    // so each of those seven animations dirties the whole plane, photograph and filter
+    // chain included. At 375x812 on a DPR-3 phone that is 2.7M pixels re-rastered and
+    // blended seven ways, sixty times a second.
+    //
+    // Nothing is lost by stopping them. The grain tile is 200px on a 375px screen and
+    // its shimmer is invisible at that size; the blobs are a tonal wash that takes 40
+    // to 74 seconds to travel, which is not motion anyone perceives on a phone. Both
+    // still paint - the texture and the tone are exactly as they were - they just hold
+    // still, leaving the Ken Burns as the single moving layer and one invalidation per
+    // frame instead of seven.
+    //
+    // !important because both animations are set inline from JS.
+    '@media (hover: none) { .r-blob, .r-grain { animation: none !important; } }',
     // The only entrance motion in the system: a slow fade up, nothing else.
     '.r-in { opacity: 0; transform: translateY(14px); transition: opacity 1100ms cubic-bezier(0.22,0.61,0.36,1), transform 1100ms cubic-bezier(0.22,0.61,0.36,1); }',
     '.r-in.r-on { opacity: 1; transform: none; }',
@@ -3506,8 +3530,18 @@ function RField({ seed, media, dark, eager }) {
             opacity: media.kind === 'photo' ? 0.82 : 0.4,
             transform: media.kind === 'photo' ? undefined : 'scale(1.08)',
             animationName: media.kind === 'photo' ? 'r-ken' : undefined,
-            animationDuration: media.kind === 'photo' ? '34s' : undefined,
-            animationTimingFunction: media.kind === 'photo' ? 'cubic-bezier(0.16, 0.6, 0.24, 1)' : undefined,
+            // 20s linear, not 34s eased. That curve was a hard ease-out: it spent most
+            // of the 6% in the first few seconds and then asymptoted, so the drift
+            // decelerated to a standstill while the plane was still on screen and never
+            // restarted - motion that stops reads as motion that broke. A scale of 1.06
+            // moves an edge by 3% of the plane height, so on a 812px phone the old
+            // timing averaged 0.7px per second and far less than that in the tail, which
+            // is below the rate at which drift reads as drift at all. Linear over 20s
+            // holds a constant ~1.2px/s for the whole time a plane is on screen. The
+            // end scale is untouched: raising it would crop the photograph further, and
+            // the top edge is the part worth protecting.
+            animationDuration: media.kind === 'photo' ? '20s' : undefined,
+            animationTimingFunction: media.kind === 'photo' ? 'linear' : undefined,
             animationIterationCount: media.kind === 'photo' ? '1' : undefined,
             animationFillMode: media.kind === 'photo' ? 'both' : undefined,
           }}
