@@ -4065,7 +4065,18 @@ function RContact({ mobile }) {
           <RCaption light>Peter &amp; Co.</RCaption>
           <RCaption light>Rotterdam, NL</RCaption>
         </div>
-        <RCaption light>Grain, edition v1</RCaption>
+        {/* The edition and its version are already in the Editions modal, which marks
+            the current one. This corner is better spent on the attribution: Grain follows
+            Freytag Anderson closely, and a colophon is where a debt like that belongs.
+            Links to the studio rather than to a design system, because they do not
+            publish one - the reference this was built from was derived from their site. */}
+        <RCaption light>
+          Design after{' '}
+          <a href="https://www.freytaganderson.com" target="_blank" rel="noopener noreferrer"
+             style={{ color: 'inherit', textDecoration: 'none', borderBottom: '1px solid rgba(250,250,250,0.28)' }}>
+            Freytag Anderson
+          </a>
+        </RCaption>
       </div>
     </section>
   );
