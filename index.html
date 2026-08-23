@@ -780,6 +780,66 @@ function Hero({ onCTA, activePage, onNavigate }) {
 
 // ── resolveAccent ──────────────────────────────────────────
 const MONDRIAAN_PALETTE = new Set(['#d72027', '#1d4ed8', '#fcc60b', '#0a0a0a', '#ffffff']);
+// Accent legibility.
+//
+// One accent per project has to serve a near-black card in Ink and a near-white page
+// in Chalk, and no single hex does both. Measured on the current five: the blue is
+// 3.0 against Ink and 5.5 against Chalk; the amber is 10.1 against Ink and 1.6
+// against Chalk. So the value stays canonical in Sanity and the theme adjusts it here.
+//
+// Lightness only, hue and saturation held, so a colour stays itself - the purple that
+// already reads well comes out as exactly the purple that was authored, untouched.
+//
+// Dark surfaces only. The same function fixes Chalk, but there it has to darken rather
+// than brighten and the shifts are drastic - amber #ffad01 becomes #906100 - which is a
+// look decision, not a bug fix, and wants deciding on its own.
+const AC_TARGET = 7;      // WCAG AAA for normal text; the accents are 13px links
+const AC_DARK_BG = 0.18;  // above this the surface is not dark and nothing is touched
+
+function acLum(hex) {
+  const c = [1, 3, 5].map(i => parseInt(hex.substr(i, 2), 16) / 255)
+    .map(v => v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+  return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+}
+function acRatio(a, b) {
+  const x = acLum(a), y = acLum(b);
+  return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+}
+function acToHsl(hex) {
+  const [r, g, b] = [1, 3, 5].map(i => parseInt(hex.substr(i, 2), 16) / 255);
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+  let h = 0;
+  if (d) { h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; h *= 60; if (h < 0) h += 360; }
+  const l = (mx + mn) / 2;
+  return [h, d ? d / (1 - Math.abs(2 * l - 1)) : 0, l];
+}
+function acToHex([h, s, l]) {
+  const c = (1 - Math.abs(2 * l - 1)) * s, x = c * (1 - Math.abs((h / 60) % 2 - 1)), m = l - c / 2;
+  const r = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x]
+          : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
+  return '#' + r.map(v => Math.round(Math.max(0, Math.min(1, v + m)) * 255).toString(16).padStart(2, '0')).join('');
+}
+// Returns the accent unchanged unless the surface is dark and the pair falls short.
+function fitAccent(hex, bg) {
+  if (!/^#[0-9a-fA-F]{6}$/.test(hex || '') || !/^#[0-9a-fA-F]{6}$/.test(bg || '')) return hex;
+  if (acLum(bg) > AC_DARK_BG) return hex;
+  if (acRatio(hex, bg) >= AC_TARGET) return hex;
+  const [h, s, l0] = acToHsl(hex);
+  for (let step = 1; step <= 100; step++) {
+    const cand = acToHex([h, s, Math.min(1, l0 + step / 100)]);
+    if (acRatio(cand, bg) >= AC_TARGET) return cand;
+  }
+  return hex;
+}
+
+// The surface an accent is actually painted on. bgDark is the card fill where it is a
+// real colour; Chalk paints cards transparent, so there the page background is what
+// the accent sits against.
+function accentSurface(theme) {
+  const d = theme.colors.bgDark;
+  return /^#[0-9a-fA-F]{6}$/.test(d || '') ? d : theme.colors.bg;
+}
+
 function resolveAccent(project, themeId) {
   const a = project.accent;
   if (!a) return null;
@@ -793,7 +853,7 @@ function resolveAccent(project, themeId) {
 function ProjectCard({ project, index, onClick }) {
   const [hovered, setHovered] = React.useState(false);
   const { theme } = useTheme();
-  const accent = resolveAccent(project, theme.id) || theme.colors.text;
+  const accent = fitAccent(resolveAccent(project, theme.id), accentSurface(theme)) || theme.colors.text;
   return (
     <div
       onClick={() => onClick(project)}
@@ -850,7 +910,7 @@ function ProjectStrip({ onSelect, projects, onViewAll }) {
       <div style={{ maxWidth: '1080px', margin: '0 auto', padding: mobile ? '0 20px' : '0 32px' }}>
         {list.map((p, i) => {
           const [hovered, setHovered] = React.useState(false);
-          const accent = resolveAccent(p, theme.id) || theme.colors.text;
+          const accent = fitAccent(resolveAccent(p, theme.id), accentSurface(theme)) || theme.colors.text;
           const comingSoon = p.public === false; // not live yet — shown only via the year/status label, still clickable for the case study
           if (mobile) {
             return (
@@ -1549,7 +1609,7 @@ function BuildFootprint({ project }) {
 function ProjectDetail({ project, onBack }) {
   const mobile = useMobile();
   const { theme } = useTheme();
-  const accent = resolveAccent(project, theme.id) || theme.colors.text;
+  const accent = fitAccent(resolveAccent(project, theme.id), accentSurface(theme)) || theme.colors.text;
   return (
     <section style={{ maxWidth: '1080px', margin: '0 auto', padding: mobile ? '48px 20px' : '80px 32px' }}>
       <button onClick={onBack} style={{
