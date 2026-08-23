@@ -45,19 +45,61 @@
 ]
 </script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' fill='%230a0a0a'/><text x='7' y='52' font-size='52' fill='%23ffffff' font-family='Georgia,serif' letter-spacing='-2'>P</text></svg>">
-<!-- Counterscale. Gated on the live hostname as well as the webdriver flag: without it
-     a local `npx serve`, a file:// open of this page, or any preview deploy writes into
-     the production dataset. That is where the `/C:/` paths and `localhost:3000` referrers
-     in the dashboard came from. Matches peterandco.nl and any subdomain of it, nothing else. -->
+<!-- Counterscale. Gated three ways.
+     1. The live hostname: without it a local `npx serve`, a file:// open of this page, or
+        any preview deploy writes into the production dataset. That is where the `/C:/`
+        paths and `localhost:3000` referrers in the dashboard came from.
+     2. The webdriver flag, for browser automation that announces itself.
+     3. An opt-out remembered per browser. Visiting my own site to check a change is the
+        biggest remaining distortion in the numbers, so `?notrack=1` once per browser
+        stops counting me. `?notrack=0` turns it back on when I need to prove the tracker
+        still works. -->
 <script>
-if (/(^|\.)peterandco\.nl$/.test(location.hostname) && !navigator.webdriver) {
+(function () {
+  var KEY = 'pco-notrack', excluded = false, note = '';
+
+  // The switch lives in the tracking dashboard, which links here with the
+  // parameter set. The flag still has to be written on this origin --
+  // localStorage is origin-scoped, so nothing running on localhost can set it
+  // for peterandco.nl.
+  try {
+    var v = new URLSearchParams(location.search).get('notrack');
+    if (v === '1') { localStorage.setItem(KEY, '1'); note = 'This browser is no longer counted.'; }
+    if (v === '0') { localStorage.removeItem(KEY); note = 'This browser is counted again.'; }
+    excluded = !!localStorage.getItem(KEY);
+  } catch (e) {} // private mode: count the visit rather than lose it
+
+  // Confirmation for an explicit ?notrack=1/0 arrival only, so the action is
+  // something I can trust rather than take on faith. A visitor never carries the
+  // parameter and so never sees this. Fades itself out; never blocks a click.
+  if (note) {
+    var toast = function () {
+      var el = document.createElement('div');
+      el.setAttribute('role', 'status');
+      el.textContent = note;
+      el.style.cssText = 'position:fixed;left:16px;bottom:16px;z-index:2147483647;' +
+        'font:500 13px/1 ui-sans-serif,system-ui,sans-serif;padding:11px 16px;' +
+        'border-radius:999px;background:#0a0a0a;color:#fff;' +
+        'border:1px solid rgba(255,255,255,.25);pointer-events:none;' +
+        'opacity:1;transition:opacity .6s';
+      document.body.appendChild(el);
+      setTimeout(function () { el.style.opacity = '0'; }, 3600);
+      setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 4400);
+    };
+    if (document.body) toast();
+    else document.addEventListener('DOMContentLoaded', toast);
+  }
+
+  if (excluded) return;
+  if (!/(^|\.)peterandco\.nl$/.test(location.hostname) || navigator.webdriver) return;
+
   var csScript = document.createElement('script');
   csScript.id = 'counterscale-script';
   csScript.src = 'https://counterscale.peterreijm.workers.dev/tracker.js';
   csScript.setAttribute('data-site-id', 'peterandco.nl');
   csScript.defer = true;
   document.head.appendChild(csScript);
-}
+})();
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -890,7 +932,7 @@ const PROJECTS = [
     href: 'https://milkmenot.com',
     accent: { default: '#22c55e', 'mondriaan-v1': '#fcc60b' },
     tagline: 'Ditch the Moo. Find Your New.',
-    detail: 'A plant-based milk review app that works where you actually choose — standing in the shop. Point your phone at a carton and it reads the barcode and takes you straight to that milk: its score, its notes, and where it sits against everything else. Rate it there, or add it to the board in one tap if nobody has yet. Built because the answer to "which oat milk is best" shouldn\'t require a Reddit deep-dive.',
+    detail: 'Choosing plant-based milk in the shop is guesswork. Scan a carton and you get its score, its notes and how it compares, so you can decide standing right there in the aisle.',
     role: 'Idea, design, build, ship.',
     stack: ['React', 'Supabase', 'Capacitor', 'GitHub Actions'],
     tools: ['Claude', 'Stitch', 'Remember the Milk'],
@@ -904,7 +946,7 @@ const PROJECTS = [
     url: 'folio.local',
     accent: { default: '#06b6d4', 'mondriaan-v1': '#0891b2' },
     tagline: 'Your money. Your numbers. No subscriptions.',
-    detail: 'A personal finance dashboard built for people who want to see everything in one place without handing over bank credentials. Crypto, gold, ETFs — tracked and backed up to your own Backblaze bucket. No third-party accounts, no monthly fee, no dark patterns. Just a clean view of where things stand.',
+    detail: 'Most money apps want your bank login and a monthly fee. This one keeps everything in one view, crypto, gold, ETFs and transactions, and keeps all of it on your own machine.',
     role: 'Idea, design, build.',
     stack: ['FastAPI', 'Alpine.js', 'Backblaze', 'APIs'],
     tools: ['Claude'],
@@ -921,7 +963,7 @@ const PROJECTS = [
     accent: { default: '#818cf8', 'mondriaan-v1': '#d72027' },
     tagline: 'A playground, not a business. Yet.',
     livePreview: true,
-    detail: 'A single-file React app built as a hub for experiments and side projects. No build step, no framework overhead — just Babel in the browser, inline styles, and a theme system that lets you flip between named, versioned looks at runtime. The whole thing is a side project about side projects.',
+    detail: 'Somewhere to experiment with interface design, using my own portfolio as the canvas. Every edition you can switch between is a complete look, built out in full rather than mocked up.',
     role: 'Idea, design, build, ship.',
     stack: ['React', 'GitHub Pages', 'Counterscale', 'Formspree'],
     tools: ['Claude'],
@@ -936,7 +978,7 @@ const PROJECTS = [
     href: 'https://transportlboer.nl',
     accent: { default: '#ffad01', 'mondriaan-v1': '#fcc60b' },
     tagline: '140 years of moving things. Now the site moves too.',
-    detail: 'A refresh of the website for CV Transportbedrijf L. Boer & Zn. — a family container transport company from Nieuwerkerk aan den IJssel, active since 1878. The old site had been untouched for years. Rebuilt it clean: same character, mobile-friendly, no frameworks. Deployed on Netlify via GitHub with the contact form handled by Netlify Forms.',
+    detail: 'A family container transport company in Nieuwerkerk aan den IJssel, hauling since 1878. Their site had sat untouched for years, so I rebuilt it to match a company still in business.',
     role: 'Review, rebuild, ship.',
     stack: ['HTML', 'CSS', 'Netlify', 'Behold'],
     tools: ['Claude'],
@@ -3315,6 +3357,18 @@ const R_GRAIN = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
     // The only entrance motion in the system: a slow fade up, nothing else.
     '.r-in { opacity: 0; transform: translateY(14px); transition: opacity 1100ms cubic-bezier(0.22,0.61,0.36,1), transform 1100ms cubic-bezier(0.22,0.61,0.36,1); }',
     '.r-in.r-on { opacity: 1; transform: none; }',
+    // R_BODY's 1.7 leading is set for the measure it was designed against: a 560 to
+    // 640px column runs 65 to 75 characters a line. A phone column is 335px and runs
+    // 39, and a short measure wants less leading, not more - the eye has a shorter
+    // trip back to the start of the next line, so generous leading just pulls the
+    // lines apart. The same description sets as 5 lines and 144px on desktop and 9
+    // lines and 260px here; 1.45 brings that back to 222px without touching the copy,
+    // the type size, or anything above 600px.
+    //
+    // 600px matches useMobile's breakpoint so CSS and JS agree on what a phone is.
+    // RBody is the only <p> the edition renders, so the selector needs no help.
+    // !important because R_BODY is spread inline.
+    '@media (max-width: 600px) { .grain-root p { line-height: 1.45 !important; } }',
     '@media (hover: none) { .r-arrow { opacity: 1 !important; transform: none !important; } }',
     // scroll-behavior needs !important to beat the global `html { scroll-behavior: smooth }`:
     // behavior:'auto' at the call sites means "use the computed value", which is smooth.
