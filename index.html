@@ -4026,8 +4026,12 @@ function RContact({ mobile }) {
     ['GitHub', 'https://github.com/preijm', true],
     ['LinkedIn', 'https://www.linkedin.com/in/peter-reijm-47165b5b/', true],
   ];
+  // paddingBottom is R_EDGE, not R_HALF. R_HALF is a pause between acts and there is
+  // no next act here - it left the colophon 144px off the bottom against a 43px side
+  // inset, so it read as floating rather than sitting in the corner. Matching the side
+  // inset anchors it the way every other corner element in the system is.
   return (
-    <section id="r-contact" data-r-tone="dark" style={{ background: R_SOIL, padding: R_EDGE, paddingTop: R_BREATH, paddingBottom: R_HALF }}>
+    <section id="r-contact" data-r-tone="dark" style={{ background: R_SOIL, padding: R_EDGE, paddingTop: R_BREATH, paddingBottom: R_EDGE }}>
       <div className="r-in" style={{ maxWidth: '760px' }}>
         <RCaption light style={{ marginBottom: '17px' }}>Contact</RCaption>
         <RDisplay light style={{ marginBottom: '29px' }}>Got a problem worth building?</RDisplay>
