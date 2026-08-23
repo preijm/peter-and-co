@@ -53,7 +53,16 @@
      3. An opt-out remembered per browser. Visiting my own site to check a change is the
         biggest remaining distortion in the numbers, so `?notrack=1` once per browser
         stops counting me. `?notrack=0` turns it back on when I need to prove the tracker
-        still works. -->
+        still works.
+
+     peterreijm.nl is the old domain. It 301s to here at the Cloudflare edge, so no page
+     ever loads on it and no tracker can run there. The redirect target carries
+     `?ref=peterreijm.nl` instead. Counterscale's tracker falls back to a `ref` query
+     parameter when `document.referrer` is empty, so a visit typed straight into the
+     address bar as the old domain lands in the Referrers table under `peterreijm.nl`
+     rather than under Direct. Same site id, so the totals stay whole. A visit that
+     reached the old domain from somewhere else keeps that real referrer, because a 301
+     passes it through, and that is the more useful attribution anyway. -->
 <script>
 (function () {
   var KEY = 'pco-notrack', excluded = false, note = '';
