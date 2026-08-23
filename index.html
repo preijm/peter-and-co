@@ -319,12 +319,6 @@ const THEMES = [
     name: 'Grain',
     version: 'v1',
     tagline: 'cinematic · achromatic · full-bleed',
-    // Shown in Editions. Grain follows a working studio's visual language closely and
-    // nothing a visitor could see said so. Refero reverse-engineered it from their site;
-    // Freytag Anderson do not publish a design system, so this credits the studio rather
-    // than asserting a system exists. The other editions are composed, or draw on a
-    // movement rather than a practice, so none of them carry one.
-    credit: 'design after Freytag Anderson',
     mondriaan: true,
     srcId: 'grain-src',
     appGlobal: 'GrainApp',
@@ -589,7 +583,6 @@ function EditionModal() {
                       {isActive && <span style={{ fontFamily:MONO, fontSize:'9px', letterSpacing:'0.1em', color:c.tagline, textTransform:'uppercase' }}>current</span>}
                     </div>
                     <span style={{ fontFamily:MONO, fontSize:'10px', color:c.tagline, letterSpacing:'0.04em' }}>{t.tagline}</span>
-                    {t.credit && <span style={{ display:'block', fontFamily:MONO, fontSize:'9px', color:c.tagline, opacity:0.72, letterSpacing:'0.04em', marginTop:'2px' }}>{t.credit}</span>}
                   </div>
                   <span style={{ fontFamily:MONO, fontSize:'10px', color: mobileAvailable ? c.randomColor : c.tagline, letterSpacing:'0.08em', flexShrink:0, marginLeft:'12px' }}>
                     {mobileAvailable ? (isActive ? '✓' : '→') : 'desktop'}
@@ -621,7 +614,6 @@ function EditionModal() {
                       {isActive && <span style={{ fontFamily:MONO, fontSize:'9px', letterSpacing:'0.1em', color:c.tagline, textTransform:'uppercase' }}>current</span>}
                     </div>
                     <div style={{ fontFamily:MONO, fontSize:'10px', color:c.tagline, letterSpacing:'0.04em', lineHeight:1.5, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{t.tagline}</div>
-                    {t.credit && <div style={{ fontFamily:MONO, fontSize:'9px', color:c.tagline, opacity:0.72, letterSpacing:'0.04em', lineHeight:1.45, marginTop:'3px' }}>{t.credit}</div>}
                   </div>
                 </button>
               );
