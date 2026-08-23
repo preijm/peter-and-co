@@ -12,7 +12,9 @@ JSX is written directly in `index.html` but **pre-compiled by CI**, not in the b
 For local preview, the raw `index.html` still works in the browser via `npx serve .` (see `.claude/launch.json`). The Mondriaan theme is lazy-loaded and compiled at runtime in dev, but pre-compiled in the build.
 
 ## Content (projects & tools)
-Projects and tools are **driven by Sanity** — it's the single source of truth. The site fetches from Sanity at load (`loadSanityContent()` in `index.html`) and overwrites the inline `PROJECTS` / `TOOL_CATEGORIES` arrays in place. Those inline arrays are just a frozen fallback snapshot (used only if Sanity is unreachable) — **edit content in Sanity Studio**, not the arrays or any CSV. See **[studio/README.md](studio/README.md)** for how to run/use the Studio.
+Projects and tools are **driven by Sanity** — it's the single source of truth. The site fetches from Sanity at load (`loadSanityContent()` in `index.html`) and overwrites the inline `PROJECTS` / `TOOL_CATEGORIES` arrays in place. Those inline arrays are what the page paints *before* that fetch resolves (`loadSanityContent()` runs in an effect), and what it keeps if Sanity is unreachable — so they can't just be deleted, or the first frame has no projects.
+
+**They are regenerated from Sanity by `build.js` on every deploy** (`tools/sanity-snapshot.js`), so the shipped copy is never more than one deploy stale and nobody hand-syncs it. The copy committed in `index.html` only affects local `npx serve .`. Either way: **edit content in Sanity Studio**, not the arrays or any CSV. See **[studio/README.md](studio/README.md)** for how to run/use the Studio.
 
 ## Theme Work
 Before designing or modifying any theme, read **[THEMES.md](THEMES.md)** — it contains the canonical rules for theme structure, taglines, color tokens, the Editions modal, and the Mondriaan paint-in animation.
@@ -43,6 +45,13 @@ const M_MONO    = 'Space Mono, monospace'
 
 It also regenerates `footage/manifest.json` from the contents of `footage/` before
 copying, so the Grain edition always sees the photographs that are actually there.
+
+Before compiling, it bakes the current Sanity content into the `PROJECTS` /
+`TOOL_CATEGORIES` arrays. See `tools/sanity-snapshot.js`. That step lifts the queries
+and mappers straight out of `index.html` (between the `SANITY-SHARED` markers) and runs
+them in Node, so there is no second copy of the mapping to drift. It is non-fatal: if
+Sanity is unreachable the build logs it and ships the arrays as committed. Run
+`node tools/sanity-snapshot.js` to see exactly what a deploy would bake in.
 **`footage/` is copied selectively** — only the files the manifest names, plus the
 manifest itself. The folder is a working directory (HEIC originals, colour masters,
 the shooting guide) and none of that can be requested by the page.

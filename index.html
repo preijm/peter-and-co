@@ -921,6 +921,8 @@ function ProjectStrip({ onSelect, projects, onViewAll }) {
 // Sanity is the source of truth — edit projects in Studio (see studio/README.md).
 // The array below is only the initial/fallback state, overwritten at runtime by
 // loadSanityContent() once the Sanity fetch resolves.
+// Regenerated into dist/ by build.js at deploy time. Do not remove these markers.
+// >>> PROJECTS-FALLBACK
 const PROJECTS = [
   {
     id: 'milk-me-not', featured: true,
@@ -984,6 +986,7 @@ const PROJECTS = [
     tools: ['Claude'],
   },
 ];
+// <<< PROJECTS-FALLBACK
 
 function ProjectGrid({ onSelect, featured, onViewAll }) {
   const { theme } = useTheme();
@@ -1204,6 +1207,8 @@ function About() {
 // Sanity is the source of truth — edit tools in Studio (see studio/README.md).
 // The array below is only the initial/fallback state, overwritten at runtime by
 // loadSanityContent() once the Sanity fetch resolves.
+// Regenerated into dist/ by build.js at deploy time. Do not remove these markers.
+// >>> TOOLS-FALLBACK
 const TOOL_CATEGORIES = [
   {
     label: 'build',
@@ -1238,6 +1243,7 @@ const TOOL_CATEGORIES = [
     ],
   },
 ];
+// <<< TOOLS-FALLBACK
 
 // Tools the page shows as "what I use" — retired tools stay defined (and credited
 // on their projects) but drop off the Tools page. Shared by Tools() and MTools().
@@ -1677,9 +1683,18 @@ function AppShell({ page, selectedProject, activePage, navigate, selectProject }
 
 // ── Live content (Sanity) ──────────────────────────────────
 // Projects + tools are edited in the Sanity Studio (see studio/README.md) and read
-// here at load. The built-in PROJECTS / TOOL_CATEGORIES above are a frozen fallback
-// snapshot (not auto-synced) used only if Sanity is unreachable, so the site never
-// fully breaks.
+// here at load. The PROJECTS / TOOL_CATEGORIES above are what the page paints before
+// that fetch resolves - loadSanityContent runs in an effect, so without them the
+// first frame has no projects at all - and what it keeps if Sanity is unreachable.
+//
+// build.js regenerates both arrays from Sanity on every deploy, so the shipped copy
+// is never more than one deploy stale. The copy in this file is only what `npx serve .`
+// shows locally; nobody needs to hand-sync it.
+//
+// build.js extracts the block below and runs it in Node, so the deploy-time snapshot
+// uses the exact same endpoint, queries and mapping as the browser does. One source
+// of truth. Do not remove the markers.
+// >>> SANITY-SHARED
 const SANITY = { projectId: 'fas2xxna', dataset: 'production' };
 const sanityUrl = (q) =>
   `https://${SANITY.projectId}.apicdn.sanity.io/v2024-01-01/data/query/${SANITY.dataset}?query=${encodeURIComponent(q)}`;
@@ -1721,6 +1736,7 @@ function mapSanityTools(docs) {
   Object.keys(byCat).forEach(c => { if (!order.includes(c)) cats.push({ label: c, tools: byCat[c] }); });
   return cats;
 }
+// <<< SANITY-SHARED
 async function loadSanityContent() {
   try {
     const [pr, tr] = await Promise.all([

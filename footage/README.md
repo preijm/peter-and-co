@@ -28,9 +28,9 @@ Project ids are the slugs from Sanity. Currently:
 So `footage/boer-transport.jpg` becomes Boer Transport's plane. If you add a project in
 Sanity, its slug is its slot — no code change needed.
 
-> The frozen fallback array in `index.html` still calls Peter & Co. `experiment-03`.
-> That only matters if Sanity is unreachable, in which case that plane would look for
-> `experiment-03.jpg` instead. Worth aligning the two slugs at some point.
+> The array committed in `index.html` still calls Peter & Co. `experiment-03`, but
+> `build.js` regenerates it from Sanity on every deploy, so the deployed site always
+> uses the real slug. The stale name only shows up in local `npx serve .`.
 
 Any slot without a photograph falls back to that plane's generated tonal field, so a
 half-filled folder looks deliberate rather than broken. Project planes fall back to the

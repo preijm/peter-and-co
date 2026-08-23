@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const babel = require('@babel/core');
 const footage = require('./tools/footage/manifest');
+const sanity = require('./tools/sanity-snapshot');
 
 const babelConfig = {
   presets: [
@@ -22,6 +23,11 @@ console.log("Footage manifest: " + Object.keys(shots).length + " photograph(s)")
 fs.mkdirSync('dist', { recursive: true });
 
 let html = fs.readFileSync('index.html', 'utf-8').replace(/\r\n/g, '\n');
+
+// Bake the current Sanity content into PROJECTS / TOOL_CATEGORIES. Has to run here,
+// before step 1 compiles the main script out to app.js and takes the markers with it.
+// Non-fatal: if the CMS is unreachable the build ships the arrays already in the file.
+html = sanity.apply(html);
 
 // 0. Update lazy loader before compilation: skip Babel.transform since code is pre-compiled
 html = html.replace(
