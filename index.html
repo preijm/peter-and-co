@@ -4046,19 +4046,16 @@ function RContact({ mobile }) {
       <div style={{
         marginTop: R_HALF, borderTop: '1px solid rgba(250,250,250,0.18)', paddingTop: '20px',
         display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: '12px',
-        // flex-start rather than the default stretch: the left column is two lines now,
-        // so stretching would leave the edition string floating in a taller box instead
-        // of sitting on the same line as the name.
+        // flex-start rather than the default stretch. Both sides are one line today so
+        // it changes nothing visible, but stretch would silently misalign them the
+        // moment either grows - which is exactly what happened when the left side was
+        // two lines.
         justifyContent: 'space-between', alignItems: 'flex-start',
       }}>
-        {/* Stacked, not "Peter & Co. &middot; Rotterdam, NL". The middot ran a studio
-            name and a city together as though they were two of the same kind of fact.
-            On two lines the name reads as the name and the city as the address under
-            it, which is what a colophon is for. */}
-        <div>
-          <RCaption light>Peter &amp; Co.</RCaption>
-          <RCaption light>Rotterdam, NL</RCaption>
-        </div>
+        {/* The studio name is already the wordmark at the top of every screen and the
+            page title, so repeating it here bought nothing. The city is the one fact
+            this corner can add. */}
+        <RCaption light>Rotterdam, NL</RCaption>
         {/* The edition and its version are already in the Editions modal, which marks
             the current one. This corner is better spent on the attribution: Grain follows
             Freytag Anderson closely, and a colophon is where a debt like that belongs.
