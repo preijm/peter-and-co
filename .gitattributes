@@ -1,0 +1,23 @@
+# Line-ending behaviour, pinned to the repo rather than to one machine.
+#
+# core.autocrlf is a local git setting, so a fresh clone or the Linux CI runner can
+# disagree with this laptop about what a text file looks like. That disagreement shows
+# up as files appearing modified with an empty diff. Declaring it here makes the rule
+# travel with the repository.
+* text=auto
+
+# PowerShell wants CRLF on disk.
+*.ps1 text eol=crlf
+
+# Written by `npm run footage` and by build.js, always with LF. Pinning them stops a
+# checkout from rewriting a generated file and making it look edited.
+footage/manifest.json text eol=lf
+footage/credits.json  text eol=lf
+
+# Photographs and encoded output: never normalise, never diff.
+*.webp binary
+*.jpg  binary
+*.jpeg binary
+*.png  binary
+*.heic binary
+*.ico  binary
