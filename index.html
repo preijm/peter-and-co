@@ -3571,7 +3571,14 @@ function RPill({ children, href, onClick, light, newTab }) {
   const line = light ? R_PAPER : R_INK;
   const style = {
     display: 'inline-flex', alignItems: 'center', gap: '8px',
-    padding: '12px 20px', borderRadius: '300px',
+    // Horizontal padding gives way on narrow screens; vertical never does, so the
+    // 44px tap target survives. At the 360px CSS width a Galaxy S, Pixel 5 or iPhone
+    // 12 mini reports, the three contact pills needed 319.6px inside a 320px row -
+    // four tenths of a pixel of slack, which any font substitution or subpixel
+    // rounding spent, dropping LinkedIn onto its own line. 4vw yields 14.4px a side
+    // there and buys back ~34px, and clamps to the full 20px again by 500px, so
+    // nothing above a phone changes at all.
+    padding: '12px clamp(14px, 4vw, 20px)', borderRadius: '300px',
     border: '1px solid ' + line,
     background: hot ? line : 'transparent',
     color: hot ? (light ? R_INK : R_PAPER) : line,
