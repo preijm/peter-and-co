@@ -69,7 +69,7 @@ if (!navigator.webdriver) {
     'chalk-v1':     'https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@300;400;500;600&display=swap',
     'mondriaan-v1': 'https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap',
     'volt-v1':      'https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap',
-    'silver-v1':    'https://fonts.googleapis.com/css2?family=Inter:wght@300;400&display=swap'
+    'grain-v1':    'https://fonts.googleapis.com/css2?family=Inter:wght@300;400&display=swap'
   };
   // Must match DEFAULT_THEME_ID in the app below. A first-time visitor has no saved
   // edition, so this is the face the page actually opens with.
@@ -81,13 +81,13 @@ if (!navigator.webdriver) {
   l.href = FONTS[id] || FONTS[DEFAULT_ID];
   l.onload = function () { this.onload = null; this.rel = 'stylesheet'; };
   document.head.appendChild(l);
-  // Silver's hero photograph is the LCP element and sits four sequential hops deep:
+  // Grain's hero photograph is the LCP element and sits four sequential hops deep:
   // HTML → app.js → React mount → fetch(footage/manifest.json) → render. Starting it
   // during parse skips all four. The filename is stamped by build.js from the
   // manifest, so this can never preload a file that does not ship; an empty value
   // (no hero in footage/) means the plane falls back to its generated field.
   var HERO = 'hero.webp'; /* build:hero */
-  if (id === 'silver-v1' && HERO) {
+  if (id === 'grain-v1' && HERO) {
     var p = document.createElement('link');
     p.rel = 'preload'; p.as = 'image'; p.href = 'footage/' + HERO;
     p.setAttribute('fetchpriority', 'high');
@@ -256,13 +256,13 @@ const THEMES = [
     },
   },
   {
-    id: 'silver-v1',
-    name: 'Silver',
+    id: 'grain-v1',
+    name: 'Grain',
     version: 'v1',
     tagline: 'cinematic · achromatic · full-bleed',
     mondriaan: true,
-    srcId: 'silver-src',
-    appGlobal: 'SilverApp',
+    srcId: 'grain-src',
+    appGlobal: 'GrainApp',
     mobileOptimized: true,
     fonts: {
       // One grotesque for everything — headlines, body, buttons. Inter is the
@@ -408,7 +408,7 @@ function ThemeSwatch({ themeId }) {
       <div style={{ position:'absolute', top:'79%', left:'8%', width:'4%', height:'4%', background:'#d4f932' }} />
     </div>
   );
-  if (themeId === 'silver-v1') return (
+  if (themeId === 'grain-v1') return (
     <div style={{ width:'100%', aspectRatio:'16/9', background:'#141109', position:'relative', overflow:'hidden' }}>
       <div style={{ position:'absolute', inset:0, background:'radial-gradient(70% 90% at 22% 14%, rgba(194,181,174,0.42), rgba(20,17,9,0) 70%)' }} />
       <div style={{ position:'absolute', inset:0, background:'radial-gradient(60% 70% at 82% 78%, rgba(220,220,220,0.22), rgba(20,17,9,0) 70%)' }} />
@@ -435,11 +435,11 @@ function ThemeSwatch({ themeId }) {
 function EditionModal() {
   const { theme, themes, themeIdx, setThemeById, pickRandom, closeEditions } = useTheme();
   const mobile = useMobile();
-  // Silver loads Inter only, so JetBrains Mono would resolve to the generic monospace
+  // Grain loads Inter only, so JetBrains Mono would resolve to the generic monospace
   // fallback and get a synthesised 600 — the one heavy face in an edition that forbids
-  // weights above 400. Under Silver the modal speaks the edition's own single family.
-  const MONO = theme.id === 'silver-v1' ? theme.fonts.sans : "'JetBrains Mono','Space Mono',monospace";
-  const NAME_WEIGHT = theme.id === 'silver-v1' ? 400 : 600;
+  // weights above 400. Under Grain the modal speaks the edition's own single family.
+  const MONO = theme.id === 'grain-v1' ? theme.fonts.sans : "'JetBrains Mono','Space Mono',monospace";
+  const NAME_WEIGHT = theme.id === 'grain-v1' ? 400 : 600;
   const dark = theme.id === 'ink-v1' || theme.id === 'volt-v1';
 
   const c = dark ? {
@@ -1576,7 +1576,7 @@ function AppShell({ page, selectedProject, activePage, navigate, selectProject }
   const modal = editionsOpen ? <EditionModal /> : null;
 
   React.useEffect(() => {
-    // Volt and Silver are single-page takeovers that ignore page/selectedProject for
+    // Volt and Grain are single-page takeovers that ignore page/selectedProject for
     // their own rendering, so a stale selectedProject from before switching themes
     // (e.g. viewing a project detail page, then picking one of them from the editions
     // modal) must not leak into the tab title — it'd show a project that isn't
@@ -3208,13 +3208,15 @@ function VoltApp(props) {
   );
 }
 </script>
-<script type="text/plain" id="silver-src">
+<script type="text/plain" id="grain-src">
 // ─────────────────────────────────────────────────────────
-// SILVER MODE - cinematic, achromatic, full-bleed.
-// Named for silver halide: what a black-and-white photograph is actually made of.
-// The R_ constants and r-* class names predate the rename from "Reel" and were left
-// alone deliberately - renaming 183 internal identifiers on a live theme risks a great
-// deal and changes nothing anyone can see.
+// GRAIN MODE - cinematic, achromatic, full-bleed.
+// Named for the film grain in RField, which renders on every plane whether or not there
+// is a photograph behind it. Grain plus grayscale(1) is what makes a stock still life, a
+// phone snapshot and a 1992 film scan read as one edition instead of five sources.
+// The R_ constants and r-* class names predate the renames from "Reel" and "Silver" and
+// were left alone deliberately: 183 internal identifiers, invisible to anyone using the
+// site, and each one a chance to break a working theme.
 // A portfolio read as a film reel: edge-to-edge planes, one statement per screen,
 // text pinned to the top-left corner like a title card, and a single hamburger
 // standing in for navigation. Six neutrals, one typeface, weights 300 and 400 only
@@ -3253,15 +3255,15 @@ const R_GRAIN = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
 );
 
 (function rInjectStyle() {
-  if (document.getElementById('silver-style')) return;
+  if (document.getElementById('grain-style')) return;
   const st = document.createElement('style');
-  st.id = 'silver-style';
+  st.id = 'grain-style';
   st.textContent = [
-    '.silver-root ::selection { background: #000000; color: #fafafa; }',
-    '.silver-root a, .silver-root button { -webkit-tap-highlight-color: transparent; }',
-    // The site-wide ring is `2px solid var(--color-text)`, and Silver sets --color-text
+    '.grain-root ::selection { background: #000000; color: #fafafa; }',
+    '.grain-root a, .grain-root button { -webkit-tap-highlight-color: transparent; }',
+    // The site-wide ring is `2px solid var(--color-text)`, and Grain sets --color-text
     // to #000000 — 1.05:1 on soil, i.e. no ring at all. Dark planes re-declare it in paper.
-    '.silver-root [data-r-tone="dark"] button:focus-visible, .silver-root [data-r-tone="dark"] a:focus-visible { outline-color: #fafafa; }',
+    '.grain-root [data-r-tone="dark"] button:focus-visible, .grain-root [data-r-tone="dark"] a:focus-visible { outline-color: #fafafa; }',
     // Planes fill the viewport; svh keeps mobile browser chrome from cropping them.
     '.r-plane { min-height: 100vh; min-height: 100svh; content-visibility: auto; contain-intrinsic-size: auto 100vh; }',
     '@keyframes r-drift-a { 0% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(5%,-4%,0) scale(1.16); } 100% { transform: translate3d(0,0,0) scale(1); } }',
@@ -3282,7 +3284,7 @@ const R_GRAIN = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
     '@media (hover: none) { .r-arrow { opacity: 1 !important; transform: none !important; } }',
     // scroll-behavior needs !important to beat the global `html { scroll-behavior: smooth }`:
     // behavior:'auto' at the call sites means "use the computed value", which is smooth.
-    '@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto !important; } .r-in { opacity: 1; transform: none; transition: none; } .r-blob, .r-grain, .r-ken { animation: none !important; } .silver-root *, .silver-root *::before, .silver-root *::after { transition-property: opacity, background-color, color, border-color !important; } }',
+    '@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto !important; } .r-in { opacity: 1; transform: none; transition: none; } .r-blob, .r-grain, .r-ken { animation: none !important; } .grain-root *, .grain-root *::before, .grain-root *::after { transition-property: opacity, background-color, color, border-color !important; } }',
   ].join('\n');
   document.head.appendChild(st);
 })();
@@ -3672,9 +3674,9 @@ function RHero({ mobile, footage }) {
   const { openEditions } = useTheme();
   return (
     <section className="r-plane" data-r-tone="dark" style={{ position: 'relative', overflow: 'hidden', background: R_SOIL, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-      <RField seed="silver-hero" media={rMedia(footage, 'hero')} dark eager />
+      <RField seed="hero" media={rMedia(footage, 'hero')} dark eager />
       <div style={{ position: 'relative', padding: R_EDGE, maxWidth: '760px' }}>
-        <RCaption light style={{ marginBottom: '17px' }}>Peter &amp; Co. &middot; Silver, edition v1</RCaption>
+        <RCaption light style={{ marginBottom: '17px' }}>Peter &amp; Co. &middot; Grain, edition v1</RCaption>
         <RDisplay as="h1" light>
           A personal lab for ideas worth building, run on nights, weekends, and a lot of AI.
         </RDisplay>
@@ -3704,7 +3706,7 @@ function RStatement({ footage }) {
   if (!media) return null;
   return (
     <section className="r-plane" data-r-tone="dark" style={{ position: 'relative', overflow: 'hidden', background: R_SOIL, display: 'flex', alignItems: 'flex-start' }}>
-      <RField seed="silver-statement" media={media} dark />
+      <RField seed="statement" media={media} dark />
       <div className="r-in" style={{ position: 'relative', padding: R_EDGE, paddingTop: 'calc(' + R_EDGE + ' + ' + R_CHROME + ')', maxWidth: '720px' }}>
         <RCaption light style={{ marginBottom: '17px' }}>Where the time comes from</RCaption>
         <RDisplay light>
@@ -3777,7 +3779,7 @@ function RProjectPlane({ project, index, total, footage, onSelect }) {
       onMouseLeave={() => setHot(false)}
       style={{ position: 'relative', overflow: 'hidden', background: R_SOIL, display: 'flex', alignItems: 'flex-start', cursor: 'pointer' }}
     >
-      <RField seed={'silver-' + project.id} media={rMedia(footage, project.id, project.screenshot)} dark />
+      <RField seed={project.id} media={rMedia(footage, project.id, project.screenshot)} dark />
       <div className="r-in" style={{ position: 'relative', padding: R_EDGE, paddingTop: 'calc(' + R_EDGE + ' + ' + R_CHROME + ')', maxWidth: '620px' }}>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'baseline', marginBottom: '17px' }}>
           <RCaption light>{String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}</RCaption>
@@ -3896,7 +3898,7 @@ function RContact({ mobile }) {
         display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: '12px', justifyContent: 'space-between',
       }}>
         <RCaption light>Peter &amp; Co. &middot; Rotterdam, NL</RCaption>
-        <RCaption light>Silver, edition v1</RCaption>
+        <RCaption light>Grain, edition v1</RCaption>
       </div>
     </section>
   );
@@ -3923,7 +3925,7 @@ function RProjectDetail({ project, projects, footage, mobile, onSelect }) {
       position: 'relative', overflow: 'hidden', background: R_SOIL,
       display: 'flex', flexDirection: 'column',
     }}>
-      <RField seed={'silver-' + project.id} media={rMedia(footage, project.id, project.screenshot)} dark eager />
+      <RField seed={project.id} media={rMedia(footage, project.id, project.screenshot)} dark eager />
 
       {/* The type covers most of the plane here, not just the corner, so the falloff
           has to reach further left and down than RField's own. Still a falloff rather
@@ -4002,7 +4004,7 @@ function RProjectDetail({ project, projects, footage, mobile, onSelect }) {
   );
 }
 
-function SilverApp({ selectedProject, navigate, selectProject }) {
+function GrainApp({ selectedProject, navigate, selectProject }) {
   const mobile = useMobile();
   const tone = useSurfaceTone();
   const footage = useFootage();
@@ -4044,7 +4046,7 @@ function SilverApp({ selectedProject, navigate, selectProject }) {
   };
 
   return (
-    <div ref={rootRef} className="silver-root" style={{
+    <div ref={rootRef} className="grain-root" style={{
       background: R_SOIL, color: R_INK, minHeight: '100vh',
       fontFamily: R_SANS, fontFeatureSettings: R_FEAT, overflowX: 'clip',
     }}>
