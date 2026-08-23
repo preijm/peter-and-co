@@ -319,10 +319,6 @@ const THEMES = [
     name: 'Grain',
     version: 'v1',
     tagline: 'cinematic · achromatic · full-bleed',
-    // Shown in Editions. Grain follows a working studio's published design system
-    // closely, and nothing a visitor could see said so. The other editions are
-    // composed or draw on a movement rather than a practice, so none of them carry one.
-    credit: 'after the Freytag Anderson design system',
     mondriaan: true,
     srcId: 'grain-src',
     appGlobal: 'GrainApp',
@@ -361,11 +357,11 @@ const THEMES = [
 
 // The edition a first-time visitor lands on. Volt leads, and the reason is not that
 // it is the best looking - Grain probably is. It is that Volt is composed, and Grain
-// follows Freytag Anderson's published design system closely. A portfolio whose own
-// intertitle says "I bring the idea, the taste, and the stubbornness" should not open
-// on a working studio's design language, and the visitor most likely to recognise it
-// is exactly the one this site is for. Volt also demonstrates the claim rather than
-// describing it: the terminal is a thing that works, not a thing that says so.
+// follows their visual language closely. A portfolio whose own intertitle says
+// "I bring the idea, the taste, and the stubbornness" should not open on a working
+// studio's design language, and the visitor most likely to recognise it is exactly
+// the one this site is for. Volt also demonstrates the claim rather than describing
+// it: the terminal is a thing that works, not a thing that says so.
 //
 // Grain is one press away, and Editions credits its source.
 //
@@ -587,7 +583,6 @@ function EditionModal() {
                       {isActive && <span style={{ fontFamily:MONO, fontSize:'9px', letterSpacing:'0.1em', color:c.tagline, textTransform:'uppercase' }}>current</span>}
                     </div>
                     <span style={{ fontFamily:MONO, fontSize:'10px', color:c.tagline, letterSpacing:'0.04em' }}>{t.tagline}</span>
-                    {t.credit && <span style={{ display:'block', fontFamily:MONO, fontSize:'9px', color:c.tagline, opacity:0.72, letterSpacing:'0.04em', marginTop:'2px' }}>{t.credit}</span>}
                   </div>
                   <span style={{ fontFamily:MONO, fontSize:'10px', color: mobileAvailable ? c.randomColor : c.tagline, letterSpacing:'0.08em', flexShrink:0, marginLeft:'12px' }}>
                     {mobileAvailable ? (isActive ? '✓' : '→') : 'desktop'}
@@ -619,7 +614,6 @@ function EditionModal() {
                       {isActive && <span style={{ fontFamily:MONO, fontSize:'9px', letterSpacing:'0.1em', color:c.tagline, textTransform:'uppercase' }}>current</span>}
                     </div>
                     <div style={{ fontFamily:MONO, fontSize:'10px', color:c.tagline, letterSpacing:'0.04em', lineHeight:1.5, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{t.tagline}</div>
-                    {t.credit && <div style={{ fontFamily:MONO, fontSize:'9px', color:c.tagline, opacity:0.72, letterSpacing:'0.04em', lineHeight:1.45, marginTop:'3px' }}>{t.credit}</div>}
                   </div>
                 </button>
               );
@@ -4052,20 +4046,28 @@ function RContact({ mobile }) {
       <div style={{
         marginTop: R_HALF, borderTop: '1px solid rgba(250,250,250,0.18)', paddingTop: '20px',
         display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: '12px',
-        // flex-start rather than the default stretch: the left column is two lines now,
-        // so stretching would leave the edition string floating in a taller box instead
-        // of sitting on the same line as the name.
+        // flex-start rather than the default stretch. Both sides are one line today so
+        // it changes nothing visible, but stretch would silently misalign them the
+        // moment either grows - which is exactly what happened when the left side was
+        // two lines.
         justifyContent: 'space-between', alignItems: 'flex-start',
       }}>
-        {/* Stacked, not "Peter & Co. &middot; Rotterdam, NL". The middot ran a studio
-            name and a city together as though they were two of the same kind of fact.
-            On two lines the name reads as the name and the city as the address under
-            it, which is what a colophon is for. */}
-        <div>
-          <RCaption light>Peter &amp; Co.</RCaption>
-          <RCaption light>Rotterdam, NL</RCaption>
-        </div>
-        <RCaption light>Grain, edition v1</RCaption>
+        {/* The studio name is already the wordmark at the top of every screen and the
+            page title, so repeating it here bought nothing. The city is the one fact
+            this corner can add. */}
+        <RCaption light>Rotterdam, NL</RCaption>
+        {/* The edition and its version are already in the Editions modal, which marks
+            the current one. This corner is better spent on the attribution: Grain follows
+            Freytag Anderson closely, and a colophon is where a debt like that belongs.
+            Links to the studio rather than to a design system, because they do not
+            publish one - the reference this was built from was derived from their site. */}
+        <RCaption light>
+          Design after{' '}
+          <a href="https://www.freytaganderson.com" target="_blank" rel="noopener noreferrer"
+             style={{ color: 'inherit', textDecoration: 'none', borderBottom: '1px solid rgba(250,250,250,0.28)' }}>
+            Freytag Anderson
+          </a>
+        </RCaption>
       </div>
     </section>
   );
