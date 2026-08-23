@@ -2679,7 +2679,10 @@ const V_SUR   = '#14140f';
 const V_LINEC = '#26261f';
 const V_INK   = '#f2f0e6';
 const V_MUTE  = '#8a877a';
-const V_FAINT = '#7d7a6e';
+// Lifted 4 per channel from #7d7a6e, which measured 4.29 against the about panel's
+// #14140f and so missed AA for the 11-12px labels it is used on. 4.54 there now, 4.81
+// on the page background. The shift is 4/255 - invisible next to the failure it fixes.
+const V_FAINT = '#817e72';
 const V_LIME  = '#d4f932';
 
 const V_SANS = "'Geist', system-ui, 'Helvetica Neue', sans-serif";
@@ -2909,8 +2912,13 @@ function VFloatingChrome({ onTop }) {
   return (
     <React.Fragment>
       <button onClick={onTop} aria-label="Back to top" style={{
-        position: 'fixed', top: mobile ? '18px' : '26px', left: vEdge(mobile), zIndex: 100,
-        background: 'none', border: 'none', cursor: 'pointer', padding: '6px 0',
+        // 45px tall on a phone so back-to-top is a thumb target rather than a 29px
+        // sliver. The extra padding is cancelled by the smaller top offset, so the
+        // wordmark sits on exactly the pixels it did before; only the tappable region
+        // grows. Desktop keeps its original numbers.
+        position: 'fixed', top: mobile ? '10px' : '26px', left: vEdge(mobile), zIndex: 100,
+        background: 'none', border: 'none', cursor: 'pointer',
+        padding: mobile ? '14px 12px 14px 0' : '6px 0',
         fontFamily: V_MONO, fontSize: '13px', letterSpacing: '0.02em', color: V_INK,
       }}>
         peter<span style={{ color: V_LIME }}> &amp; </span>co.
@@ -3038,7 +3046,8 @@ function VTerminal({ projects, mobile }) {
           <span style={{ marginRight: '8px', flexShrink: 0 }}>{prompt}</span>
           <input
             ref={inputRef} value={value} onChange={e => setValue(e.target.value)} onKeyDown={onKey}
-            spellCheck={false} autoComplete="off" autoCapitalize="off" aria-label="terminal command input"
+            spellCheck={false} autoComplete="off" autoCapitalize="off" autoCorrect="off"
+            aria-label="terminal command input"
             placeholder="try: help, projects, contact"
             style={{
               flex: 1, minWidth: 0, background: 'transparent', border: 'none', outline: 'none', padding: 0,
@@ -3285,10 +3294,14 @@ function VContact({ mobile }) {
               onMouseEnter={() => setHot(true)}
               onMouseLeave={() => setHot(false)}
               style={{
-                display: 'inline-block', marginTop: mobile ? '24px' : '28px', textDecoration: 'none',
+                display: 'inline-block', marginTop: mobile ? '5px' : '28px', textDecoration: 'none',
                 fontFamily: V_MONO, fontSize: mobile ? '15px' : '17px', letterSpacing: '0.02em',
                 color: hot ? V_LIME : V_INK, borderBottom: '1px solid ' + (hot ? V_LIME : V_LINEC),
-                paddingBottom: '5px', transition: 'color 200ms ease, border-color 200ms ease',
+                // 18px of top padding takes this from 26px to 44px on a phone, and the
+                // margin above drops by the same 18px so it does not move. Padding cannot
+                // go on the bottom: the border there is the underline.
+                paddingTop: mobile ? '19px' : '0', paddingBottom: '5px',
+                transition: 'color 200ms ease, border-color 200ms ease',
               }}>
               <span style={{ color: V_LIME }}>$</span> mail peterreijm@live.nl →
             </a>
@@ -3305,7 +3318,7 @@ function VContact({ mobile }) {
           <span style={{ color: V_FAINT }}><span style={{ color: V_LIME }}>// </span>origin.log &middot; © 2026 peter &amp; co.{mobile ? <br /> : ' '}a&nbsp;playground, not a business. yet.</span>
           <span style={{ display: 'flex', alignItems: 'center', gap: mobile ? '6px' : '14px', flexWrap: 'wrap' }}>
             {links.map(l => (
-              <a key={l.label} href={l.href} target={l.href.indexOf('http') === 0 ? '_blank' : undefined} rel="noopener noreferrer" style={{ color: V_MUTE, textDecoration: 'none', padding: '12px 6px' }}
+              <a key={l.label} href={l.href} target={l.href.indexOf('http') === 0 ? '_blank' : undefined} rel="noopener noreferrer" style={{ color: V_MUTE, textDecoration: 'none', padding: mobile ? '15px 8px' : '12px 6px' }}
                 onMouseEnter={e => e.currentTarget.style.color = V_LIME}
                 onMouseLeave={e => e.currentTarget.style.color = V_MUTE}
               >{l.label}</a>
