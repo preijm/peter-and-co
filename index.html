@@ -3952,7 +3952,10 @@ function RProjectDetail({ project, projects, footage, mobile, onSelect }) {
             {/* The claim and the explanation were both 17px/400, so neither led. The system
                 separates them by weight rather than by size or boldness: 400 states, 300
                 explains. Nothing grows, and both values stay on the published scale. */}
-            <RBody className="r-in" light style={{ marginBottom: '20px' }}>{project.tagline || project.description}</RBody>
+            {/* Full paper-white against the prose's 0.80. Bold is not available - the
+                system stops at 400 - so the statement leads on weight and brightness
+                together: 400/1.0 over 300/0.80. */}
+            <RBody className="r-in" light style={{ marginBottom: '20px', color: R_PAPER }}>{project.tagline || project.description}</RBody>
             <RBody className="r-in" light style={{ marginBottom: '29px', fontWeight: 300, color: 'rgba(250,250,250,0.80)' }}>
               {project.detail || project.description}
             </RBody>
