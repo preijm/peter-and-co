@@ -94,9 +94,10 @@ the work. It was called Reel first, which reads as short vertical phone video be
 reads as a film reel, and then Silver, which named a material the theme does not
 actually contain.
 
-A portfolio read as a film reel, built on the Freytag Anderson design system (their
-published tokens live in `DESIGN.md` / `tokens.json` upstream; the values below are
-transcribed into the theme). The page is not a max-width container — it is a sequence
+A portfolio read as a film reel, built after Freytag Anderson's visual language
+(reverse-engineered by refero.design into `DESIGN.md` / `tokens.json`; the studio does
+not publish a design system, and the values below are transcribed into the theme).
+The page is not a max-width container — it is a sequence
 of edge-to-edge planes, one statement per screen, with all text pinned to the
 **top-left viewport corner** like a title card.
 
