@@ -45,8 +45,12 @@
 ]
 </script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' fill='%230a0a0a'/><text x='7' y='52' font-size='52' fill='%23ffffff' font-family='Georgia,serif' letter-spacing='-2'>P</text></svg>">
+<!-- Counterscale. Gated on the live hostname as well as the webdriver flag: without it
+     a local `npx serve`, a file:// open of this page, or any preview deploy writes into
+     the production dataset. That is where the `/C:/` paths and `localhost:3000` referrers
+     in the dashboard came from. Matches peterandco.nl and any subdomain of it, nothing else. -->
 <script>
-if (!navigator.webdriver) {
+if (/(^|\.)peterandco\.nl$/.test(location.hostname) && !navigator.webdriver) {
   var csScript = document.createElement('script');
   csScript.id = 'counterscale-script';
   csScript.src = 'https://counterscale.peterreijm.workers.dev/tracker.js';
