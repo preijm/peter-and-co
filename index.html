@@ -124,7 +124,8 @@
     'chalk-v1':     'https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@300;400;500;600&display=swap',
     'mondriaan-v1': 'https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap',
     'volt-v1':      'https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap',
-    'grain-v1':    'https://fonts.googleapis.com/css2?family=Inter:wght@300;400&display=swap'
+    'grain-v1':    'https://fonts.googleapis.com/css2?family=Inter:wght@300;400&display=swap',
+    'prism-v1':    'https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap'
   };
   // Must match DEFAULT_THEME_ID in the app below. A first-time visitor has no saved
   // edition, so this is the face the page actually opens with.
@@ -351,6 +352,39 @@ const THEMES = [
       midnightSoil:'#141109',
       ash:         '#dcdcdc',
       driftwood:   '#c2b5ae',
+    },
+  },
+  {
+    id: 'prism-v1',
+    name: 'Prism',
+    version: 'v1',
+    tagline: 'light · colour · depth',
+    mondriaan: true,
+    srcId: 'prism-src',
+    appGlobal: 'PrismApp',
+    mobileOptimized: true,
+    fonts: {
+      // A serif that carries the display sizes and a grotesque that gets out of its
+      // way. Chalk already owns DM Serif Display, so this deliberately is not that.
+      serif: "'Instrument Serif', Georgia, 'Times New Roman', serif",
+      sans:  "'Instrument Sans', system-ui, -apple-system, sans-serif",
+      mono:  "'Instrument Sans', system-ui, -apple-system, sans-serif",
+    },
+    googleFonts: 'https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap',
+    colors: {
+      bg:          '#fbfbfd',
+      bgDark:      '#f4f3f7',
+      bgInput:     '#ffffff',
+      surface:     '#f0eef5',
+      border:      '#1b1a22',
+      borderSubtle:'#e4e2ec',
+      text:        '#1b1a22',
+      textMuted:   '#4e4c63',
+      textDim:     '#5b586f',
+      textFaint:   '#6a6779',
+      textGhost:   '#a9a6b8',
+      btnBg:       '#6d4fd0',
+      btnText:     '#fbfbfd',
     },
   },
 ];
@@ -4330,6 +4364,424 @@ function GrainApp({ selectedProject, navigate, selectProject }) {
           <RContact mobile={mobile} />
         </React.Fragment>
       )}
+    </div>
+  );
+}
+</script>
+
+<script type="text/plain" id="prism-src">
+// ── PRISM MODE ─────────────────────────────────────────────
+// Light, and the only edition with real colour. The whole idea is that the ground
+// drifts slower than the cards: that parallax is where the depth comes from, which
+// is why there is not one box-shadow in here.
+//
+// Four motion primitives and nothing else. Anything not on this list does not exist:
+//   DRIFT  19-31s   the colour fields, each on its own clock so they never settle
+//   FLOAT  9s       cards rising out of step; the depth cue that replaces shadows
+//   RISE   900ms    the only entrance, scroll-driven below the fold
+//   SHEEN  7s       one light sweep, on the primary call to action and nowhere else
+//
+// Two rules keep it honest. Transform and opacity only — never an animated blur or
+// filter, which is what makes this affordable. And every oklch() carries a hex on the
+// line above it: without that, a renderer that cannot parse oklch drops all three
+// fields and the edition fails to a blank white page.
+const PZ_PAPER = '#fbfbfd', PZ_INK = '#1b1a22', PZ_BODY = '#4e4c63', PZ_MUTE = '#5b586f';
+const PZ_LINE = 'rgba(27,26,34,0.10)';
+const PZ_DISPLAY = "'Instrument Serif', Georgia, 'Times New Roman', serif";
+const PZ_SANS = "'Instrument Sans', system-ui, -apple-system, sans-serif";
+const PZ_EDGE = 'clamp(20px, 4vw, 56px)';
+const PZ_GAP = 'clamp(64px, 11vw, 148px)';
+
+const pzReduced = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function pzStyles() {
+  if (document.getElementById('prism-style')) return;
+  const st = document.createElement('style');
+  st.id = 'prism-style';
+  st.textContent = [
+    '.prism-root ::selection { background: #6d4fd0; color: #fbfbfd; }',
+    '.prism-root a, .prism-root button { -webkit-tap-highlight-color: transparent; }',
+    '.prism-root a:focus-visible, .prism-root button:focus-visible { outline: 2px solid #6d4fd0; outline-offset: 3px; }',
+
+    // DRIFT. Transform only — animating the blur instead would cost a full re-raster
+    // every frame, which is exactly what makes most designs like this unusable.
+    '@keyframes pz-drift-a { 0%,100% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(7%,-5%,0) scale(1.14); } }',
+    '@keyframes pz-drift-b { 0%,100% { transform: translate3d(0,0,0) scale(1.10); } 50% { transform: translate3d(-8%,6%,0) scale(1); } }',
+    '@keyframes pz-drift-c { 0%,100% { transform: translate3d(0,0,0) scale(1.05); } 50% { transform: translate3d(5%,7%,0) scale(1.16); } }',
+    // Hex first, oklch second: a renderer that cannot parse oklch keeps the hex
+    // instead of dropping the field and leaving a blank white page.
+    '.pz-a { background: #ddc9f2; background: oklch(0.88 0.085 300); animation: pz-drift-a 19s ease-in-out infinite; }',
+    '.pz-b { background: #b6dcf1; background: oklch(0.88 0.085 218); animation: pz-drift-b 24s ease-in-out infinite; }',
+    '.pz-c { background: #f5d5a4; background: oklch(0.89 0.085 68);  animation: pz-drift-c 31s ease-in-out infinite; }',
+
+    // FLOAT.
+    '@keyframes pz-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }',
+    '.pz-float { animation: pz-float 9s ease-in-out infinite; }',
+
+    // RISE. Above the fold it runs once on load; below it, it runs on scroll so it
+    // moves at reading speed. Default state is VISIBLE, and the animation is layered
+    // on inside @supports — a browser without scroll-driven timelines shows the page
+    // rather than a column of invisible blocks.
+    '@keyframes pz-rise { from { clip-path: inset(104% 0 0 0); transform: translateY(18px); } to { clip-path: inset(-26% 0 0 0); transform: translateY(0); } }',
+    '.pz-in { animation: pz-rise 900ms cubic-bezier(0.22,0.61,0.36,1) both; }',
+    '.pz-d1 { animation-delay: 90ms; } .pz-d2 { animation-delay: 180ms; } .pz-d3 { animation-delay: 280ms; } .pz-d4 { animation-delay: 380ms; }',
+    '@supports (animation-timeline: view()) { @media (prefers-reduced-motion: no-preference) {',
+    '  .pz-rise { animation: pz-rise linear both; animation-timeline: view(); animation-range: entry 0% cover 30%; }',
+    '} }',
+
+    // SHEEN.
+    '@keyframes pz-sheen { 0% { background-position: -140% 0; } 55%,100% { background-position: 240% 0; } }',
+    '.pz-sheen { background-image: linear-gradient(100deg, transparent 38%, rgba(255,255,255,0.55) 50%, transparent 62%); background-size: 220% 100%; animation: pz-sheen 7s ease-in-out infinite; }',
+
+    '.pz-card { transition: transform 420ms cubic-bezier(0.22,0.61,0.36,1), background-color 320ms ease; }',
+    '@media (hover: hover) { .pz-card:hover { transform: translateY(-4px); background-color: rgba(255,255,255,0.78); } }',
+    '.pz-arrow { transition: transform 380ms cubic-bezier(0.22,0.61,0.36,1); }',
+    '@media (hover: hover) { .pz-card:hover .pz-arrow { transform: translate(3px,-3px); } }',
+
+    // Stopping the animation is not enough for the sheen: the gradient is a
+    // background-image and would sit there as a static white streak.
+    '@media (prefers-reduced-motion: reduce) {',
+    '  .pz-a, .pz-b, .pz-c, .pz-float, .pz-in, .pz-sheen, .pz-card, .pz-arrow { animation: none !important; transition: none !important; }',
+    '  .pz-in { clip-path: none !important; transform: none !important; }',
+    '  .pz-sheen { background-image: none !important; }',
+    '}',
+  ].join('\n');
+  document.head.appendChild(st);
+}
+
+// The drifting ground. Three fields on desktop, TWO on a phone, and a smaller blur
+// radius there — blur cost scales with radius and area, and this is the single most
+// expensive thing the edition paints.
+function PZField({ mobile }) {
+  return (
+    <div aria-hidden="true" style={{
+      position: 'absolute', inset: mobile ? '-16%' : '-12%',
+      filter: mobile ? 'blur(48px)' : 'blur(74px)',
+      opacity: mobile ? 0.78 : 0.8, pointerEvents: 'none', zIndex: 0,
+    }}>
+      <div className="pz-a" style={{ position: 'absolute', left: '-4%', top: '-4%', width: mobile ? '72%' : '52%', height: mobile ? '42%' : '62%', borderRadius: '50%' }} />
+      <div className="pz-b" style={{ position: 'absolute', right: '-8%', top: mobile ? '30%' : '14%', width: mobile ? '70%' : '48%', height: mobile ? '40%' : '58%', borderRadius: '50%' }} />
+      {!mobile && <div className="pz-c" style={{ position: 'absolute', left: '20%', bottom: '-14%', width: '56%', height: '52%', borderRadius: '50%' }} />}
+    </div>
+  );
+}
+
+function PZSection({ children, mobile, fields, style }) {
+  return (
+    <section style={{ position: 'relative', overflow: 'hidden', padding: `${PZ_GAP} ${PZ_EDGE}`, ...(style || {}) }}>
+      {fields && <PZField mobile={mobile} />}
+      <div style={{ position: 'relative', zIndex: 1, maxWidth: '1180px', margin: '0 auto' }}>{children}</div>
+    </section>
+  );
+}
+
+function PZLabel({ children }) {
+  return <div style={{ fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', color: PZ_MUTE, fontWeight: 500 }}>{children}</div>;
+}
+
+function PZPill({ children, onClick, href, newTab, primary }) {
+  const base = {
+    display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minHeight: '44px',
+    padding: '0 24px', borderRadius: '999px', fontFamily: PZ_SANS, fontSize: '14px',
+    fontWeight: primary ? 600 : 500, cursor: 'pointer', textDecoration: 'none',
+    border: primary ? '1px solid transparent' : '1px solid rgba(27,26,34,0.18)',
+    background: primary ? '#6d4fd0' : 'rgba(255,255,255,0.6)',
+    color: primary ? PZ_PAPER : PZ_INK,
+  };
+  if (href) return <a href={href} target={newTab ? '_blank' : undefined} rel={newTab ? 'noopener noreferrer' : undefined} style={base}>{children}</a>;
+  return <button onClick={onClick} style={base}>{children}</button>;
+}
+
+function PZArrow({ size }) {
+  const s = size || 15;
+  return (
+    <svg className="pz-arrow" width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }} aria-hidden="true">
+      <path d="M7 17 17 7" /><path d="M9 7h8v8" />
+    </svg>
+  );
+}
+
+function PZChrome({ mobile, onTop, openEditions }) {
+  return (
+    <div style={{
+      position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center',
+      justifyContent: 'space-between', padding: `18px ${PZ_EDGE}`, maxWidth: '1180px', margin: '0 auto', width: '100%', boxSizing: 'border-box',
+    }}>
+      <button onClick={onTop} style={{
+        background: 'none', border: 'none', cursor: 'pointer',
+        // 45px tall, not 43: at 15px the text box is 19px, so 12px of padding lands
+        // one pixel under the minimum. The right padding keeps the width honest too.
+        padding: '13px 14px 13px 0', minHeight: '44px',
+        fontFamily: PZ_SANS, fontSize: '15px', fontWeight: 600, letterSpacing: '-0.01em', color: PZ_INK,
+      }}>Peter &amp; Co.</button>
+      <PZPill onClick={openEditions}>Editions</PZPill>
+    </div>
+  );
+}
+
+function PZHero({ mobile, openEditions, onWork }) {
+  return (
+    <section style={{ position: 'relative', overflow: 'hidden', padding: `clamp(56px, 10vw, 120px) ${PZ_EDGE} ${PZ_GAP}` }}>
+      <PZField mobile={mobile} />
+      <div style={{ position: 'relative', zIndex: 1, maxWidth: '1180px', margin: '0 auto' }}>
+        <div style={{ overflow: 'hidden' }}>
+          <h1 className="pz-in" style={{
+            fontFamily: PZ_DISPLAY, fontWeight: 400, margin: 0, color: PZ_INK,
+            fontSize: mobile ? 'clamp(46px, 13vw, 62px)' : 'clamp(64px, 8vw, 108px)',
+            lineHeight: 0.98, letterSpacing: '-0.026em', maxWidth: '15ch',
+          }}>
+            Ideas worth <em style={{ fontStyle: 'italic', color: '#6d4fd0' }}>building</em> twice.
+          </h1>
+        </div>
+        <p className="pz-in pz-d1" style={{
+          fontFamily: PZ_SANS, margin: '26px 0 0', color: PZ_BODY,
+          fontSize: mobile ? '15px' : '17px', lineHeight: 1.6, maxWidth: '46ch', textWrap: 'pretty',
+        }}>
+          Product owner by day, builder by night. No roadmap, no backlog, no stakeholders.
+        </p>
+        <div className="pz-in pz-d2" style={{ display: 'flex', gap: '12px', marginTop: '30px', flexWrap: 'wrap' }}>
+          <PZPill primary onClick={onWork}>Selected work</PZPill>
+          <PZPill onClick={openEditions}>Change edition</PZPill>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function PZWork({ projects, mobile, onSelect }) {
+  const tints = ['#c9a9ef', '#9fd0ee', '#f2cf9d'];
+  return (
+    <PZSection mobile={mobile} fields>
+      <div id="pz-work" style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '38px' }}>
+        <PZLabel>Selected work</PZLabel>
+        <h2 className="pz-rise" style={{
+          fontFamily: PZ_DISPLAY, fontWeight: 400, margin: 0, color: PZ_INK,
+          fontSize: mobile ? 'clamp(32px, 8vw, 40px)' : 'clamp(40px, 4.4vw, 56px)',
+          lineHeight: 1.0, letterSpacing: '-0.022em',
+        }}>Some of it was paid for.</h2>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : 'repeat(2, minmax(0, 1fr))', gap: mobile ? '12px' : '18px' }}>
+        {projects.map((p, i) => (
+          <button
+            key={p.id}
+            className={'pz-card pz-rise' + (mobile ? '' : ' pz-float')}
+            onClick={() => onSelect(p)}
+            style={{
+              animationDelay: mobile ? undefined : `${-i * 1.8}s`,
+              textAlign: 'left', cursor: 'pointer', font: 'inherit', color: PZ_INK,
+              borderRadius: mobile ? '17px' : '20px', padding: mobile ? '18px 20px' : '26px 28px',
+              background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.92)',
+              backdropFilter: mobile ? undefined : 'blur(16px)',
+              display: 'flex', flexDirection: 'column', gap: '14px', minHeight: '44px',
+              gridColumn: (!mobile && i === 0) ? 'span 2' : undefined,
+            }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ width: '9px', height: '9px', borderRadius: '50%', flexShrink: 0, background: tints[i % tints.length] }} />
+                  <span style={{ fontFamily: PZ_DISPLAY, fontSize: mobile ? '23px' : '30px', lineHeight: 1.05, letterSpacing: '-0.015em' }}>{p.title}</span>
+                </div>
+                <span style={{ fontFamily: PZ_SANS, fontSize: mobile ? '13px' : '14px', lineHeight: 1.55, color: PZ_BODY, textWrap: 'pretty' }}>{p.tagline || p.description}</span>
+              </div>
+              <span style={{ width: '34px', height: '34px', borderRadius: '50%', flexShrink: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(27,26,34,0.06)', color: PZ_INK }}>
+                <PZArrow />
+              </span>
+            </div>
+            <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', gap: '10px', fontFamily: PZ_SANS, fontSize: '11px', letterSpacing: '0.08em', textTransform: 'uppercase', color: PZ_MUTE }}>
+              <span>{p.year || '2026'}</span>
+              <span style={{ width: '3px', height: '3px', borderRadius: '50%', background: '#a9a6b8' }} />
+              <span>{(p.tags && p.tags[0]) || 'Project'}</span>
+            </div>
+          </button>
+        ))}
+      </div>
+    </PZSection>
+  );
+}
+
+function PZBackground({ mobile }) {
+  const questions = [
+    'Which oat milk is actually best?',
+    'Why does that take a Reddit deep-dive?',
+    'Where is my money really sitting?',
+    'Why does seeing it cost a monthly fee?',
+    'And how many designs can one website be?',
+  ];
+  return (
+    <PZSection mobile={mobile} style={{ background: '#f4f3f7' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1fr 1fr', gap: mobile ? '34px' : '64px', alignItems: 'start' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <PZLabel>Background</PZLabel>
+          <h2 className="pz-rise" style={{
+            fontFamily: PZ_DISPLAY, fontWeight: 400, margin: 0, color: PZ_INK,
+            fontSize: mobile ? 'clamp(30px, 7.5vw, 38px)' : 'clamp(38px, 4vw, 50px)',
+            lineHeight: 1.04, letterSpacing: '-0.022em', textWrap: 'pretty',
+          }}>Most of it starts because a question would not leave me alone.</h2>
+          <p style={{ fontFamily: PZ_SANS, margin: '6px 0 0', color: PZ_BODY, fontSize: '15px', lineHeight: 1.7, maxWidth: '44ch', textWrap: 'pretty' }}>
+            I have wanted to build things for as long as I can remember. I just never wanted to learn to write the code. AI closed that gap, and I would rather ship something unfinished than get it right on paper.
+          </p>
+        </div>
+        <div className="pz-rise" style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+          {questions.map((q, i) => (
+            <div key={i} style={{ display: 'flex', gap: '14px', alignItems: 'baseline', padding: '13px 0', borderBottom: i < questions.length - 1 ? `1px solid ${PZ_LINE}` : 'none' }}>
+              <span style={{ fontFamily: PZ_SANS, fontSize: '11px', color: '#6d4fd0', letterSpacing: '0.08em', flexShrink: 0 }}>{String(i + 1).padStart(2, '0')}</span>
+              <span style={{ fontFamily: PZ_DISPLAY, fontSize: mobile ? '19px' : '22px', lineHeight: 1.3, letterSpacing: '-0.01em', color: PZ_INK, textWrap: 'pretty' }}>{q}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </PZSection>
+  );
+}
+
+function PZContact({ mobile }) {
+  const links = [
+    ['Email', 'mailto:peterreijm@live.nl', false],
+    ['GitHub', 'https://github.com/preijm', true],
+    ['LinkedIn', 'https://www.linkedin.com/in/peter-reijm-47165b5b/', true],
+  ];
+  return (
+    <PZSection mobile={mobile} fields>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', maxWidth: '640px' }}>
+        <PZLabel>Contact</PZLabel>
+        <h2 className="pz-rise" style={{
+          fontFamily: PZ_DISPLAY, fontWeight: 400, margin: 0, color: PZ_INK,
+          fontSize: mobile ? 'clamp(32px, 8vw, 40px)' : 'clamp(40px, 4.4vw, 56px)',
+          lineHeight: 1.02, letterSpacing: '-0.022em',
+        }}>Got a problem worth building?</h2>
+        <p style={{ fontFamily: PZ_SANS, margin: 0, color: PZ_BODY, fontSize: '15px', lineHeight: 1.6, maxWidth: '42ch', textWrap: 'pretty' }}>
+          Work, a collaboration, or just a sharp idea worth chasing. I am always up for a good problem.
+        </p>
+        <div className="pz-sheen" style={{ borderRadius: '999px', alignSelf: 'flex-start', marginTop: '8px' }}>
+          <PZPill primary href="mailto:peterreijm@live.nl">Start a conversation</PZPill>
+        </div>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '4px' }}>
+          {links.map(l => <PZPill key={l[0]} href={l[1]} newTab={l[2]}>{l[0]}</PZPill>)}
+        </div>
+      </div>
+      <div style={{
+        marginTop: 'clamp(48px, 8vw, 96px)', paddingTop: '20px', borderTop: `1px solid ${PZ_LINE}`,
+        display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: '10px',
+        justifyContent: 'space-between', alignItems: 'flex-start',
+        fontFamily: PZ_SANS, fontSize: '13px', color: PZ_MUTE,
+      }}>
+        <span>Rotterdam, NL</span>
+        <span>Prism, edition v1</span>
+      </div>
+    </PZSection>
+  );
+}
+
+function PZProject({ project, projects, mobile, onSelect, onBack }) {
+  const idx = projects.findIndex(p => p.id === project.id);
+  const next = projects[(idx + 1) % projects.length];
+  const live = project.public !== false && !!project.href;
+  const status = live ? 'Live' : (/\.local$/i.test(project.url || '') ? 'Runs locally at ' + project.url : 'In progress, not public yet');
+  const meta = [
+    ['Year', project.year || '2026'],
+    ['Kind', (project.tags && project.tags[0]) || 'Project'],
+    ['Role', project.role || 'Design, build, ship'],
+    ['Status', status],
+  ];
+  return (
+    <section style={{ position: 'relative', overflow: 'hidden', minHeight: '100vh', padding: `clamp(28px, 5vw, 48px) ${PZ_EDGE} ${PZ_GAP}` }}>
+      <PZField mobile={mobile} />
+      <div style={{ position: 'relative', zIndex: 1, maxWidth: '1180px', margin: '0 auto' }}>
+        <button onClick={onBack} style={{
+          background: 'none', border: 'none', cursor: 'pointer', padding: '12px 12px 12px 0',
+          fontFamily: PZ_SANS, fontSize: '13px', color: PZ_BODY, display: 'inline-flex', alignItems: 'center', gap: '9px', minHeight: '44px',
+        }}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
+          All work
+        </button>
+
+        <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1.15fr 1fr', gap: mobile ? '30px' : '64px', alignItems: 'start', marginTop: 'clamp(34px, 6vw, 68px)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ overflow: 'hidden' }}>
+              <h1 className="pz-in" style={{
+                fontFamily: PZ_DISPLAY, fontWeight: 400, margin: 0, color: PZ_INK,
+                fontSize: mobile ? 'clamp(38px, 10vw, 48px)' : 'clamp(52px, 6vw, 78px)',
+                lineHeight: 0.98, letterSpacing: '-0.026em',
+              }}>{project.title}</h1>
+            </div>
+            <p className="pz-in pz-d1" style={{ fontFamily: PZ_SANS, margin: 0, color: PZ_INK, fontSize: mobile ? '18px' : '22px', lineHeight: 1.4, letterSpacing: '-0.012em', maxWidth: '28ch', textWrap: 'pretty' }}>
+              {project.tagline || project.description}
+            </p>
+            <p className="pz-in pz-d2" style={{ fontFamily: PZ_SANS, margin: 0, color: PZ_BODY, fontSize: '15px', lineHeight: 1.7, maxWidth: '48ch', textWrap: 'pretty' }}>
+              {project.detail || project.description}
+            </p>
+            {live && (
+              <div className="pz-in pz-d3" style={{ marginTop: '4px' }}>
+                <PZPill primary href={project.href} newTab>Visit {project.url || 'the site'}</PZPill>
+              </div>
+            )}
+          </div>
+
+          <div className="pz-in pz-d2" style={{
+            borderRadius: '22px', padding: mobile ? '18px' : '22px',
+            background: 'rgba(255,255,255,0.55)', border: '1px solid rgba(255,255,255,0.92)',
+            backdropFilter: mobile ? undefined : 'blur(16px)',
+          }}>
+            {project.screenshot
+              ? <img src={typeof sanityImg === 'function' ? sanityImg(project.screenshot, 900) : project.screenshot} alt="" loading="lazy" decoding="async" style={{ width: '100%', borderRadius: '12px', display: 'block' }} />
+              : <div style={{ borderRadius: '12px', background: '#efedf4', height: '220px' }} />}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '14px 18px', marginTop: '20px' }}>
+              {meta.map(m => (
+                <div key={m[0]} style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                  <span style={{ fontFamily: PZ_SANS, fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', color: PZ_MUTE }}>{m[0]}</span>
+                  <span style={{ fontFamily: PZ_SANS, fontSize: '14px', fontWeight: 500, color: PZ_INK, textWrap: 'pretty' }}>{m[1]}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {next && (
+          <button onClick={() => onSelect(next)} style={{
+            marginTop: 'clamp(44px, 8vw, 92px)', width: '100%', minHeight: '44px',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '20px',
+            padding: '20px 0', borderTop: `1px solid ${PZ_LINE}`, borderLeft: 'none', borderRight: 'none', borderBottom: 'none',
+            background: 'none', cursor: 'pointer', textAlign: 'left', color: PZ_INK,
+          }}>
+            <span style={{ display: 'flex', alignItems: 'baseline', gap: '14px', minWidth: 0 }}>
+              <span style={{ fontFamily: PZ_SANS, fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', color: PZ_MUTE }}>Next</span>
+              <span style={{ fontFamily: PZ_DISPLAY, fontSize: mobile ? '21px' : '26px', letterSpacing: '-0.015em' }}>{next.title}</span>
+            </span>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke={PZ_BODY} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
+          </button>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function PrismApp({ selectedProject, navigate, selectProject }) {
+  const mobile = useMobile();
+  const { openEditions } = useTheme();
+  const projects = PROJECTS;
+
+  React.useEffect(() => { pzStyles(); }, []);
+  React.useEffect(() => { window.scrollTo({ top: 0, behavior: pzReduced() ? 'auto' : 'smooth' }); }, [selectedProject && selectedProject.id]);
+
+  const onTop = () => window.scrollTo({ top: 0, behavior: pzReduced() ? 'auto' : 'smooth' });
+  const onWork = () => {
+    const el = document.getElementById('pz-work');
+    if (el) el.scrollIntoView({ behavior: pzReduced() ? 'auto' : 'smooth', block: 'start' });
+  };
+
+  return (
+    <div className="prism-root" style={{ background: PZ_PAPER, color: PZ_INK, fontFamily: PZ_SANS, minHeight: '100vh' }}>
+      <PZChrome mobile={mobile} onTop={onTop} openEditions={openEditions} />
+      {selectedProject
+        ? <PZProject project={selectedProject} projects={projects} mobile={mobile} onSelect={selectProject} onBack={() => navigate('work')} />
+        : (
+          <React.Fragment>
+            <PZHero mobile={mobile} openEditions={openEditions} onWork={onWork} />
+            <PZWork projects={projects} mobile={mobile} onSelect={selectProject} />
+            <PZBackground mobile={mobile} />
+            <PZContact mobile={mobile} />
+          </React.Fragment>
+        )}
     </div>
   );
 }
