@@ -371,6 +371,8 @@ const THEMES = [
       mono:  "'Instrument Sans', system-ui, -apple-system, sans-serif",
     },
     googleFonts: 'https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap',
+    // The one edition that opts out of the square 2px panel.
+    modalChrome: { borderW: '1px', radius: '20px', cardRadius: '14px' },
     colors: {
       bg:          '#fbfbfd',
       bgDark:      '#f4f3f7',
@@ -558,74 +560,51 @@ function EditionModal() {
   // Grain is the one edition that forbids weights above 400; a synthesised 600 is
   // exactly the heavy face it exists to avoid.
   const NAME_WEIGHT = theme.id === 'grain-v1' ? 400 : 600;
-  const dark = theme.id === 'ink-v1' || theme.id === 'volt-v1';
-
-  // Prism builds its modal chrome out of theme.colors instead of picking one of the
-  // two frozen palettes below. Those are Ink's chrome and Ink's chrome inverted, which
-  // is why every light edition ends up in a hard-edged white box no matter what it
-  // actually looks like. Trialled on one edition before deciding whether the id test
-  // should go away for all six.
+  // The modal's chrome is derived from the active edition's own tokens. It used to be
+  // two frozen palettes — Ink's chrome and Ink's chrome inverted — picked by testing
+  // theme.id against a list of two. That had every light edition landing in the same
+  // hard white box whatever it looked like, and it defaulted a new edition to the
+  // light set silently, the same trap ThemeSwatch had with its Mondriaan fallback.
   //
-  // borderW / radius / cardRadius exist so this can be soft-edged without changing the
-  // other five: they resolve to the old 2px-and-square values everywhere else.
+  // Light or dark is measured off the panel colour rather than declared, so an
+  // edition added later cannot be wrong about itself.
   const t = theme.colors;
-  const derived = theme.id === 'prism-v1' ? {
-    overlay:      'rgba(27,26,34,0.55)',
-    panel:        t.bg,
-    panelBorder:  t.borderSubtle,
-    label:        t.textFaint,
+  const pzLum = (hex) => {
+    const ch = [1, 3, 5].map(i => parseInt(hex.substr(i, 2), 16) / 255)
+      .map(v => v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+    return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2];
+  };
+  const rgba = (hex, alpha) => {
+    const n = [1, 3, 5].map(i => parseInt(hex.substr(i, 2), 16));
+    return 'rgba(' + n[0] + ',' + n[1] + ',' + n[2] + ',' + alpha + ')';
+  };
+  const panel = t.surface;
+  const panelDark = pzLum(panel) < 0.35;
+  // A quiet edge on the panel: on a dark surface that is textGhost, on a light one
+  // borderSubtle. Mondriaan's borderSubtle is hard black, so it keeps its rule.
+  const edge = panelDark ? t.textGhost : t.borderSubtle;
+  // Labels read textMuted, not textDim. textDim measured 4.22 on Ink and 4.04 on
+  // Chalk — both under AA, and the old hardcoded #6b6b6b was worse still. textMuted
+  // puts the worst case across all six at 7.01.
+  const c = {
+    overlay:      rgba(panelDark ? t.bg : t.text, panelDark ? 0.9 : 0.6),
+    panel:        panel,
+    panelBorder:  edge,
+    label:        t.textMuted,
     cardName:     t.text,
     cardActive:   t.btnBg,
-    cardInactive: t.borderSubtle,
-    cardHover:    t.textGhost,
-    tagline:      t.textDim,
-    divider:      t.borderSubtle,
-    randomColor:  t.textDim,
+    cardInactive: edge,
+    cardHover:    t.textDim,
+    tagline:      t.textMuted,
+    divider:      edge,
+    randomColor:  t.textMuted,
     randomHover:  t.btnBg,
-    closeColor:   t.textGhost,
-    closeHover:   t.textDim,
-    borderW:      '1px',
-    radius:       '20px',
-    cardRadius:   '14px',
-  } : null;
-
-  const c = derived || (dark ? {
-    overlay:      'rgba(0,0,0,0.88)',
-    panel:        '#1e1e1e',
-    panelBorder:  '#3a3a3a',
-    label:        '#6b6b6b',
-    cardName:     '#ffffff',
-    cardActive:   '#ffffff',
-    cardInactive: '#3a3a3a',
-    cardHover:    '#6b6b6b',
-    tagline:      '#6b6b6b',
-    divider:      '#3a3a3a',
-    randomColor:  '#a8a8a8',
-    randomHover:  '#ffffff',
-    closeColor:   '#6b6b6b',
-    closeHover:   '#a8a8a8',
-    borderW:      '2px',
-    radius:       '0',
-    cardRadius:   '0',
-  } : {
-    overlay:      'rgba(0,0,0,0.75)',
-    panel:        '#ffffff',
-    panelBorder:  '#0a0a0a',
-    label:        '#8a8a8a',
-    cardName:     '#0a0a0a',
-    cardActive:   '#0a0a0a',
-    cardInactive: '#e0e0e0',
-    cardHover:    '#a0a0a0',
-    tagline:      '#8a8a8a',
-    divider:      '#e8e8e8',
-    randomColor:  '#6b6b6b',
-    randomHover:  '#0a0a0a',
-    closeColor:   '#aaaaaa',
-    closeHover:   '#6b6b6b',
-    borderW:      '2px',
-    radius:       '0',
-    cardRadius:   '0',
-  });
+    closeColor:   t.textMuted,
+    closeHover:   t.text,
+    // Shape is identity, not colour, so it cannot be derived. Editions opt in;
+    // everything else keeps the 2px square panel it has always had.
+    ...(theme.modalChrome || { borderW: '2px', radius: '0', cardRadius: '0' }),
+  };
 
   React.useEffect(() => {
     const handler = e => { if (e.key === 'Escape') closeEditions(); };
