@@ -560,7 +560,36 @@ function EditionModal() {
   const NAME_WEIGHT = theme.id === 'grain-v1' ? 400 : 600;
   const dark = theme.id === 'ink-v1' || theme.id === 'volt-v1';
 
-  const c = dark ? {
+  // Prism builds its modal chrome out of theme.colors instead of picking one of the
+  // two frozen palettes below. Those are Ink's chrome and Ink's chrome inverted, which
+  // is why every light edition ends up in a hard-edged white box no matter what it
+  // actually looks like. Trialled on one edition before deciding whether the id test
+  // should go away for all six.
+  //
+  // borderW / radius / cardRadius exist so this can be soft-edged without changing the
+  // other five: they resolve to the old 2px-and-square values everywhere else.
+  const t = theme.colors;
+  const derived = theme.id === 'prism-v1' ? {
+    overlay:      'rgba(27,26,34,0.55)',
+    panel:        t.bg,
+    panelBorder:  t.borderSubtle,
+    label:        t.textFaint,
+    cardName:     t.text,
+    cardActive:   t.btnBg,
+    cardInactive: t.borderSubtle,
+    cardHover:    t.textGhost,
+    tagline:      t.textDim,
+    divider:      t.borderSubtle,
+    randomColor:  t.textDim,
+    randomHover:  t.btnBg,
+    closeColor:   t.textGhost,
+    closeHover:   t.textDim,
+    borderW:      '1px',
+    radius:       '20px',
+    cardRadius:   '14px',
+  } : null;
+
+  const c = derived || (dark ? {
     overlay:      'rgba(0,0,0,0.88)',
     panel:        '#1e1e1e',
     panelBorder:  '#3a3a3a',
@@ -575,6 +604,9 @@ function EditionModal() {
     randomHover:  '#ffffff',
     closeColor:   '#6b6b6b',
     closeHover:   '#a8a8a8',
+    borderW:      '2px',
+    radius:       '0',
+    cardRadius:   '0',
   } : {
     overlay:      'rgba(0,0,0,0.75)',
     panel:        '#ffffff',
@@ -590,7 +622,10 @@ function EditionModal() {
     randomHover:  '#0a0a0a',
     closeColor:   '#aaaaaa',
     closeHover:   '#6b6b6b',
-  };
+    borderW:      '2px',
+    radius:       '0',
+    cardRadius:   '0',
+  });
 
   React.useEffect(() => {
     const handler = e => { if (e.key === 'Escape') closeEditions(); };
@@ -605,7 +640,7 @@ function EditionModal() {
     >
       <div
         onClick={e => e.stopPropagation()}
-        style={{ background:c.panel, border:`2px solid ${c.panelBorder}`, maxWidth:'860px', width:'100%', padding:'36px' }}
+        style={{ background:c.panel, border:`${c.borderW} solid ${c.panelBorder}`, borderRadius:c.radius, maxWidth:'860px', width:'100%', padding:'36px' }}
       >
         <div style={{ fontFamily:MONO, fontSize:'10px', letterSpacing:'0.14em', color:c.label, marginBottom:'28px', textTransform:'uppercase' }}>
           choose edition
@@ -651,7 +686,7 @@ function EditionModal() {
                   key={t.id}
                   onClick={() => { setThemeById(t.id); closeEditions(); }}
                   style={{
-                    background:'none', border:`2px solid ${isActive ? c.cardActive : c.cardInactive}`,
+                    background:'none', border:`${c.borderW} solid ${isActive ? c.cardActive : c.cardInactive}`, borderRadius:c.cardRadius, overflow:'hidden',
                     cursor:'pointer', padding:'0', textAlign:'left', display:'flex', flexDirection:'column', width:'100%',
                   }}
                   onMouseEnter={e => { if (!isActive) e.currentTarget.style.borderColor = c.cardHover; }}
