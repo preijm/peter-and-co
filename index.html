@@ -4501,9 +4501,9 @@ function PZField({ mobile }) {
   );
 }
 
-function PZSection({ children, mobile, fields, style }) {
+function PZSection({ children, mobile, fields, style, id }) {
   return (
-    <section style={{ position: 'relative', overflow: 'hidden', padding: `${PZ_GAP} ${PZ_EDGE}`, ...(style || {}) }}>
+    <section id={id} style={{ position: 'relative', overflow: 'hidden', padding: `${PZ_GAP} ${PZ_EDGE}`, ...(style || {}) }}>
       {fields && <PZField mobile={mobile} />}
       <div style={{ position: 'relative', zIndex: 1, maxWidth: '1180px', margin: '0 auto' }}>{children}</div>
     </section>
@@ -4536,15 +4536,17 @@ function PZArrow({ size }) {
   );
 }
 
-function PZChrome({ mobile, onTop, openEditions }) {
+function PZChrome({ mobile, onTop, openEditions, onJump }) {
+  const nav = [['Work', 'pz-work'], ['Background', 'pz-background'], ['Contact', 'pz-contact']];
   return (
     <div style={{
       position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center',
-      justifyContent: 'space-between', padding: `0 ${PZ_EDGE}`, maxWidth: '1180px', margin: '0 auto', width: '100%', boxSizing: 'border-box',
-      // Pinned to PZ_CHROME rather than grown from its children, so the hero's
-      // calc(100svh - PZ_CHROME) is exact. Left to padding it came out 81px, and the
-      // first screen overshot the viewport by a pixel.
-      height: PZ_CHROME,
+      justifyContent: 'space-between', maxWidth: '1180px', margin: '0 auto', width: '100%', boxSizing: 'border-box',
+      // Fixed height, and no horizontal padding: this now sits INSIDE a section rather
+      // than above one, so the colour field runs behind it instead of leaving a white
+      // band across the top. The section supplies the inset; the height keeps the
+      // hero's arithmetic exact.
+      height: PZ_CHROME, flexShrink: 0,
     }}>
       <button onClick={onTop} style={{
         background: 'none', border: 'none', cursor: 'pointer',
@@ -4553,12 +4555,20 @@ function PZChrome({ mobile, onTop, openEditions }) {
         padding: '13px 14px 13px 0', minHeight: '44px',
         fontFamily: PZ_SANS, fontSize: '15px', fontWeight: 600, letterSpacing: '-0.01em', color: PZ_INK,
       }}>Peter &amp; Co.</button>
-      <PZPill onClick={openEditions}>Editions</PZPill>
+      <div style={{ display: 'flex', alignItems: 'center', gap: mobile ? '0' : '28px' }}>
+        {!mobile && nav.map(n => (
+          <button key={n[0]} onClick={() => onJump(n[1])} style={{
+            background: 'none', border: 'none', cursor: 'pointer', minHeight: '44px', padding: '0 4px',
+            fontFamily: PZ_SANS, fontSize: '13px', color: PZ_BODY,
+          }}>{n[0]}</button>
+        ))}
+        <PZPill onClick={openEditions}>Editions</PZPill>
+      </div>
     </div>
   );
 }
 
-function PZHero({ mobile, openEditions, onWork }) {
+function PZHero({ mobile, openEditions, onWork, onTop, onJump }) {
   const facts = [
     ['Based in', 'Rotterdam, NL'],
     ['Projects', 'Five, two paid for'],
@@ -4570,12 +4580,13 @@ function PZHero({ mobile, openEditions, onWork }) {
     // browser chrome cannot crop the bottom row off.
     <section style={{
       position: 'relative', overflow: 'hidden',
-      minHeight: `calc(100svh - ${PZ_CHROME})`,
+      minHeight: '100svh',
       display: 'flex', flexDirection: 'column',
-      padding: `clamp(24px, 5vw, 56px) ${PZ_EDGE} clamp(24px, 4vw, 44px)`,
+      padding: `0 ${PZ_EDGE} clamp(24px, 4vw, 44px)`,
       boxSizing: 'border-box',
     }}>
       <PZField mobile={mobile} />
+      <PZChrome mobile={mobile} onTop={onTop} openEditions={openEditions} onJump={onJump} />
       <div style={{ position: 'relative', zIndex: 1, maxWidth: '1180px', margin: '0 auto', width: '100%', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
         <div style={{ overflow: 'hidden' }}>
           <h1 className="pz-in" style={{
@@ -4682,7 +4693,7 @@ function PZBackground({ mobile }) {
     'And how many designs can one website be?',
   ];
   return (
-    <PZSection mobile={mobile} style={{ background: '#f4f3f7' }}>
+    <PZSection mobile={mobile} id="pz-background" style={{ background: '#f4f3f7' }}>
       <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1fr 1fr', gap: mobile ? '34px' : '64px', alignItems: 'start' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <PZLabel>Background</PZLabel>
@@ -4715,7 +4726,7 @@ function PZContact({ mobile }) {
     ['LinkedIn', 'https://www.linkedin.com/in/peter-reijm-47165b5b/', true],
   ];
   return (
-    <PZSection mobile={mobile} fields>
+    <PZSection mobile={mobile} fields id="pz-contact">
       <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', maxWidth: '640px' }}>
         <PZLabel>Contact</PZLabel>
         <h2 className="pz-rise" style={{
@@ -4746,7 +4757,7 @@ function PZContact({ mobile }) {
   );
 }
 
-function PZProject({ project, projects, mobile, onSelect, onBack }) {
+function PZProject({ project, projects, mobile, onSelect, onBack, onTop, openEditions, onJump }) {
   const idx = projects.findIndex(p => p.id === project.id);
   const next = projects[(idx + 1) % projects.length];
   const live = project.public !== false && !!project.href;
@@ -4758,9 +4769,10 @@ function PZProject({ project, projects, mobile, onSelect, onBack }) {
     ['Status', status],
   ];
   return (
-    <section style={{ position: 'relative', overflow: 'hidden', minHeight: '100vh', padding: `clamp(28px, 5vw, 48px) ${PZ_EDGE} ${PZ_GAP}` }}>
+    <section style={{ position: 'relative', overflow: 'hidden', minHeight: '100vh', padding: `0 ${PZ_EDGE} ${PZ_GAP}` }}>
       <PZField mobile={mobile} />
-      <div style={{ position: 'relative', zIndex: 1, maxWidth: '1180px', margin: '0 auto' }}>
+      <PZChrome mobile={mobile} onTop={onTop} openEditions={openEditions} onJump={onJump} />
+      <div style={{ position: 'relative', zIndex: 1, maxWidth: '1180px', margin: '0 auto', paddingTop: 'clamp(8px, 2vw, 20px)' }}>
         <button onClick={onBack} style={{
           background: 'none', border: 'none', cursor: 'pointer', padding: '12px 12px 12px 0',
           fontFamily: PZ_SANS, fontSize: '13px', color: PZ_BODY, display: 'inline-flex', alignItems: 'center', gap: '9px', minHeight: '44px',
@@ -4838,19 +4850,19 @@ function PrismApp({ selectedProject, navigate, selectProject }) {
   React.useEffect(() => { window.scrollTo({ top: 0, behavior: pzReduced() ? 'auto' : 'smooth' }); }, [selectedProject && selectedProject.id]);
 
   const onTop = () => window.scrollTo({ top: 0, behavior: pzReduced() ? 'auto' : 'smooth' });
-  const onWork = () => {
-    const el = document.getElementById('pz-work');
+  const onJump = (id) => {
+    const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: pzReduced() ? 'auto' : 'smooth', block: 'start' });
   };
+  const onWork = () => onJump('pz-work');
 
   return (
     <div className="prism-root" style={{ background: PZ_PAPER, color: PZ_INK, fontFamily: PZ_SANS, minHeight: '100vh' }}>
-      <PZChrome mobile={mobile} onTop={onTop} openEditions={openEditions} />
       {selectedProject
-        ? <PZProject project={selectedProject} projects={projects} mobile={mobile} onSelect={selectProject} onBack={() => navigate('work')} />
+        ? <PZProject project={selectedProject} projects={projects} mobile={mobile} onSelect={selectProject} onBack={() => navigate('work')} onTop={onTop} openEditions={openEditions} onJump={onJump} />
         : (
           <React.Fragment>
-            <PZHero mobile={mobile} openEditions={openEditions} onWork={onWork} />
+            <PZHero mobile={mobile} openEditions={openEditions} onWork={onWork} onTop={onTop} onJump={onJump} />
             <PZWork projects={projects} mobile={mobile} onSelect={selectProject} />
             <PZBackground mobile={mobile} />
             <PZContact mobile={mobile} />
