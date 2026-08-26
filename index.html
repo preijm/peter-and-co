@@ -522,6 +522,18 @@ function ThemeSwatch({ themeId }) {
       <div style={{ position:'absolute', bottom:'12%', left:'8%', width:'26%', height:'14%', border:'1px solid #fafafa', borderRadius:'300px' }} />
     </div>
   );
+  if (themeId === 'prism-v1') return (
+    <div style={{ width:'100%', aspectRatio:'16/9', background:'#fbfbfd', position:'relative', overflow:'hidden' }}>
+      {/* Radial gradients, not blurred circles: a swatch this small never animates, and
+          three filter: blur() layers per row is real cost in a six-row grid. */}
+      <div style={{ position:'absolute', inset:0, background:'radial-gradient(58% 76% at 14% 8%, #ddc9f2, rgba(251,251,253,0) 70%)' }} />
+      <div style={{ position:'absolute', inset:0, background:'radial-gradient(54% 70% at 90% 34%, #b6dcf1, rgba(251,251,253,0) 70%)' }} />
+      <div style={{ position:'absolute', inset:0, background:'radial-gradient(62% 66% at 44% 106%, #f5d5a4, rgba(251,251,253,0) 70%)' }} />
+      <div style={{ position:'absolute', top:'19%', left:'9%', width:'50%', height:'9%', borderRadius:'2px', background:'#1b1a22' }} />
+      <div style={{ position:'absolute', top:'32%', left:'9%', width:'32%', height:'9%', borderRadius:'2px', background:'#6d4fd0' }} />
+      <div style={{ position:'absolute', bottom:'11%', left:'9%', right:'9%', height:'32%', borderRadius:'7px', background:'rgba(255,255,255,0.62)', border:'1px solid rgba(255,255,255,0.95)' }} />
+    </div>
+  );
   return (
     <div style={{ width:'100%', aspectRatio:'16/9', background:'#0a0a0a', display:'grid', gap:'3px', gridTemplateColumns:'2fr 1fr 0.8fr', gridTemplateRows:'3fr 2fr', overflow:'hidden' }}>
       <div style={{ background:'#ffffff', gridColumn:'1', gridRow:'1/3' }} />
@@ -537,10 +549,14 @@ function ThemeSwatch({ themeId }) {
 function EditionModal() {
   const { theme, themes, themeIdx, setThemeById, pickRandom, closeEditions } = useTheme();
   const mobile = useMobile();
-  // Grain loads Inter only, so JetBrains Mono would resolve to the generic monospace
-  // fallback and get a synthesised 600 — the one heavy face in an edition that forbids
-  // weights above 400. Under Grain the modal speaks the edition's own single family.
-  const MONO = theme.id === 'grain-v1' ? theme.fonts.sans : "'JetBrains Mono','Space Mono',monospace";
+  // The modal speaks whatever face the active edition actually ships. Hardcoding
+  // JetBrains Mono meant any edition that does not load it — Grain, which loads only
+  // Inter, and Prism, which loads no monospace at all — rendered here in the generic
+  // system monospace with a synthesised weight. Reading theme.fonts.mono fixes both
+  // and every edition added later.
+  const MONO = theme.fonts.mono;
+  // Grain is the one edition that forbids weights above 400; a synthesised 600 is
+  // exactly the heavy face it exists to avoid.
   const NAME_WEIGHT = theme.id === 'grain-v1' ? 400 : 600;
   const dark = theme.id === 'ink-v1' || theme.id === 'volt-v1';
 
@@ -4391,6 +4407,9 @@ const PZ_DISPLAY = "'Instrument Serif', Georgia, 'Times New Roman', serif";
 const PZ_SANS = "'Instrument Sans', system-ui, -apple-system, sans-serif";
 const PZ_EDGE = 'clamp(20px, 4vw, 56px)';
 const PZ_GAP = 'clamp(64px, 11vw, 148px)';
+// 44px control plus 18px of padding either side. The hero subtracts this so the
+// first screen is exactly one viewport, header included.
+const PZ_CHROME = '80px';
 
 const pzReduced = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -4417,6 +4436,8 @@ function pzStyles() {
     // FLOAT.
     '@keyframes pz-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }',
     '.pz-float { animation: pz-float 9s ease-in-out infinite; }',
+    '@keyframes pz-cue { 0%,100% { transform: translateY(0); opacity: 0.55; } 50% { transform: translateY(6px); opacity: 1; } }',
+    '.pz-cue { animation: pz-cue 2.6s ease-in-out infinite; }',
 
     // RISE. Above the fold it runs once on load; below it, it runs on scroll so it
     // moves at reading speed. Default state is VISIBLE, and the animation is layered
@@ -4441,7 +4462,7 @@ function pzStyles() {
     // Stopping the animation is not enough for the sheen: the gradient is a
     // background-image and would sit there as a static white streak.
     '@media (prefers-reduced-motion: reduce) {',
-    '  .pz-a, .pz-b, .pz-c, .pz-float, .pz-in, .pz-sheen, .pz-card, .pz-arrow { animation: none !important; transition: none !important; }',
+    '  .pz-a, .pz-b, .pz-c, .pz-float, .pz-in, .pz-sheen, .pz-card, .pz-arrow, .pz-cue { animation: none !important; transition: none !important; }',
     '  .pz-in { clip-path: none !important; transform: none !important; }',
     '  .pz-sheen { background-image: none !important; }',
     '}',
@@ -4505,7 +4526,11 @@ function PZChrome({ mobile, onTop, openEditions }) {
   return (
     <div style={{
       position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center',
-      justifyContent: 'space-between', padding: `18px ${PZ_EDGE}`, maxWidth: '1180px', margin: '0 auto', width: '100%', boxSizing: 'border-box',
+      justifyContent: 'space-between', padding: `0 ${PZ_EDGE}`, maxWidth: '1180px', margin: '0 auto', width: '100%', boxSizing: 'border-box',
+      // Pinned to PZ_CHROME rather than grown from its children, so the hero's
+      // calc(100svh - PZ_CHROME) is exact. Left to padding it came out 81px, and the
+      // first screen overshot the viewport by a pixel.
+      height: PZ_CHROME,
     }}>
       <button onClick={onTop} style={{
         background: 'none', border: 'none', cursor: 'pointer',
@@ -4520,10 +4545,24 @@ function PZChrome({ mobile, onTop, openEditions }) {
 }
 
 function PZHero({ mobile, openEditions, onWork }) {
+  const facts = [
+    ['Based in', 'Rotterdam, NL'],
+    ['Projects', 'Five, two paid for'],
+    ['Since', '2025'],
+  ];
   return (
-    <section style={{ position: 'relative', overflow: 'hidden', padding: `clamp(56px, 10vw, 120px) ${PZ_EDGE} ${PZ_GAP}` }}>
+    // One screen, not one block. PZ_CHROME is subtracted because the header sits
+    // above this section rather than inside it, and svh rather than vh so mobile
+    // browser chrome cannot crop the bottom row off.
+    <section style={{
+      position: 'relative', overflow: 'hidden',
+      minHeight: `calc(100svh - ${PZ_CHROME})`,
+      display: 'flex', flexDirection: 'column',
+      padding: `clamp(24px, 5vw, 56px) ${PZ_EDGE} clamp(24px, 4vw, 44px)`,
+      boxSizing: 'border-box',
+    }}>
       <PZField mobile={mobile} />
-      <div style={{ position: 'relative', zIndex: 1, maxWidth: '1180px', margin: '0 auto' }}>
+      <div style={{ position: 'relative', zIndex: 1, maxWidth: '1180px', margin: '0 auto', width: '100%', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
         <div style={{ overflow: 'hidden' }}>
           <h1 className="pz-in" style={{
             fontFamily: PZ_DISPLAY, fontWeight: 400, margin: 0, color: PZ_INK,
@@ -4543,6 +4582,27 @@ function PZHero({ mobile, openEditions, onWork }) {
           <PZPill primary onClick={onWork}>Selected work</PZPill>
           <PZPill onClick={openEditions}>Change edition</PZPill>
         </div>
+      </div>
+
+      <div className="pz-in pz-d3" style={{
+        position: 'relative', zIndex: 1, maxWidth: '1180px', margin: '0 auto', width: '100%',
+        display: 'flex', flexWrap: 'wrap', gap: mobile ? '18px' : '42px',
+        alignItems: 'flex-end', justifyContent: 'space-between',
+      }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: mobile ? '18px' : '42px' }}>
+          {facts.map(f => (
+            <div key={f[0]} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <span style={{ fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: PZ_MUTE }}>{f[0]}</span>
+              <span style={{ fontSize: mobile ? '14px' : '15px', fontWeight: 500, color: PZ_INK }}>{f[1]}</span>
+            </div>
+          ))}
+        </div>
+        {!mobile && (
+          <span aria-hidden="true" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', color: PZ_MUTE }}>
+            <span style={{ fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Scroll</span>
+            <svg className="pz-cue" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14" /><path d="m19 12-7 7-7-7" /></svg>
+          </span>
+        )}
       </div>
     </section>
   );
