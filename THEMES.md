@@ -328,6 +328,35 @@ a diagram. The machinery lives in the mondriaan blob:
 - Whites are **broken whites** (`M_W`), one tint per plane; `M_WHITE` itself is
   warm (`#f6f3ea`) so text on colored planes and the subpages match.
 
+### Mondriaan on a phone (`MHomePaintingMobile`)
+The desktop painting's grid needs ~1130px. Below the 600px breakpoint home
+renders a **portrait composition** instead — four columns rather than nine,
+in six rows: logo / wordmark / edition, then the four nav tiles, then the hero
+with the red column still bleeding off its right edge, a label band, and the
+three project cards as an uneven pair-plus-band.
+
+**Do not "simplify" this into a stack of full-width bands.** A stack is a
+list; this edition's entire argument is division, and a phone screen is just a
+narrow canvas. Keep dividing both axes with unequal cells and it still reads
+as a Mondriaan.
+
+Two numbers are load-bearing. Rows are tuned so the whole canvas lands in one
+screen down to a short **640px** phone, with the nav row at 48px (above the
+44px touch floor). And the headline is capped at `clamp(25px, 8.2vw, 35px)`:
+larger and "I build things." wraps, turning the authored three-line break into
+a five-line one that both looks accidental and pushes the canvas off a short
+screen.
+
+**The brush-streak layer is desktop only** (`MPlane`). It is the second filter
+on every plane — more than half the filtered layers on a page, 33 down to 17
+on mobile home — and at phone size its texture is close to invisible, so a
+phone was paying a real rasterisation cost for something nobody can see. The
+wobbled edges and the grain, which are what actually read as paint, stay.
+
+Home is the only page with a painted mobile layout; **the other pages still
+use the classic bordered mobile layouts**, so Mondriaan is not yet coherent
+enough on a phone to earn `mobileOptimized: true`.
+
 ### Painted subpages
 Every desktop page is a painting, not just home. The shared pieces:
 
