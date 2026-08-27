@@ -2305,13 +2305,18 @@ function MPaintCard({ project, index, fill, dir, wob, compact, onClick, style })
   );
 }
 
-// The home page as one full-bleed painting. Logo, nav and the edition switch
-// are tiles inside the composition — there is no separate header on home. The
-// right-hand column bleeds off the top and right edges with no black line,
-// like the unbounded planes on the real canvases.
-function MHomePainting({ activePage, onNavigate, onSelect }) {
+// Shared column template for the header band on every page. The last column is
+// the red edition tile; the container leaves right padding at 0 so it bleeds
+// off the right edge.
+const M_COLS = '98px 170px minmax(220px, 1fr) 76px 110px 110px 110px 110px 124px';
+
+// Header band tiles — logo, nav and the edition switch as painted planes.
+// Rendered as a fragment of grid items into a parent grid using M_COLS. On
+// home the red column spans down into the hero (redRowEnd 3); elsewhere it is
+// just the header row. It always bleeds off the top edge.
+function MHeaderTiles({ activePage, onNavigate, redRowEnd }) {
   const { openEditions } = useTheme();
-  const feat = PROJECTS.filter(p => p.featured);
+  const tall = (redRowEnd || 2) > 2;
   const navLinks = [
     { id: 'work',    color: M_RED,   wob: 'b' },
     { id: 'tools',   color: M_YELLOW, wob: 'c' },
@@ -2319,15 +2324,7 @@ function MHomePainting({ activePage, onNavigate, onSelect }) {
     { id: 'contact', color: M_W[3],  wob: 'b' },
   ];
   return (
-    <div style={{
-      display: 'grid', width: '100%', boxSizing: 'border-box',
-      gridTemplateColumns: '98px 176px minmax(280px, 1fr) 90px 120px 120px 120px 120px 128px',
-      gridTemplateRows: '104px 520px 82px 162px 122px',
-      gap: `${M_PLINE}px`,
-      padding: `${M_PLINE}px 0 ${M_PLINE}px ${M_PLINE}px`,
-      background: M_INK, position: 'relative', overflow: 'hidden',
-    }}>
-      {/* Header band — logo and nav as painted tiles */}
+    <>
       <MPlane as="button" fill={M_RED} dir="v" wob="a" aria-label="Peter & Co."
         onClick={() => onNavigate('home')}
         style={{ gridColumn: '1', gridRow: '1', cursor: 'pointer', ...mPnt('d', 150, 450) }}
@@ -2347,17 +2344,67 @@ function MHomePainting({ activePage, onNavigate, onSelect }) {
         <MNavTile key={l.id} {...l} active={activePage === l.id} delay={500 + i * 110} onNavigate={onNavigate}
           style={{ gridColumn: `${5 + i}`, gridRow: '1' }} />
       ))}
-
-      {/* Red column — bleeds off the top and right edge, carries the edition switch */}
       <MPlane fill={M_RED} dir="v" wob="c"
-        style={{ gridColumn: '9', gridRow: '1 / 3', marginTop: -M_PLINE, ...mPnt('d', 250, 650) }}
-        paint={<div style={{ position: 'absolute', left: 16, top: 80, width: 28, bottom: 120, background: '#b8191f', filter: 'url(#m-str-v)', opacity: 0.5 }} />}>
+        style={{ gridColumn: '9', gridRow: `1 / ${redRowEnd || 2}`, marginTop: -M_PLINE, ...mPnt('d', 250, 650) }}
+        paint={tall ? <div style={{ position: 'absolute', left: 16, top: 80, width: 28, bottom: 120, background: '#b8191f', filter: 'url(#m-str-v)', opacity: 0.5 }} /> : null}>
         <button onClick={openEditions} style={{
           background: 'none', border: 'none', cursor: 'pointer', width: '100%',
           padding: '46px 0 0', fontFamily: M_MONO, fontWeight: 700, fontSize: '11px',
           letterSpacing: '0.16em', color: M_W[0],
         }}>EDITION</button>
       </MPlane>
+    </>
+  );
+}
+
+// Header band for every page except home (whose painting carries the tiles
+// itself). Desktop only — mobile keeps the classic MHeader.
+function MPaintedHeader({ activePage, onNavigate }) {
+  return (
+    <div style={{
+      display: 'grid', width: '100%', boxSizing: 'border-box',
+      gridTemplateColumns: M_COLS, gridTemplateRows: '104px',
+      gap: `${M_PLINE}px`, padding: `${M_PLINE}px 0 ${M_PLINE}px ${M_PLINE}px`,
+      background: M_INK, overflow: 'hidden',
+    }}>
+      <MHeaderTiles activePage={activePage} onNavigate={onNavigate} />
+    </div>
+  );
+}
+
+// A full-bleed painted composition for a content page: same black ground,
+// gaps-as-lines and edge rules as the home painting, minus the header row.
+// Top padding is 0 — the header band above supplies the shared line.
+function MSectionCanvas({ cols, rows, style, children }) {
+  return (
+    <div style={{
+      display: 'grid', width: '100%', boxSizing: 'border-box',
+      gridTemplateColumns: cols, gridTemplateRows: rows,
+      gap: `${M_PLINE}px`, padding: `0 0 ${M_PLINE}px ${M_PLINE}px`,
+      background: M_INK, position: 'relative', overflow: 'hidden', ...style,
+    }}>
+      {children}
+    </div>
+  );
+}
+
+// The home page as one full-bleed painting. Logo, nav and the edition switch
+// are tiles inside the composition — there is no separate header, and no
+// footer either: the canvas fills the viewport. The right-hand column bleeds
+// off the top and right edges with no black line, like the unbounded planes
+// on the real canvases.
+function MHomePainting({ activePage, onNavigate, onSelect }) {
+  const feat = PROJECTS.filter(p => p.featured);
+  return (
+    <div style={{
+      display: 'grid', width: '100%', minHeight: '100vh', boxSizing: 'border-box',
+      gridTemplateColumns: M_COLS,
+      gridTemplateRows: '104px minmax(360px, 1fr) 82px 162px 122px',
+      gap: `${M_PLINE}px`,
+      padding: `${M_PLINE}px 0 ${M_PLINE}px ${M_PLINE}px`,
+      background: M_INK, position: 'relative', overflow: 'hidden',
+    }}>
+      <MHeaderTiles activePage={activePage} onNavigate={onNavigate} redRowEnd={3} />
 
       {/* Hero plane */}
       <MPlane fill={M_W[0]} dir="h" wob="a"
@@ -2402,70 +2449,6 @@ function MHomePainting({ activePage, onNavigate, onSelect }) {
   );
 }
 
-function MProjectGrid({ onSelect }) {
-  const palette = [
-    { fill: M_RED,    fg: M_WHITE, label: M_WHITE },
-    { fill: M_YELLOW, fg: M_BLACK, label: M_BLACK },
-    { fill: M_BLUE,   fg: M_WHITE, label: M_WHITE },
-  ];
-  return (
-    <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '24px' }}>
-      <div style={{
-        display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between',
-        marginBottom: '24px', paddingBottom: '16px',
-        borderBottom: `${M_LINE}px solid ${M_BLACK}`,
-      }}>
-        <div>
-          <MLabel>Featured Work</MLabel>
-          <h2 style={{ fontFamily: M_DISPLAY, fontSize: '64px', color: M_BLACK, letterSpacing: '-0.03em', lineHeight: 1.0, marginTop: 8, textTransform: 'uppercase' }}>Selected.</h2>
-        </div>
-        <MLabel size="12px">{String(PROJECTS.filter(p => p.featured).length).padStart(2,'0')} / {String(PROJECTS.length).padStart(2,'0')}</MLabel>
-      </div>
-      <div style={{
-        display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: `${M_LINE}px`,
-        background: M_BLACK, border: `${M_LINE}px solid ${M_BLACK}`,
-      }}>
-        {PROJECTS.map((p, i) => {
-          const c = palette[i % palette.length];
-          return <MProjectCard key={p.id} project={p} index={i} color={c} onClick={() => onSelect(p)} />;
-        })}
-      </div>
-    </section>
-  );
-}
-
-function MProjectCard({ project, index, color, onClick }) {
-  const [h, setH] = React.useState(false);
-  return (
-    <div onClick={onClick} onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)} style={{
-      background: M_WHITE, cursor: 'pointer',
-      display: 'grid', gridTemplateRows: '90px 1fr 70px',
-      transition: 'transform 200ms cubic-bezier(.2,.8,.2,1)',
-      transform: h ? 'translateY(-4px)' : 'none',
-    }}>
-      <div style={{
-        background: color.fill, borderBottom: `${M_LINE}px solid ${M_BLACK}`,
-        padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-      }}>
-        <span style={{ fontFamily: M_DISPLAY, fontSize: '36px', color: color.fg, lineHeight: 1, letterSpacing: '-0.02em' }}>{String(index + 1).padStart(2, '0')}</span>
-        <MLabel color={color.label} size="10px">{(project.tags[0] || 'project').toUpperCase()}</MLabel>
-      </div>
-      <div style={{ padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-        <h3 style={{ fontFamily: M_DISPLAY, fontSize: '34px', color: M_BLACK, letterSpacing: '-0.025em', lineHeight: 0.95, textTransform: 'uppercase' }}>{project.title}</h3>
-        <p style={{ fontFamily: M_SANS, fontSize: '14px', color: M_BLACK, lineHeight: 1.5, fontWeight: 500 }}>{project.description}</p>
-      </div>
-      <div style={{
-        borderTop: `${M_LINE}px solid ${M_BLACK}`, padding: '0 20px',
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        background: h ? M_YELLOW : M_WHITE, transition: 'background 150ms ease',
-      }}>
-        <span style={{ fontFamily: M_MONO, fontSize: '12px', color: M_BLACK, fontWeight: 700, letterSpacing: '0.04em' }}>{project.url}</span>
-        <span style={{ fontFamily: M_DISPLAY, fontSize: '24px', color: M_BLACK }}>→</span>
-      </div>
-    </div>
-  );
-}
-
 function MAbout() {
   const mobile = useMobile();
   const cards = [
@@ -2473,6 +2456,44 @@ function MAbout() {
     { label: 'Method',     bg: M_YELLOW, fg: M_BLACK, text: 'Build first,\nexplain later.' },
     { label: 'Off-screen', bg: M_RED,    fg: M_WHITE, text: 'Running, biking,\nplants, rare beers.' },
   ];
+  if (!mobile) {
+    const paint = [
+      { fill: M_W[1],   fg: M_INK,  dir: 'h', wob: 'b' },
+      { fill: M_YELLOW, fg: M_INK,  dir: 'h', wob: 'c' },
+      { fill: M_RED,    fg: M_W[0], dir: 'v', wob: 'a' },
+    ];
+    return (
+      <MSectionCanvas cols="minmax(320px, 1.25fr) minmax(260px, 1fr)"
+        rows="minmax(150px, 1fr) minmax(150px, 1fr) minmax(150px, 1fr) 130px"
+        style={{ minHeight: 'calc(100vh - 124px)' }}>
+        <MPlane fill={M_W[0]} dir="h" wob="a"
+          style={{ gridColumn: '1', gridRow: '1 / 4', ...mPnt('r', 0, 900) }}
+          paint={<div style={{ position: 'absolute', left: '10%', top: '58%', width: '70%', height: 24, background: '#efe9da', filter: 'url(#m-str-h)', opacity: 0.5 }} />}
+          contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '48px 40px 40px 56px' }}>
+          <h1 style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(56px, 7vw, 112px)', color: M_INK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase' }}>
+            Not a studio.<br/>
+            <span style={{ color: M_RED }}>Just me.</span><br/>
+            <span style={{ color: M_BLUE }}>Peter.</span>
+          </h1>
+        </MPlane>
+        {cards.map((l, i) => (
+          <MPlane key={l.label} fill={paint[i].fill} dir={paint[i].dir} wob={paint[i].wob}
+            style={{ gridColumn: '2', gridRow: `${i + 1}`, ...mPnt('l', 250 + i * 180, 600) }}
+            contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', gap: '16px', padding: '28px 32px' }}>
+            <MLabel color={paint[i].fg} style={{ fontWeight: 400 }}>{l.label}</MLabel>
+            <div style={{ fontFamily: M_DISPLAY, fontSize: '24px', color: paint[i].fg, letterSpacing: '-0.02em', lineHeight: 1.1, whiteSpace: 'pre-line' }}>{l.text}</div>
+          </MPlane>
+        ))}
+        <MPlane fill={M_BLUE} dir="h" wob="c"
+          style={{ gridColumn: '1 / 3', gridRow: '4', ...mPnt('r', 850, 700) }}
+          contentStyle={{ display: 'flex', alignItems: 'center', padding: '0 56px' }}>
+          <p style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(28px, 3.5vw, 48px)', color: M_W[0], letterSpacing: '-0.03em', lineHeight: 0.95, textTransform: 'uppercase' }}>
+            Sometimes Something Useful
+          </p>
+        </MPlane>
+      </MSectionCanvas>
+    );
+  }
   return (
     <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: mobile ? '12px' : '24px' }}>
       <div style={{
@@ -2529,6 +2550,58 @@ function MTools() {
   const mobile = useMobile();
   const M_CAT_COLORS = { build: [M_RED, M_WHITE], infrastructure: [M_BLUE, M_WHITE], daily: [M_YELLOW, M_BLACK] };
   const cats = visibleToolCategories().map(cat => ({ ...cat, color: M_CAT_COLORS[cat.label][0], fg: M_CAT_COLORS[cat.label][1] }));
+  if (!mobile) {
+    const maxTools = Math.max(...cats.map(c => c.tools.length));
+    const wobs = ['a', 'b', 'c'];
+    return (
+      <MSectionCanvas cols="repeat(3, minmax(0, 1fr))" rows={`180px 88px repeat(${maxTools}, minmax(96px, auto))`}>
+        <MPlane fill={M_W[0]} dir="h" wob="a"
+          style={{ gridColumn: '1 / 3', gridRow: '1', ...mPnt('r', 0, 800) }}
+          contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '14px', padding: '0 40px 0 56px' }}>
+          <h1 style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(40px, 4.6vw, 72px)', color: M_INK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase' }}>
+            How <span style={{ color: M_BLUE }}>I</span> work.
+          </h1>
+          <p style={{ fontFamily: M_SANS, fontSize: '15px', fontWeight: 500, color: M_INK, lineHeight: 1.55, maxWidth: '58ch' }}>No strong opinions on tools. Strong opinions on outcomes. These just happen to be what's in the stack right now.</p>
+        </MPlane>
+        <MPlane fill={M_RED} dir="v" wob="c"
+          style={{ gridColumn: '3', gridRow: '1', ...mPnt('d', 200, 600) }}
+          contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '24px 32px' }}>
+          <MLabel color={M_W[0]}>Total</MLabel>
+          <div style={{ fontFamily: M_DISPLAY, fontSize: '76px', color: M_W[0], lineHeight: 1.0, letterSpacing: '-0.04em' }}>{cats.reduce((n, c) => n + c.tools.length, 0)}</div>
+        </MPlane>
+        {cats.map((cat, i) => {
+          const fg = cat.color === M_YELLOW ? M_INK : M_W[0];
+          return (
+            <MPlane key={`h-${cat.label}`} fill={cat.color} dir="h" wob={wobs[i % 3]}
+              style={{ gridColumn: `${i + 1}`, gridRow: '2', ...mPnt('d', 320 + i * 120, 500) }}
+              contentStyle={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', padding: '20px 24px' }}>
+              <h3 style={{ fontFamily: M_DISPLAY, fontSize: '24px', color: fg, letterSpacing: '-0.02em', textTransform: 'uppercase' }}>{cat.label}</h3>
+              <MLabel color={fg} size="10px">{String(cat.tools.length).padStart(2,'0')}</MLabel>
+            </MPlane>
+          );
+        })}
+        {Array.from({ length: maxTools }, (_, rowIdx) =>
+          cats.map((cat, colIdx) => {
+            const t = cat.tools[rowIdx];
+            const n = rowIdx * 3 + colIdx;
+            return (
+              <MPlane key={`${cat.label}-${rowIdx}`} fill={t ? M_W[(rowIdx + colIdx) % 3] : M_W[3]}
+                dir={colIdx % 2 ? 'v' : 'h'} wob={wobs[n % 3]}
+                style={{ gridColumn: `${colIdx + 1}`, gridRow: `${rowIdx + 3}`, ...mPnt('u', 560 + n * 45, 500) }}
+                contentStyle={{ padding: '18px 24px' }}>
+                {t && (
+                  <>
+                    <div style={{ fontFamily: M_DISPLAY, fontSize: '20px', color: M_INK, letterSpacing: '-0.015em', marginBottom: 4 }}>{t.name}</div>
+                    <div style={{ fontFamily: M_SANS, fontSize: '13px', color: M_INK, fontWeight: 500, lineHeight: 1.5, opacity: 0.75 }}>{t.desc}</div>
+                  </>
+                )}
+              </MPlane>
+            );
+          })
+        )}
+      </MSectionCanvas>
+    );
+  }
   return (
     <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: mobile ? '12px' : '24px' }}>
       <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1fr auto', gap: 0, border: `${M_LINE}px solid ${M_BLACK}`, marginBottom: `${M_LINE}px` }}>
@@ -2603,87 +2676,106 @@ function MContact() {
   const [sending, setSending] = React.useState(false);
   const inp = {
     width: '100%', padding: '14px 16px', fontFamily: M_SANS, fontWeight: 500,
-    fontSize: '16px', color: M_BLACK, background: M_WHITE,
-    border: `${M_LINE/2 + 1}px solid ${M_BLACK}`, outline: 'none', boxSizing: 'border-box',
+    fontSize: '16px', color: M_BLACK, background: mobile ? M_WHITE : M_W[2],
+    border: `${mobile ? M_LINE/2 + 1 : 4}px solid ${mobile ? M_BLACK : M_INK}`, outline: 'none', boxSizing: 'border-box',
   };
+  const inpBg = mobile ? M_WHITE : M_W[2];
+  const sidebar = [
+    { label: 'Response time', bg: M_RED,    fg: M_WHITE, text: 'Usually within\na day or two.' },
+    { label: 'Open to',       bg: M_BLUE,   fg: M_WHITE, text: 'Side projects.\nInteresting ideas.\nNot for hire.' },
+    { label: 'Location',      bg: M_YELLOW, fg: M_BLACK, text: 'Rotterdam,\nthe Netherlands.' },
+  ];
+  // One form, used by both the painted desktop plane and the mobile card.
+  const form = !sent ? (
+    <form onSubmit={async e => {
+      e.preventDefault();
+      setSending(true);
+      setError(false);
+      try {
+        const res = await fetch('https://formspree.io/f/xaqvlkzl', {
+          method: 'POST',
+          body: new FormData(e.target),
+          headers: { Accept: 'application/json' },
+        });
+        if (res.ok) { setSent(true); }
+        else { setError(true); }
+      } catch { setError(true); }
+      finally { setSending(false); }
+    }} style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '560px' }}>
+      {[{ id: 'name', label: 'Name', type: 'text', ph: 'your name' }, { id: 'email', label: 'Email', type: 'email', ph: 'your@email.com' }].map(f => (
+        <div key={f.id}>
+          <label htmlFor={f.id} style={{ display: 'block', marginBottom: 8 }}><MLabel size="11px">{f.label}</MLabel></label>
+          <input id={f.id} name={f.id} type={f.type} placeholder={f.ph} style={inp}
+            onFocus={e => e.target.style.background = M_YELLOW}
+            onBlur={e => e.target.style.background = inpBg} />
+        </div>
+      ))}
+      <div>
+        <label htmlFor="message" style={{ display: 'block', marginBottom: 8 }}><MLabel size="11px">Message</MLabel></label>
+        <textarea id="message" name="message" rows={5} placeholder="what's on your mind?" style={{ ...inp, resize: 'vertical' }}
+          onFocus={e => e.target.style.background = M_YELLOW}
+          onBlur={e => e.target.style.background = inpBg} />
+      </div>
+      {error && (
+        <p style={{ fontFamily: M_SANS, fontSize: '13px', fontWeight: 500, color: M_RED, margin: 0 }}>Something went wrong. Try again or email me directly at peterreijm@live.nl.</p>
+      )}
+      <button type="submit" disabled={sending} style={{
+        alignSelf: 'flex-start', fontFamily: M_SANS, fontWeight: 700, fontSize: '15px',
+        letterSpacing: '0.08em', textTransform: 'uppercase',
+        color: M_WHITE, background: M_RED,
+        border: `${M_LINE/2 + 1}px solid ${mobile ? M_BLACK : M_INK}`,
+        padding: '14px 32px', cursor: sending ? 'default' : 'pointer',
+        opacity: sending ? 0.5 : 1,
+        boxShadow: `6px 6px 0 0 ${mobile ? M_BLACK : M_INK}`, transition: 'transform 150ms ease',
+      }}
+      onMouseEnter={e => { if (!sending) e.currentTarget.style.transform = 'translate(-2px,-2px)'; }}
+      onMouseLeave={e => { if (!sending) e.currentTarget.style.transform = 'none'; }}
+      >{sending ? 'Sending…' : 'Send →'}</button>
+    </form>
+  ) : (
+    <div>
+      <p style={{ fontFamily: M_DISPLAY, fontSize: '52px', color: M_BLACK, letterSpacing: '-0.03em', textTransform: 'uppercase', lineHeight: 1.0 }}>Got it.</p>
+      <p style={{ fontFamily: M_SANS, fontSize: '16px', fontWeight: 500, color: M_BLACK, marginTop: 16 }}>I'll be in touch. Usually within a day or two.</p>
+    </div>
+  );
+  if (!mobile) {
+    const paint = [
+      { dir: 'v', wob: 'c' },
+      { dir: 'h', wob: 'a' },
+      { dir: 'h', wob: 'b' },
+    ];
+    return (
+      <MSectionCanvas cols="minmax(340px, 1.25fr) minmax(260px, 1fr)"
+        rows="minmax(170px, 1fr) minmax(170px, 1fr) minmax(170px, 1fr)"
+        style={{ minHeight: 'calc(100vh - 124px)' }}>
+        <MPlane fill={M_W[0]} dir="h" wob="a"
+          style={{ gridColumn: '1', gridRow: '1 / 4', ...mPnt('r', 0, 900) }}
+          contentStyle={{ padding: '48px 40px 40px 56px' }}>
+          <h1 style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(56px, 7vw, 104px)', color: M_INK, lineHeight: 0.92, letterSpacing: '-0.035em', marginBottom: 36, textTransform: 'uppercase' }}>
+            Say <span style={{ color: M_RED }}>hello.</span>
+          </h1>
+          {form}
+        </MPlane>
+        {sidebar.map((l, i) => (
+          <MPlane key={l.label} fill={l.bg} dir={paint[i].dir} wob={paint[i].wob}
+            style={{ gridColumn: '2', gridRow: `${i + 1}`, ...mPnt('l', 250 + i * 180, 600) }}
+            contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '28px 32px' }}>
+            <MLabel color={l.bg === M_YELLOW ? M_INK : M_W[0]}>{l.label}</MLabel>
+            <div style={{ fontFamily: M_DISPLAY, fontSize: '26px', color: l.bg === M_YELLOW ? M_INK : M_W[0], letterSpacing: '-0.02em', lineHeight: 1.1, whiteSpace: 'pre-line' }}>{l.text}</div>
+          </MPlane>
+        ))}
+      </MSectionCanvas>
+    );
+  }
   return (
-    <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: mobile ? '12px' : '24px' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : 'minmax(0, 1.2fr) minmax(0, 1fr)', gridTemplateRows: '1fr', gap: 0, border: `${M_LINE}px solid ${M_BLACK}`, background: M_BLACK, minHeight: mobile ? 'auto' : '600px' }}>
-        <div style={{ background: M_WHITE, padding: '40px', borderRight: `${M_LINE}px solid ${M_BLACK}` }}>
+    <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '12px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gridTemplateRows: '1fr', gap: 0, border: `${M_LINE}px solid ${M_BLACK}`, background: M_BLACK }}>
+        <div style={{ background: M_WHITE, padding: '40px' }}>
           <h1 style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(56px, 8vw, 112px)', color: M_BLACK, lineHeight: 0.92, letterSpacing: '-0.035em', marginBottom: 36, textTransform: 'uppercase' }}>
             Say <span style={{ color: M_RED }}>hello.</span>
           </h1>
-          {!sent ? (
-            <form onSubmit={async e => {
-              e.preventDefault();
-              setSending(true);
-              setError(false);
-              try {
-                const res = await fetch('https://formspree.io/f/xaqvlkzl', {
-                  method: 'POST',
-                  body: new FormData(e.target),
-                  headers: { Accept: 'application/json' },
-                });
-                if (res.ok) { setSent(true); }
-                else { setError(true); }
-              } catch { setError(true); }
-              finally { setSending(false); }
-            }} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              {[{ id: 'name', label: 'Name', type: 'text', ph: 'your name' }, { id: 'email', label: 'Email', type: 'email', ph: 'your@email.com' }].map(f => (
-                <div key={f.id}>
-                  <label htmlFor={f.id} style={{ display: 'block', marginBottom: 8 }}><MLabel size="11px">{f.label}</MLabel></label>
-                  <input id={f.id} name={f.id} type={f.type} placeholder={f.ph} style={inp}
-                    onFocus={e => e.target.style.background = M_YELLOW}
-                    onBlur={e => e.target.style.background = M_WHITE} />
-                </div>
-              ))}
-              <div>
-                <label htmlFor="message" style={{ display: 'block', marginBottom: 8 }}><MLabel size="11px">Message</MLabel></label>
-                <textarea id="message" name="message" rows={5} placeholder="what's on your mind?" style={{ ...inp, resize: 'vertical' }}
-                  onFocus={e => e.target.style.background = M_YELLOW}
-                  onBlur={e => e.target.style.background = M_WHITE} />
-              </div>
-              {error && (
-                <p style={{ fontFamily: M_SANS, fontSize: '13px', fontWeight: 500, color: M_RED, margin: 0 }}>Something went wrong. Try again or email me directly at peterreijm@live.nl.</p>
-              )}
-              <button type="submit" disabled={sending} style={{
-                alignSelf: 'flex-start', fontFamily: M_SANS, fontWeight: 700, fontSize: '15px',
-                letterSpacing: '0.08em', textTransform: 'uppercase',
-                color: M_WHITE, background: M_RED,
-                border: `${M_LINE/2 + 1}px solid ${M_BLACK}`,
-                padding: '14px 32px', cursor: sending ? 'default' : 'pointer',
-                opacity: sending ? 0.5 : 1,
-                boxShadow: `6px 6px 0 0 ${M_BLACK}`, transition: 'transform 150ms ease',
-              }}
-              onMouseEnter={e => { if (!sending) e.currentTarget.style.transform = 'translate(-2px,-2px)'; }}
-              onMouseLeave={e => { if (!sending) e.currentTarget.style.transform = 'none'; }}
-              >{sending ? 'Sending…' : 'Send →'}</button>
-            </form>
-          ) : (
-            <div>
-              <p style={{ fontFamily: M_DISPLAY, fontSize: '52px', color: M_BLACK, letterSpacing: '-0.03em', textTransform: 'uppercase', lineHeight: 1.0 }}>Got it.</p>
-              <p style={{ fontFamily: M_SANS, fontSize: '16px', fontWeight: 500, color: M_BLACK, marginTop: 16 }}>I'll be in touch. Usually within a day or two.</p>
-            </div>
-          )}
+          {form}
         </div>
-        {!mobile && (
-          <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr 1fr', gap: 0 }}>
-            {[
-              { label: 'Response time', bg: M_RED,    fg: M_WHITE, text: 'Usually within\na day or two.' },
-              { label: 'Open to',       bg: M_BLUE,   fg: M_WHITE, text: 'Side projects.\nInteresting ideas.\nNot for hire.' },
-              { label: 'Location',      bg: M_YELLOW, fg: M_BLACK, text: 'Rotterdam,\nthe Netherlands.' },
-            ].map((l, i, arr) => (
-              <div key={l.label} style={{
-                background: l.bg, padding: '28px 32px',
-                borderBottom: i < arr.length - 1 ? `${M_LINE}px solid ${M_BLACK}` : 'none',
-                display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-              }}>
-                <MLabel color={l.fg}>{l.label}</MLabel>
-                <div style={{ fontFamily: M_DISPLAY, fontSize: '26px', color: l.fg, letterSpacing: '-0.02em', lineHeight: 1.1, whiteSpace: 'pre-line' }}>{l.text}</div>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
     </section>
   );
@@ -2699,6 +2791,62 @@ function MProjectDetail({ project, onBack }) {
   const titleFontSize = longestWord >= 10 ? 'clamp(28px, 5.4vw, 76px)'
     : longestWord >= 8 ? 'clamp(40px, 7vw, 104px)'
     : 'clamp(56px, 9vw, 132px)';
+  if (!mobile) {
+    const accentFg = accent === M_YELLOW ? M_INK : M_W[0];
+    return (
+      <MSectionCanvas cols="minmax(320px, 2fr) minmax(240px, 1fr)"
+        rows="72px minmax(280px, auto) minmax(240px, auto)">
+        <MPlane as="button" fill={M_W[1]} dir="h" wob="b" onClick={onBack}
+          style={{ gridColumn: '1', gridRow: '1', cursor: 'pointer', ...mPnt('r', 0, 500) }}
+          contentStyle={{ display: 'flex', alignItems: 'center', paddingLeft: 56 }}>
+          <span style={{ fontFamily: M_MONO, fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: M_INK }}>← back to work</span>
+        </MPlane>
+        <MPlane fill={M_YELLOW} dir="h" wob="c" style={{ gridColumn: '2', gridRow: '1', ...mPnt('l', 150, 450) }} />
+        <MPlane fill={accent} dir="v" wob="a"
+          style={{ gridColumn: '1', gridRow: '2', ...mPnt('r', 220, 800) }}
+          contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '40px 40px 40px 56px' }}>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
+            {project.tags.map(t => (
+              <span key={t} style={{ fontFamily: M_MONO, fontSize: '11px', fontWeight: 700, color: accentFg, padding: '4px 10px', border: `2px solid ${accentFg}`, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{t}</span>
+            ))}
+          </div>
+          <h1 style={{ fontFamily: M_DISPLAY, fontSize: titleFontSize, color: accentFg, lineHeight: 0.9, letterSpacing: '-0.04em', textTransform: 'uppercase', overflowWrap: 'break-word' }}>{project.title}</h1>
+          {project.tagline && <p style={{ fontFamily: M_SANS, fontWeight: 700, fontSize: '20px', color: accentFg, marginTop: 16, letterSpacing: '-0.01em' }}>{project.tagline}</p>}
+        </MPlane>
+        <MPlane fill={M_INK} dir="v" wob="b"
+          style={{ gridColumn: '2', gridRow: '2', ...mPnt('d', 420, 650) }}
+          contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '40px' }}>
+          <MLabel color={M_W[0]}>Year</MLabel>
+          <div style={{ fontFamily: M_DISPLAY, fontSize: '88px', color: M_W[0], lineHeight: 1.0, letterSpacing: '-0.04em' }}>{project.year}</div>
+        </MPlane>
+        <MPlane fill={M_W[0]} dir="h" wob="c"
+          style={{ gridColumn: '1', gridRow: '3', ...mPnt('u', 600, 650) }}
+          contentStyle={{ padding: '40px 40px 40px 56px' }}>
+          <MLabel color={M_INK}>Brief</MLabel>
+          <p style={{ fontFamily: M_SANS, fontSize: '17px', fontWeight: 500, color: M_INK, lineHeight: 1.65, marginTop: 16, maxWidth: '68ch' }}>{project.detail || project.description}</p>
+        </MPlane>
+        <MPlane fill={M_W[2]} dir="v" wob="a"
+          style={{ gridColumn: '2', gridRow: '3', ...mPnt('l', 750, 600) }}
+          contentStyle={{ display: 'flex', flexDirection: 'column', gap: 24, padding: '40px' }}>
+          {project.role && <div><MLabel color={M_INK} size="10px">Role</MLabel><div style={{ fontFamily: M_SANS, fontWeight: 500, fontSize: '15px', color: M_INK, marginTop: 6 }}>{project.role}</div></div>}
+          {project.stack && (
+            <div>
+              <MLabel color={M_INK} size="10px">Stack</MLabel>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+                {project.stack.map(s => <span key={s} style={{ fontFamily: M_MONO, fontSize: '11px', fontWeight: 700, color: M_INK, background: M_YELLOW, padding: '4px 8px', border: `2px solid ${M_INK}` }}>{s}</span>)}
+              </div>
+            </div>
+          )}
+          {project.href && (
+            <div>
+              <MLabel color={M_INK} size="10px">Live at</MLabel>
+              <a href={project.href} target="_blank" rel="noopener noreferrer" style={{ fontFamily: M_DISPLAY, fontSize: '22px', color: M_RED, textDecoration: 'none', letterSpacing: '-0.02em', display: 'block', marginTop: 6 }}>{project.url} ↗</a>
+            </div>
+          )}
+        </MPlane>
+      </MSectionCanvas>
+    );
+  }
   return (
     <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: mobile ? '12px' : '24px' }}>
       <button onClick={onBack} style={{
@@ -2749,10 +2897,79 @@ function MProjectDetail({ project, onBack }) {
   );
 }
 
+// One painted table row — a fragment of six planes sharing hover state, so the
+// whole row lifts together and the arrow tile repaints yellow.
+function MWorkRow({ project, idx, row, onSelect }) {
+  const isClickable = !!(project.detail || project.description);
+  const comingSoon = project.public === false; // not live yet — shown only via the year label, still clickable for the case study
+  const [h, setH] = React.useState(false);
+  const accent = [M_RED, M_BLUE, M_YELLOW, M_INK][idx % 4];
+  const accentFg = accent === M_YELLOW ? M_INK : M_W[0];
+  const wobs = ['a', 'b', 'c'];
+  const cell = (col, fill, dir, content, extra) => (
+    <MPlane fill={fill} dir={dir} wob={wobs[(idx + col) % 3]}
+      onClick={isClickable ? () => onSelect(project) : undefined}
+      onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
+      style={{
+        gridColumn: `${col}`, gridRow: `${row}`, cursor: isClickable ? 'pointer' : 'default',
+        transition: 'transform 200ms cubic-bezier(.2,.8,.2,1)',
+        transform: h && isClickable ? 'translateY(-3px)' : 'none',
+        ...mPnt('r', 300 + idx * 130, 550),
+      }}
+      contentStyle={{ display: 'flex', alignItems: 'center', padding: '0 24px', ...extra }}>
+      {content}
+    </MPlane>
+  );
+  return (
+    <>
+      {cell(1, accent, 'v',
+        <span style={{ fontFamily: M_MONO, fontSize: '11px', fontWeight: 700, color: accentFg, letterSpacing: '0.04em' }}>{String(idx + 1).padStart(2, '0')}</span>,
+        { justifyContent: 'center', padding: 0 })}
+      {cell(2, M_W[idx % 3], 'h',
+        <>
+          <span style={{ fontFamily: M_DISPLAY, fontSize: '22px', color: M_INK, letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1 }}>{project.title}</span>
+          {project.description && <span style={{ fontFamily: M_MONO, fontSize: '11px', color: '#5a5a5a', letterSpacing: '0.02em', lineHeight: 1.4 }}>{project.description}</span>}
+        </>,
+        { flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center', gap: 4, padding: '14px 24px' })}
+      {cell(3, M_W[(idx + 1) % 3], 'h',
+        <span style={{ fontFamily: M_MONO, fontSize: '11px', fontWeight: 700, color: M_INK, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{project.tags[0]}</span>)}
+      {cell(4, M_W[(idx + 2) % 3], 'v',
+        <span style={{ fontFamily: M_MONO, fontSize: '11px', color: '#5a5a5a', letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>{comingSoon ? 'soon' : project.year}</span>)}
+      {cell(5, M_W[idx % 3], 'h',
+        <span style={{ fontFamily: M_MONO, fontSize: '11px', color: M_INK, letterSpacing: '0.02em' }}>{project.url}</span>)}
+      {cell(6, h && isClickable ? M_YELLOW : M_W[3], 'v',
+        isClickable ? <span style={{ fontFamily: M_MONO, fontSize: '16px', color: M_INK }}>→</span> : null,
+        { justifyContent: 'center', padding: 0 })}
+    </>
+  );
+}
+
 function MWorkTable({ onSelect }) {
   const mobile = useMobile();
   const ROW_BORDER = `${M_LINE}px solid ${M_BLACK}`;
   const CELL = { borderRight: ROW_BORDER, padding: '28px 24px', display: 'flex', alignItems: 'center' };
+  if (!mobile) {
+    return (
+      <MSectionCanvas cols="98px minmax(260px, 1fr) 150px 110px 240px 98px"
+        rows={`160px repeat(${PROJECTS.length}, minmax(96px, auto))`}>
+        <MPlane fill={M_W[0]} dir="h" wob="a"
+          style={{ gridColumn: '1 / 5', gridRow: '1', ...mPnt('r', 0, 800) }}
+          contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '12px', padding: '0 40px 0 56px' }}>
+          <MLabel color={M_INK} size="11px">Every project</MLabel>
+          <h1 style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(40px, 4.6vw, 72px)', color: M_INK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase' }}>Work.</h1>
+        </MPlane>
+        <MPlane fill={M_BLUE} dir="v" wob="c"
+          style={{ gridColumn: '5 / 7', gridRow: '1', ...mPnt('d', 200, 600) }}
+          contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '22px 32px' }}>
+          <MLabel color={M_W[0]}>Count</MLabel>
+          <div style={{ fontFamily: M_DISPLAY, fontSize: '64px', color: M_W[0], lineHeight: 1.0, letterSpacing: '-0.04em' }}>{String(PROJECTS.length).padStart(2,'0')}</div>
+        </MPlane>
+        {PROJECTS.map((p, idx) => (
+          <MWorkRow key={p.id} project={p} idx={idx} row={idx + 2} onSelect={onSelect} />
+        ))}
+      </MSectionCanvas>
+    );
+  }
   return (
     <section style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: mobile ? '12px' : '24px' }}>
       {!mobile && (
@@ -2847,8 +3064,45 @@ function MWorkTable({ onSelect }) {
   );
 }
 
+function MFooterTile({ label, href, fill, dir, wob }) {
+  const [h, setH] = React.useState(false);
+  const fg = fill === M_YELLOW ? M_INK : M_W[0];
+  return (
+    <MPlane as="a" href={href} target={href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer"
+      fill={fill} dir={dir} wob={wob}
+      onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
+      style={{ cursor: 'pointer', transition: 'transform 200ms cubic-bezier(.2,.8,.2,1)', transform: h ? 'translateY(-3px)' : 'none' }}
+      contentStyle={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px' }}>
+      <span style={{ fontFamily: M_DISPLAY, fontSize: '20px', color: fg, letterSpacing: '-0.02em', textTransform: 'uppercase' }}>{label}</span>
+      <span style={{ fontFamily: M_DISPLAY, fontSize: '20px', color: fg }}>→</span>
+    </MPlane>
+  );
+}
+
 function MFooter() {
   const mobile = useMobile();
+  if (!mobile) {
+    const links = [
+      { label: 'github',   href: 'https://github.com/preijm',                         fill: M_RED,    dir: 'v', wob: 'a' },
+      { label: 'linkedin', href: 'https://www.linkedin.com/in/peter-reijm-47165b5b/', fill: M_BLUE,   dir: 'h', wob: 'b' },
+      { label: 'email',    href: 'mailto:peterreijm@live.nl',                          fill: M_YELLOW, dir: 'h', wob: 'c' },
+    ];
+    return (
+      <footer style={{ width: '100%' }}>
+        <div style={{
+          display: 'grid', gridTemplateColumns: 'minmax(280px, 1fr) 220px 220px 220px', gridTemplateRows: '96px',
+          gap: `${M_PLINE}px`, padding: `${M_PLINE}px 0 ${M_PLINE}px ${M_PLINE}px`,
+          background: M_INK, boxSizing: 'border-box', overflow: 'hidden',
+        }}>
+          <MPlane fill={M_W[1]} dir="h" wob="a" contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 6, paddingLeft: 56 }}>
+            <MLabel color={M_INK} size="10px">© 2026 Peter &amp; Co.</MLabel>
+            <div style={{ fontFamily: M_MONO, fontSize: '11px', color: M_INK, letterSpacing: '0.04em' }}>this is a playground, not a business. yet.</div>
+          </MPlane>
+          {links.map(l => <MFooterTile key={l.label} {...l} />)}
+        </div>
+      </footer>
+    );
+  }
   return (
     <footer style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: mobile ? '12px 12px 20px' : '24px 24px 32px' }}>
       <div style={{ border: `${M_LINE}px solid ${M_BLACK}`, display: 'grid', gridTemplateColumns: mobile ? '1fr 1fr' : '2fr 1fr 1fr 1fr', background: M_BLACK }}>
@@ -2877,12 +3131,15 @@ function MFooter() {
 }
 
 function MondriaanApp({ page, selectedProject, navigate, selectProject, activePage }) {
+  const mobile = useMobile();
   const isHome = page === 'home' && !selectedProject;
   return (
     <div style={{ background: M_LINEN, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <MPaintDefs />
-      {/* On home the painting carries its own header tiles */}
-      {!isHome && <MHeader activePage={activePage} onNavigate={navigate} />}
+      {/* On home the painting carries its own header tiles; mobile keeps the classic header */}
+      {!isHome && (mobile
+        ? <MHeader activePage={activePage} onNavigate={navigate} />
+        : <MPaintedHeader activePage={activePage} onNavigate={navigate} />)}
       <main style={{ flex: 1 }}>
         {isHome && <MHomePainting activePage={activePage} onNavigate={navigate} onSelect={selectProject} />}
         {page === 'work' && !selectedProject && <MWorkTable onSelect={selectProject} />}
@@ -2891,7 +3148,8 @@ function MondriaanApp({ page, selectedProject, navigate, selectProject, activePa
         {page === 'contact' && <MContact />}
         {page === 'project' && selectedProject && <MProjectDetail project={selectedProject} onBack={() => navigate('work')} />}
       </main>
-      <MFooter />
+      {/* Home is one uninterrupted canvas — no footer strip under the painting */}
+      {!isHome && <MFooter />}
       <MPaintOverlay />
     </div>
   );

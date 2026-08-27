@@ -38,10 +38,13 @@ const M_SANS    = 'Space Grotesk, sans-serif'
 const M_MONO    = 'Space Mono, monospace'
 ```
 
-The home page renders as a full-bleed painting (`MHomePainting` — see THEMES.md
-"Mondriaan Home Painting"): SVG turbulence filters wobble every plane edge,
-brush-streak masks add directional paint, and a fixed grain + linen overlay
-covers the whole edition.
+Every desktop page renders as a full-bleed painting (see THEMES.md "Mondriaan
+Home Painting" and "Painted subpages"): SVG turbulence filters wobble every
+plane edge, brush-streak masks add directional paint, and a fixed grain +
+linen overlay covers the whole edition. Home is a single viewport-filling
+canvas with no footer; the other pages stack `MPaintedHeader`, an
+`MSectionCanvas` composition, and the painted `MFooter`. Mobile keeps the
+classic bordered layouts.
 
 ## PR Workflow
 - Always check PR state before pushing (`gh pr list --state open`)

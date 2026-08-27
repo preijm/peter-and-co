@@ -256,15 +256,17 @@ content — see [footage/README.md](footage/README.md).
 ### Mondriaan Home Painting (v1)
 
 The home page is one **full-bleed painting** — no 1280px container, no separate
-header. Logo, nav and the edition switch are painted tiles inside the
-composition (`MHomePainting`); `MHeader` renders on every page *except* home.
+header, and **no footer**: the canvas is the whole viewport (`minHeight: 100vh`
+with the hero row flexible, so the painting stretches rather than leaving linen
+below). Logo, nav and the edition switch are painted tiles inside the
+composition (`MHomePainting`, via the shared `MHeaderTiles` fragment).
 The right-hand column bleeds off the top and right edges with no black line,
 like the unbounded planes on the real canvases (via `marginTop: -M_PLINE` and
 the container's right padding being 0).
 
 ```
-gridTemplateColumns: '98px 176px minmax(280px, 1fr) 90px 120px 120px 120px 120px 128px'
-gridTemplateRows:    '104px 520px 82px 162px 122px'
+gridTemplateColumns: M_COLS = '98px 170px minmax(220px, 1fr) 76px 110px 110px 110px 110px 124px'
+gridTemplateRows:    '104px minmax(360px, 1fr) 82px 162px 122px'
 gap / outer padding: M_PLINE = 10px on background M_INK
 ```
 
@@ -304,6 +306,28 @@ a diagram. The machinery lives in the mondriaan blob:
   (z 50, under the Editions modal at z 1000), on every page.
 - Whites are **broken whites** (`M_W`), one tint per plane; `M_WHITE` itself is
   warm (`#f6f3ea`) so text on colored planes and the subpages match.
+
+### Painted subpages
+Every desktop page is a painting, not just home. The shared pieces:
+
+- **`MPaintedHeader`** — the `MHeaderTiles` band (grid on `M_COLS`, 104px row)
+  on every page except home; its red edition tile is header-row-only there but
+  still bleeds top and right. Mobile keeps the classic bordered `MHeader`.
+- **`MSectionCanvas`** — a full-bleed painted grid for page content. Its top
+  padding is 0: the header band's bottom padding supplies the shared 10px line,
+  so stacking them never doubles it.
+- **Work** is a painted table — `MWorkRow` renders six planes per project that
+  share hover state (the row lifts together, the arrow tile repaints yellow).
+  Accent number tiles rotate red → blue → yellow → ink.
+- **Tools / About / Contact / Project detail** rebuild their old compositions
+  as planes: same content, painted surfaces; the contact form is defined once
+  and shared between the desktop plane and the mobile card.
+- **`MFooter`** is a full-bleed painted band (©-plane + red github, blue
+  linkedin, yellow email tiles) on every page except home. Mobile keeps the
+  bordered footer.
+- Vertical lines between the header band and a page's own grid do **not**
+  align — rows with different divisions are the authentic Mondriaan move, not
+  a bug to fix.
 
 ### Paint-In Animation
 When the home page mounts, each block sweeps in using CSS `clip-path` animations — the feeling of fresh paint being applied.
