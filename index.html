@@ -121,7 +121,7 @@
 (function () {
   var FONTS = {
     'ink-v1':       'https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@300;400;500;600&display=swap',
-    'chalk-v1':     'https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@300;400;500;600&display=swap',
+    'broadside-v1': 'https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@300;400;500;600&display=swap',
     'mondriaan-v1': 'https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap',
     'volt-v1':      'https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap',
     'grain-v1':    'https://fonts.googleapis.com/css2?family=Inter:wght@300;400&display=swap',
@@ -221,8 +221,8 @@ const THEMES = [
     },
   },
   {
-    id: 'chalk-v1',
-    name: 'Chalk',
+    id: 'broadside-v1',
+    name: 'Broadside',
     version: 'v1',
     tagline: 'light · oversized · one statement',
     // Was the plain light palette on the shared layout — in other words Ink with the
@@ -230,8 +230,8 @@ const THEMES = [
     // poster, where a single statement is sized to fill the sheet and everything else
     // is a ruled listing beneath it.
     mondriaan: true,
-    srcId: 'chalk-src',
-    appGlobal: 'ChalkApp',
+    srcId: 'broadside-src',
+    appGlobal: 'BroadsideApp',
     mobileOptimized: true,
     fonts: {
       serif: "'DM Serif Display', Georgia, serif",
@@ -372,7 +372,7 @@ const THEMES = [
     mobileOptimized: true,
     fonts: {
       // A serif that carries the display sizes and a grotesque that gets out of its
-      // way. Chalk already owns DM Serif Display, so this deliberately is not that.
+      // way. Broadside already owns DM Serif Display, so this deliberately is not that.
       serif: "'Instrument Serif', Georgia, 'Times New Roman', serif",
       sans:  "'Instrument Sans', system-ui, -apple-system, sans-serif",
       mono:  "'Instrument Sans', system-ui, -apple-system, sans-serif",
@@ -500,7 +500,7 @@ function ThemeSwatch({ themeId }) {
       <div style={{ position:'absolute', bottom:'10%', left:'10%', width:'28%', height:'7%', background:'#2a2a2a' }} />
     </div>
   );
-  if (themeId === 'chalk-v1') return (
+  if (themeId === 'broadside-v1') return (
     <div style={{ width:'100%', aspectRatio:'16/9', background:'#f2f0eb', position:'relative', overflow:'hidden' }}>
       {/* One statement across the full measure, a quieter second line, then the heavy
           rule and the listings — the shape of the edition rather than a colour sample. */}
@@ -595,7 +595,7 @@ function EditionModal() {
   // borderSubtle. Mondriaan's borderSubtle is hard black, so it keeps its rule.
   const edge = panelDark ? t.textGhost : t.borderSubtle;
   // Labels read textMuted, not textDim. textDim measured 4.22 on Ink and 4.04 on
-  // Chalk — both under AA, and the old hardcoded #6b6b6b was worse still. textMuted
+  // Broadside — both under AA, and the old hardcoded #6b6b6b was worse still. textMuted
   // puts the worst case across all six at 7.01.
   const c = {
     overlay:      rgba(panelDark ? t.bg : t.text, panelDark ? 0.9 : 0.6),
@@ -858,14 +858,14 @@ const MONDRIAAN_PALETTE = new Set(['#d72027', '#1d4ed8', '#fcc60b', '#0a0a0a', '
 // Accent legibility.
 //
 // One accent per project has to serve a near-black card in Ink and a near-white page
-// in Chalk, and no single hex does both. Measured on the current five: the blue is
-// 3.0 against Ink and 5.5 against Chalk; the amber is 10.1 against Ink and 1.6
-// against Chalk. So the value stays canonical in Sanity and the theme adjusts it here.
+// in Broadside, and no single hex does both. Measured on the current five: the blue is
+// 3.0 against Ink and 5.5 against Broadside; the amber is 10.1 against Ink and 1.6
+// against Broadside. So the value stays canonical in Sanity and the theme adjusts it here.
 //
 // Lightness only, hue and saturation held, so a colour stays itself - the purple that
 // already reads well comes out as exactly the purple that was authored, untouched.
 //
-// Dark surfaces only. The same function fixes Chalk, but there it has to darken rather
+// Dark surfaces only. The same function fixes Broadside, but there it has to darken rather
 // than brighten and the shifts are drastic - amber #ffad01 becomes #906100 - which is a
 // look decision, not a bug fix, and wants deciding on its own.
 const AC_TARGET = 7;      // WCAG AAA for normal text; the accents are 13px links
@@ -908,7 +908,7 @@ function fitAccent(hex, bg) {
 }
 
 // The surface an accent is actually painted on. bgDark is the card fill where it is a
-// real colour; Chalk paints cards transparent, so there the page background is what
+// real colour. Broadside is a takeover and paints no cards at all, so this only
 // the accent sits against.
 function accentSurface(theme) {
   const d = theme.colors.bgDark;
@@ -4892,8 +4892,8 @@ function PrismApp({ selectedProject, navigate, selectProject }) {
   );
 }
 </script>
-<script type="text/plain" id="chalk-src">
-// ── CHALK MODE ─────────────────────────────────────────────
+<script type="text/plain" id="broadside-src">
+// ── BROADSIDE MODE ─────────────────────────────────────────────
 // A poster, not a page. One statement owns the first screen at a size no other
 // edition goes near, and everything under it is a ruled listing.
 //
@@ -4910,60 +4910,60 @@ function PrismApp({ selectedProject, navigate, selectProject }) {
 //
 // Motion is deliberately near-zero. This is a print idiom and print does not float:
 // rules draw themselves in from the left, content rises once, nothing loops.
-const CH_PAPER = '#f2f0eb', CH_INK = '#0a0a0a', CH_BODY = '#3a3a3a', CH_MUTE = '#6b6b6b';
-const CH_SURFACE = '#e2e0db', CH_LINE = '#dddbd6';
-const CH_DISPLAY = "'DM Serif Display', Georgia, serif";
-const CH_MONO = "'JetBrains Mono', 'Fira Code', monospace";
-const CH_EDGE = 'clamp(20px, 4vw, 56px)';
-const CH_CHROME = '64px';
+const BS_PAPER = '#f2f0eb', BS_INK = '#0a0a0a', BS_BODY = '#3a3a3a', BS_MUTE = '#6b6b6b';
+const BS_SURFACE = '#e2e0db', BS_LINE = '#dddbd6';
+const BS_DISPLAY = "'DM Serif Display', Georgia, serif";
+const BS_MONO = "'JetBrains Mono', 'Fira Code', monospace";
+const BS_EDGE = 'clamp(20px, 4vw, 56px)';
+const BS_CHROME = '64px';
 
-const chReduced = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const bsReduced = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-function chStyles() {
-  if (document.getElementById('chalk-style')) return;
+function bsStyles() {
+  if (document.getElementById('broadside-style')) return;
   const st = document.createElement('style');
-  st.id = 'chalk-style';
+  st.id = 'broadside-style';
   st.textContent = [
-    '.chalk-root ::selection { background: #0a0a0a; color: #f2f0eb; }',
-    '.chalk-root a, .chalk-root button { -webkit-tap-highlight-color: transparent; }',
-    '.chalk-root a:focus-visible, .chalk-root button:focus-visible { outline: 2px solid #0a0a0a; outline-offset: 3px; }',
+    '.broadside-root ::selection { background: #0a0a0a; color: #f2f0eb; }',
+    '.broadside-root a, .broadside-root button { -webkit-tap-highlight-color: transparent; }',
+    '.broadside-root a:focus-visible, .broadside-root button:focus-visible { outline: 2px solid #0a0a0a; outline-offset: 3px; }',
 
     // RULE. A rule that draws itself is the only flourish here, and it is the one
     // motion that belongs to a printing idiom rather than a screen one. Default state
     // is DRAWN — without scroll-driven timelines the page is simply already set.
-    '@keyframes ch-draw { from { transform: scaleX(0); } to { transform: scaleX(1); } }',
-    '.ch-rule { transform-origin: 0 50%; }',
+    '@keyframes bs-draw { from { transform: scaleX(0); } to { transform: scaleX(1); } }',
+    '.bs-rule { transform-origin: 0 50%; }',
 
     // RISE. One move, 12px, no loop.
-    '@keyframes ch-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }',
-    '.ch-in { animation: ch-rise 620ms cubic-bezier(0.22,0.61,0.36,1) both; }',
-    '.ch-d1 { animation-delay: 90ms; } .ch-d2 { animation-delay: 180ms; }',
+    '@keyframes bs-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }',
+    '.bs-in { animation: bs-rise 620ms cubic-bezier(0.22,0.61,0.36,1) both; }',
+    '.bs-d1 { animation-delay: 90ms; } .bs-d2 { animation-delay: 180ms; }',
     '@supports (animation-timeline: view()) { @media (prefers-reduced-motion: no-preference) {',
-    '  .ch-rule { animation: ch-draw linear both; animation-timeline: view(); animation-range: entry 10% cover 22%; }',
-    '  .ch-riser { animation: ch-rise linear both; animation-timeline: view(); animation-range: entry 5% cover 26%; }',
+    '  .bs-rule { animation: bs-draw linear both; animation-timeline: view(); animation-range: entry 10% cover 22%; }',
+    '  .bs-riser { animation: bs-rise linear both; animation-timeline: view(); animation-range: entry 5% cover 26%; }',
     '} }',
-    '@media (prefers-reduced-motion: reduce) { .chalk-root *, .chalk-root *::before { animation: none !important; transition: none !important; } }',
+    '@media (prefers-reduced-motion: reduce) { .broadside-root *, .broadside-root *::before { animation: none !important; transition: none !important; } }',
 
     // Listing rows fade on hover rather than filling: a filled row would be a card,
     // and this edition does not have one anywhere.
-    '.ch-row { transition: opacity 140ms ease; }',
-    '.ch-row:hover { opacity: 0.55; }',
+    '.bs-row { transition: opacity 140ms ease; }',
+    '.bs-row:hover { opacity: 0.55; }',
 
     // NUDGE — the one looping animation here, and it earns the exception. The first
     // sheet is exactly one viewport ending in a hard rule, so nothing bleeds past the
     // fold and the composition reads as finished: the next section starts 90px BELOW
     // the fold, which is to say invisibly. A closed poster needs to say it continues.
-    '@keyframes ch-nudge { 0%,100% { transform: translateY(0); opacity: 0.75; } 50% { transform: translateY(3px); opacity: 1; } }',
-    '.ch-nudge { animation: ch-nudge 2.4s ease-in-out infinite; }',
+    '@keyframes bs-nudge { 0%,100% { transform: translateY(0); opacity: 0.75; } 50% { transform: translateY(3px); opacity: 1; } }',
+    '.bs-nudge { animation: bs-nudge 2.4s ease-in-out infinite; }',
   ].join('\n');
   document.head.appendChild(st);
 }
 
-function CHLabel({ children, style }) {
+function BSLabel({ children, style }) {
   return (
     <span style={{
-      fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em',
-      color: CH_MUTE, textTransform: 'lowercase', ...(style || {}),
+      fontFamily: BS_MONO, fontSize: '10px', letterSpacing: '0.14em',
+      color: BS_MUTE, textTransform: 'lowercase', ...(style || {}),
     }}>{children}</span>
   );
 }
@@ -4975,40 +4975,40 @@ function CHLabel({ children, style }) {
 // through its own entry range forever — the listings rule at the foot of the first
 // sheet drew to about 45% and stopped there. Anything above the fold is therefore
 // simply set, and only rules the reader actually scrolls to draw themselves in.
-function CHRule({ weight, draw }) {
-  return <div className={draw ? 'ch-rule' : undefined} style={{ height: weight || '3px', background: CH_INK, width: '100%' }} />;
+function BSRule({ weight, draw }) {
+  return <div className={draw ? 'bs-rule' : undefined} style={{ height: weight || '3px', background: BS_INK, width: '100%' }} />;
 }
 
-function CHButton({ children, onClick, href, newTab, primary }) {
+function BSButton({ children, onClick, href, newTab, primary }) {
   const base = {
     display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
     minHeight: '44px', padding: '0 26px', borderRadius: '2px', boxSizing: 'border-box',
-    fontFamily: CH_MONO, fontSize: '12px', letterSpacing: '0.08em', cursor: 'pointer',
-    textDecoration: 'none', border: '1px solid ' + CH_INK,
-    background: primary ? CH_INK : 'transparent',
-    color: primary ? CH_PAPER : CH_INK,
+    fontFamily: BS_MONO, fontSize: '12px', letterSpacing: '0.08em', cursor: 'pointer',
+    textDecoration: 'none', border: '1px solid ' + BS_INK,
+    background: primary ? BS_INK : 'transparent',
+    color: primary ? BS_PAPER : BS_INK,
   };
   if (href) return <a href={href} target={newTab ? '_blank' : undefined} rel={newTab ? 'noopener noreferrer' : undefined} style={base}>{children}</a>;
   return <button onClick={onClick} style={base}>{children}</button>;
 }
 
-// The nav navigates. Chalk used to be one long scroll with these as jump targets,
+// The nav navigates. Broadside used to be one long scroll with these as jump targets,
 // which meant the poster sheet had five sections stacked under it and had to apologise
 // for them with a "continued" mark. Each is its own sheet now, so the first screen is
 // the whole of the home page and nothing is hidden below a fold that gave no sign of
 // having anything below it.
-function CHChrome({ mobile, onTop, openEditions, onNavigate, activePage, left, right }) {
+function BSChrome({ mobile, onTop, openEditions, onNavigate, activePage, left, right }) {
   const nav = [['work', 'work'], ['background', 'about'], ['kit', 'tools'], ['contact', 'contact']];
   return (
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      gap: '16px', height: CH_CHROME, flexShrink: 0,
-      borderBottom: '1px solid ' + CH_INK,
+      gap: '16px', height: BS_CHROME, flexShrink: 0,
+      borderBottom: '1px solid ' + BS_INK,
     }}>
       {left || (
         <button onClick={onTop} style={{
           background: 'none', border: 'none', cursor: 'pointer', padding: '0 10px 0 0', minHeight: '44px',
-          fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_MUTE, textAlign: 'left',
+          fontFamily: BS_MONO, fontSize: '10px', letterSpacing: '0.14em', color: BS_MUTE, textAlign: 'left',
         }}>peter &amp; co. · rotterdam, nl</button>
       )}
       {right || (
@@ -5016,21 +5016,21 @@ function CHChrome({ mobile, onTop, openEditions, onNavigate, activePage, left, r
           {mobile && nav.filter(n => n[1] !== 'work').map(n => (
             <button key={n[0]} onClick={() => onNavigate(n[1])} style={{
               background: 'none', border: 'none', cursor: 'pointer', minHeight: '44px', padding: '0 6px',
-              fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.06em',
-              color: activePage === n[1] ? CH_INK : CH_MUTE,
+              fontFamily: BS_MONO, fontSize: '10px', letterSpacing: '0.06em',
+              color: activePage === n[1] ? BS_INK : BS_MUTE,
             }}>{n[0] === 'background' ? 'bg' : n[0]}</button>
           ))}
           {!mobile && nav.map(n => (
             <button key={n[0]} onClick={() => onNavigate(n[1])} style={{
               background: 'none', border: 'none', cursor: 'pointer', minHeight: '44px', padding: '0 9px',
-              fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em',
-              color: activePage === n[1] ? CH_INK : CH_MUTE,
+              fontFamily: BS_MONO, fontSize: '10px', letterSpacing: '0.14em',
+              color: activePage === n[1] ? BS_INK : BS_MUTE,
               textDecoration: activePage === n[1] ? 'underline' : 'none', textUnderlineOffset: '5px',
             }}>{n[0]}</button>
           ))}
           <button onClick={openEditions} style={{
             background: 'none', border: 'none', cursor: 'pointer', minHeight: '44px', padding: '0 0 0 9px',
-            fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_INK,
+            fontFamily: BS_MONO, fontSize: '10px', letterSpacing: '0.14em', color: BS_INK,
           }}>editions</button>
         </div>
       )}
@@ -5039,11 +5039,11 @@ function CHChrome({ mobile, onTop, openEditions, onNavigate, activePage, left, r
 }
 
 // The sheet: the inset column every screen of this edition sits in.
-function CHSheet({ children, full, style }) {
+function BSSheet({ children, full, style }) {
   return (
     <div style={{
       boxSizing: 'border-box', width: '100%', maxWidth: '1560px', margin: '0 auto',
-      padding: '0 ' + CH_EDGE, minHeight: full ? '100svh' : undefined,
+      padding: '0 ' + BS_EDGE, minHeight: full ? '100svh' : undefined,
       display: 'flex', flexDirection: 'column', ...(style || {}),
     }}>{children}</div>
   );
@@ -5064,58 +5064,58 @@ function CHSheet({ children, full, style }) {
 // text-wrap-mode, the half of `white-space: nowrap` that does the not-wrapping. The
 // element kept white-space-collapse and silently wrapped anyway. It only showed up at
 // 1920px, because below that the line happened to fit on its own.
-function CHStatement({ children, size, maxWidth, nowrap, className }) {
+function BSStatement({ children, size, maxWidth, nowrap, className }) {
   const st = {
-    fontFamily: CH_DISPLAY, fontWeight: 400, margin: 0,
+    fontFamily: BS_DISPLAY, fontWeight: 400, margin: 0,
     fontSize: size || 'clamp(52px, 16.1vw, 264px)',
     lineHeight: nowrap ? 0.86 : 0.96, letterSpacing: '-0.04em',
-    color: CH_INK, maxWidth: maxWidth,
+    color: BS_INK, maxWidth: maxWidth,
   };
   if (nowrap) st.whiteSpace = 'nowrap';
   else st.textWrap = 'balance';
   return <h1 className={className} style={st}>{children}</h1>;
 }
 
-function CHListings({ projects, mobile, onSelect }) {
+function BSListings({ projects, mobile, onSelect }) {
   const { theme } = useTheme();
   const list = projects.slice(0, 5);
   return (
     <div style={{ flexShrink: 0, paddingBottom: 'clamp(22px, 3vh, 34px)' }}>
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', paddingBottom: '10px' }}>
-        <CHLabel>the listings</CHLabel>
-        <CHLabel>{String(list.length).padStart(2, '0')} entries · 2025&ndash;2026</CHLabel>
+        <BSLabel>the listings</BSLabel>
+        <BSLabel>{String(list.length).padStart(2, '0')} entries · 2025&ndash;2026</BSLabel>
       </div>
-      <CHRule />
+      <BSRule />
       <div style={{
         display: 'grid', gap: mobile ? '0' : '20px', paddingTop: mobile ? '2px' : '14px',
         gridTemplateColumns: mobile ? '1fr' : 'repeat(' + list.length + ', minmax(0, 1fr))',
       }}>
         {list.map((p, i) => {
-          const accent = fitAccent(resolveAccent(p, theme.id), CH_PAPER) || CH_INK;
+          const accent = fitAccent(resolveAccent(p, theme.id), BS_PAPER) || BS_INK;
           // Sanity's isPublic arrives as public:false. Every other edition honours it —
           // Volt prints "(soon)", Mondriaan fades the row, Prism and Grain withhold the
-          // link — and Chalk was the one that did not, so it printed a live-looking
+          // link — and Broadside was the one that did not, so it printed a live-looking
           // domain and a "visit the site" button for a site that is not up yet.
           const shipped = p.public !== false;
           return (
-            <button key={p.id} className="ch-row" onClick={() => onSelect(p)} style={{
+            <button key={p.id} className="bs-row" onClick={() => onSelect(p)} style={{
               background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left',
-              borderBottom: mobile && i < list.length - 1 ? '1px solid ' + CH_LINE : 'none',
+              borderBottom: mobile && i < list.length - 1 ? '1px solid ' + BS_LINE : 'none',
               display: 'flex', flexDirection: mobile ? 'row' : 'column',
               alignItems: mobile ? 'center' : 'flex-start', gap: mobile ? '12px' : '5px',
               minHeight: mobile ? '46px' : undefined,
             }}>
-              <span style={{ fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.1em', color: CH_MUTE, flexShrink: 0 }}>
+              <span style={{ fontFamily: BS_MONO, fontSize: '10px', letterSpacing: '0.1em', color: BS_MUTE, flexShrink: 0 }}>
                 {String(i + 1).padStart(2, '0')}
               </span>
               <span style={{
-                fontFamily: CH_DISPLAY, fontSize: mobile ? '19px' : 'clamp(17px, 1.5vw, 22px)',
-                lineHeight: 1.05, letterSpacing: '-0.015em', color: CH_INK,
+                fontFamily: BS_DISPLAY, fontSize: mobile ? '19px' : 'clamp(17px, 1.5vw, 22px)',
+                lineHeight: 1.05, letterSpacing: '-0.015em', color: BS_INK,
                 flex: mobile ? 1 : undefined, minWidth: 0,
               }}>{p.title}</span>
               <span style={{
                 display: 'inline-flex', alignItems: 'center', gap: '7px', minWidth: 0, maxWidth: '100%',
-                fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.04em', color: CH_BODY,
+                fontFamily: BS_MONO, fontSize: '10px', letterSpacing: '0.04em', color: BS_BODY,
               }}>
                 <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: accent, flexShrink: 0, opacity: shipped ? 1 : 0.4 }} />
                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{shipped ? (p.url || (p.tags && p.tags[0]) || '') : 'not live yet'}</span>
@@ -5128,86 +5128,86 @@ function CHListings({ projects, mobile, onSelect }) {
   );
 }
 
-function CHHero({ projects, mobile, onSelect, onTop, openEditions, onNavigate, activePage }) {
+function BSHero({ projects, mobile, onSelect, onTop, openEditions, onNavigate, activePage }) {
   return (
-    <CHSheet full>
-      <CHChrome mobile={mobile} onTop={onTop} openEditions={openEditions} onNavigate={onNavigate} activePage={activePage} />
+    <BSSheet full>
+      <BSChrome mobile={mobile} onTop={onTop} openEditions={openEditions} onNavigate={onNavigate} activePage={activePage} />
       <div style={{
         flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center',
         gap: mobile ? '20px' : 'clamp(20px, 3vh, 34px)', minHeight: 0,
         padding: 'clamp(24px, 4vh, 48px) 0',
       }}>
-        <CHStatement className="ch-in" nowrap>I build things.</CHStatement>
-        <div className="ch-in ch-d1" style={{
+        <BSStatement className="bs-in" nowrap>I build things.</BSStatement>
+        <div className="bs-in bs-d1" style={{
           display: 'flex', flexDirection: mobile ? 'column' : 'row',
           alignItems: mobile ? 'flex-start' : 'flex-end',
           justifyContent: 'space-between', gap: mobile ? '22px' : '48px',
         }}>
           <span style={{
-            fontFamily: CH_DISPLAY, fontSize: mobile ? 'clamp(24px, 7vw, 34px)' : 'clamp(30px, 4.8vw, 92px)',
-            lineHeight: 1.0, letterSpacing: '-0.03em', color: CH_MUTE, textWrap: 'balance',
+            fontFamily: BS_DISPLAY, fontSize: mobile ? 'clamp(24px, 7vw, 34px)' : 'clamp(30px, 4.8vw, 92px)',
+            lineHeight: 1.0, letterSpacing: '-0.03em', color: BS_MUTE, textWrap: 'balance',
           }}>Sometimes they&rsquo;re useful.</span>
           <div style={{
             display: 'flex', alignItems: mobile ? 'center' : 'flex-end',
             gap: '20px', flexShrink: 0, flexWrap: 'wrap',
           }}>
             {!mobile && (
-              <span style={{ fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_MUTE, lineHeight: 1.9 }}>
+              <span style={{ fontFamily: BS_MONO, fontSize: '10px', letterSpacing: '0.14em', color: BS_MUTE, lineHeight: 1.9 }}>
                 product owner by day,<br />builder by night.
               </span>
             )}
-            <CHButton primary href="mailto:peterreijm@live.nl">get in touch &rarr;</CHButton>
+            <BSButton primary href="mailto:peterreijm@live.nl">get in touch &rarr;</BSButton>
           </div>
         </div>
       </div>
-      <CHListings projects={projects} mobile={mobile} onSelect={onSelect} />
-    </CHSheet>
+      <BSListings projects={projects} mobile={mobile} onSelect={onSelect} />
+    </BSSheet>
   );
 }
 
 // Every section below the fold is the same object: a label row, the heavy rule, then
 // content. Nothing is ever boxed.
-function CHSection({ id, label, meta, children, mobile, page }) {
+function BSSection({ id, label, meta, children, mobile, page }) {
   return (
-    <CHSheet style={{ paddingTop: page ? 'clamp(26px, 4vh, 44px)' : 'clamp(56px, 10vh, 130px)', flex: page ? 1 : undefined }}>
+    <BSSheet style={{ paddingTop: page ? 'clamp(26px, 4vh, 44px)' : 'clamp(56px, 10vh, 130px)', flex: page ? 1 : undefined }}>
       <div id={id} />
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', paddingBottom: '10px' }}>
-        <CHLabel>{label}</CHLabel>
-        {meta ? <CHLabel>{meta}</CHLabel> : null}
+        <BSLabel>{label}</BSLabel>
+        {meta ? <BSLabel>{meta}</BSLabel> : null}
       </div>
-      <CHRule draw />
+      <BSRule draw />
       <div style={{ paddingTop: mobile ? '28px' : '40px' }}>{children}</div>
-    </CHSheet>
+    </BSSheet>
   );
 }
 
-function CHWork({ projects, mobile, onSelect }) {
+function BSWork({ projects, mobile, onSelect }) {
   const { theme } = useTheme();
   return (
-    <CHSection page id="ch-work" label="the work" meta={String(projects.length).padStart(2, '0') + ' entries'} mobile={mobile}>
+    <BSSection page id="bs-work" label="the work" meta={String(projects.length).padStart(2, '0') + ' entries'} mobile={mobile}>
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         {projects.map((p, i) => {
-          const accent = fitAccent(resolveAccent(p, theme.id), CH_PAPER) || CH_INK;
+          const accent = fitAccent(resolveAccent(p, theme.id), BS_PAPER) || BS_INK;
           return (
-            <button key={p.id} className="ch-row ch-riser" onClick={() => onSelect(p)} style={{
-              background: 'none', border: 'none', borderBottom: '1px solid ' + CH_LINE,
+            <button key={p.id} className="bs-row bs-riser" onClick={() => onSelect(p)} style={{
+              background: 'none', border: 'none', borderBottom: '1px solid ' + BS_LINE,
               padding: mobile ? '20px 0' : '26px 0', cursor: 'pointer', textAlign: 'left',
               display: 'grid', gap: mobile ? '8px' : '28px', alignItems: 'baseline',
               gridTemplateColumns: mobile ? '1fr' : '48px minmax(0, 1.1fr) minmax(0, 1fr) 118px',
             }}>
-              <span style={{ fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.1em', color: CH_MUTE }}>
+              <span style={{ fontFamily: BS_MONO, fontSize: '10px', letterSpacing: '0.1em', color: BS_MUTE }}>
                 {String(i + 1).padStart(2, '0')}
               </span>
               <span style={{
-                fontFamily: CH_DISPLAY, fontSize: mobile ? '26px' : 'clamp(24px, 2.8vw, 40px)',
-                lineHeight: 1.02, letterSpacing: '-0.025em', color: CH_INK,
+                fontFamily: BS_DISPLAY, fontSize: mobile ? '26px' : 'clamp(24px, 2.8vw, 40px)',
+                lineHeight: 1.02, letterSpacing: '-0.025em', color: BS_INK,
               }}>{p.title}</span>
-              <span style={{ fontFamily: CH_MONO, fontSize: '11px', lineHeight: 1.75, color: CH_BODY, textWrap: 'pretty' }}>
+              <span style={{ fontFamily: BS_MONO, fontSize: '11px', lineHeight: 1.75, color: BS_BODY, textWrap: 'pretty' }}>
                 {p.description}
               </span>
               <span style={{
                 display: 'inline-flex', alignItems: 'center', gap: '8px', minWidth: 0,
-                fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.1em', color: CH_MUTE,
+                fontFamily: BS_MONO, fontSize: '10px', letterSpacing: '0.1em', color: BS_MUTE,
                 justifySelf: mobile ? 'start' : 'end',
               }}>
                 <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: accent, flexShrink: 0, opacity: p.public !== false ? 1 : 0.4 }} />
@@ -5217,11 +5217,11 @@ function CHWork({ projects, mobile, onSelect }) {
           );
         })}
       </div>
-    </CHSection>
+    </BSSection>
   );
 }
 
-function CHBackground({ mobile }) {
+function BSBackground({ mobile }) {
   const questions = [
     'Which oat milk is actually best?',
     'Why does that take a Reddit deep-dive?',
@@ -5230,111 +5230,111 @@ function CHBackground({ mobile }) {
     'And how many designs can one website be?',
   ];
   return (
-    <CHSection page id="ch-background" label="background" meta="est. 2025" mobile={mobile}>
+    <BSSection page id="bs-background" label="background" meta="est. 2025" mobile={mobile}>
       <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1.1fr 1fr', gap: mobile ? '32px' : '64px', alignItems: 'start' }}>
-        <div className="ch-riser" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <CHStatement size={mobile ? 'clamp(30px, 8vw, 40px)' : 'clamp(36px, 4vw, 60px)'} maxWidth="17ch">
+        <div className="bs-riser" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <BSStatement size={mobile ? 'clamp(30px, 8vw, 40px)' : 'clamp(36px, 4vw, 60px)'} maxWidth="17ch">
             Most of it starts because a question would not leave me alone.
-          </CHStatement>
-          <span style={{ fontFamily: CH_MONO, fontSize: '11px', lineHeight: 1.9, color: CH_BODY, maxWidth: '46ch', textWrap: 'pretty' }}>
+          </BSStatement>
+          <span style={{ fontFamily: BS_MONO, fontSize: '11px', lineHeight: 1.9, color: BS_BODY, maxWidth: '46ch', textWrap: 'pretty' }}>
             I have wanted to build things for as long as I can remember. I just never wanted to learn to write the code. AI closed that gap, and I would rather ship something unfinished than get it right on paper.
           </span>
         </div>
-        <div className="ch-riser" style={{ display: 'flex', flexDirection: 'column' }}>
+        <div className="bs-riser" style={{ display: 'flex', flexDirection: 'column' }}>
           {questions.map((q, i) => (
             <div key={i} style={{
               display: 'flex', gap: '16px', alignItems: 'baseline', padding: '14px 0',
-              borderBottom: i < questions.length - 1 ? '1px solid ' + CH_LINE : 'none',
+              borderBottom: i < questions.length - 1 ? '1px solid ' + BS_LINE : 'none',
             }}>
-              <span style={{ fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.1em', color: CH_MUTE, flexShrink: 0 }}>
+              <span style={{ fontFamily: BS_MONO, fontSize: '10px', letterSpacing: '0.1em', color: BS_MUTE, flexShrink: 0 }}>
                 {String(i + 1).padStart(2, '0')}
               </span>
-              <span style={{ fontFamily: CH_DISPLAY, fontSize: mobile ? '19px' : '23px', lineHeight: 1.28, letterSpacing: '-0.015em', color: CH_INK, textWrap: 'pretty' }}>{q}</span>
+              <span style={{ fontFamily: BS_DISPLAY, fontSize: mobile ? '19px' : '23px', lineHeight: 1.28, letterSpacing: '-0.015em', color: BS_INK, textWrap: 'pretty' }}>{q}</span>
             </div>
           ))}
         </div>
       </div>
-    </CHSection>
+    </BSSection>
   );
 }
 
-function CHTools({ mobile }) {
+function BSTools({ mobile }) {
   const cats = TOOL_CATEGORIES;
   return (
-    <CHSection page id="ch-tools" label="the kit" meta={String(cats.length).padStart(2, '0') + ' shelves'} mobile={mobile}>
+    <BSSection page id="bs-tools" label="the kit" meta={String(cats.length).padStart(2, '0') + ' shelves'} mobile={mobile}>
       <div style={{
         display: 'grid', gap: mobile ? '32px' : '40px',
         gridTemplateColumns: mobile ? '1fr' : 'repeat(' + Math.min(cats.length, 3) + ', minmax(0, 1fr))',
       }}>
         {cats.map(cat => (
-          <div key={cat.label} className="ch-riser" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <div style={{ paddingBottom: '9px', borderBottom: '1px solid ' + CH_INK }}>
-              <CHLabel>{cat.label}</CHLabel>
+          <div key={cat.label} className="bs-riser" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ paddingBottom: '9px', borderBottom: '1px solid ' + BS_INK }}>
+              <BSLabel>{cat.label}</BSLabel>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               {cat.tools.map((t, i) => (
                 <div key={t.name} style={{
                   display: 'flex', flexDirection: 'column', gap: '4px', padding: '11px 0',
-                  borderBottom: i < cat.tools.length - 1 ? '1px solid ' + CH_LINE : 'none',
+                  borderBottom: i < cat.tools.length - 1 ? '1px solid ' + BS_LINE : 'none',
                   opacity: t.status === 'retired' ? 0.55 : 1,
                 }}>
                   <span style={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' }}>
-                    <span style={{ fontFamily: CH_DISPLAY, fontSize: '18px', lineHeight: 1.15, letterSpacing: '-0.015em', color: CH_INK }}>{t.name}</span>
-                    {t.status === 'retired' ? <CHLabel style={{ fontSize: '9px' }}>retired</CHLabel> : null}
+                    <span style={{ fontFamily: BS_DISPLAY, fontSize: '18px', lineHeight: 1.15, letterSpacing: '-0.015em', color: BS_INK }}>{t.name}</span>
+                    {t.status === 'retired' ? <BSLabel style={{ fontSize: '9px' }}>retired</BSLabel> : null}
                   </span>
-                  <span style={{ fontFamily: CH_MONO, fontSize: '10px', lineHeight: 1.7, color: CH_BODY, textWrap: 'pretty' }}>{t.desc}</span>
+                  <span style={{ fontFamily: BS_MONO, fontSize: '10px', lineHeight: 1.7, color: BS_BODY, textWrap: 'pretty' }}>{t.desc}</span>
                 </div>
               ))}
             </div>
           </div>
         ))}
       </div>
-    </CHSection>
+    </BSSection>
   );
 }
 
-function CHContact({ mobile }) {
+function BSContact({ mobile }) {
   const links = [
     ['github', 'https://github.com/preijm', true],
     ['linkedin', 'https://www.linkedin.com/in/peter-reijm-47165b5b/', true],
   ];
   return (
-    <CHSection page id="ch-contact" label="contact" meta="open to a good problem" mobile={mobile}>
-      <div className="ch-riser" style={{ display: 'flex', flexDirection: 'column', gap: '22px', alignItems: 'flex-start' }}>
-        <CHStatement size={mobile ? 'clamp(32px, 9vw, 46px)' : 'clamp(42px, 6.2vw, 104px)'} maxWidth="14ch">
+    <BSSection page id="bs-contact" label="contact" meta="open to a good problem" mobile={mobile}>
+      <div className="bs-riser" style={{ display: 'flex', flexDirection: 'column', gap: '22px', alignItems: 'flex-start' }}>
+        <BSStatement size={mobile ? 'clamp(32px, 9vw, 46px)' : 'clamp(42px, 6.2vw, 104px)'} maxWidth="14ch">
           Got a problem worth building?
-        </CHStatement>
-        <span style={{ fontFamily: CH_MONO, fontSize: '11px', lineHeight: 1.9, color: CH_BODY, maxWidth: '44ch', textWrap: 'pretty' }}>
+        </BSStatement>
+        <span style={{ fontFamily: BS_MONO, fontSize: '11px', lineHeight: 1.9, color: BS_BODY, maxWidth: '44ch', textWrap: 'pretty' }}>
           Work, a collaboration, or just a sharp idea worth chasing. I am always up for a good problem.
         </span>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '4px' }}>
-          <CHButton primary href="mailto:peterreijm@live.nl">start a conversation &rarr;</CHButton>
-          {links.map(l => <CHButton key={l[0]} href={l[1]} newTab={l[2]}>{l[0]}</CHButton>)}
+          <BSButton primary href="mailto:peterreijm@live.nl">start a conversation &rarr;</BSButton>
+          {links.map(l => <BSButton key={l[0]} href={l[1]} newTab={l[2]}>{l[0]}</BSButton>)}
         </div>
       </div>
-    </CHSection>
+    </BSSection>
   );
 }
 
-function CHColophon({ mobile }) {
+function BSColophon({ mobile }) {
   return (
-    <CHSheet style={{ paddingTop: 'clamp(48px, 8vh, 96px)', paddingBottom: 'clamp(24px, 4vh, 40px)' }}>
-      <CHRule weight="1px" draw />
+    <BSSheet style={{ paddingTop: 'clamp(48px, 8vh, 96px)', paddingBottom: 'clamp(24px, 4vh, 40px)' }}>
+      <BSRule weight="1px" draw />
       <div style={{
         display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: '10px',
         justifyContent: 'space-between', paddingTop: '18px',
       }}>
-        <CHLabel>chalk · poster edition</CHLabel>
-        <CHLabel>peter &amp; co. · rotterdam, nl</CHLabel>
+        <BSLabel>broadside · edition v1</BSLabel>
+        <BSLabel>peter &amp; co. · rotterdam, nl</BSLabel>
       </div>
-    </CHSheet>
+    </BSSheet>
   );
 }
 
-function CHProject({ project, projects, mobile, onSelect, onBack, openEditions, onJump }) {
+function BSProject({ project, projects, mobile, onSelect, onBack, openEditions, onJump }) {
   const { theme } = useTheme();
   const p = project;
-  const accent = fitAccent(resolveAccent(p, theme.id), CH_PAPER) || CH_INK;
+  const accent = fitAccent(resolveAccent(p, theme.id), BS_PAPER) || BS_INK;
   const idx = projects.findIndex(x => x.id === p.id);
   const next = projects[(idx + 1) % projects.length];
   const kind = (p.tags && p.tags[0]) || 'project';
@@ -5362,29 +5362,29 @@ function CHProject({ project, projects, mobile, onSelect, onBack, openEditions, 
   ];
   return (
     <React.Fragment>
-      <CHSheet full>
-        <CHChrome
+      <BSSheet full>
+        <BSChrome
           mobile={mobile}
           activePage="work"
           left={<button onClick={onBack} style={{
             background: 'none', border: 'none', cursor: 'pointer', padding: '0 10px 0 0', minHeight: '44px',
-            fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_MUTE,
+            fontFamily: BS_MONO, fontSize: '10px', letterSpacing: '0.14em', color: BS_MUTE,
           }}>&larr; all work</button>}
           right={<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            {!mobile && <CHLabel style={{ padding: '0 9px' }}>{String(idx + 1).padStart(2, '0')} / {String(projects.length).padStart(2, '0')} · {kind}</CHLabel>}
+            {!mobile && <BSLabel style={{ padding: '0 9px' }}>{String(idx + 1).padStart(2, '0')} / {String(projects.length).padStart(2, '0')} · {kind}</BSLabel>}
             <button onClick={openEditions} style={{
               background: 'none', border: 'none', cursor: 'pointer', minHeight: '44px', padding: '0 0 0 9px',
-              fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_INK,
+              fontFamily: BS_MONO, fontSize: '10px', letterSpacing: '0.14em', color: BS_INK,
             }}>editions</button>
           </div>}
         />
 
         <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px', paddingTop: 'clamp(20px, 3vh, 30px)' }}>
-          <span style={{ fontFamily: CH_DISPLAY, fontSize: mobile ? '24px' : 'clamp(26px, 2.6vw, 38px)', lineHeight: 1.0, letterSpacing: '-0.02em', color: CH_INK }}>{p.title}</span>
-          <span style={{ flex: 1, height: '1px', background: CH_LINE }} />
+          <span style={{ fontFamily: BS_DISPLAY, fontSize: mobile ? '24px' : 'clamp(26px, 2.6vw, 38px)', lineHeight: 1.0, letterSpacing: '-0.02em', color: BS_INK }}>{p.title}</span>
+          <span style={{ flex: 1, height: '1px', background: BS_LINE }} />
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
             <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: accent }} />
-            <CHLabel>{p.year}</CHLabel>
+            <BSLabel>{p.year}</BSLabel>
           </span>
         </div>
 
@@ -5392,42 +5392,42 @@ function CHProject({ project, projects, mobile, onSelect, onBack, openEditions, 
           flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center',
           padding: 'clamp(28px, 5vh, 60px) 0', minHeight: 0, gap: 'clamp(24px, 4vh, 40px)',
         }}>
-          <CHStatement
-            className="ch-in"
+          <BSStatement
+            className="bs-in"
             // The home sheet fills 97% of its measure; at 5.8vw this filled 46%, which
             // made the project page a quieter design rather than the same one. Sized
             // up until the longest of the five taglines still clears a 900px viewport.
             size={mobile ? 'clamp(32px, 9.2vw, 46px)' : 'clamp(42px, 7.6vw, 132px)'}
             maxWidth="15ch"
-          >{statement}</CHStatement>
-          <div className="ch-in ch-d1" style={{
+          >{statement}</BSStatement>
+          <div className="bs-in bs-d1" style={{
             display: 'flex', flexDirection: mobile ? 'column' : 'row',
             alignItems: mobile ? 'flex-start' : 'flex-end',
             justifyContent: 'space-between', gap: mobile ? '22px' : '44px',
           }}>
-            <span style={{ fontFamily: CH_MONO, fontSize: '11px', lineHeight: 1.9, color: CH_BODY, maxWidth: '48ch', textWrap: 'pretty' }}>
+            <span style={{ fontFamily: BS_MONO, fontSize: '11px', lineHeight: 1.9, color: BS_BODY, maxWidth: '48ch', textWrap: 'pretty' }}>
               {p.detail || p.description}
             </span>
-            {live ? <CHButton primary href={p.href} newTab>visit the site &rarr;</CHButton> : null}
+            {live ? <BSButton primary href={p.href} newTab>visit the site &rarr;</BSButton> : null}
           </div>
         </div>
 
         <div style={{ flexShrink: 0, paddingBottom: 'clamp(22px, 3vh, 34px)' }}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', paddingBottom: '10px' }}>
-            <CHLabel>the particulars</CHLabel>
+            <BSLabel>the particulars</BSLabel>
             {p.screenshot ? (
-              <button onClick={() => onJump('ch-plate')} className="ch-row ch-nudge" style={{
+              <button onClick={() => onJump('bs-plate')} className="bs-row bs-nudge" style={{
                 background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-                fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_INK, textAlign: 'right',
+                fontFamily: BS_MONO, fontSize: '10px', letterSpacing: '0.14em', color: BS_INK, textAlign: 'right',
               }}>the plate &darr;</button>
             ) : (
-              <button onClick={() => onSelect(next)} className="ch-row" style={{
+              <button onClick={() => onSelect(next)} className="bs-row" style={{
                 background: 'none', border: 'none', cursor: 'pointer', minHeight: '44px', padding: 0,
-                fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_MUTE, textAlign: 'right',
+                fontFamily: BS_MONO, fontSize: '10px', letterSpacing: '0.14em', color: BS_MUTE, textAlign: 'right',
               }}>next · {next.title.toLowerCase()} &rarr;</button>
             )}
           </div>
-          <CHRule />
+          <BSRule />
           <div style={{
             display: 'grid', gap: mobile ? '0' : '18px', paddingTop: mobile ? '2px' : '14px',
             gridTemplateColumns: mobile ? '1fr' : 'repeat(4, minmax(0, 1fr))',
@@ -5438,67 +5438,67 @@ function CHProject({ project, projects, mobile, onSelect, onBack, openEditions, 
                 justifyContent: mobile ? 'space-between' : undefined,
                 alignItems: mobile ? 'baseline' : 'flex-start', gap: mobile ? '16px' : '6px',
                 padding: mobile ? '11px 0' : 0,
-                borderBottom: mobile && i < facts.length - 1 ? '1px solid ' + CH_LINE : 'none',
+                borderBottom: mobile && i < facts.length - 1 ? '1px solid ' + BS_LINE : 'none',
               }}>
-                <CHLabel style={{ flexShrink: 0 }}>{f[0]}</CHLabel>
+                <BSLabel style={{ flexShrink: 0 }}>{f[0]}</BSLabel>
                 <span style={{
-                  fontFamily: CH_DISPLAY, fontSize: mobile ? '17px' : '20px', lineHeight: 1.15,
-                  letterSpacing: '-0.015em', color: CH_INK, textAlign: mobile ? 'right' : 'left',
+                  fontFamily: BS_DISPLAY, fontSize: mobile ? '17px' : '20px', lineHeight: 1.15,
+                  letterSpacing: '-0.015em', color: BS_INK, textAlign: mobile ? 'right' : 'left',
                 }}>{f[1]}</span>
               </div>
             ))}
           </div>
         </div>
-      </CHSheet>
+      </BSSheet>
 
       {/* The evidence, deliberately BELOW the poster sheet. A screenshot beside the
           statement would kill the scale contrast the whole edition runs on; after it,
           that costs nothing — and a portfolio that never shows the work is the worse
           trade of the two. */}
       {p.screenshot ? (
-        <CHSheet style={{ paddingTop: 'clamp(40px, 7vh, 90px)' }}>
-          <div id="ch-plate" />
+        <BSSheet style={{ paddingTop: 'clamp(40px, 7vh, 90px)' }}>
+          <div id="bs-plate" />
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', paddingBottom: '10px' }}>
-            <CHLabel>the plate</CHLabel>
-            <button onClick={() => onSelect(next)} className="ch-row" style={{
+            <BSLabel>the plate</BSLabel>
+            <button onClick={() => onSelect(next)} className="bs-row" style={{
               background: 'none', border: 'none', cursor: 'pointer', minHeight: '44px', padding: 0,
-              fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_MUTE, textAlign: 'right',
+              fontFamily: BS_MONO, fontSize: '10px', letterSpacing: '0.14em', color: BS_MUTE, textAlign: 'right',
             }}>next · {next.title.toLowerCase()} &rarr;</button>
           </div>
-          <CHRule weight="1px" draw />
+          <BSRule weight="1px" draw />
           {/* Sized through the CDN rather than shipping the 3840px original into a
               1448px slot — the plate is the heaviest thing this edition loads. */}
-          <img className="ch-riser" src={typeof sanityImg === 'function' ? sanityImg(p.screenshot, 1600) : p.screenshot} alt={p.title} loading="lazy" decoding="async" style={{
+          <img className="bs-riser" src={typeof sanityImg === 'function' ? sanityImg(p.screenshot, 1600) : p.screenshot} alt={p.title} loading="lazy" decoding="async" style={{
             width: '100%', height: 'auto', aspectRatio: plateRatio, display: 'block', marginTop: '18px',
-            border: '1px solid ' + CH_LINE, background: CH_SURFACE,
+            border: '1px solid ' + BS_LINE, background: BS_SURFACE,
           }} />
-        </CHSheet>
+        </BSSheet>
       ) : null}
 
-      <CHColophon mobile={mobile} />
+      <BSColophon mobile={mobile} />
     </React.Fragment>
   );
 }
 
-function ChalkApp({ page, selectedProject, navigate, selectProject, activePage }) {
+function BroadsideApp({ page, selectedProject, navigate, selectProject, activePage }) {
   const mobile = useMobile();
   const { openEditions } = useTheme();
   const projects = PROJECTS;
 
-  React.useEffect(() => { chStyles(); }, []);
-  React.useEffect(() => { window.scrollTo({ top: 0, behavior: chReduced() ? 'auto' : 'smooth' }); }, [selectedProject && selectedProject.id]);
+  React.useEffect(() => { bsStyles(); }, []);
+  React.useEffect(() => { window.scrollTo({ top: 0, behavior: bsReduced() ? 'auto' : 'smooth' }); }, [selectedProject && selectedProject.id]);
 
   const onTop = () => navigate('home');
   const onJump = (id) => {
     const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: chReduced() ? 'auto' : 'smooth', block: 'start' });
+    if (el) el.scrollIntoView({ behavior: bsReduced() ? 'auto' : 'smooth', block: 'start' });
   };
-  const shell = { background: CH_PAPER, color: CH_INK, fontFamily: CH_MONO, minHeight: '100svh', display: 'flex', flexDirection: 'column' };
+  const shell = { background: BS_PAPER, color: BS_INK, fontFamily: BS_MONO, minHeight: '100svh', display: 'flex', flexDirection: 'column' };
 
   if (selectedProject) {
     return (
-      <div className="chalk-root" style={shell}>
-        <CHProject project={selectedProject} projects={projects} mobile={mobile} onSelect={selectProject} onBack={() => navigate('work')} openEditions={openEditions} onJump={onJump} />
+      <div className="broadside-root" style={shell}>
+        <BSProject project={selectedProject} projects={projects} mobile={mobile} onSelect={selectProject} onBack={() => navigate('work')} openEditions={openEditions} onJump={onJump} />
       </div>
     );
   }
@@ -5508,22 +5508,22 @@ function ChalkApp({ page, selectedProject, navigate, selectProject, activePage }
   // from the chrome.
   if (page === 'home') {
     return (
-      <div className="chalk-root" style={shell}>
-        <CHHero projects={projects} mobile={mobile} onSelect={selectProject} onTop={onTop} openEditions={openEditions} onNavigate={navigate} activePage={activePage} />
+      <div className="broadside-root" style={shell}>
+        <BSHero projects={projects} mobile={mobile} onSelect={selectProject} onTop={onTop} openEditions={openEditions} onNavigate={navigate} activePage={activePage} />
       </div>
     );
   }
 
   return (
-    <div className="chalk-root" style={shell}>
-      <CHSheet>
-        <CHChrome mobile={mobile} onTop={onTop} openEditions={openEditions} onNavigate={navigate} activePage={activePage} />
-      </CHSheet>
-      {page === 'work'    && <CHWork projects={projects} mobile={mobile} onSelect={selectProject} />}
-      {page === 'about'   && <CHBackground mobile={mobile} />}
-      {page === 'tools'   && <CHTools mobile={mobile} />}
-      {page === 'contact' && <CHContact mobile={mobile} />}
-      <CHColophon mobile={mobile} />
+    <div className="broadside-root" style={shell}>
+      <BSSheet>
+        <BSChrome mobile={mobile} onTop={onTop} openEditions={openEditions} onNavigate={navigate} activePage={activePage} />
+      </BSSheet>
+      {page === 'work'    && <BSWork projects={projects} mobile={mobile} onSelect={selectProject} />}
+      {page === 'about'   && <BSBackground mobile={mobile} />}
+      {page === 'tools'   && <BSTools mobile={mobile} />}
+      {page === 'contact' && <BSContact mobile={mobile} />}
+      <BSColophon mobile={mobile} />
     </div>
   );
 }
