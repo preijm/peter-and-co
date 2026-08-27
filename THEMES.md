@@ -25,10 +25,11 @@ Themes that fully replace the page layout also set `mondriaan: true`.
 | Theme      | Tagline                          |
 |------------|----------------------------------|
 | Ink        | `dark · minimal · no noise`      |
-| Chalk      | `light · open · breathing room`  |
+| Chalk      | `light · oversized · one statement` |
 | Mondriaan  | `primary · geometric · De Stijl` |
 | Volt       | `dark · minimal · systems`       |
 | Grain      | `cinematic · achromatic · full-bleed` |
+| Prism      | `light · colour · depth`         |
 
 **Default edition.** A first-time visitor lands on **Volt** (`DEFAULT_THEME_ID` in
 `index.html`). It leads because its terminal demonstrates the site's claim rather than
@@ -84,6 +85,51 @@ Themes that set `mondriaan: true` bypass the default layout and render their own
 
 ### Volt (v1) — minimal "design + code + systems" landing
 A dark, restrained one-pager in the spirit of premium studio sites (e.g. Ouro Labs). Warm near-black (`#0c0c0a`), a single electric-lime accent (`#d4f932`) used sparingly, and a two-family type system: **Geist** (sans, headings + body) + **Geist Mono** (labels, terminal touches). Light terminal flavor: a `whoami` hero prompt with a blinking caret, `// section` mono labels, a `~/about.cfg` facts block, and an `origin.log` footer line. Sections — hero → selected work → background → contact — flow over the backdrop. The backdrop layers a faint CSS radial bloom under a **scroll-reactive Three.js point field** (`three@0.149` UMD, lazy-loaded on activation): the camera travels into the field and it rotates as scroll progresses, near-monochrome with a few lime motes, additive-blended, fixed at `z-index:-1` behind all content. GSAP + ScrollTrigger (also lazy-loaded) drive **subtle fade-up reveals only** (`.v-fade` on load, `.v-reveal`/`.v-row` on scroll). All motion — Three.js field included — is gated behind `!prefers-reduced-motion` (the point field is skipped entirely when reduced, leaving just the CSS bloom) and the render loop pauses when the tab is hidden.
+
+### Chalk (v1) — poster
+
+Chalk began as the plain light palette on the shared layout, which made it Ink with the
+lights on: a setting rather than an edition. It is now a takeover built on one idea —
+**a single statement, sized to fill the sheet, over ruled listings.** There is not a
+card, a panel or a shadow anywhere in it; every surface is paper, a hairline or a 3px
+rule.
+
+**The statement is arithmetic, not taste.** In DM Serif Display at `-0.04em`,
+"I build things." measures **5.476×** its own font-size, so the line that fills a sheet
+is `available width / 5.476`. That gives `clamp(52px, 16.1vw, 264px)`, which holds
+96–100% of the measure on one line from 375px to 1920px. Both numbers are load-bearing:
+
+- **16.1vw** — fills the measure while the sheet is narrower than its cap.
+- **264px** — the sheet maxes at `1560px`, so above a 1560px viewport the measure is a
+  constant **1448px** however wide the window gets, and `1448 / 5.476 = 264`. Without
+  the ceiling a 1920px window computes 313px and pushes the line 266px past the sheet.
+
+Change the headline words and that 5.476 changes with them — re-measure, don't guess.
+
+**Two traps this edition has already fallen into, both silent:**
+
+1. **Never give `CHStatement` both `whiteSpace` and `textWrap` as keys**, one set to
+   `undefined`. React writes an undefined style value as `style.textWrap = ''`, which
+   removes the `text-wrap` *shorthand* — including `text-wrap-mode`, the half of
+   `white-space: nowrap` that does the not-wrapping. The element keeps
+   `white-space-collapse` and wraps anyway. It surfaced only at 1920px, because below
+   that the line happened to fit unaided. Apply one or the other, conditionally.
+2. **`CHRule`'s `draw` is opt-in.** `animation-timeline: view()` measures an element
+   against its own trip through the viewport, so a rule already on screen at load sits
+   partway through its entry range forever — the listings rule at the foot of the first
+   sheet drew to ~45% and stopped. Rules above the fold are simply set; only rules the
+   reader scrolls to draw themselves in.
+
+**Motion** is near-zero on purpose — a print idiom does not float. Two primitives only:
+`ch-draw` (rules scaling in from the left, below the fold) and `ch-rise` (one 12px
+move). Nothing loops, and everything is off under `prefers-reduced-motion`.
+
+**Screenshots sit BELOW the poster sheet**, under a `the plate` label, sized through
+`sanityImg(url, 1600)`. Placing one beside the statement would destroy the scale
+contrast the edition runs on; placing it after costs that nothing, and a portfolio that
+never shows the work is the worse trade. Project pages hand the scale to the project's
+**tagline**, not its name — a name is a label and cannot carry a sheet, while these
+taglines were written as statements already.
 
 ### Grain (v1) — cinematic, achromatic, full-bleed
 

@@ -224,7 +224,14 @@ const THEMES = [
     id: 'chalk-v1',
     name: 'Chalk',
     version: 'v1',
-    tagline: 'light · open · breathing room',
+    tagline: 'light · oversized · one statement',
+    // Was the plain light palette on the shared layout — in other words Ink with the
+    // lights on, which is not an edition so much as a setting. Now a takeover: a
+    // poster, where a single statement is sized to fill the sheet and everything else
+    // is a ruled listing beneath it.
+    mondriaan: true,
+    srcId: 'chalk-src',
+    appGlobal: 'ChalkApp',
     mobileOptimized: true,
     fonts: {
       serif: "'DM Serif Display', Georgia, serif",
@@ -495,11 +502,15 @@ function ThemeSwatch({ themeId }) {
   );
   if (themeId === 'chalk-v1') return (
     <div style={{ width:'100%', aspectRatio:'16/9', background:'#f2f0eb', position:'relative', overflow:'hidden' }}>
-      <div style={{ position:'absolute', top:'18%', left:'10%', width:'58%', height:'13%', background:'#0a0a0a' }} />
-      <div style={{ position:'absolute', top:'36%', left:'10%', width:'72%', height:'13%', background:'#0a0a0a' }} />
-      <div style={{ position:'absolute', top:'54%', left:'10%', width:'44%', height:'13%', background:'#0a0a0a' }} />
-      <div style={{ position:'absolute', top:'73%', left:'10%', right:'10%', height:'1px', background:'#c8c6c1' }} />
-      <div style={{ position:'absolute', bottom:'8%', left:'10%', width:'26%', height:'7%', background:'#aaaaaa' }} />
+      {/* One statement across the full measure, a quieter second line, then the heavy
+          rule and the listings — the shape of the edition rather than a colour sample. */}
+      <div style={{ position:'absolute', top:'10%', left:'8%', right:'8%', height:'1px', background:'#0a0a0a' }} />
+      <div style={{ position:'absolute', top:'26%', left:'8%', right:'8%', height:'21%', background:'#0a0a0a' }} />
+      <div style={{ position:'absolute', top:'54%', left:'8%', width:'44%', height:'11%', background:'#6b6b6b' }} />
+      <div style={{ position:'absolute', top:'78%', left:'8%', right:'8%', height:'4%', background:'#0a0a0a' }} />
+      {[0,1,2,3,4].map(i => (
+        <div key={i} style={{ position:'absolute', top:'88%', left:(8 + i * 17) + '%', width:'11%', height:'5%', background:'#0a0a0a' }} />
+      ))}
     </div>
   );
   if (themeId === 'volt-v1') return (
@@ -4875,6 +4886,576 @@ function PrismApp({ selectedProject, navigate, selectProject }) {
             <PZWork projects={projects} mobile={mobile} onSelect={selectProject} />
             <PZBackground mobile={mobile} />
             <PZContact mobile={mobile} />
+          </React.Fragment>
+        )}
+    </div>
+  );
+}
+</script>
+<script type="text/plain" id="chalk-src">
+// ── CHALK MODE ─────────────────────────────────────────────
+// A poster, not a page. One statement owns the first screen at a size no other
+// edition goes near, and everything under it is a ruled listing.
+//
+// The scale is the whole idea, so it is arithmetic rather than taste. In DM Serif
+// Display at -0.04em, "I build things." measures 5.476x its own font-size, so the line
+// that fills a sheet is (available width / 5.476). At 16.3vw that lands at 95-99% of
+// the measure from a 390px phone to a 1920px desktop — measured in a browser at each
+// width, not estimated. Change those words and that ratio changes with them.
+//
+// This was first drawn on a 1120x1240 artboard, which is PORTRAIT, and it did not
+// survive contact with a real 1440x900 viewport: at the size that filled the sheet the
+// line reached only 67% across a screen, which is a large headline rather than a
+// poster. Landscape wanted the type BIGGER, not smaller.
+//
+// Motion is deliberately near-zero. This is a print idiom and print does not float:
+// rules draw themselves in from the left, content rises once, nothing loops.
+const CH_PAPER = '#f2f0eb', CH_INK = '#0a0a0a', CH_BODY = '#3a3a3a', CH_MUTE = '#6b6b6b';
+const CH_SURFACE = '#e2e0db', CH_LINE = '#dddbd6';
+const CH_DISPLAY = "'DM Serif Display', Georgia, serif";
+const CH_MONO = "'JetBrains Mono', 'Fira Code', monospace";
+const CH_EDGE = 'clamp(20px, 4vw, 56px)';
+const CH_CHROME = '64px';
+
+const chReduced = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function chStyles() {
+  if (document.getElementById('chalk-style')) return;
+  const st = document.createElement('style');
+  st.id = 'chalk-style';
+  st.textContent = [
+    '.chalk-root ::selection { background: #0a0a0a; color: #f2f0eb; }',
+    '.chalk-root a, .chalk-root button { -webkit-tap-highlight-color: transparent; }',
+    '.chalk-root a:focus-visible, .chalk-root button:focus-visible { outline: 2px solid #0a0a0a; outline-offset: 3px; }',
+
+    // RULE. A rule that draws itself is the only flourish here, and it is the one
+    // motion that belongs to a printing idiom rather than a screen one. Default state
+    // is DRAWN — without scroll-driven timelines the page is simply already set.
+    '@keyframes ch-draw { from { transform: scaleX(0); } to { transform: scaleX(1); } }',
+    '.ch-rule { transform-origin: 0 50%; }',
+
+    // RISE. One move, 12px, no loop.
+    '@keyframes ch-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }',
+    '.ch-in { animation: ch-rise 620ms cubic-bezier(0.22,0.61,0.36,1) both; }',
+    '.ch-d1 { animation-delay: 90ms; } .ch-d2 { animation-delay: 180ms; }',
+    '@supports (animation-timeline: view()) { @media (prefers-reduced-motion: no-preference) {',
+    '  .ch-rule { animation: ch-draw linear both; animation-timeline: view(); animation-range: entry 10% cover 22%; }',
+    '  .ch-riser { animation: ch-rise linear both; animation-timeline: view(); animation-range: entry 5% cover 26%; }',
+    '} }',
+    '@media (prefers-reduced-motion: reduce) { .chalk-root *, .chalk-root *::before { animation: none !important; transition: none !important; } }',
+
+    // Listing rows fade on hover rather than filling: a filled row would be a card,
+    // and this edition does not have one anywhere.
+    '.ch-row { transition: opacity 140ms ease; }',
+    '.ch-row:hover { opacity: 0.55; }',
+  ].join('\n');
+  document.head.appendChild(st);
+}
+
+function CHLabel({ children, style }) {
+  return (
+    <span style={{
+      fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em',
+      color: CH_MUTE, textTransform: 'lowercase', ...(style || {}),
+    }}>{children}</span>
+  );
+}
+
+// The heavy rule under every section head.
+//
+// `draw` is opt-in, and deliberately so. view() measures an element against its own
+// trip through the viewport, so a rule that is ALREADY on screen at load sits partway
+// through its own entry range forever — the listings rule at the foot of the first
+// sheet drew to about 45% and stopped there. Anything above the fold is therefore
+// simply set, and only rules the reader actually scrolls to draw themselves in.
+function CHRule({ weight, draw }) {
+  return <div className={draw ? 'ch-rule' : undefined} style={{ height: weight || '3px', background: CH_INK, width: '100%' }} />;
+}
+
+function CHButton({ children, onClick, href, newTab, primary }) {
+  const base = {
+    display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+    minHeight: '44px', padding: '0 26px', borderRadius: '2px', boxSizing: 'border-box',
+    fontFamily: CH_MONO, fontSize: '12px', letterSpacing: '0.08em', cursor: 'pointer',
+    textDecoration: 'none', border: '1px solid ' + CH_INK,
+    background: primary ? CH_INK : 'transparent',
+    color: primary ? CH_PAPER : CH_INK,
+  };
+  if (href) return <a href={href} target={newTab ? '_blank' : undefined} rel={newTab ? 'noopener noreferrer' : undefined} style={base}>{children}</a>;
+  return <button onClick={onClick} style={base}>{children}</button>;
+}
+
+function CHChrome({ mobile, onTop, openEditions, onJump, left, right }) {
+  const nav = [['work', 'ch-work'], ['background', 'ch-background'], ['kit', 'ch-tools'], ['contact', 'ch-contact']];
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      gap: '16px', height: CH_CHROME, flexShrink: 0,
+      borderBottom: '1px solid ' + CH_INK,
+    }}>
+      {left || (
+        <button onClick={onTop} style={{
+          background: 'none', border: 'none', cursor: 'pointer', padding: '0 10px 0 0', minHeight: '44px',
+          fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_MUTE, textAlign: 'left',
+        }}>peter &amp; co. · rotterdam, nl</button>
+      )}
+      {right || (
+        <div style={{ display: 'flex', alignItems: 'center', gap: mobile ? '0' : '4px' }}>
+          {!mobile && nav.map(n => (
+            <button key={n[0]} onClick={() => onJump(n[1])} style={{
+              background: 'none', border: 'none', cursor: 'pointer', minHeight: '44px', padding: '0 9px',
+              fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_MUTE,
+            }}>{n[0]}</button>
+          ))}
+          <button onClick={openEditions} style={{
+            background: 'none', border: 'none', cursor: 'pointer', minHeight: '44px', padding: '0 0 0 9px',
+            fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_INK,
+          }}>editions</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// The sheet: the inset column every screen of this edition sits in.
+function CHSheet({ children, full, style }) {
+  return (
+    <div style={{
+      boxSizing: 'border-box', width: '100%', maxWidth: '1560px', margin: '0 auto',
+      padding: '0 ' + CH_EDGE, minHeight: full ? '100svh' : undefined,
+      display: 'flex', flexDirection: 'column', ...(style || {}),
+    }}>{children}</div>
+  );
+}
+
+// The statement. The two numbers below are measured, not chosen — see the note at the
+// top of this blob for where 5.476 comes from.
+//
+// 16.1vw fills 96-99% of the measure while the sheet is still narrower than its cap.
+// 264px is where that has to stop: the sheet maxes out at 1560px wide, so above a
+// 1560px viewport the measure is a constant 1448px however wide the window gets, and
+// 1448 / 5.476 = 264. Without that ceiling a 1920px window computed 313px and pushed
+// the line 266px past the sheet.
+//
+// whiteSpace and textWrap are applied conditionally rather than as two keys with one
+// set to undefined, and that is not tidiness. React writes an undefined style value as
+// style.textWrap = '', which removes the text-wrap SHORTHAND — including
+// text-wrap-mode, the half of `white-space: nowrap` that does the not-wrapping. The
+// element kept white-space-collapse and silently wrapped anyway. It only showed up at
+// 1920px, because below that the line happened to fit on its own.
+function CHStatement({ children, size, maxWidth, nowrap, className }) {
+  const st = {
+    fontFamily: CH_DISPLAY, fontWeight: 400, margin: 0,
+    fontSize: size || 'clamp(52px, 16.1vw, 264px)',
+    lineHeight: nowrap ? 0.86 : 0.96, letterSpacing: '-0.04em',
+    color: CH_INK, maxWidth: maxWidth,
+  };
+  if (nowrap) st.whiteSpace = 'nowrap';
+  else st.textWrap = 'balance';
+  return <h1 className={className} style={st}>{children}</h1>;
+}
+
+function CHListings({ projects, mobile, onSelect }) {
+  const { theme } = useTheme();
+  const list = projects.slice(0, 5);
+  return (
+    <div style={{ flexShrink: 0, paddingBottom: 'clamp(22px, 3vh, 34px)' }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', paddingBottom: '10px' }}>
+        <CHLabel>the listings</CHLabel>
+        <CHLabel>{String(list.length).padStart(2, '0')} entries · 2025&ndash;2026</CHLabel>
+      </div>
+      <CHRule />
+      <div style={{
+        display: 'grid', gap: mobile ? '0' : '20px', paddingTop: mobile ? '2px' : '14px',
+        gridTemplateColumns: mobile ? '1fr' : 'repeat(' + list.length + ', minmax(0, 1fr))',
+      }}>
+        {list.map((p, i) => {
+          const accent = fitAccent(resolveAccent(p, theme.id), CH_PAPER) || CH_INK;
+          return (
+            <button key={p.id} className="ch-row" onClick={() => onSelect(p)} style={{
+              background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left',
+              borderBottom: mobile && i < list.length - 1 ? '1px solid ' + CH_LINE : 'none',
+              display: 'flex', flexDirection: mobile ? 'row' : 'column',
+              alignItems: mobile ? 'center' : 'flex-start', gap: mobile ? '12px' : '5px',
+              minHeight: mobile ? '46px' : undefined,
+            }}>
+              <span style={{ fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.1em', color: CH_MUTE, flexShrink: 0 }}>
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <span style={{
+                fontFamily: CH_DISPLAY, fontSize: mobile ? '19px' : 'clamp(17px, 1.5vw, 22px)',
+                lineHeight: 1.05, letterSpacing: '-0.015em', color: CH_INK,
+                flex: mobile ? 1 : undefined, minWidth: 0,
+              }}>{p.title}</span>
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: '7px', minWidth: 0, maxWidth: '100%',
+                fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.04em', color: CH_BODY,
+              }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: accent, flexShrink: 0 }} />
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.url || (p.tags && p.tags[0]) || ''}</span>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function CHHero({ projects, mobile, onSelect, onTop, openEditions, onJump }) {
+  return (
+    <CHSheet full>
+      <CHChrome mobile={mobile} onTop={onTop} openEditions={openEditions} onJump={onJump} />
+      <div style={{
+        flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center',
+        gap: mobile ? '20px' : 'clamp(20px, 3vh, 34px)', minHeight: 0,
+        padding: 'clamp(24px, 4vh, 48px) 0',
+      }}>
+        <CHStatement className="ch-in" nowrap>I build things.</CHStatement>
+        <div className="ch-in ch-d1" style={{
+          display: 'flex', flexDirection: mobile ? 'column' : 'row',
+          alignItems: mobile ? 'flex-start' : 'flex-end',
+          justifyContent: 'space-between', gap: mobile ? '22px' : '48px',
+        }}>
+          <span style={{
+            fontFamily: CH_DISPLAY, fontSize: mobile ? 'clamp(24px, 7vw, 34px)' : 'clamp(30px, 4.8vw, 92px)',
+            lineHeight: 1.0, letterSpacing: '-0.03em', color: CH_MUTE, textWrap: 'balance',
+          }}>Sometimes they&rsquo;re useful.</span>
+          <div style={{
+            display: 'flex', alignItems: mobile ? 'center' : 'flex-end',
+            gap: '20px', flexShrink: 0, flexWrap: 'wrap',
+          }}>
+            {!mobile && (
+              <span style={{ fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_MUTE, lineHeight: 1.9 }}>
+                product owner by day,<br />builder by night.
+              </span>
+            )}
+            <CHButton primary href="mailto:peterreijm@live.nl">get in touch &rarr;</CHButton>
+          </div>
+        </div>
+      </div>
+      <CHListings projects={projects} mobile={mobile} onSelect={onSelect} />
+    </CHSheet>
+  );
+}
+
+// Every section below the fold is the same object: a label row, the heavy rule, then
+// content. Nothing is ever boxed.
+function CHSection({ id, label, meta, children, mobile }) {
+  return (
+    <CHSheet style={{ paddingTop: 'clamp(56px, 10vh, 130px)' }}>
+      <div id={id} />
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', paddingBottom: '10px' }}>
+        <CHLabel>{label}</CHLabel>
+        {meta ? <CHLabel>{meta}</CHLabel> : null}
+      </div>
+      <CHRule draw />
+      <div style={{ paddingTop: mobile ? '28px' : '40px' }}>{children}</div>
+    </CHSheet>
+  );
+}
+
+function CHWork({ projects, mobile, onSelect }) {
+  const { theme } = useTheme();
+  return (
+    <CHSection id="ch-work" label="the work" meta={String(projects.length).padStart(2, '0') + ' entries'} mobile={mobile}>
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        {projects.map((p, i) => {
+          const accent = fitAccent(resolveAccent(p, theme.id), CH_PAPER) || CH_INK;
+          return (
+            <button key={p.id} className="ch-row ch-riser" onClick={() => onSelect(p)} style={{
+              background: 'none', border: 'none', borderBottom: '1px solid ' + CH_LINE,
+              padding: mobile ? '20px 0' : '26px 0', cursor: 'pointer', textAlign: 'left',
+              display: 'grid', gap: mobile ? '8px' : '28px', alignItems: 'baseline',
+              gridTemplateColumns: mobile ? '1fr' : '48px minmax(0, 1.1fr) minmax(0, 1fr) 118px',
+            }}>
+              <span style={{ fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.1em', color: CH_MUTE }}>
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <span style={{
+                fontFamily: CH_DISPLAY, fontSize: mobile ? '26px' : 'clamp(24px, 2.8vw, 40px)',
+                lineHeight: 1.02, letterSpacing: '-0.025em', color: CH_INK,
+              }}>{p.title}</span>
+              <span style={{ fontFamily: CH_MONO, fontSize: '11px', lineHeight: 1.75, color: CH_BODY, textWrap: 'pretty' }}>
+                {p.description}
+              </span>
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: '8px', minWidth: 0,
+                fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.1em', color: CH_MUTE,
+                justifySelf: mobile ? 'start' : 'end',
+              }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: accent, flexShrink: 0 }} />
+                {p.year}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </CHSection>
+  );
+}
+
+function CHBackground({ mobile }) {
+  const questions = [
+    'Which oat milk is actually best?',
+    'Why does that take a Reddit deep-dive?',
+    'Where is my money really sitting?',
+    'Why does seeing it cost a monthly fee?',
+    'And how many designs can one website be?',
+  ];
+  return (
+    <CHSection id="ch-background" label="background" meta="est. 2025" mobile={mobile}>
+      <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1.1fr 1fr', gap: mobile ? '32px' : '64px', alignItems: 'start' }}>
+        <div className="ch-riser" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <CHStatement size={mobile ? 'clamp(30px, 8vw, 40px)' : 'clamp(36px, 4vw, 60px)'} maxWidth="17ch">
+            Most of it starts because a question would not leave me alone.
+          </CHStatement>
+          <span style={{ fontFamily: CH_MONO, fontSize: '11px', lineHeight: 1.9, color: CH_BODY, maxWidth: '46ch', textWrap: 'pretty' }}>
+            I have wanted to build things for as long as I can remember. I just never wanted to learn to write the code. AI closed that gap, and I would rather ship something unfinished than get it right on paper.
+          </span>
+        </div>
+        <div className="ch-riser" style={{ display: 'flex', flexDirection: 'column' }}>
+          {questions.map((q, i) => (
+            <div key={i} style={{
+              display: 'flex', gap: '16px', alignItems: 'baseline', padding: '14px 0',
+              borderBottom: i < questions.length - 1 ? '1px solid ' + CH_LINE : 'none',
+            }}>
+              <span style={{ fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.1em', color: CH_MUTE, flexShrink: 0 }}>
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <span style={{ fontFamily: CH_DISPLAY, fontSize: mobile ? '19px' : '23px', lineHeight: 1.28, letterSpacing: '-0.015em', color: CH_INK, textWrap: 'pretty' }}>{q}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </CHSection>
+  );
+}
+
+function CHTools({ mobile }) {
+  const cats = TOOL_CATEGORIES;
+  return (
+    <CHSection id="ch-tools" label="the kit" meta={String(cats.length).padStart(2, '0') + ' shelves'} mobile={mobile}>
+      <div style={{
+        display: 'grid', gap: mobile ? '32px' : '40px',
+        gridTemplateColumns: mobile ? '1fr' : 'repeat(' + Math.min(cats.length, 3) + ', minmax(0, 1fr))',
+      }}>
+        {cats.map(cat => (
+          <div key={cat.label} className="ch-riser" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ paddingBottom: '9px', borderBottom: '1px solid ' + CH_INK }}>
+              <CHLabel>{cat.label}</CHLabel>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              {cat.tools.map((t, i) => (
+                <div key={t.name} style={{
+                  display: 'flex', flexDirection: 'column', gap: '4px', padding: '11px 0',
+                  borderBottom: i < cat.tools.length - 1 ? '1px solid ' + CH_LINE : 'none',
+                  opacity: t.status === 'retired' ? 0.55 : 1,
+                }}>
+                  <span style={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' }}>
+                    <span style={{ fontFamily: CH_DISPLAY, fontSize: '18px', lineHeight: 1.15, letterSpacing: '-0.015em', color: CH_INK }}>{t.name}</span>
+                    {t.status === 'retired' ? <CHLabel style={{ fontSize: '9px' }}>retired</CHLabel> : null}
+                  </span>
+                  <span style={{ fontFamily: CH_MONO, fontSize: '10px', lineHeight: 1.7, color: CH_BODY, textWrap: 'pretty' }}>{t.desc}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </CHSection>
+  );
+}
+
+function CHContact({ mobile }) {
+  const links = [
+    ['github', 'https://github.com/preijm', true],
+    ['linkedin', 'https://www.linkedin.com/in/peter-reijm-47165b5b/', true],
+  ];
+  return (
+    <CHSection id="ch-contact" label="contact" meta="open to a good problem" mobile={mobile}>
+      <div className="ch-riser" style={{ display: 'flex', flexDirection: 'column', gap: '22px', alignItems: 'flex-start' }}>
+        <CHStatement size={mobile ? 'clamp(32px, 9vw, 46px)' : 'clamp(42px, 6.2vw, 104px)'} maxWidth="14ch">
+          Got a problem worth building?
+        </CHStatement>
+        <span style={{ fontFamily: CH_MONO, fontSize: '11px', lineHeight: 1.9, color: CH_BODY, maxWidth: '44ch', textWrap: 'pretty' }}>
+          Work, a collaboration, or just a sharp idea worth chasing. I am always up for a good problem.
+        </span>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '4px' }}>
+          <CHButton primary href="mailto:peterreijm@live.nl">start a conversation &rarr;</CHButton>
+          {links.map(l => <CHButton key={l[0]} href={l[1]} newTab={l[2]}>{l[0]}</CHButton>)}
+        </div>
+      </div>
+    </CHSection>
+  );
+}
+
+function CHColophon({ mobile }) {
+  return (
+    <CHSheet style={{ paddingTop: 'clamp(48px, 8vh, 96px)', paddingBottom: 'clamp(24px, 4vh, 40px)' }}>
+      <CHRule weight="1px" draw />
+      <div style={{
+        display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: '10px',
+        justifyContent: 'space-between', paddingTop: '18px',
+      }}>
+        <CHLabel>chalk · poster edition</CHLabel>
+        <CHLabel>peter &amp; co. · rotterdam, nl</CHLabel>
+      </div>
+    </CHSheet>
+  );
+}
+
+function CHProject({ project, projects, mobile, onSelect, onBack, openEditions }) {
+  const { theme } = useTheme();
+  const p = project;
+  const accent = fitAccent(resolveAccent(p, theme.id), CH_PAPER) || CH_INK;
+  const idx = projects.findIndex(x => x.id === p.id);
+  const next = projects[(idx + 1) % projects.length];
+  const kind = (p.tags && p.tags[0]) || 'project';
+  // A project NAME cannot carry a sheet — it is a label, not a statement. The tagline
+  // can, and these were written as statements already, so the name drops to a masthead
+  // line and the tagline takes the scale.
+  const statement = p.tagline || p.description;
+  const facts = [
+    ['role', p.role || '—'],
+    ['year', p.year || '—'],
+    ['stack', (p.stack || []).slice(0, 3).join(', ') || '—'],
+    ['site', p.url || '—'],
+  ];
+  return (
+    <React.Fragment>
+      <CHSheet full>
+        <CHChrome
+          mobile={mobile}
+          left={<button onClick={onBack} style={{
+            background: 'none', border: 'none', cursor: 'pointer', padding: '0 10px 0 0', minHeight: '44px',
+            fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_MUTE,
+          }}>&larr; all work</button>}
+          right={<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            {!mobile && <CHLabel style={{ padding: '0 9px' }}>{String(idx + 1).padStart(2, '0')} / {String(projects.length).padStart(2, '0')} · {kind}</CHLabel>}
+            <button onClick={openEditions} style={{
+              background: 'none', border: 'none', cursor: 'pointer', minHeight: '44px', padding: '0 0 0 9px',
+              fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_INK,
+            }}>editions</button>
+          </div>}
+        />
+
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px', paddingTop: 'clamp(20px, 3vh, 30px)' }}>
+          <span style={{ fontFamily: CH_DISPLAY, fontSize: mobile ? '24px' : 'clamp(26px, 2.6vw, 38px)', lineHeight: 1.0, letterSpacing: '-0.02em', color: CH_INK }}>{p.title}</span>
+          <span style={{ flex: 1, height: '1px', background: CH_LINE }} />
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+            <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: accent }} />
+            <CHLabel>{p.year}</CHLabel>
+          </span>
+        </div>
+
+        <div style={{
+          flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center',
+          padding: 'clamp(28px, 5vh, 60px) 0', minHeight: 0, gap: 'clamp(24px, 4vh, 40px)',
+        }}>
+          <CHStatement
+            className="ch-in"
+            // The home sheet fills 97% of its measure; at 5.8vw this filled 46%, which
+            // made the project page a quieter design rather than the same one. Sized
+            // up until the longest of the five taglines still clears a 900px viewport.
+            size={mobile ? 'clamp(32px, 9.2vw, 46px)' : 'clamp(42px, 7.6vw, 132px)'}
+            maxWidth="15ch"
+          >{statement}</CHStatement>
+          <div className="ch-in ch-d1" style={{
+            display: 'flex', flexDirection: mobile ? 'column' : 'row',
+            alignItems: mobile ? 'flex-start' : 'flex-end',
+            justifyContent: 'space-between', gap: mobile ? '22px' : '44px',
+          }}>
+            <span style={{ fontFamily: CH_MONO, fontSize: '11px', lineHeight: 1.9, color: CH_BODY, maxWidth: '48ch', textWrap: 'pretty' }}>
+              {p.detail || p.description}
+            </span>
+            {p.href ? <CHButton primary href={p.href} newTab>visit the site &rarr;</CHButton> : null}
+          </div>
+        </div>
+
+        <div style={{ flexShrink: 0, paddingBottom: 'clamp(22px, 3vh, 34px)' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', paddingBottom: '10px' }}>
+            <CHLabel>the particulars</CHLabel>
+            <button onClick={() => onSelect(next)} className="ch-row" style={{
+              background: 'none', border: 'none', cursor: 'pointer', minHeight: '44px', padding: 0,
+              fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_MUTE, textAlign: 'right',
+            }}>next · {next.title.toLowerCase()} &rarr;</button>
+          </div>
+          <CHRule />
+          <div style={{
+            display: 'grid', gap: mobile ? '0' : '18px', paddingTop: mobile ? '2px' : '14px',
+            gridTemplateColumns: mobile ? '1fr' : 'repeat(4, minmax(0, 1fr))',
+          }}>
+            {facts.map((f, i) => (
+              <div key={f[0]} style={{
+                display: 'flex', flexDirection: mobile ? 'row' : 'column',
+                justifyContent: mobile ? 'space-between' : undefined,
+                alignItems: mobile ? 'baseline' : 'flex-start', gap: mobile ? '16px' : '6px',
+                padding: mobile ? '11px 0' : 0,
+                borderBottom: mobile && i < facts.length - 1 ? '1px solid ' + CH_LINE : 'none',
+              }}>
+                <CHLabel style={{ flexShrink: 0 }}>{f[0]}</CHLabel>
+                <span style={{
+                  fontFamily: CH_DISPLAY, fontSize: mobile ? '17px' : '20px', lineHeight: 1.15,
+                  letterSpacing: '-0.015em', color: CH_INK, textAlign: mobile ? 'right' : 'left',
+                }}>{f[1]}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </CHSheet>
+
+      {/* The evidence, deliberately BELOW the poster sheet. A screenshot beside the
+          statement would kill the scale contrast the whole edition runs on; after it,
+          that costs nothing — and a portfolio that never shows the work is the worse
+          trade of the two. */}
+      {p.screenshot ? (
+        <CHSheet style={{ paddingTop: 'clamp(40px, 7vh, 90px)' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', paddingBottom: '10px' }}>
+            <CHLabel>the plate</CHLabel>
+            <CHLabel>{p.url || ''}</CHLabel>
+          </div>
+          <CHRule weight="1px" draw />
+          {/* Sized through the CDN rather than shipping the 3840px original into a
+              1448px slot — the plate is the heaviest thing this edition loads. */}
+          <img className="ch-riser" src={typeof sanityImg === 'function' ? sanityImg(p.screenshot, 1600) : p.screenshot} alt={p.title} loading="lazy" decoding="async" style={{
+            width: '100%', height: 'auto', display: 'block', marginTop: '18px',
+            border: '1px solid ' + CH_LINE, background: CH_SURFACE,
+          }} />
+        </CHSheet>
+      ) : null}
+
+      <CHColophon mobile={mobile} />
+    </React.Fragment>
+  );
+}
+
+function ChalkApp({ selectedProject, navigate, selectProject }) {
+  const mobile = useMobile();
+  const { openEditions } = useTheme();
+  const projects = PROJECTS;
+
+  React.useEffect(() => { chStyles(); }, []);
+  React.useEffect(() => { window.scrollTo({ top: 0, behavior: chReduced() ? 'auto' : 'smooth' }); }, [selectedProject && selectedProject.id]);
+
+  const onTop = () => window.scrollTo({ top: 0, behavior: chReduced() ? 'auto' : 'smooth' });
+  const onJump = (id) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: chReduced() ? 'auto' : 'smooth', block: 'start' });
+  };
+
+  return (
+    <div className="chalk-root" style={{ background: CH_PAPER, color: CH_INK, fontFamily: CH_MONO, minHeight: '100vh' }}>
+      {selectedProject
+        ? <CHProject project={selectedProject} projects={projects} mobile={mobile} onSelect={selectProject} onBack={() => navigate('work')} openEditions={openEditions} />
+        : (
+          <React.Fragment>
+            <CHHero projects={projects} mobile={mobile} onSelect={selectProject} onTop={onTop} openEditions={openEditions} onJump={onJump} />
+            <CHWork projects={projects} mobile={mobile} onSelect={selectProject} />
+            <CHBackground mobile={mobile} />
+            <CHTools mobile={mobile} />
+            <CHContact mobile={mobile} />
+            <CHColophon mobile={mobile} />
           </React.Fragment>
         )}
     </div>
