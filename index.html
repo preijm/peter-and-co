@@ -4948,6 +4948,13 @@ function chStyles() {
     // and this edition does not have one anywhere.
     '.ch-row { transition: opacity 140ms ease; }',
     '.ch-row:hover { opacity: 0.55; }',
+
+    // NUDGE — the one looping animation here, and it earns the exception. The first
+    // sheet is exactly one viewport ending in a hard rule, so nothing bleeds past the
+    // fold and the composition reads as finished: the next section starts 90px BELOW
+    // the fold, which is to say invisibly. A closed poster needs to say it continues.
+    '@keyframes ch-nudge { 0%,100% { transform: translateY(0); opacity: 0.75; } 50% { transform: translateY(3px); opacity: 1; } }',
+    '.ch-nudge { animation: ch-nudge 2.4s ease-in-out infinite; }',
   ].join('\n');
   document.head.appendChild(st);
 }
@@ -4985,8 +4992,13 @@ function CHButton({ children, onClick, href, newTab, primary }) {
   return <button onClick={onClick} style={base}>{children}</button>;
 }
 
-function CHChrome({ mobile, onTop, openEditions, onJump, left, right }) {
-  const nav = [['work', 'ch-work'], ['background', 'ch-background'], ['kit', 'ch-tools'], ['contact', 'ch-contact']];
+// The nav navigates. Chalk used to be one long scroll with these as jump targets,
+// which meant the poster sheet had five sections stacked under it and had to apologise
+// for them with a "continued" mark. Each is its own sheet now, so the first screen is
+// the whole of the home page and nothing is hidden below a fold that gave no sign of
+// having anything below it.
+function CHChrome({ mobile, onTop, openEditions, onNavigate, activePage, left, right }) {
+  const nav = [['work', 'work'], ['background', 'about'], ['kit', 'tools'], ['contact', 'contact']];
   return (
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -5000,11 +5012,20 @@ function CHChrome({ mobile, onTop, openEditions, onJump, left, right }) {
         }}>peter &amp; co. · rotterdam, nl</button>
       )}
       {right || (
-        <div style={{ display: 'flex', alignItems: 'center', gap: mobile ? '0' : '4px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: mobile ? '2px' : '4px' }}>
+          {mobile && nav.filter(n => n[1] !== 'work').map(n => (
+            <button key={n[0]} onClick={() => onNavigate(n[1])} style={{
+              background: 'none', border: 'none', cursor: 'pointer', minHeight: '44px', padding: '0 6px',
+              fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.06em',
+              color: activePage === n[1] ? CH_INK : CH_MUTE,
+            }}>{n[0] === 'background' ? 'bg' : n[0]}</button>
+          ))}
           {!mobile && nav.map(n => (
-            <button key={n[0]} onClick={() => onJump(n[1])} style={{
+            <button key={n[0]} onClick={() => onNavigate(n[1])} style={{
               background: 'none', border: 'none', cursor: 'pointer', minHeight: '44px', padding: '0 9px',
-              fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_MUTE,
+              fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em',
+              color: activePage === n[1] ? CH_INK : CH_MUTE,
+              textDecoration: activePage === n[1] ? 'underline' : 'none', textUnderlineOffset: '5px',
             }}>{n[0]}</button>
           ))}
           <button onClick={openEditions} style={{
@@ -5102,10 +5123,10 @@ function CHListings({ projects, mobile, onSelect }) {
   );
 }
 
-function CHHero({ projects, mobile, onSelect, onTop, openEditions, onJump }) {
+function CHHero({ projects, mobile, onSelect, onTop, openEditions, onNavigate, activePage }) {
   return (
     <CHSheet full>
-      <CHChrome mobile={mobile} onTop={onTop} openEditions={openEditions} onJump={onJump} />
+      <CHChrome mobile={mobile} onTop={onTop} openEditions={openEditions} onNavigate={onNavigate} activePage={activePage} />
       <div style={{
         flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center',
         gap: mobile ? '20px' : 'clamp(20px, 3vh, 34px)', minHeight: 0,
@@ -5141,9 +5162,9 @@ function CHHero({ projects, mobile, onSelect, onTop, openEditions, onJump }) {
 
 // Every section below the fold is the same object: a label row, the heavy rule, then
 // content. Nothing is ever boxed.
-function CHSection({ id, label, meta, children, mobile }) {
+function CHSection({ id, label, meta, children, mobile, page }) {
   return (
-    <CHSheet style={{ paddingTop: 'clamp(56px, 10vh, 130px)' }}>
+    <CHSheet style={{ paddingTop: page ? 'clamp(26px, 4vh, 44px)' : 'clamp(56px, 10vh, 130px)', flex: page ? 1 : undefined }}>
       <div id={id} />
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', paddingBottom: '10px' }}>
         <CHLabel>{label}</CHLabel>
@@ -5158,7 +5179,7 @@ function CHSection({ id, label, meta, children, mobile }) {
 function CHWork({ projects, mobile, onSelect }) {
   const { theme } = useTheme();
   return (
-    <CHSection id="ch-work" label="the work" meta={String(projects.length).padStart(2, '0') + ' entries'} mobile={mobile}>
+    <CHSection page id="ch-work" label="the work" meta={String(projects.length).padStart(2, '0') + ' entries'} mobile={mobile}>
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         {projects.map((p, i) => {
           const accent = fitAccent(resolveAccent(p, theme.id), CH_PAPER) || CH_INK;
@@ -5204,7 +5225,7 @@ function CHBackground({ mobile }) {
     'And how many designs can one website be?',
   ];
   return (
-    <CHSection id="ch-background" label="background" meta="est. 2025" mobile={mobile}>
+    <CHSection page id="ch-background" label="background" meta="est. 2025" mobile={mobile}>
       <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1.1fr 1fr', gap: mobile ? '32px' : '64px', alignItems: 'start' }}>
         <div className="ch-riser" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <CHStatement size={mobile ? 'clamp(30px, 8vw, 40px)' : 'clamp(36px, 4vw, 60px)'} maxWidth="17ch">
@@ -5235,7 +5256,7 @@ function CHBackground({ mobile }) {
 function CHTools({ mobile }) {
   const cats = TOOL_CATEGORIES;
   return (
-    <CHSection id="ch-tools" label="the kit" meta={String(cats.length).padStart(2, '0') + ' shelves'} mobile={mobile}>
+    <CHSection page id="ch-tools" label="the kit" meta={String(cats.length).padStart(2, '0') + ' shelves'} mobile={mobile}>
       <div style={{
         display: 'grid', gap: mobile ? '32px' : '40px',
         gridTemplateColumns: mobile ? '1fr' : 'repeat(' + Math.min(cats.length, 3) + ', minmax(0, 1fr))',
@@ -5273,7 +5294,7 @@ function CHContact({ mobile }) {
     ['linkedin', 'https://www.linkedin.com/in/peter-reijm-47165b5b/', true],
   ];
   return (
-    <CHSection id="ch-contact" label="contact" meta="open to a good problem" mobile={mobile}>
+    <CHSection page id="ch-contact" label="contact" meta="open to a good problem" mobile={mobile}>
       <div className="ch-riser" style={{ display: 'flex', flexDirection: 'column', gap: '22px', alignItems: 'flex-start' }}>
         <CHStatement size={mobile ? 'clamp(32px, 9vw, 46px)' : 'clamp(42px, 6.2vw, 104px)'} maxWidth="14ch">
           Got a problem worth building?
@@ -5305,7 +5326,7 @@ function CHColophon({ mobile }) {
   );
 }
 
-function CHProject({ project, projects, mobile, onSelect, onBack, openEditions }) {
+function CHProject({ project, projects, mobile, onSelect, onBack, openEditions, onJump }) {
   const { theme } = useTheme();
   const p = project;
   const accent = fitAccent(resolveAccent(p, theme.id), CH_PAPER) || CH_INK;
@@ -5316,6 +5337,13 @@ function CHProject({ project, projects, mobile, onSelect, onBack, openEditions }
   // can, and these were written as statements already, so the name drops to a masthead
   // line and the tagline takes the scale.
   const statement = p.tagline || p.description;
+  // Sanity puts the real pixel dimensions in the filename, so the plate's box can be
+  // reserved before the image loads. Without this the img has no height until it
+  // arrives: the whole project page measured 278px of scroll range, the "the plate"
+  // cue scrolled to a plate that was not there yet, and everything below jumped when
+  // it finally decoded. Falls back to 16/9, which is what every screenshot here is.
+  const plateDims = (p.screenshot || '').match(/-(\d+)x(\d+)\.[a-z]+/i);
+  const plateRatio = plateDims ? (plateDims[1] + ' / ' + plateDims[2]) : '16 / 9';
   const facts = [
     ['role', p.role || '—'],
     ['year', p.year || '—'],
@@ -5327,6 +5355,7 @@ function CHProject({ project, projects, mobile, onSelect, onBack, openEditions }
       <CHSheet full>
         <CHChrome
           mobile={mobile}
+          activePage="work"
           left={<button onClick={onBack} style={{
             background: 'none', border: 'none', cursor: 'pointer', padding: '0 10px 0 0', minHeight: '44px',
             fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_MUTE,
@@ -5376,10 +5405,17 @@ function CHProject({ project, projects, mobile, onSelect, onBack, openEditions }
         <div style={{ flexShrink: 0, paddingBottom: 'clamp(22px, 3vh, 34px)' }}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', paddingBottom: '10px' }}>
             <CHLabel>the particulars</CHLabel>
-            <button onClick={() => onSelect(next)} className="ch-row" style={{
-              background: 'none', border: 'none', cursor: 'pointer', minHeight: '44px', padding: 0,
-              fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_MUTE, textAlign: 'right',
-            }}>next · {next.title.toLowerCase()} &rarr;</button>
+            {p.screenshot ? (
+              <button onClick={() => onJump('ch-plate')} className="ch-row ch-nudge" style={{
+                background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_INK, textAlign: 'right',
+              }}>the plate &darr;</button>
+            ) : (
+              <button onClick={() => onSelect(next)} className="ch-row" style={{
+                background: 'none', border: 'none', cursor: 'pointer', minHeight: '44px', padding: 0,
+                fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_MUTE, textAlign: 'right',
+              }}>next · {next.title.toLowerCase()} &rarr;</button>
+            )}
           </div>
           <CHRule />
           <div style={{
@@ -5411,15 +5447,19 @@ function CHProject({ project, projects, mobile, onSelect, onBack, openEditions }
           trade of the two. */}
       {p.screenshot ? (
         <CHSheet style={{ paddingTop: 'clamp(40px, 7vh, 90px)' }}>
+          <div id="ch-plate" />
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', paddingBottom: '10px' }}>
             <CHLabel>the plate</CHLabel>
-            <CHLabel>{p.url || ''}</CHLabel>
+            <button onClick={() => onSelect(next)} className="ch-row" style={{
+              background: 'none', border: 'none', cursor: 'pointer', minHeight: '44px', padding: 0,
+              fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_MUTE, textAlign: 'right',
+            }}>next · {next.title.toLowerCase()} &rarr;</button>
           </div>
           <CHRule weight="1px" draw />
           {/* Sized through the CDN rather than shipping the 3840px original into a
               1448px slot — the plate is the heaviest thing this edition loads. */}
           <img className="ch-riser" src={typeof sanityImg === 'function' ? sanityImg(p.screenshot, 1600) : p.screenshot} alt={p.title} loading="lazy" decoding="async" style={{
-            width: '100%', height: 'auto', display: 'block', marginTop: '18px',
+            width: '100%', height: 'auto', aspectRatio: plateRatio, display: 'block', marginTop: '18px',
             border: '1px solid ' + CH_LINE, background: CH_SURFACE,
           }} />
         </CHSheet>
@@ -5430,7 +5470,7 @@ function CHProject({ project, projects, mobile, onSelect, onBack, openEditions }
   );
 }
 
-function ChalkApp({ selectedProject, navigate, selectProject }) {
+function ChalkApp({ page, selectedProject, navigate, selectProject, activePage }) {
   const mobile = useMobile();
   const { openEditions } = useTheme();
   const projects = PROJECTS;
@@ -5438,26 +5478,42 @@ function ChalkApp({ selectedProject, navigate, selectProject }) {
   React.useEffect(() => { chStyles(); }, []);
   React.useEffect(() => { window.scrollTo({ top: 0, behavior: chReduced() ? 'auto' : 'smooth' }); }, [selectedProject && selectedProject.id]);
 
-  const onTop = () => window.scrollTo({ top: 0, behavior: chReduced() ? 'auto' : 'smooth' });
+  const onTop = () => navigate('home');
   const onJump = (id) => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: chReduced() ? 'auto' : 'smooth', block: 'start' });
   };
+  const shell = { background: CH_PAPER, color: CH_INK, fontFamily: CH_MONO, minHeight: '100svh', display: 'flex', flexDirection: 'column' };
+
+  if (selectedProject) {
+    return (
+      <div className="chalk-root" style={shell}>
+        <CHProject project={selectedProject} projects={projects} mobile={mobile} onSelect={selectProject} onBack={() => navigate('work')} openEditions={openEditions} onJump={onJump} />
+      </div>
+    );
+  }
+
+  // Home is the poster and nothing else: exactly one screen, no scroll, because the
+  // sheet IS the page. Everything the old scroll held now has its own sheet, reached
+  // from the chrome.
+  if (page === 'home') {
+    return (
+      <div className="chalk-root" style={shell}>
+        <CHHero projects={projects} mobile={mobile} onSelect={selectProject} onTop={onTop} openEditions={openEditions} onNavigate={navigate} activePage={activePage} />
+      </div>
+    );
+  }
 
   return (
-    <div className="chalk-root" style={{ background: CH_PAPER, color: CH_INK, fontFamily: CH_MONO, minHeight: '100vh' }}>
-      {selectedProject
-        ? <CHProject project={selectedProject} projects={projects} mobile={mobile} onSelect={selectProject} onBack={() => navigate('work')} openEditions={openEditions} />
-        : (
-          <React.Fragment>
-            <CHHero projects={projects} mobile={mobile} onSelect={selectProject} onTop={onTop} openEditions={openEditions} onJump={onJump} />
-            <CHWork projects={projects} mobile={mobile} onSelect={selectProject} />
-            <CHBackground mobile={mobile} />
-            <CHTools mobile={mobile} />
-            <CHContact mobile={mobile} />
-            <CHColophon mobile={mobile} />
-          </React.Fragment>
-        )}
+    <div className="chalk-root" style={shell}>
+      <CHSheet>
+        <CHChrome mobile={mobile} onTop={onTop} openEditions={openEditions} onNavigate={navigate} activePage={activePage} />
+      </CHSheet>
+      {page === 'work'    && <CHWork projects={projects} mobile={mobile} onSelect={selectProject} />}
+      {page === 'about'   && <CHBackground mobile={mobile} />}
+      {page === 'tools'   && <CHTools mobile={mobile} />}
+      {page === 'contact' && <CHContact mobile={mobile} />}
+      <CHColophon mobile={mobile} />
     </div>
   );
 }
