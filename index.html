@@ -2499,8 +2499,36 @@ function MHomePainting({ activePage, onNavigate, onSelect }) {
   );
 }
 
+// The blocks under About's statement carry no copy on purpose: a Mondriaan
+// canvas is mostly empty rectangles, so the space below the headline is divided
+// into a rhythm of planes rather than filled with words. A narrow second column
+// gives the field its vertical beat.
+//
+// They are also the only planes on the site with no other job, which is what
+// makes them safe to hand to the reader: clicking one repaints it in the next
+// colour, so the composition can be rearranged the way Mondriaan rearranged the
+// coloured cards pinned to his studio wall. Nothing is hidden and there is no
+// wrong answer — the fifth click returns a plane to where it started.
+const M_ABOUT_FIELD = [
+  { fill: M_W[2],   dir: 'h', wob: 'b', col: '1', row: '2', pnt: ['r', 4.9] },
+  { fill: M_RED,    dir: 'v', wob: 'c', col: '2', row: '2', pnt: ['d', 5.2] },
+  { fill: M_W[0],   dir: 'h', wob: 'a', col: '3', row: '2', pnt: ['l', 5.5] },
+  { fill: M_YELLOW, dir: 'h', wob: 'a', col: '1', row: '3', pnt: ['u', 5.8] },
+  { fill: M_INK,    dir: 'v', wob: 'b', col: '2', row: '3', pnt: ['d', 6.1] },
+  { fill: M_W[3],   dir: 'v', wob: 'c', col: '3', row: '3', pnt: ['u', 6.4] },
+];
+// What a click cycles through. Only saturated colours: stepping between two
+// broken whites would look like a dud click.
+const M_REPAINT = [M_RED, M_YELLOW, M_BLUE, M_INK];
+// Successive strokes arrive from different sides, so repainting one plane
+// repeatedly looks like a hand working rather than a value toggling.
+const M_REPAINT_DIRS = ['r', 'd', 'l', 'u'];
+
 function MAbout() {
   const mobile = useMobile();
+  // One stroke count per field block. 0 is the plane as painted on load; every
+  // click adds a stroke, and every fifth returns it to its original colour.
+  const [strokes, setStrokes] = React.useState(() => M_ABOUT_FIELD.map(() => 0));
   const cards = [
     { label: 'Origin',     bg: M_WHITE,  fg: M_BLACK, text: 'Plant science,\nData science,\nProduct science(?)' },
     { label: 'Method',     bg: M_YELLOW, fg: M_BLACK, text: 'Build first,\nexplain later.' },
@@ -2512,18 +2540,7 @@ function MAbout() {
       { fill: M_YELLOW, fg: M_INK,  dir: 'h', wob: 'c' },
       { fill: M_RED,    fg: M_W[0], dir: 'v', wob: 'a' },
     ];
-    // The blocks under the statement carry no copy on purpose: a Mondriaan
-    // canvas is mostly empty rectangles, so the space below the headline is
-    // divided into a rhythm of planes rather than filled with words. A narrow
-    // second column gives the field its vertical beat.
-    const field = [
-      { fill: M_W[2],   dir: 'h', wob: 'b', col: '1', row: '2', pnt: ['r', 4.9] },
-      { fill: M_RED,    dir: 'v', wob: 'c', col: '2', row: '2', pnt: ['d', 5.2] },
-      { fill: M_W[0],   dir: 'h', wob: 'a', col: '3', row: '2', pnt: ['l', 5.5] },
-      { fill: M_YELLOW, dir: 'h', wob: 'a', col: '1', row: '3', pnt: ['u', 5.8] },
-      { fill: M_INK,    dir: 'v', wob: 'b', col: '2', row: '3', pnt: ['d', 6.1] },
-      { fill: M_W[3],   dir: 'v', wob: 'c', col: '3', row: '3', pnt: ['u', 6.4] },
-    ];
+    const field = M_ABOUT_FIELD;
     return (
       <MSectionCanvas cols="minmax(280px, 1.15fr) 108px minmax(0, 0.55fr) minmax(240px, 0.9fr)"
         rows="minmax(220px, 1fr) minmax(140px, 0.6fr) minmax(140px, 0.6fr) 116px"
@@ -2546,10 +2563,25 @@ function MAbout() {
             <div style={{ fontFamily: M_DISPLAY, fontSize: '24px', color: paint[i].fg, letterSpacing: '-0.02em', lineHeight: 1.1, whiteSpace: 'pre-line' }}>{l.text}</div>
           </MPlane>
         ))}
-        {field.map(b => (
-          <MPlane key={`${b.col}-${b.row}`} fill={b.fill} dir={b.dir} wob={b.wob}
-            style={{ gridColumn: b.col, gridRow: b.row, ...mPnt(b.pnt[0], b.pnt[1]) }} />
-        ))}
+        {field.map((b, i) => {
+          const n = strokes[i];
+          const step = n % (M_REPAINT.length + 1);
+          const fill = step === 0 ? b.fill : M_REPAINT[step - 1];
+          // Remounting on the stroke count is what replays the animation: a
+          // click repaints from a new side with no delay, while the first
+          // paint keeps its place in the page's sequence.
+          return (
+            <MPlane key={`${i}-${n}`} as="button" fill={fill} dir={b.dir} wob={b.wob}
+              aria-label="Repaint this plane"
+              onClick={() => setStrokes(s => s.map((v, j) => (j === i ? v + 1 : v)))}
+              style={{
+                gridColumn: b.col, gridRow: b.row, cursor: 'pointer',
+                ...(n === 0
+                  ? mPnt(b.pnt[0], b.pnt[1])
+                  : mPnt(M_REPAINT_DIRS[n % M_REPAINT_DIRS.length], 0, 520)),
+              }} />
+          );
+        })}
         <MPlane fill={M_BLUE} dir="h" wob="c"
           style={{ gridColumn: '1 / 5', gridRow: '4', ...mPnt('r', 6.9, 700) }}
           contentStyle={{ display: 'flex', alignItems: 'center', padding: '0 56px' }}>

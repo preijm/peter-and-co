@@ -342,6 +342,18 @@ Every desktop page is a painting, not just home. The shared pieces:
   the answer to a large blank area in this edition is more divisions, not more
   words. Its row sizes and headline clamp are tuned so the whole composition,
   blue statement band included, lands inside a 1440×900 viewport.
+- **Those six blocks are the only ones a reader may repaint** (`M_ABOUT_FIELD`,
+  `M_REPAINT`). Clicking one strokes it to the next colour — red, yellow,
+  blue, ink, then back to where it started on the fifth click — so the
+  composition can be rearranged the way Mondriaan rearranged the coloured
+  cards on his studio wall. They earn the interaction by being the only planes
+  on the site with **no other job**: everywhere else a click already navigates,
+  and a canvas where some blocks go somewhere and others change colour teaches
+  the reader nothing. Nothing is hidden behind them, so a reader who never
+  clicks still sees the intended painting. They are real `<button>`s with an
+  `aria-label`, and remounting on the stroke count is what replays the paint —
+  a repaint arrives from a rotating side with no delay, while the first paint
+  keeps its place in the page's sequence.
 - **Form controls are painted too** (`MPaintField`, `MPaintButton`): a wobbled
   ink slab is the frame with a 7px-inset paper plane on top of it — the two
   wobble on different seeds, so the border's thickness varies down its length
