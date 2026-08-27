@@ -314,9 +314,10 @@ Every desktop page is a painting, not just home. The shared pieces:
 - **`MPaintedHeader`** — the `MHeaderTiles` band (grid on `M_COLS`, 104px row)
   on every page except home. Mobile keeps the classic bordered `MHeader`.
 - **Every header tile is a block**, the edition switch included
-  (`MEditionTile`): it is nav-sized in the last column, bleeding off the top
-  and right, painted standing rather than on hover (it is the one control that
-  leaves the edition) and lightening a shade when hovered. It is **blue** —
+  (`MEditionTile`): it is nav-sized in the last column, bleeding off the right
+  edge only — it keeps a painted line above it like every other tile — painted
+  standing rather than on hover (it is the one control that leaves the
+  edition) and lightening a shade when hovered. It is **blue** —
   red already carries the logo, the home hero's right-hand column and the
   first project card. On home a red plane below it carries that column down
   beside the hero, so the right edge stacks blue / red / yellow / white.
@@ -353,20 +354,30 @@ Every desktop page is a painting, not just home. The shared pieces:
   linkedin, yellow email tiles) rendered **only on the contact page** — its
   job is "reach me", so every other page ends where its painting ends. Mobile
   keeps the bordered footer, same rule.
+- **A page that fills exactly one screen subtracts its chrome**: `M_HEAD_H`
+  (124) always, plus `M_FOOT_H` (116) on contact, which is the only page
+  carrying the footer. Contact sizes itself to
+  `calc(100vh - M_HEAD_H - M_FOOT_H)` so the footer band lands in view without
+  scrolling; About subtracts the header alone.
 - Vertical lines between the header band and a page's own grid do **not**
   align — rows with different divisions are the authentic Mondriaan move, not
   a bug to fix.
 
 ### Paint-In Animation
-When the home page mounts, each block sweeps in using CSS `clip-path` animations — the feeling of fresh paint being applied.
+When a page mounts, each block sweeps in using CSS `clip-path` animations — the feeling of fresh paint being applied.
 
-Keyframes (global CSS):
-```css
-@keyframes m-paint-r { from{clip-path:inset(0 100% 0 0)} to{clip-path:inset(0 0 0 0)} }
-@keyframes m-paint-d { from{clip-path:inset(0 0 100% 0)} to{clip-path:inset(0 0 0 0)} }
-@keyframes m-paint-u { from{clip-path:inset(100% 0 0 0)} to{clip-path:inset(0 0 0 0)} }
-@keyframes m-paint-l { from{clip-path:inset(0 0 0 100%)} to{clip-path:inset(0 0 0 0)} }
-```
+**The leading edge is a ragged polygon, not a straight `inset`.** Each keyframe
+is a 12-point polygon: two fixed corners plus ten points down the advancing
+edge, whose targets differ by a few percent, so the points arrive at slightly
+different times and the edge stays notched all the way across. A straight inset
+wipe reads as a shutter or a flip; this reads as a loaded brush laying colour
+down. Ten points is the floor — with five or six the notches are far enough
+apart to read as one big chevron instead of brush texture.
+
+Every `to` value clears 100% (e.g. `101%`–`104%`), so the plane ends fully
+revealed and nothing snaps when `backwards` fill hands the element back
+unclipped. A `to` value **below** 100% would leave a permanent sliver cut out
+of that edge.
 
 Rules:
 - Default duration: ~900ms per block

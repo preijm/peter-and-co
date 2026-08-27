@@ -181,10 +181,27 @@
     outline-offset: 3px;
     border-radius: 2px;
   }
-  @keyframes m-paint-r { from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)} }
-  @keyframes m-paint-d { from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0 0 0 0)} }
-  @keyframes m-paint-u { from{clip-path:inset(100% 0 0 0)}to{clip-path:inset(0 0 0 0)} }
-  @keyframes m-paint-l { from{clip-path:inset(0 0 0 100%)}to{clip-path:inset(0 0 0 0)} }
+  /* Paint-in. The leading edge is a ragged polygon, not a straight inset, and
+     its points travel at slightly different rates — so colour arrives the way
+     a loaded brush lays it down rather than a shutter opening. Every "to"
+     value clears 100%, so the plane ends fully revealed and nothing snaps
+     when the animation hands back to the unclipped element. */
+  @keyframes m-paint-r {
+    from { clip-path: polygon(0% 0%, -2% 0%, -2% 11%, -2% 22%, -2% 33%, -2% 44%, -2% 55%, -2% 66%, -2% 77%, -2% 88%, -2% 100%, 0% 100%) }
+    to   { clip-path: polygon(0% 0%, 103% 0%, 101% 11%, 104% 22%, 101% 33%, 103% 44%, 101% 55%, 104% 66%, 102% 77%, 103% 88%, 101% 100%, 0% 100%) }
+  }
+  @keyframes m-paint-l {
+    from { clip-path: polygon(100% 0%, 100% 100%, 102% 100%, 102% 88%, 102% 77%, 102% 66%, 102% 55%, 102% 44%, 102% 33%, 102% 22%, 102% 11%, 102% 0%) }
+    to   { clip-path: polygon(100% 0%, 100% 100%, -3% 100%, -1% 88%, -4% 77%, -1% 66%, -3% 55%, -1% 44%, -4% 33%, -2% 22%, -3% 11%, -1% 0%) }
+  }
+  @keyframes m-paint-d {
+    from { clip-path: polygon(0% 0%, 100% 0%, 100% -2%, 88% -2%, 77% -2%, 66% -2%, 55% -2%, 44% -2%, 33% -2%, 22% -2%, 11% -2%, 0% -2%) }
+    to   { clip-path: polygon(0% 0%, 100% 0%, 100% 103%, 88% 101%, 77% 104%, 66% 101%, 55% 103%, 44% 101%, 33% 104%, 22% 102%, 11% 103%, 0% 101%) }
+  }
+  @keyframes m-paint-u {
+    from { clip-path: polygon(0% 100%, 100% 100%, 100% 102%, 88% 102%, 77% 102%, 66% 102%, 55% 102%, 44% 102%, 33% 102%, 22% 102%, 11% 102%, 0% 102%) }
+    to   { clip-path: polygon(0% 100%, 100% 100%, 100% -3%, 88% -1%, 77% -4%, 66% -1%, 55% -3%, 44% -1%, 33% -4%, 22% -2%, 11% -3%, 0% -1%) }
+  }
 </style>
 </head>
 <body>
@@ -2330,11 +2347,18 @@ function MPaintCard({ project, index, fill, dir, wob, compact, onClick, style })
 // off the right edge.
 const M_COLS = '98px 170px minmax(220px, 1fr) 76px 110px 110px 110px 110px 124px';
 
+// What the painted chrome costs a page: the header band and, on contact, the
+// footer band — each its own row plus the painted line above and below it. A
+// page that wants to fill exactly one screen subtracts these.
+const M_HEAD_H = 124;  // 10 + 104 + 10
+const M_FOOT_H = 116;  // 10 +  96 + 10
+
 // Header band tiles — logo, nav and the edition switch as painted planes,
 // rendered as a fragment of grid items into a parent grid using M_COLS. Every
-// tile is one block in the header row; the edition tile bleeds off the top and
-// right edges. Contact takes ink rather than a white, so it lights up on hover
-// like its three neighbours instead of staying invisible.
+// tile is one block in the header row, each with a painted line above it; the
+// edition tile bleeds off the right edge only. Contact takes ink rather than a
+// white, so it lights up on hover like its three neighbours instead of staying
+// invisible.
 function MHeaderTiles({ activePage, onNavigate }) {
   const navLinks = [
     { id: 'work',    color: M_RED,   wob: 'b' },
@@ -2363,7 +2387,7 @@ function MHeaderTiles({ activePage, onNavigate }) {
         <MNavTile key={l.id} {...l} active={activePage === l.id} delay={500 + i * 110} onNavigate={onNavigate}
           style={{ gridColumn: `${5 + i}`, gridRow: '1' }} />
       ))}
-      <MEditionTile delay={940} style={{ gridColumn: '9', gridRow: '1', marginTop: -M_PLINE }} />
+      <MEditionTile delay={940} style={{ gridColumn: '9', gridRow: '1' }} />
     </>
   );
 }
@@ -2494,7 +2518,7 @@ function MAbout() {
     return (
       <MSectionCanvas cols="minmax(280px, 1.15fr) 108px minmax(0, 0.55fr) minmax(240px, 0.9fr)"
         rows="minmax(220px, 1fr) minmax(140px, 0.6fr) minmax(140px, 0.6fr) 116px"
-        style={{ minHeight: 'calc(100vh - 124px)' }}>
+        style={{ minHeight: `calc(100vh - ${M_HEAD_H}px)` }}>
         <MPlane fill={M_W[0]} dir="h" wob="a"
           style={{ gridColumn: '1 / 4', gridRow: '1', ...mPnt('r', 0, 900) }}
           paint={<div style={{ position: 'absolute', left: '8%', bottom: '16%', width: '58%', height: 24, background: '#efe9da', filter: 'url(#m-str-h)', opacity: 0.5 }} />}
@@ -2855,8 +2879,8 @@ function MContact() {
     ];
     return (
       <MSectionCanvas cols="minmax(340px, 1.25fr) minmax(260px, 1fr)"
-        rows="150px minmax(170px, 1fr) minmax(170px, 1fr)"
-        style={{ minHeight: 'calc(100vh - 124px)' }}>
+        rows="132px minmax(150px, 1fr) minmax(150px, 1fr)"
+        style={{ minHeight: `calc(100vh - ${M_HEAD_H + M_FOOT_H}px)` }}>
         {/* The heading takes its own band, so the form below fills a plane of
             its own rather than floating at the top of a tall one */}
         <MPlane fill={M_W[1]} dir="h" wob="b"
