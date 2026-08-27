@@ -364,9 +364,11 @@ Every desktop page is a painting, not just home. The shared pieces:
   blue statement band included, lands inside a 1440×900 viewport.
 - **Those six blocks are the only ones a reader may repaint** (`M_ABOUT_FIELD`,
   `M_REPAINT`). Clicking one strokes it to the next colour — red, yellow,
-  blue, ink, then back to where it started on the fifth click — so the
-  composition can be rearranged the way Mondriaan rearranged the coloured
-  cards on his studio wall. They earn the interaction by being the only planes
+  blue, ink, then back to where it started — so the composition can be
+  rearranged the way Mondriaan rearranged the coloured cards on his studio
+  wall. Each plane's cycle **starts at its own colour and then skips it**
+  (`mCycleFor`), or the red block's first click would repaint it red and read
+  as a broken control. They earn the interaction by being the only planes
   on the site with **no other job**: everywhere else a click already navigates,
   and a canvas where some blocks go somewhere and others change colour teaches
   the reader nothing. Nothing is hidden behind them, so a reader who never
@@ -398,25 +400,28 @@ Every desktop page is a painting, not just home. The shared pieces:
 ### Paint-In Animation
 When a page mounts, each block sweeps in using CSS `clip-path` animations — the feeling of fresh paint being applied.
 
-**The leading edge is a ragged polygon, not a straight `inset`.** Each keyframe
-is an 18-point polygon: two fixed corners plus **sixteen** points down the
-advancing edge, whose targets differ by up to ~4.5%, so the points arrive at
-different times and the edge stays notched all the way across. A straight inset
-wipe reads as a shutter or a flip; this reads as a loaded brush laying colour
-down. Three things were tuned by eye and all of them matter:
+**The keyframes are plain `inset()` sweeps — the raggedness is not drawn.**
+`MPlane` runs the animation on the colour layer *inside* the plane's turbulence
+filter, so the straight clip edge is displaced into a wandering one on its way
+across, by the same noise that wobbles every plane's static edges. The paint
+arrives looking like the paint already on the canvas.
 
-- **Point count.** Sixteen is the floor. With five or six the notches are far
-  enough apart to read as one big chevron; with ten it is legible only if you
-  already know to look for it.
-- **Depth.** ~4.5% of the plane. At 7–9% the edge stops reading as a brush and
-  starts reading as torn paper.
-- **Irregularity.** Targets must not alternate deep/shallow evenly or the edge
-  becomes a uniform sawtooth. Runs of similar values give it a hand.
+This structure is the whole trick, and it exists because **CSS applies a filter
+before it applies a clip**. Clipping the filtered element itself cuts a hard
+geometric edge, so the colour layer has to be a *child* of the filtered
+wrapper. Do not merge those two divs back together.
 
-Every `to` value clears 100% (e.g. `100.5%`–`105%`), so the plane ends fully
-revealed and nothing snaps when `backwards` fill hands the element back
-unclipped. A `to` value **below** 100% would leave a permanent sliver cut out
-of that edge.
+**Do not draw the edge as polygon points.** That was tried twice and both
+attempts failed in an instructive way: notches at an even pitch read as tape
+pulled off a serrated cutter, and deepening them to compensate read as torn
+paper. Regular geometry cannot look hand-made — noise can.
+
+The sweep ends at `inset(… -4% …)` rather than `inset(0)` so the last of the
+displaced edge is never shaved off; `backwards` fill then hands the element
+back unclipped.
+
+The content layer carries the same animation, so a plane never shows its words
+before its paint.
 
 **Planes are painted one at a time.** `mPnt(dir, order, dur?)` takes a position
 in the paint order, not a millisecond delay, so the sequence reads in the
