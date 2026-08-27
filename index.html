@@ -5092,6 +5092,11 @@ function CHListings({ projects, mobile, onSelect }) {
       }}>
         {list.map((p, i) => {
           const accent = fitAccent(resolveAccent(p, theme.id), CH_PAPER) || CH_INK;
+          // Sanity's isPublic arrives as public:false. Every other edition honours it —
+          // Volt prints "(soon)", Mondriaan fades the row, Prism and Grain withhold the
+          // link — and Chalk was the one that did not, so it printed a live-looking
+          // domain and a "visit the site" button for a site that is not up yet.
+          const shipped = p.public !== false;
           return (
             <button key={p.id} className="ch-row" onClick={() => onSelect(p)} style={{
               background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left',
@@ -5112,8 +5117,8 @@ function CHListings({ projects, mobile, onSelect }) {
                 display: 'inline-flex', alignItems: 'center', gap: '7px', minWidth: 0, maxWidth: '100%',
                 fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.04em', color: CH_BODY,
               }}>
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: accent, flexShrink: 0 }} />
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.url || (p.tags && p.tags[0]) || ''}</span>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: accent, flexShrink: 0, opacity: shipped ? 1 : 0.4 }} />
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{shipped ? (p.url || (p.tags && p.tags[0]) || '') : 'not live yet'}</span>
               </span>
             </button>
           );
@@ -5205,8 +5210,8 @@ function CHWork({ projects, mobile, onSelect }) {
                 fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.1em', color: CH_MUTE,
                 justifySelf: mobile ? 'start' : 'end',
               }}>
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: accent, flexShrink: 0 }} />
-                {p.year}
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: accent, flexShrink: 0, opacity: p.public !== false ? 1 : 0.4 }} />
+                {p.public === false ? 'soon · ' + p.year : p.year}
               </span>
             </button>
           );
@@ -5337,6 +5342,8 @@ function CHProject({ project, projects, mobile, onSelect, onBack, openEditions, 
   // can, and these were written as statements already, so the name drops to a masthead
   // line and the tagline takes the scale.
   const statement = p.tagline || p.description;
+  const shipped = p.public !== false;   // Sanity's isPublic
+  const live = shipped && !!p.href;      // shipped AND somewhere to send you
   // Sanity puts the real pixel dimensions in the filename, so the plate's box can be
   // reserved before the image loads. Without this the img has no height until it
   // arrives: the whole project page measured 278px of scroll range, the "the plate"
@@ -5344,11 +5351,14 @@ function CHProject({ project, projects, mobile, onSelect, onBack, openEditions, 
   // it finally decoded. Falls back to 16/9, which is what every screenshot here is.
   const plateDims = (p.screenshot || '').match(/-(\d+)x(\d+)\.[a-z]+/i);
   const plateRatio = plateDims ? (plateDims[1] + ' / ' + plateDims[2]) : '16 / 9';
+  // The last fact is the one that has to be honest: a domain here reads as somewhere
+  // you can go. Matches Prism's wording so the two light editions agree.
   const facts = [
     ['role', p.role || '—'],
     ['year', p.year || '—'],
     ['stack', (p.stack || []).slice(0, 3).join(', ') || '—'],
-    ['site', p.url || '—'],
+    shipped ? ['site', p.url || '—']
+            : ['status', 'In progress, not public yet'],
   ];
   return (
     <React.Fragment>
@@ -5398,7 +5408,7 @@ function CHProject({ project, projects, mobile, onSelect, onBack, openEditions, 
             <span style={{ fontFamily: CH_MONO, fontSize: '11px', lineHeight: 1.9, color: CH_BODY, maxWidth: '48ch', textWrap: 'pretty' }}>
               {p.detail || p.description}
             </span>
-            {p.href ? <CHButton primary href={p.href} newTab>visit the site &rarr;</CHButton> : null}
+            {live ? <CHButton primary href={p.href} newTab>visit the site &rarr;</CHButton> : null}
           </div>
         </div>
 
