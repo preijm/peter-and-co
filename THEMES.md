@@ -335,6 +335,12 @@ Every desktop page is a painting, not just home. The shared pieces:
 - **Tools / About / Contact / Project detail** rebuild their old compositions
   as planes: same content, painted surfaces; the contact form is defined once
   and shared between the desktop plane and the mobile card.
+- **About's lower field carries no copy on purpose.** Six blocks — paper, a
+  narrow red bar, yellow, a narrow ink bar — divide the space under the
+  statement into a rhythm. A Mondriaan canvas is mostly empty rectangles, so
+  the answer to a large blank area in this edition is more divisions, not more
+  words. Its row sizes and headline clamp are tuned so the whole composition,
+  blue statement band included, lands inside a 1440×900 viewport.
 - **Form controls are painted too** (`MPaintField`, `MPaintButton`): a wobbled
   ink slab is the frame with a 7px-inset paper plane on top of it — the two
   wobble on different seeds, so the border's thickness varies down its length
