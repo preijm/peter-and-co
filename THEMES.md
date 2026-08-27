@@ -120,6 +120,21 @@ Change the headline words and that 5.476 changes with them — re-measure, don't
    sheet drew to ~45% and stopped. Rules above the fold are simply set; only rules the
    reader scrolls to draw themselves in.
 
+**Chalk is page-driven, not one long scroll** — the only edition besides Mondriaan that
+reads `page`. Home is the poster and nothing else: exactly one viewport, zero scroll.
+`work` / `background` / `kit` / `contact` in the chrome call `navigate()` and each opens
+its own sheet, so nothing is stacked below a fold. This replaced a single scrolling page
+whose first screen ended in a hard rule with the next section starting 90px *below* the
+fold — nothing bled past it, so the edition read as a one-page site and needed a
+"continued ↓" mark to admit otherwise. Sheets, not sections, removed the need for the
+mark. Two consequences to keep in mind:
+
+- The hero listings **are** the work index, so `work` is dropped from the phone nav
+  (which abbreviates `background` to `bg` to fit 375px). Logo → home → listings.
+- `the kit` is the one sheet that can exceed a viewport; 19 tools across 3 shelves runs
+  ~27px over at 1440×900. That is fine — chasing an exact fit is futile when viewport
+  heights vary this much.
+
 **Motion** is near-zero on purpose — a print idiom does not float. Two primitives only:
 `ch-draw` (rules scaling in from the left, below the fold) and `ch-rise` (one 12px
 move). Nothing loops, and everything is off under `prefers-reduced-motion`.
