@@ -5884,7 +5884,14 @@ function BSSection({ id, label, meta, children, mobile, page }) {
         {meta ? <BSLabel>{meta}</BSLabel> : null}
       </div>
       <BSRule draw />
-      <div style={{ paddingTop: mobile ? '28px' : '40px' }}>{children}</div>
+      <div style={{
+        paddingTop: mobile ? '28px' : '40px',
+        // On a page sheet the body fills what is left, so a section can push something
+        // to the foot. Content stays top-aligned by default, so the other sheets are
+        // unaffected.
+        flex: page ? 1 : undefined, display: page ? 'flex' : undefined,
+        flexDirection: page ? 'column' : undefined,
+      }}>{children}</div>
     </BSSheet>
   );
 }
@@ -6006,9 +6013,27 @@ function BSContact({ mobile }) {
     ['github', 'https://github.com/preijm', true],
     ['linkedin', 'https://www.linkedin.com/in/peter-reijm-47165b5b/', true],
   ];
+  // The sheet held a statement, one line of prose and three buttons, and then 394px of
+  // nothing before the colophon — 37% of a 1058px screen. Every other sheet in this
+  // edition fills itself: work has five ruled rows, the kit three shelves, background
+  // two columns. This one had no second thing to say.
+  //
+  // These three facts are not invented for the space. Mondriaan's contact plane already
+  // states all three, so this is the same information in Broadside's own idiom rather
+  // than new claims written to fill a hole — and the two editions now agree.
+  const particulars = [
+    ['response time', 'Usually within a day or two.'],
+    ['open to', 'Side projects. Interesting ideas. Not for hire.'],
+    ['location', 'Rotterdam, the Netherlands.'],
+  ];
   return (
     <BSSection page id="bs-contact" label="contact" meta="open to a good problem" mobile={mobile}>
-      <div className="bs-riser" style={{ display: 'flex', flexDirection: 'column', gap: '22px', alignItems: 'flex-start' }}>
+      <div className="bs-riser" style={{
+        display: 'flex', flexDirection: 'column', gap: '22px', alignItems: 'flex-start',
+        // centred in the space above the particulars rather than stacked at the top,
+        // so what is left over is shared instead of all falling to the foot
+        flex: mobile ? undefined : 1, justifyContent: mobile ? undefined : 'center',
+      }}>
         <BSStatement size={mobile ? 'clamp(32px, 9vw, 46px)' : 'clamp(42px, 6.2vw, 104px)'} maxWidth="14ch">
           Got a problem worth building?
         </BSStatement>
@@ -6018,6 +6043,34 @@ function BSContact({ mobile }) {
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '4px' }}>
           <BSButton primary href="mailto:peterreijm@live.nl">start a conversation &rarr;</BSButton>
           {links.map(l => <BSButton key={l[0]} href={l[1]} newTab={l[2]}>{l[0]}</BSButton>)}
+        </div>
+      </div>
+
+      {/* Same object as the project sheet's particulars: a label row, the heavy rule,
+          then the facts. Nothing new had to be invented to build it. */}
+      <div style={{ marginTop: mobile ? '40px' : 'auto', flexShrink: 0, paddingTop: mobile ? 0 : '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', paddingBottom: '10px' }}>
+          <BSLabel>the particulars</BSLabel>
+          <BSLabel>peterreijm@live.nl</BSLabel>
+        </div>
+        <BSRule draw />
+        <div style={{
+          display: 'grid', gap: mobile ? '0' : '18px', paddingTop: mobile ? '2px' : '14px',
+          gridTemplateColumns: mobile ? '1fr' : 'repeat(3, minmax(0, 1fr))',
+        }}>
+          {particulars.map((f, i) => (
+            <div key={f[0]} style={{
+              display: 'flex', flexDirection: 'column', gap: '6px',
+              padding: mobile ? '12px 0' : 0,
+              borderBottom: mobile && i < particulars.length - 1 ? '1px solid ' + BS_LINE : 'none',
+            }}>
+              <BSLabel>{f[0]}</BSLabel>
+              <span style={{
+                fontFamily: BS_DISPLAY, fontSize: mobile ? '17px' : '19px', lineHeight: 1.25,
+                letterSpacing: '-0.015em', color: BS_INK, textWrap: 'pretty',
+              }}>{f[1]}</span>
+            </div>
+          ))}
         </div>
       </div>
     </BSSection>
