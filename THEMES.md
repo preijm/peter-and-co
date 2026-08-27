@@ -33,9 +33,10 @@ Themes that fully replace the page layout also set `mondriaan: true`.
 
 **Default edition.** A first-time visitor lands on **Volt** (`DEFAULT_THEME_ID` in
 `index.html`). It leads because its terminal demonstrates the site's claim rather than
-describing it, because it is composed rather than adapted from a named studio's system,
-and because it works on mobile — Mondriaan, the most original of the five, is
-desktop-only and so cannot be the default whatever its merits.
+describing it, and because it is composed rather than adapted from a named studio's
+system. Note that the third reason it used to carry — that it was the one that worked
+on a phone while Mondriaan did not — no longer holds: Mondriaan has a portrait
+composition now. The default is a live decision again rather than a forced one.
 
 The value is a named constant rather than the array's first entry: the `THEMES` order is
 the sequence the Editions modal presents, which is a separate decision from which
@@ -81,7 +82,7 @@ Every theme needs a swatch in `ThemeSwatch` — `aspectRatio: '16/9'`, `width: '
 Themes that set `mondriaan: true` bypass the default layout and render their own top-level component. They own every pixel. Each such theme also sets:
 - `srcId` — id of the `<script type="text/plain">` blob holding its component code (lazy-compiled by Babel in dev, pre-compiled by `build.js`).
 - `appGlobal` — name of the global component `AppShell` mounts (e.g. `MondriaanApp`, `VoltApp`).
-- `mobileOptimized: true` — opt the theme into the mobile Editions list (Mondriaan is desktop-only and omits it).
+- `mobileOptimized: true` — opt the theme into the mobile Editions list. Without it the modal renders that edition disabled, dimmed and labelled "desktop", so a phone cannot select it at all. Every edition now sets it.
 
 ### Volt (v1) — minimal "design + code + systems" landing
 A dark, restrained one-pager in the spirit of premium studio sites (e.g. Ouro Labs). Warm near-black (`#0c0c0a`), a single electric-lime accent (`#d4f932`) used sparingly, and a two-family type system: **Geist** (sans, headings + body) + **Geist Mono** (labels, terminal touches). Light terminal flavor: a `whoami` hero prompt with a blinking caret, `// section` mono labels, a `~/about.cfg` facts block, and an `origin.log` footer line. Sections — hero → selected work → background → contact — flow over the backdrop. The backdrop layers a faint CSS radial bloom under a **scroll-reactive Three.js point field** (`three@0.149` UMD, lazy-loaded on activation): the camera travels into the field and it rotates as scroll progresses, near-monochrome with a few lime motes, additive-blended, fixed at `z-index:-1` behind all content. GSAP + ScrollTrigger (also lazy-loaded) drive **subtle fade-up reveals only** (`.v-fade` on load, `.v-reveal`/`.v-row` on scroll). All motion — Three.js field included — is gated behind `!prefers-reduced-motion` (the point field is skipped entirely when reduced, leaving just the CSS bloom) and the render loop pauses when the tab is hidden.
@@ -353,9 +354,12 @@ on mobile home — and at phone size its texture is close to invisible, so a
 phone was paying a real rasterisation cost for something nobody can see. The
 wobbled edges and the grain, which are what actually read as paint, stay.
 
-Home is the only page with a painted mobile layout; **the other pages still
-use the classic bordered mobile layouts**, so Mondriaan is not yet coherent
-enough on a phone to earn `mobileOptimized: true`.
+Home is the only page with a **painted** mobile layout; the other pages use
+the classic bordered mobile layouts. That is a smaller gap than it sounds —
+they share the palette, the type and the linen surface, so they read as the
+same edition, just crisper. Mondriaan therefore carries
+`mobileOptimized: true` and is selectable on a phone. Painting those four is
+the obvious next step, not a prerequisite.
 
 ### Painted subpages
 Every desktop page is a painting, not just home. The shared pieces:
