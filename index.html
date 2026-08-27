@@ -2934,27 +2934,41 @@ function MContact() {
       { dir: 'h', wob: 'a' },
       { dir: 'h', wob: 'b' },
     ];
+    // Ten rows so the two columns can divide independently. On three rows the right
+    // column inherited the left's boundaries, and row 1 was 132px because that is what
+    // the heading band needs — so Response time, which is not the heading, got 132px
+    // too. Minus 56px of padding that left 76px for a label and two 26px lines: they
+    // fitted with about five pixels to spare, while Open to and Location each had a
+    // whole 1fr of a 100vh section and yawned.
+    //
+    // The spans below are proportional to what each plane actually says — 3 units for
+    // two lines, 4 for three — so the gap between a label and its statement comes out
+    // at roughly 1.8x the text in all three rather than 0.07x in one and 4x in another.
+    // The heading takes 2 and the form 8, which puts the left column's one boundary at
+    // 20% and the right column's first at 30%. They no longer line up, and on this
+    // canvas that is the point: Mondriaan's divisions do not run edge to edge.
+    const sideRows = ['1 / 4', '4 / 8', '8 / 11'];
     return (
       <MSectionCanvas cols="minmax(340px, 1.25fr) minmax(260px, 1fr)"
-        rows="132px minmax(150px, 1fr) minmax(150px, 1fr)"
+        rows="repeat(10, minmax(46px, 1fr))"
         style={{ minHeight: `calc(100vh - ${M_HEAD_H + M_FOOT_H}px)` }}>
         {/* The heading takes its own band, so the form below fills a plane of
             its own rather than floating at the top of a tall one */}
         <MPlane fill={M_W[1]} dir="h" wob="b"
-          style={{ gridColumn: '1', gridRow: '1', ...mPnt('r', 2.9, 800) }}
+          style={{ gridColumn: '1', gridRow: '1 / 3', ...mPnt('r', 2.9, 800) }}
           contentStyle={{ display: 'flex', alignItems: 'center', padding: '0 40px 0 56px' }}>
           <h1 style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(44px, 5.2vw, 84px)', color: M_INK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase' }}>
             Say <span style={{ color: M_RED }}>hello.</span>
           </h1>
         </MPlane>
         <MPlane fill={M_W[0]} dir="h" wob="a"
-          style={{ gridColumn: '1', gridRow: '2 / 4', ...mPnt('u', 3.5, 900) }}
+          style={{ gridColumn: '1', gridRow: '3 / 11', ...mPnt('u', 3.5, 900) }}
           contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '40px 40px 40px 56px' }}>
           {form}
         </MPlane>
         {sidebar.map((l, i) => (
           <MPlane key={l.label} fill={l.bg} dir={paint[i].dir} wob={paint[i].wob}
-            style={{ gridColumn: '2', gridRow: `${i + 1}`, ...mPnt('l', 4.2 + i * 0.42) }}
+            style={{ gridColumn: '2', gridRow: sideRows[i], ...mPnt('l', 4.2 + i * 0.42) }}
             contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '28px 32px' }}>
             <MLabel color={l.bg === M_YELLOW ? M_INK : M_W[0]}>{l.label}</MLabel>
             <div style={{ fontFamily: M_DISPLAY, fontSize: '26px', color: l.bg === M_YELLOW ? M_INK : M_W[0], letterSpacing: '-0.02em', lineHeight: 1.1, whiteSpace: 'pre-line' }}>{l.text}</div>
