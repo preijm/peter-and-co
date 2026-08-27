@@ -4948,6 +4948,13 @@ function chStyles() {
     // and this edition does not have one anywhere.
     '.ch-row { transition: opacity 140ms ease; }',
     '.ch-row:hover { opacity: 0.55; }',
+
+    // NUDGE — the one looping animation here, and it earns the exception. The first
+    // sheet is exactly one viewport ending in a hard rule, so nothing bleeds past the
+    // fold and the composition reads as finished: the next section starts 90px BELOW
+    // the fold, which is to say invisibly. A closed poster needs to say it continues.
+    '@keyframes ch-nudge { 0%,100% { transform: translateY(0); opacity: 0.75; } 50% { transform: translateY(3px); opacity: 1; } }',
+    '.ch-nudge { animation: ch-nudge 2.4s ease-in-out infinite; }',
   ].join('\n');
   document.head.appendChild(st);
 }
@@ -5055,14 +5062,19 @@ function CHStatement({ children, size, maxWidth, nowrap, className }) {
   return <h1 className={className} style={st}>{children}</h1>;
 }
 
-function CHListings({ projects, mobile, onSelect }) {
+function CHListings({ projects, mobile, onSelect, onMore }) {
   const { theme } = useTheme();
   const list = projects.slice(0, 5);
   return (
     <div style={{ flexShrink: 0, paddingBottom: 'clamp(22px, 3vh, 34px)' }}>
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', paddingBottom: '10px' }}>
         <CHLabel>the listings</CHLabel>
-        <CHLabel>{String(list.length).padStart(2, '0')} entries · 2025&ndash;2026</CHLabel>
+        {!mobile && <CHLabel>{String(list.length).padStart(2, '0')} entries · 2025&ndash;2026</CHLabel>}
+        {/* A newspaper says "continued on page 4" for exactly this reason. */}
+        <button onClick={onMore} className="ch-row ch-nudge" style={{
+          background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+          fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_INK,
+        }}>continued &darr;</button>
       </div>
       <CHRule />
       <div style={{
@@ -5134,7 +5146,7 @@ function CHHero({ projects, mobile, onSelect, onTop, openEditions, onJump }) {
           </div>
         </div>
       </div>
-      <CHListings projects={projects} mobile={mobile} onSelect={onSelect} />
+      <CHListings projects={projects} mobile={mobile} onSelect={onSelect} onMore={() => onJump('ch-work')} />
     </CHSheet>
   );
 }
@@ -5305,7 +5317,7 @@ function CHColophon({ mobile }) {
   );
 }
 
-function CHProject({ project, projects, mobile, onSelect, onBack, openEditions }) {
+function CHProject({ project, projects, mobile, onSelect, onBack, openEditions, onJump }) {
   const { theme } = useTheme();
   const p = project;
   const accent = fitAccent(resolveAccent(p, theme.id), CH_PAPER) || CH_INK;
@@ -5316,6 +5328,13 @@ function CHProject({ project, projects, mobile, onSelect, onBack, openEditions }
   // can, and these were written as statements already, so the name drops to a masthead
   // line and the tagline takes the scale.
   const statement = p.tagline || p.description;
+  // Sanity puts the real pixel dimensions in the filename, so the plate's box can be
+  // reserved before the image loads. Without this the img has no height until it
+  // arrives: the whole project page measured 278px of scroll range, the "the plate"
+  // cue scrolled to a plate that was not there yet, and everything below jumped when
+  // it finally decoded. Falls back to 16/9, which is what every screenshot here is.
+  const plateDims = (p.screenshot || '').match(/-(\d+)x(\d+)\.[a-z]+/i);
+  const plateRatio = plateDims ? (plateDims[1] + ' / ' + plateDims[2]) : '16 / 9';
   const facts = [
     ['role', p.role || '—'],
     ['year', p.year || '—'],
@@ -5376,10 +5395,17 @@ function CHProject({ project, projects, mobile, onSelect, onBack, openEditions }
         <div style={{ flexShrink: 0, paddingBottom: 'clamp(22px, 3vh, 34px)' }}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', paddingBottom: '10px' }}>
             <CHLabel>the particulars</CHLabel>
-            <button onClick={() => onSelect(next)} className="ch-row" style={{
-              background: 'none', border: 'none', cursor: 'pointer', minHeight: '44px', padding: 0,
-              fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_MUTE, textAlign: 'right',
-            }}>next · {next.title.toLowerCase()} &rarr;</button>
+            {p.screenshot ? (
+              <button onClick={() => onJump('ch-plate')} className="ch-row ch-nudge" style={{
+                background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_INK, textAlign: 'right',
+              }}>the plate &darr;</button>
+            ) : (
+              <button onClick={() => onSelect(next)} className="ch-row" style={{
+                background: 'none', border: 'none', cursor: 'pointer', minHeight: '44px', padding: 0,
+                fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_MUTE, textAlign: 'right',
+              }}>next · {next.title.toLowerCase()} &rarr;</button>
+            )}
           </div>
           <CHRule />
           <div style={{
@@ -5411,15 +5437,19 @@ function CHProject({ project, projects, mobile, onSelect, onBack, openEditions }
           trade of the two. */}
       {p.screenshot ? (
         <CHSheet style={{ paddingTop: 'clamp(40px, 7vh, 90px)' }}>
+          <div id="ch-plate" />
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', paddingBottom: '10px' }}>
             <CHLabel>the plate</CHLabel>
-            <CHLabel>{p.url || ''}</CHLabel>
+            <button onClick={() => onSelect(next)} className="ch-row" style={{
+              background: 'none', border: 'none', cursor: 'pointer', minHeight: '44px', padding: 0,
+              fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_MUTE, textAlign: 'right',
+            }}>next · {next.title.toLowerCase()} &rarr;</button>
           </div>
           <CHRule weight="1px" draw />
           {/* Sized through the CDN rather than shipping the 3840px original into a
               1448px slot — the plate is the heaviest thing this edition loads. */}
           <img className="ch-riser" src={typeof sanityImg === 'function' ? sanityImg(p.screenshot, 1600) : p.screenshot} alt={p.title} loading="lazy" decoding="async" style={{
-            width: '100%', height: 'auto', display: 'block', marginTop: '18px',
+            width: '100%', height: 'auto', aspectRatio: plateRatio, display: 'block', marginTop: '18px',
             border: '1px solid ' + CH_LINE, background: CH_SURFACE,
           }} />
         </CHSheet>
@@ -5447,7 +5477,7 @@ function ChalkApp({ selectedProject, navigate, selectProject }) {
   return (
     <div className="chalk-root" style={{ background: CH_PAPER, color: CH_INK, fontFamily: CH_MONO, minHeight: '100vh' }}>
       {selectedProject
-        ? <CHProject project={selectedProject} projects={projects} mobile={mobile} onSelect={selectProject} onBack={() => navigate('work')} openEditions={openEditions} />
+        ? <CHProject project={selectedProject} projects={projects} mobile={mobile} onSelect={selectProject} onBack={() => navigate('work')} openEditions={openEditions} onJump={onJump} />
         : (
           <React.Fragment>
             <CHHero projects={projects} mobile={mobile} onSelect={selectProject} onTop={onTop} openEditions={openEditions} onJump={onJump} />
