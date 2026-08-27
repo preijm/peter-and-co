@@ -8,16 +8,18 @@ A single self-contained HTML file. All components, themes, and layout live in `i
 
 ## Themes
 
-The site ships with four named, versioned themes switchable at runtime:
+The site ships with six named, versioned themes switchable at runtime:
 
 | Theme | Style |
 |---|---|
 | **Ink** `v1` | Dark · minimal · no noise |
-| **Chalk** `v1` | Light · open · breathing room |
+| **Broadside** `v1` | Light · oversized · one statement |
 | **Mondriaan** `v1` | Primary colours · geometric · De Stijl |
 | **Volt** `v1` | Dark · minimal · systems |
+| **Grain** `v1` | Cinematic · achromatic · full-bleed |
+| **Prism** `v1` | Light · colour · depth |
 
-Ink and Chalk share the default layout and component set. Mondriaan and Volt are full takeovers — each owns its own top-level component and every pixel of the page (see [THEMES.md](THEMES.md) for the rules governing theme structure, tokens, and the two takeover themes' internals).
+Only **Ink** now uses the default layout and component set. The other five are full takeovers — each owns its own top-level component and every pixel of the page (see [THEMES.md](THEMES.md) for the rules governing theme structure, tokens, and each takeover's internals). Broadside was called Chalk until it became a takeover; its `chalk-v1` id was retired, not aliased.
 
 Projects have per-theme accent colours defined in their data — a `resolveAccent(project, themeId)` helper picks the right one at render time.
 
@@ -36,7 +38,7 @@ Projects and tools are **not** hardcoded — they're managed in a [Sanity Studio
 - React 18 (UMD via unpkg, no bundler)
 - Babel Standalone (JSX transpiled in-browser in dev; pre-compiled by `build.js` for production)
 - Sanity (headless CMS — projects, tools)
-- DM Serif Display + JetBrains Mono (Ink/Chalk)
+- DM Serif Display + JetBrains Mono (Ink/Broadside)
 - Archivo Black + Space Grotesk + Space Mono (Mondriaan)
 - Geist + Geist Mono (Volt)
 - GSAP + ScrollTrigger, Three.js (Volt — lazy-loaded only when the theme activates)
@@ -101,11 +103,11 @@ PROJECTS          — fallback project data (title, stack, accent, etc.)
 TOOL_CATEGORIES   — fallback tools data shared across all themes
 resolveAccent()   — picks per-theme accent color for a project
 loadSanityContent() — fetches live content, overwrites PROJECTS / TOOL_CATEGORIES
-Components        — Ink/Chalk first, Mondriaan blob, then Volt blob
+Components        — Ink first, then one blob per takeover edition
 App               — routes between pages, switches renderer based on theme
 ```
 
-### Ink / Chalk components
+### Default-layout components (Ink)
 
 | Component | What it does |
 |---|---|

@@ -25,7 +25,7 @@ Themes that fully replace the page layout also set `mondriaan: true`.
 | Theme      | Tagline                          |
 |------------|----------------------------------|
 | Ink        | `dark · minimal · no noise`      |
-| Chalk      | `light · oversized · one statement` |
+| Broadside  | `light · oversized · one statement` |
 | Mondriaan  | `primary · geometric · De Stijl` |
 | Volt       | `dark · minimal · systems`       |
 | Grain      | `cinematic · achromatic · full-bleed` |
@@ -86,10 +86,15 @@ Themes that set `mondriaan: true` bypass the default layout and render their own
 ### Volt (v1) — minimal "design + code + systems" landing
 A dark, restrained one-pager in the spirit of premium studio sites (e.g. Ouro Labs). Warm near-black (`#0c0c0a`), a single electric-lime accent (`#d4f932`) used sparingly, and a two-family type system: **Geist** (sans, headings + body) + **Geist Mono** (labels, terminal touches). Light terminal flavor: a `whoami` hero prompt with a blinking caret, `// section` mono labels, a `~/about.cfg` facts block, and an `origin.log` footer line. Sections — hero → selected work → background → contact — flow over the backdrop. The backdrop layers a faint CSS radial bloom under a **scroll-reactive Three.js point field** (`three@0.149` UMD, lazy-loaded on activation): the camera travels into the field and it rotates as scroll progresses, near-monochrome with a few lime motes, additive-blended, fixed at `z-index:-1` behind all content. GSAP + ScrollTrigger (also lazy-loaded) drive **subtle fade-up reveals only** (`.v-fade` on load, `.v-reveal`/`.v-row` on scroll). All motion — Three.js field included — is gated behind `!prefers-reduced-motion` (the point field is skipped entirely when reduced, leaving just the CSS bloom) and the render loop pauses when the tab is hidden.
 
-### Chalk (v1) — poster
+### Broadside (v1) — poster
 
-Chalk began as the plain light palette on the shared layout, which made it Ink with the
-lights on: a setting rather than an edition. It is now a takeover built on one idea —
+Broadside began life as **Chalk**, the plain light palette on the shared layout, which
+made it Ink with the lights on: a setting rather than an edition. It was renamed when it
+stopped being one — a broadside is a single sheet printed on one side in large type,
+which is exactly what this is, and it shares a register with the words the edition
+already uses (*the plate*, *the listings*, *the particulars*, the colophon). The old
+`chalk-v1` id was retired outright rather than aliased, so anyone still carrying it in
+localStorage falls back to the default edition. It is now a takeover built on one idea —
 **a single statement, sized to fill the sheet, over ruled listings.** There is not a
 card, a panel or a shadow anywhere in it; every surface is paper, a hairline or a 3px
 rule.
@@ -108,17 +113,32 @@ Change the headline words and that 5.476 changes with them — re-measure, don't
 
 **Two traps this edition has already fallen into, both silent:**
 
-1. **Never give `CHStatement` both `whiteSpace` and `textWrap` as keys**, one set to
+1. **Never give `BSStatement` both `whiteSpace` and `textWrap` as keys**, one set to
    `undefined`. React writes an undefined style value as `style.textWrap = ''`, which
    removes the `text-wrap` *shorthand* — including `text-wrap-mode`, the half of
    `white-space: nowrap` that does the not-wrapping. The element keeps
    `white-space-collapse` and wraps anyway. It surfaced only at 1920px, because below
    that the line happened to fit unaided. Apply one or the other, conditionally.
-2. **`CHRule`'s `draw` is opt-in.** `animation-timeline: view()` measures an element
+2. **`BSRule`'s `draw` is opt-in.** `animation-timeline: view()` measures an element
    against its own trip through the viewport, so a rule already on screen at load sits
    partway through its entry range forever — the listings rule at the foot of the first
    sheet drew to ~45% and stopped. Rules above the fold are simply set; only rules the
    reader scrolls to draw themselves in.
+
+**Broadside is page-driven, not one long scroll** — the only edition besides Mondriaan that
+reads `page`. Home is the poster and nothing else: exactly one viewport, zero scroll.
+`work` / `background` / `kit` / `contact` in the chrome call `navigate()` and each opens
+its own sheet, so nothing is stacked below a fold. This replaced a single scrolling page
+whose first screen ended in a hard rule with the next section starting 90px *below* the
+fold — nothing bled past it, so the edition read as a one-page site and needed a
+"continued ↓" mark to admit otherwise. Sheets, not sections, removed the need for the
+mark. Two consequences to keep in mind:
+
+- The hero listings **are** the work index, so `work` is dropped from the phone nav
+  (which abbreviates `background` to `bg` to fit 375px). Logo → home → listings.
+- `the kit` is the one sheet that can exceed a viewport; 19 tools across 3 shelves runs
+  ~27px over at 1440×900. That is fine — chasing an exact fit is futile when viewport
+  heights vary this much.
 
 **Motion** is near-zero on purpose — a print idiom does not float. Two primitives only:
 `ch-draw` (rules scaling in from the left, below the fold) and `ch-rise` (one 12px
