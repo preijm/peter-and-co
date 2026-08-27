@@ -5525,14 +5525,41 @@ function PrismApp({ selectedProject, navigate, selectProject }) {
   const mobile = useMobile();
   const { openEditions } = useTheme();
   const projects = PROJECTS;
+  const [pendingJump, setPendingJump] = React.useState(null);
 
   React.useEffect(() => { pzStyles(); }, []);
-  React.useEffect(() => { window.scrollTo({ top: 0, behavior: pzReduced() ? 'auto' : 'smooth' }); }, [selectedProject && selectedProject.id]);
+  // Leaving a project changes this dependency from an id to null, which would fire a
+  // scroll to the top at the same moment a pending jump is aiming at a section. Skip
+  // it while one is in flight so the two cannot race.
+  React.useEffect(() => {
+    if (pendingJump) return;
+    window.scrollTo({ top: 0, behavior: pzReduced() ? 'auto' : 'smooth' });
+  }, [selectedProject && selectedProject.id]);
 
   const onTop = () => window.scrollTo({ top: 0, behavior: pzReduced() ? 'auto' : 'smooth' });
-  const onJump = (id) => {
+  const scrollToId = (id) => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: pzReduced() ? 'auto' : 'smooth', block: 'start' });
+  };
+
+  // A layout effect rather than a pair of nested requestAnimationFrames. Both wait for
+  // the sections to be in the document, but rAF is a FRAME callback: a tab that is not
+  // compositing never runs it, and the jump is swallowed exactly as the original bug
+  // swallowed it. This runs on render instead, so it does not depend on a frame ever
+  // being painted.
+  React.useLayoutEffect(() => {
+    if (!pendingJump || selectedProject) return;
+    scrollToId(pendingJump);
+    setPendingJump(null);
+  }, [pendingJump, selectedProject]);
+
+  // The header's Work / Background / Contact did nothing at all on a project page.
+  // PrismApp renders PZProject INSTEAD of those sections, so they are not in the
+  // document while a project is open: getElementById returned null and the click was
+  // swallowed in silence. Leave the project first, then jump once the sections exist.
+  const onJump = (id) => {
+    if (selectedProject) { setPendingJump(id); navigate('home'); return; }
+    scrollToId(id);
   };
   const onWork = () => onJump('pz-work');
 
