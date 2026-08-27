@@ -3148,8 +3148,9 @@ function MondriaanApp({ page, selectedProject, navigate, selectProject, activePa
         {page === 'contact' && <MContact />}
         {page === 'project' && selectedProject && <MProjectDetail project={selectedProject} onBack={() => navigate('work')} />}
       </main>
-      {/* Home is one uninterrupted canvas — no footer strip under the painting */}
-      {!isHome && <MFooter />}
+      {/* The footer's job is "reach me", so it hangs only under the contact
+          page — every other page ends where its painting ends */}
+      {page === 'contact' && <MFooter />}
       <MPaintOverlay />
     </div>
   );

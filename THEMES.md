@@ -323,8 +323,9 @@ Every desktop page is a painting, not just home. The shared pieces:
   as planes: same content, painted surfaces; the contact form is defined once
   and shared between the desktop plane and the mobile card.
 - **`MFooter`** is a full-bleed painted band (©-plane + red github, blue
-  linkedin, yellow email tiles) on every page except home. Mobile keeps the
-  bordered footer.
+  linkedin, yellow email tiles) rendered **only on the contact page** — its
+  job is "reach me", so every other page ends where its painting ends. Mobile
+  keeps the bordered footer, same rule.
 - Vertical lines between the header band and a page's own grid do **not**
   align — rows with different divisions are the authentic Mondriaan move, not
   a bug to fix.

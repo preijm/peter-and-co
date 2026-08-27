@@ -42,9 +42,9 @@ Every desktop page renders as a full-bleed painting (see THEMES.md "Mondriaan
 Home Painting" and "Painted subpages"): SVG turbulence filters wobble every
 plane edge, brush-streak masks add directional paint, and a fixed grain +
 linen overlay covers the whole edition. Home is a single viewport-filling
-canvas with no footer; the other pages stack `MPaintedHeader`, an
-`MSectionCanvas` composition, and the painted `MFooter`. Mobile keeps the
-classic bordered layouts.
+canvas with no footer; the other pages stack `MPaintedHeader` and an
+`MSectionCanvas` composition. The painted `MFooter` renders only on the
+contact page. Mobile keeps the classic bordered layouts.
 
 ## PR Workflow
 - Always check PR state before pushing (`gh pr list --state open`)
