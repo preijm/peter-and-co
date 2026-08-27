@@ -3118,7 +3118,20 @@ function VTerminal({ projects, mobile }) {
           and the whole thing auto-scrolls together. Fixed height, always
           rendered (even empty), so nothing ever shifts the rest of the page. */}
       <div ref={historyRef} className="v-term-scroll" style={{
-        ...mono, marginTop: '14px', height: mobile ? '150px' : '190px', overflowY: 'auto', overflowX: 'hidden',
+        // Fixed so a typed command scrolls inside this box instead of growing the hero
+        // and shoving the page down. 150px was the desktop number reused on mobile,
+        // where it reserved seven lines nobody had typed yet — a fifth of the viewport
+        // standing empty between the prompt and the headline.
+        //
+        // So on a phone it reserves three lines while idle, which is what almost every
+        // visitor ever sees, and opens to seven the moment someone actually runs
+        // something. Growing on a keystroke the reader just made is a response, not the
+        // unbidden reflow the fixed height exists to prevent — and it grows into slack
+        // the hero already has, so the footer stays put and nothing below moves.
+        ...mono, marginTop: '14px',
+        height: mobile ? (history.length ? '150px' : '62px') : '190px',
+        transition: 'height 260ms cubic-bezier(0.2,0.7,0.2,1)',
+        overflowY: 'auto', overflowX: 'hidden',
       }}>
         {history.map((h, i) => (
           <div key={i} style={{ marginBottom: '8px' }}>
@@ -3148,12 +3161,25 @@ function VHero({ mobile, projects }) {
   const meta = { fontFamily: V_MONO, fontSize: '12px', letterSpacing: '0.04em', color: V_MUTE };
   return (
     <section id="v-hero" style={{
-      minHeight: mobile ? '88vh' : '92vh', display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-      ...vWrap(mobile, 0), paddingTop: mobile ? '120px' : '150px', paddingBottom: mobile ? '36px' : '56px',
+      minHeight: mobile ? '88vh' : '92vh', display: 'flex', flexDirection: 'column',
+      // space-between splits the slack into two equal gaps, which on a phone put one
+      // void above the headline and another below it and left the headline itself
+      // sitting low — the terminal above is far taller than the footer below, so the
+      // middle child lands below centre by construction. Centring it outright is not
+      // reachable while the terminal is above it: the headline's centre works out to
+      // padTop/2 + terminal/2 + 331, so padTop + terminal would have to total 52px
+      // and the top padding alone is 120 to clear the fixed header. Instead the
+      // content sits together at the top and the footer is pushed down, which
+      // collapses two voids into one and — measured, not assumed — lands the headline
+      // within a few pixels of the hero's centre anyway.
+      justifyContent: mobile ? 'flex-start' : 'space-between',
+      // 96 rather than 120 on mobile: the header's edition control ends at 56px, so
+      // this still leaves 40px of clearance and spends the rest on the composition.
+      ...vWrap(mobile, 0), paddingTop: mobile ? '96px' : '150px', paddingBottom: mobile ? '36px' : '56px',
     }}>
       <VTerminal projects={projects} mobile={mobile} />
 
-      <div style={{ ...vCols(mobile), rowGap: mobile ? '0px' : '10px', alignItems: 'start' }}>
+      <div style={{ ...vCols(mobile), rowGap: mobile ? '0px' : '10px', alignItems: 'start', marginTop: mobile ? '22px' : 0 }}>
         <h1 className="v-fade" style={{
           fontFamily: V_SANS, fontWeight: 500, margin: 0, color: V_INK,
           gridColumn: mobile ? undefined : '1 / span 10',
@@ -3174,7 +3200,9 @@ function VHero({ mobile, projects }) {
 
       <div className="v-fade" style={{
         display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '10px 24px',
-        marginTop: mobile ? '56px' : '64px',
+        // auto on mobile so the single remaining void falls here, under the content,
+        // and the scroll cue stays welded to the bottom edge where it belongs.
+        marginTop: mobile ? 'auto' : '64px', paddingTop: mobile ? '56px' : 0,
       }}>
         <span style={{ ...meta, color: V_FAINT }}>// next: selected work</span>
         <span style={{ ...meta, color: V_FAINT }}>scroll ↓</span>
