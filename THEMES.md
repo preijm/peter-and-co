@@ -277,7 +277,8 @@ Cell layout (cols 1–9):
 | Peter / & Co. stack | 2 | 1 | White + yellow tiles |
 | White plane | 3 / 5 | 1 | Empty broken white |
 | Nav tiles | 5–8 | 1 | work · tools · about · contact |
-| Red column | 9 | 1 / 3 | Bleeds top+right; carries EDITION |
+| Edition tile | 9 | 1 | Red block, bleeds top+right |
+| Red column | 9 | 2 | Bleeds right, beside the hero |
 | Hero | 1 / 9 | 2 | Headline on warmest white |
 | Work label | 1 / 6 | 3 | "Selected Work · NN / NN" |
 | Project 2 (blue) | 6 / 9 | 3 / 5 | Blue card |
@@ -311,8 +312,14 @@ a diagram. The machinery lives in the mondriaan blob:
 Every desktop page is a painting, not just home. The shared pieces:
 
 - **`MPaintedHeader`** — the `MHeaderTiles` band (grid on `M_COLS`, 104px row)
-  on every page except home; its red edition tile is header-row-only there but
-  still bleeds top and right. Mobile keeps the classic bordered `MHeader`.
+  on every page except home. Mobile keeps the classic bordered `MHeader`.
+- **Every header tile is a block**, the edition switch included
+  (`MEditionTile`): it is nav-sized in the last column, bleeding off the top
+  and right, painted red standing rather than on hover (it is the one control
+  that leaves the edition) and lightening a shade when hovered. On home a
+  separate red plane carries that colour down beside the hero.
+- **Nav hover colours are `M_RED` / `M_YELLOW` / `M_BLUE` / `M_INK`** — contact
+  takes ink, because a white hover on a paper tile is no hover at all.
 - **`MSectionCanvas`** — a full-bleed painted grid for page content. Its top
   padding is 0: the header band's bottom padding supplies the shared 10px line,
   so stacking them never doubles it.

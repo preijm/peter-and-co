@@ -2257,7 +2257,7 @@ const mPnt = (dir, delay, dur = 900) => ({
 function MNavTile({ id, color, wob, active, delay, onNavigate, style }) {
   const [h, setH] = React.useState(false);
   const lit = active || h;
-  const fg = (color === M_YELLOW || color === M_W[3]) ? M_INK : M_W[0];
+  const fg = color === M_YELLOW ? M_INK : M_W[0];
   return (
     <MPlane as="button" fill={lit ? color : M_W[2]} dir="v" wob={wob}
       onClick={() => onNavigate(id)}
@@ -2265,6 +2265,23 @@ function MNavTile({ id, color, wob, active, delay, onNavigate, style }) {
       style={{ cursor: 'pointer', ...mPnt('d', delay, 450), ...style }}
       contentStyle={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <span style={{ fontFamily: M_SANS, fontWeight: 700, fontSize: '13px', letterSpacing: '0.08em', textTransform: 'uppercase', color: lit ? fg : M_INK }}>{id}</span>
+    </MPlane>
+  );
+}
+
+// The edition switch is a nav-sized block like its neighbours, but painted red
+// standing rather than on hover: it is the one control that leaves the edition,
+// so it reads as the canvas's signature block. Hover lifts it a shade.
+function MEditionTile({ delay, style }) {
+  const { openEditions } = useTheme();
+  const [h, setH] = React.useState(false);
+  return (
+    <MPlane as="button" fill={h ? M_STREAK[M_RED] : M_RED} dir="v" wob="c"
+      onClick={openEditions}
+      onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
+      style={{ cursor: 'pointer', ...mPnt('d', delay, 450), ...style }}
+      contentStyle={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <span style={{ fontFamily: M_MONO, fontWeight: 700, fontSize: '11px', letterSpacing: '0.16em', textTransform: 'uppercase', color: M_W[0] }}>Edition</span>
     </MPlane>
   );
 }
@@ -2310,18 +2327,17 @@ function MPaintCard({ project, index, fill, dir, wob, compact, onClick, style })
 // off the right edge.
 const M_COLS = '98px 170px minmax(220px, 1fr) 76px 110px 110px 110px 110px 124px';
 
-// Header band tiles — logo, nav and the edition switch as painted planes.
-// Rendered as a fragment of grid items into a parent grid using M_COLS. On
-// home the red column spans down into the hero (redRowEnd 3); elsewhere it is
-// just the header row. It always bleeds off the top edge.
-function MHeaderTiles({ activePage, onNavigate, redRowEnd }) {
-  const { openEditions } = useTheme();
-  const tall = (redRowEnd || 2) > 2;
+// Header band tiles — logo, nav and the edition switch as painted planes,
+// rendered as a fragment of grid items into a parent grid using M_COLS. Every
+// tile is one block in the header row; the edition tile bleeds off the top and
+// right edges. Contact takes ink rather than a white, so it lights up on hover
+// like its three neighbours instead of staying invisible.
+function MHeaderTiles({ activePage, onNavigate }) {
   const navLinks = [
     { id: 'work',    color: M_RED,   wob: 'b' },
     { id: 'tools',   color: M_YELLOW, wob: 'c' },
     { id: 'about',   color: M_BLUE,  wob: 'a' },
-    { id: 'contact', color: M_W[3],  wob: 'b' },
+    { id: 'contact', color: M_INK,   wob: 'b' },
   ];
   return (
     <>
@@ -2344,15 +2360,7 @@ function MHeaderTiles({ activePage, onNavigate, redRowEnd }) {
         <MNavTile key={l.id} {...l} active={activePage === l.id} delay={500 + i * 110} onNavigate={onNavigate}
           style={{ gridColumn: `${5 + i}`, gridRow: '1' }} />
       ))}
-      <MPlane fill={M_RED} dir="v" wob="c"
-        style={{ gridColumn: '9', gridRow: `1 / ${redRowEnd || 2}`, marginTop: -M_PLINE, ...mPnt('d', 250, 650) }}
-        paint={tall ? <div style={{ position: 'absolute', left: 16, top: 80, width: 28, bottom: 120, background: '#b8191f', filter: 'url(#m-str-v)', opacity: 0.5 }} /> : null}>
-        <button onClick={openEditions} style={{
-          background: 'none', border: 'none', cursor: 'pointer', width: '100%',
-          padding: '46px 0 0', fontFamily: M_MONO, fontWeight: 700, fontSize: '11px',
-          letterSpacing: '0.16em', color: M_W[0],
-        }}>EDITION</button>
-      </MPlane>
+      <MEditionTile delay={940} style={{ gridColumn: '9', gridRow: '1', marginTop: -M_PLINE }} />
     </>
   );
 }
@@ -2404,7 +2412,13 @@ function MHomePainting({ activePage, onNavigate, onSelect }) {
       padding: `${M_PLINE}px 0 ${M_PLINE}px ${M_PLINE}px`,
       background: M_INK, position: 'relative', overflow: 'hidden',
     }}>
-      <MHeaderTiles activePage={activePage} onNavigate={onNavigate} redRowEnd={3} />
+      <MHeaderTiles activePage={activePage} onNavigate={onNavigate} />
+
+      {/* Red column beside the hero — bleeds off the right edge, carrying the
+          edition tile's colour down the canvas */}
+      <MPlane fill={M_RED} dir="v" wob="a"
+        style={{ gridColumn: '9', gridRow: '2', ...mPnt('d', 250, 650) }}
+        paint={<div style={{ position: 'absolute', left: 16, top: 60, width: 28, bottom: 90, background: '#b8191f', filter: 'url(#m-str-v)', opacity: 0.5 }} />} />
 
       {/* Hero plane */}
       <MPlane fill={M_W[0]} dir="h" wob="a"
@@ -2759,7 +2773,7 @@ function MContact() {
         else { setError(true); }
       } catch { setError(true); }
       finally { setSending(false); }
-    }} style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '560px' }}>
+    }} style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: mobile ? '560px' : 'none' }}>
       {mobile ? (
         <>
           {[{ id: 'name', label: 'Name', type: 'text', ph: 'your name' }, { id: 'email', label: 'Email', type: 'email', ph: 'your@email.com' }].map(f => (
@@ -2779,9 +2793,13 @@ function MContact() {
         </>
       ) : (
         <>
-          <MPaintField id="name" label="Name" type="text" ph="your name" wob="a" wobIn="c" />
-          <MPaintField id="email" label="Email" type="email" ph="your@email.com" wob="b" wobIn="a" />
-          <MPaintField id="message" label="Message" rows={5} ph="what's on your mind?" wob="c" wobIn="b" />
+          {/* Name and email share a row: two planes side by side read as one
+              more division of the canvas, and the fields fill the plane's width */}
+          <div style={{ display: 'flex', gap: '20px' }}>
+            <div style={{ flex: 1, minWidth: 0 }}><MPaintField id="name" label="Name" type="text" ph="your name" wob="a" wobIn="c" /></div>
+            <div style={{ flex: 1, minWidth: 0 }}><MPaintField id="email" label="Email" type="email" ph="your@email.com" wob="b" wobIn="a" /></div>
+          </div>
+          <MPaintField id="message" label="Message" rows={8} ph="what's on your mind?" wob="c" wobIn="b" />
         </>
       )}
       {error && (
@@ -2818,14 +2836,20 @@ function MContact() {
     ];
     return (
       <MSectionCanvas cols="minmax(340px, 1.25fr) minmax(260px, 1fr)"
-        rows="minmax(170px, 1fr) minmax(170px, 1fr) minmax(170px, 1fr)"
+        rows="150px minmax(170px, 1fr) minmax(170px, 1fr)"
         style={{ minHeight: 'calc(100vh - 124px)' }}>
-        <MPlane fill={M_W[0]} dir="h" wob="a"
-          style={{ gridColumn: '1', gridRow: '1 / 4', ...mPnt('r', 0, 900) }}
-          contentStyle={{ padding: '48px 40px 40px 56px' }}>
-          <h1 style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(56px, 7vw, 104px)', color: M_INK, lineHeight: 0.92, letterSpacing: '-0.035em', marginBottom: 36, textTransform: 'uppercase' }}>
+        {/* The heading takes its own band, so the form below fills a plane of
+            its own rather than floating at the top of a tall one */}
+        <MPlane fill={M_W[1]} dir="h" wob="b"
+          style={{ gridColumn: '1', gridRow: '1', ...mPnt('r', 0, 800) }}
+          contentStyle={{ display: 'flex', alignItems: 'center', padding: '0 40px 0 56px' }}>
+          <h1 style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(44px, 5.2vw, 84px)', color: M_INK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase' }}>
             Say <span style={{ color: M_RED }}>hello.</span>
           </h1>
+        </MPlane>
+        <MPlane fill={M_W[0]} dir="h" wob="a"
+          style={{ gridColumn: '1', gridRow: '2 / 4', ...mPnt('u', 260, 900) }}
+          contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '40px 40px 40px 56px' }}>
           {form}
         </MPlane>
         {sidebar.map((l, i) => (
