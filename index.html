@@ -232,6 +232,11 @@ const THEMES = [
     mondriaan: true,
     srcId: 'broadside-src',
     appGlobal: 'BroadsideApp',
+    // 1px hairlines and 2px radii are what this edition is built from; it keeps weight
+    // in reserve for the 3px section rules. `caps: none` because Broadside is lowercase
+    // everywhere — "the listings", "the particulars", "editions" — so a modal shouting
+    // CHOOSE EDITION over it was the one place the edition broke its own voice.
+    modalChrome: { borderW: '1px', radius: '2px', cardRadius: '2px', caps: 'none' },
     mobileOptimized: true,
     fonts: {
       serif: "'DM Serif Display', Georgia, serif",
@@ -612,8 +617,12 @@ function EditionModal() {
     randomHover:  t.btnBg,
     closeColor:   t.textMuted,
     closeHover:   t.text,
-    // Shape is identity, not colour, so it cannot be derived. Editions opt in;
-    // everything else keeps the 2px square panel it has always had.
+    // Shape and casing are identity, not colour, so neither can be derived. Editions
+    // opt in; everything else keeps the 2px square panel and the uppercase labels it
+    // has always had. `caps` sits BEFORE the spread deliberately — an edition whose
+    // modalChrome predates the key (Prism) must keep uppercase rather than silently
+    // losing it to an undefined.
+    caps: 'uppercase',
     ...(theme.modalChrome || { borderW: '2px', radius: '0', cardRadius: '0' }),
   };
 
@@ -632,7 +641,7 @@ function EditionModal() {
         onClick={e => e.stopPropagation()}
         style={{ background:c.panel, border:`${c.borderW} solid ${c.panelBorder}`, borderRadius:c.radius, maxWidth:'860px', width:'100%', padding:'36px' }}
       >
-        <div style={{ fontFamily:MONO, fontSize:'10px', letterSpacing:'0.14em', color:c.label, marginBottom:'28px', textTransform:'uppercase' }}>
+        <div style={{ fontFamily:MONO, fontSize:'10px', letterSpacing:'0.14em', color:c.label, marginBottom:'28px', textTransform:c.caps }}>
           choose edition
         </div>
         {mobile ? (
@@ -655,7 +664,7 @@ function EditionModal() {
                   <div>
                     <div style={{ display:'flex', alignItems:'baseline', gap:'8px', marginBottom:'3px' }}>
                       <span style={{ fontFamily:MONO, fontSize:'16px', fontWeight:NAME_WEIGHT, color:c.cardName, letterSpacing:'-0.01em' }}>{t.name}</span>
-                      {isActive && <span style={{ fontFamily:MONO, fontSize:'9px', letterSpacing:'0.1em', color:c.tagline, textTransform:'uppercase' }}>current</span>}
+                      {isActive && <span style={{ fontFamily:MONO, fontSize:'9px', letterSpacing:'0.1em', color:c.tagline, textTransform:c.caps }}>current</span>}
                     </div>
                     <span style={{ fontFamily:MONO, fontSize:'10px', color:c.tagline, letterSpacing:'0.04em' }}>{t.tagline}</span>
                   </div>
@@ -686,7 +695,7 @@ function EditionModal() {
                   <div style={{ padding:'14px 16px' }}>
                     <div style={{ display:'flex', alignItems:'baseline', gap:'8px', marginBottom:'4px' }}>
                       <span style={{ fontFamily:MONO, fontSize:'14px', fontWeight:NAME_WEIGHT, color:c.cardName, letterSpacing:'-0.01em' }}>{t.name}</span>
-                      {isActive && <span style={{ fontFamily:MONO, fontSize:'9px', letterSpacing:'0.1em', color:c.tagline, textTransform:'uppercase' }}>current</span>}
+                      {isActive && <span style={{ fontFamily:MONO, fontSize:'9px', letterSpacing:'0.1em', color:c.tagline, textTransform:c.caps }}>current</span>}
                     </div>
                     <div style={{ fontFamily:MONO, fontSize:'10px', color:c.tagline, letterSpacing:'0.04em', lineHeight:1.5, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{t.tagline}</div>
                   </div>
@@ -706,7 +715,7 @@ function EditionModal() {
           )}
           <button
             onClick={closeEditions}
-            style={{ fontFamily:MONO, fontSize:'10px', color:c.closeColor, background:'none', border:'none', cursor:'pointer', letterSpacing:'0.1em', textTransform:'uppercase' }}
+            style={{ fontFamily:MONO, fontSize:'10px', color:c.closeColor, background:'none', border:'none', cursor:'pointer', letterSpacing:'0.1em', textTransform:c.caps }}
             onMouseEnter={e => e.currentTarget.style.color = c.closeHover}
             onMouseLeave={e => e.currentTarget.style.color = c.closeColor}
           >{mobile ? 'close' : 'esc to close'}</button>
