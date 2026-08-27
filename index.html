@@ -187,20 +187,20 @@
      value clears 100%, so the plane ends fully revealed and nothing snaps
      when the animation hands back to the unclipped element. */
   @keyframes m-paint-r {
-    from { clip-path: polygon(0% 0%, -2% 0%, -2% 11%, -2% 22%, -2% 33%, -2% 44%, -2% 55%, -2% 66%, -2% 77%, -2% 88%, -2% 100%, 0% 100%) }
-    to   { clip-path: polygon(0% 0%, 103% 0%, 101% 11%, 104% 22%, 101% 33%, 103% 44%, 101% 55%, 104% 66%, 102% 77%, 103% 88%, 101% 100%, 0% 100%) }
+    from { clip-path: polygon(0% 0%, -4% 0%, -4% 7%, -4% 13%, -4% 20%, -4% 27%, -4% 33%, -4% 40%, -4% 47%, -4% 53%, -4% 60%, -4% 67%, -4% 73%, -4% 80%, -4% 87%, -4% 93%, -4% 100%, 0% 100%) }
+    to   { clip-path: polygon(0% 0%, 105% 0%, 102% 7%, 101% 13%, 104% 20%, 100.5% 27%, 101.5% 33%, 105% 40%, 103% 47%, 100.5% 53%, 104.5% 60%, 101% 67%, 103% 73%, 100.5% 80%, 105% 87%, 102% 93%, 101% 100%, 0% 100%) }
   }
   @keyframes m-paint-l {
-    from { clip-path: polygon(100% 0%, 100% 100%, 102% 100%, 102% 88%, 102% 77%, 102% 66%, 102% 55%, 102% 44%, 102% 33%, 102% 22%, 102% 11%, 102% 0%) }
-    to   { clip-path: polygon(100% 0%, 100% 100%, -3% 100%, -1% 88%, -4% 77%, -1% 66%, -3% 55%, -1% 44%, -4% 33%, -2% 22%, -3% 11%, -1% 0%) }
+    from { clip-path: polygon(100% 0%, 100% 100%, 104% 100%, 104% 93%, 104% 87%, 104% 80%, 104% 73%, 104% 67%, 104% 60%, 104% 53%, 104% 47%, 104% 40%, 104% 33%, 104% 27%, 104% 20%, 104% 13%, 104% 7%, 104% 0%) }
+    to   { clip-path: polygon(100% 0%, 100% 100%, -5% 100%, -2% 93%, -1% 87%, -4% 80%, -0.5% 73%, -1.5% 67%, -5% 60%, -3% 53%, -0.5% 47%, -4.5% 40%, -1% 33%, -3% 27%, -0.5% 20%, -5% 13%, -2% 7%, -1% 0%) }
   }
   @keyframes m-paint-d {
-    from { clip-path: polygon(0% 0%, 100% 0%, 100% -2%, 88% -2%, 77% -2%, 66% -2%, 55% -2%, 44% -2%, 33% -2%, 22% -2%, 11% -2%, 0% -2%) }
-    to   { clip-path: polygon(0% 0%, 100% 0%, 100% 103%, 88% 101%, 77% 104%, 66% 101%, 55% 103%, 44% 101%, 33% 104%, 22% 102%, 11% 103%, 0% 101%) }
+    from { clip-path: polygon(0% 0%, 100% 0%, 100% -4%, 93% -4%, 87% -4%, 80% -4%, 73% -4%, 67% -4%, 60% -4%, 53% -4%, 47% -4%, 40% -4%, 33% -4%, 27% -4%, 20% -4%, 13% -4%, 7% -4%, 0% -4%) }
+    to   { clip-path: polygon(0% 0%, 100% 0%, 100% 105%, 93% 102%, 87% 101%, 80% 104%, 73% 100.5%, 67% 101.5%, 60% 105%, 53% 103%, 47% 100.5%, 40% 104.5%, 33% 101%, 27% 103%, 20% 100.5%, 13% 105%, 7% 102%, 0% 101%) }
   }
   @keyframes m-paint-u {
-    from { clip-path: polygon(0% 100%, 100% 100%, 100% 102%, 88% 102%, 77% 102%, 66% 102%, 55% 102%, 44% 102%, 33% 102%, 22% 102%, 11% 102%, 0% 102%) }
-    to   { clip-path: polygon(0% 100%, 100% 100%, 100% -3%, 88% -1%, 77% -4%, 66% -1%, 55% -3%, 44% -1%, 33% -4%, 22% -2%, 11% -3%, 0% -1%) }
+    from { clip-path: polygon(0% 100%, 100% 100%, 100% 104%, 93% 104%, 87% 104%, 80% 104%, 73% 104%, 67% 104%, 60% 104%, 53% 104%, 47% 104%, 40% 104%, 33% 104%, 27% 104%, 20% 104%, 13% 104%, 7% 104%, 0% 104%) }
+    to   { clip-path: polygon(0% 100%, 100% 100%, 100% -5%, 93% -2%, 87% -1%, 80% -4%, 73% -0.5%, 67% -1.5%, 60% -5%, 53% -3%, 47% -0.5%, 40% -4.5%, 33% -1%, 27% -3%, 20% -0.5%, 13% -5%, 7% -2%, 0% -1%) }
   }
 </style>
 </head>
@@ -2263,15 +2263,24 @@ function MHeader({ activePage, onNavigate }) {
   );
 }
 
-// Paint-in timing. Fill mode is 'backwards', never 'both': the keyframes end on
-// clip-path inset(0), and holding that after the animation would clip the
-// wobbled plane edges back to straight rectangles.
-const M_EASE = 'cubic-bezier(0.25,0.46,0.45,0.94)';
-const mPnt = (dir, delay, dur = 900) => ({
-  animation: `m-paint-${dir} ${dur}ms ${M_EASE} ${delay}ms backwards`,
+// Paint-in timing. Planes are painted ONE AT A TIME: mPnt takes a position in
+// the paint order, not a millisecond delay, so the sequence is readable in the
+// markup and the whole cascade retunes from the two constants below. M_STEP is
+// a little longer than a stroke, so a plane has all but finished before the
+// next is begun — the eye follows a single brush around the canvas instead of
+// watching the page assemble itself at once.
+//
+// Fill mode is 'backwards', never 'both': the keyframes end past 100%, and
+// holding that after the animation would clip the wobbled plane edges.
+const M_EASE = 'cubic-bezier(0.22,0.61,0.36,1)';
+const M_STEP = 420;  // gap between one plane's stroke and the next
+const M_DUR  = 560;  // how long a single stroke takes
+const M_TILE_DUR = 420;  // header tiles are small; their strokes are shorter
+const mPnt = (dir, order, dur = M_DUR) => ({
+  animation: `m-paint-${dir} ${dur}ms ${M_EASE} ${Math.round(order * M_STEP)}ms backwards`,
 });
 
-function MNavTile({ id, color, wob, active, delay, onNavigate, style }) {
+function MNavTile({ id, color, wob, active, order, onNavigate, style }) {
   const [h, setH] = React.useState(false);
   const lit = active || h;
   const fg = color === M_YELLOW ? M_INK : M_W[0];
@@ -2279,7 +2288,7 @@ function MNavTile({ id, color, wob, active, delay, onNavigate, style }) {
     <MPlane as="button" fill={lit ? color : M_W[2]} dir="v" wob={wob}
       onClick={() => onNavigate(id)}
       onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
-      style={{ cursor: 'pointer', ...mPnt('d', delay, 450), ...style }}
+      style={{ cursor: 'pointer', ...mPnt('d', order, M_TILE_DUR), ...style }}
       contentStyle={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <span style={{ fontFamily: M_SANS, fontWeight: 700, fontSize: '13px', letterSpacing: '0.08em', textTransform: 'uppercase', color: lit ? fg : M_INK }}>{id}</span>
     </MPlane>
@@ -2292,14 +2301,14 @@ function MNavTile({ id, color, wob, active, delay, onNavigate, style }) {
 // carries the logo, the column directly beneath it and the first project card,
 // and a blue corner over that red column is the better balance. Hover lifts it
 // a shade.
-function MEditionTile({ delay, style }) {
+function MEditionTile({ order, style }) {
   const { openEditions } = useTheme();
   const [h, setH] = React.useState(false);
   return (
     <MPlane as="button" fill={h ? M_STREAK[M_BLUE] : M_BLUE} dir="v" wob="c"
       onClick={openEditions}
       onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
-      style={{ cursor: 'pointer', ...mPnt('d', delay, 450), ...style }}
+      style={{ cursor: 'pointer', ...mPnt('d', order, M_TILE_DUR), ...style }}
       contentStyle={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <span style={{ fontFamily: M_MONO, fontWeight: 700, fontSize: '11px', letterSpacing: '0.16em', textTransform: 'uppercase', color: M_W[0] }}>Edition</span>
     </MPlane>
@@ -2359,7 +2368,7 @@ const M_FOOT_H = 116;  // 10 +  96 + 10
 // edition tile bleeds off the right edge only. Contact takes ink rather than a
 // white, so it lights up on hover like its three neighbours instead of staying
 // invisible.
-function MHeaderTiles({ activePage, onNavigate }) {
+function MHeaderTiles({ activePage, onNavigate, order = 0 }) {
   const navLinks = [
     { id: 'work',    color: M_RED,   wob: 'b' },
     { id: 'tools',   color: M_YELLOW, wob: 'c' },
@@ -2370,11 +2379,11 @@ function MHeaderTiles({ activePage, onNavigate }) {
     <>
       <MPlane as="button" fill={M_RED} dir="v" wob="a" aria-label="Peter & Co."
         onClick={() => onNavigate('home')}
-        style={{ gridColumn: '1', gridRow: '1', cursor: 'pointer', ...mPnt('d', 150, 450) }}
+        style={{ gridColumn: '1', gridRow: '1', cursor: 'pointer', ...mPnt('d', order + 0, M_TILE_DUR) }}
         contentStyle={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <span style={{ fontFamily: M_DISPLAY, fontSize: '54px', color: M_W[0], lineHeight: 1, paddingTop: 4 }}>P</span>
       </MPlane>
-      <div style={{ gridColumn: '2', gridRow: '1', display: 'grid', gridTemplateRows: '1fr 1fr', gap: `${M_PLINE}px`, ...mPnt('r', 280, 500) }}>
+      <div style={{ gridColumn: '2', gridRow: '1', display: 'grid', gridTemplateRows: '1fr 1fr', gap: `${M_PLINE}px`, ...mPnt('r', order + 0.4, M_TILE_DUR) }}>
         <MPlane fill={M_W[0]} dir="h" wob="b" contentStyle={{ display: 'flex', alignItems: 'center', paddingLeft: 20 }}>
           <span style={{ fontFamily: M_DISPLAY, fontSize: '20px', letterSpacing: '-0.02em', color: M_INK }}>Peter</span>
         </MPlane>
@@ -2382,12 +2391,12 @@ function MHeaderTiles({ activePage, onNavigate }) {
           <span style={{ fontFamily: M_SANS, fontWeight: 700, fontSize: '15px', letterSpacing: '0.02em', color: M_INK }}>&amp; Co.</span>
         </MPlane>
       </div>
-      <MPlane fill={M_W[1]} dir="v" wob="a" style={{ gridColumn: '3 / 5', gridRow: '1', ...mPnt('r', 380, 600) }} />
+      <MPlane fill={M_W[1]} dir="v" wob="a" style={{ gridColumn: '3 / 5', gridRow: '1', ...mPnt('r', order + 0.8, M_TILE_DUR) }} />
       {navLinks.map((l, i) => (
-        <MNavTile key={l.id} {...l} active={activePage === l.id} delay={500 + i * 110} onNavigate={onNavigate}
+        <MNavTile key={l.id} {...l} active={activePage === l.id} order={order + 1.2 + i * 0.3} onNavigate={onNavigate}
           style={{ gridColumn: `${5 + i}`, gridRow: '1' }} />
       ))}
-      <MEditionTile delay={940} style={{ gridColumn: '9', gridRow: '1' }} />
+      <MEditionTile order={order + 2.4} style={{ gridColumn: '9', gridRow: '1' }} />
     </>
   );
 }
@@ -2439,17 +2448,17 @@ function MHomePainting({ activePage, onNavigate, onSelect }) {
       padding: `${M_PLINE}px 0 ${M_PLINE}px ${M_PLINE}px`,
       background: M_INK, position: 'relative', overflow: 'hidden',
     }}>
-      <MHeaderTiles activePage={activePage} onNavigate={onNavigate} />
+      <MHeaderTiles activePage={activePage} onNavigate={onNavigate} order={1} />
 
       {/* Red column beside the hero — bleeds off the right edge, carrying the
           edition tile's colour down the canvas */}
       <MPlane fill={M_RED} dir="v" wob="a"
-        style={{ gridColumn: '9', gridRow: '2', ...mPnt('d', 250, 650) }}
+        style={{ gridColumn: '9', gridRow: '2', ...mPnt('d', 3.6, 700) }}
         paint={<div style={{ position: 'absolute', left: 16, top: 60, width: 28, bottom: 90, background: '#b8191f', filter: 'url(#m-str-v)', opacity: 0.5 }} />} />
 
       {/* Hero plane */}
       <MPlane fill={M_W[0]} dir="h" wob="a"
-        style={{ gridColumn: '1 / 9', gridRow: '2', ...mPnt('r', 0, 1000) }}
+        style={{ gridColumn: '1 / 9', gridRow: '2', ...mPnt('r', 0, 900) }}
         paint={<>
           <div style={{ position: 'absolute', left: '8%', top: 190, width: '64%', height: 22, background: '#efe9da', filter: 'url(#m-str-h)', opacity: 0.5 }} />
           <div style={{ position: 'absolute', left: '14%', bottom: 60, width: '48%', height: 18, background: '#fffdf4', filter: 'url(#m-str-h)', opacity: 0.6 }} />
@@ -2466,23 +2475,23 @@ function MHomePainting({ activePage, onNavigate, onSelect }) {
 
       {/* Label band + right accents */}
       <MPlane fill={M_W[2]} dir="h" wob="b"
-        style={{ gridColumn: '1 / 6', gridRow: '3', ...mPnt('r', 880, 620) }}
+        style={{ gridColumn: '1 / 6', gridRow: '3', ...mPnt('r', 4.2) }}
         contentStyle={{ display: 'flex', alignItems: 'center', paddingLeft: 56 }}>
         <MLabel color={M_INK}>Selected Work · {String(feat.length).padStart(2,'0')} / {String(PROJECTS.length).padStart(2,'0')} projects</MLabel>
       </MPlane>
-      <MPlane fill={M_YELLOW} dir="h" wob="b" style={{ gridColumn: '9', gridRow: '3', ...mPnt('d', 960, 500) }} />
+      <MPlane fill={M_YELLOW} dir="h" wob="b" style={{ gridColumn: '9', gridRow: '3', ...mPnt('d', 4.6) }} />
 
       {/* Project cards */}
       <MPaintCard project={feat[0]} index={0} fill={M_RED} dir="v" wob="c" onClick={() => onSelect(feat[0])}
-        style={{ gridColumn: '1 / 4', gridRow: '4 / 6', ...mPnt('u', 1200, 750) }} />
+        style={{ gridColumn: '1 / 4', gridRow: '4 / 6', ...mPnt('u', 5.1, 700) }} />
       <MPlane as="a" href="https://en.wikipedia.org/wiki/Piet_Mondrian" target="_blank" rel="noopener noreferrer"
         aria-label="Piet Mondriaan" fill={M_INK} dir="v" wob="a"
-        style={{ gridColumn: '4 / 6', gridRow: '4', cursor: 'pointer', ...mPnt('d', 1280, 500) }} />
+        style={{ gridColumn: '4 / 6', gridRow: '4', cursor: 'pointer', ...mPnt('d', 5.6) }} />
       <MPaintCard project={feat[1]} index={1} fill={M_BLUE} dir="h" wob="a" onClick={() => onSelect(feat[1])}
-        style={{ gridColumn: '6 / 9', gridRow: '3 / 5', ...mPnt('u', 1380, 680) }} />
+        style={{ gridColumn: '6 / 9', gridRow: '3 / 5', ...mPnt('u', 6.0, 680) }} />
       <MPaintCard project={feat[2]} index={2} fill={M_YELLOW} dir="h" wob="c" compact onClick={() => onSelect(feat[2])}
-        style={{ gridColumn: '4 / 9', gridRow: '5', ...mPnt('r', 1520, 620) }} />
-      <MPlane fill={M_W[3]} dir="v" wob="b" style={{ gridColumn: '9', gridRow: '4 / 6', ...mPnt('l', 1560, 600) }} />
+        style={{ gridColumn: '4 / 9', gridRow: '5', ...mPnt('r', 6.5, 620) }} />
+      <MPlane fill={M_W[3]} dir="v" wob="b" style={{ gridColumn: '9', gridRow: '4 / 6', ...mPnt('l', 6.9) }} />
 
       {/* Varnish — a breath of depth over the whole canvas */}
       <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 2, background: 'radial-gradient(120% 90% at 50% 40%, rgba(0,0,0,0) 55%, rgba(60,50,30,0.10) 100%)' }} />
@@ -2508,19 +2517,19 @@ function MAbout() {
     // divided into a rhythm of planes rather than filled with words. A narrow
     // second column gives the field its vertical beat.
     const field = [
-      { fill: M_W[2],   dir: 'h', wob: 'b', col: '1', row: '2', pnt: ['r', 700] },
-      { fill: M_RED,    dir: 'v', wob: 'c', col: '2', row: '2', pnt: ['d', 790] },
-      { fill: M_W[0],   dir: 'h', wob: 'a', col: '3', row: '2', pnt: ['l', 850] },
-      { fill: M_YELLOW, dir: 'h', wob: 'a', col: '1', row: '3', pnt: ['u', 920] },
-      { fill: M_INK,    dir: 'v', wob: 'b', col: '2', row: '3', pnt: ['d', 980] },
-      { fill: M_W[3],   dir: 'v', wob: 'c', col: '3', row: '3', pnt: ['u', 1040] },
+      { fill: M_W[2],   dir: 'h', wob: 'b', col: '1', row: '2', pnt: ['r', 4.9] },
+      { fill: M_RED,    dir: 'v', wob: 'c', col: '2', row: '2', pnt: ['d', 5.2] },
+      { fill: M_W[0],   dir: 'h', wob: 'a', col: '3', row: '2', pnt: ['l', 5.5] },
+      { fill: M_YELLOW, dir: 'h', wob: 'a', col: '1', row: '3', pnt: ['u', 5.8] },
+      { fill: M_INK,    dir: 'v', wob: 'b', col: '2', row: '3', pnt: ['d', 6.1] },
+      { fill: M_W[3],   dir: 'v', wob: 'c', col: '3', row: '3', pnt: ['u', 6.4] },
     ];
     return (
       <MSectionCanvas cols="minmax(280px, 1.15fr) 108px minmax(0, 0.55fr) minmax(240px, 0.9fr)"
         rows="minmax(220px, 1fr) minmax(140px, 0.6fr) minmax(140px, 0.6fr) 116px"
         style={{ minHeight: `calc(100vh - ${M_HEAD_H}px)` }}>
         <MPlane fill={M_W[0]} dir="h" wob="a"
-          style={{ gridColumn: '1 / 4', gridRow: '1', ...mPnt('r', 0, 900) }}
+          style={{ gridColumn: '1 / 4', gridRow: '1', ...mPnt('r', 2.9, 900) }}
           paint={<div style={{ position: 'absolute', left: '8%', bottom: '16%', width: '58%', height: 24, background: '#efe9da', filter: 'url(#m-str-h)', opacity: 0.5 }} />}
           contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '32px 40px 32px 56px' }}>
           <h1 style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(48px, 5.3vw, 88px)', color: M_INK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase' }}>
@@ -2531,7 +2540,7 @@ function MAbout() {
         </MPlane>
         {cards.map((l, i) => (
           <MPlane key={l.label} fill={paint[i].fill} dir={paint[i].dir} wob={paint[i].wob}
-            style={{ gridColumn: '4', gridRow: `${i + 1}`, ...mPnt('l', 250 + i * 180, 600) }}
+            style={{ gridColumn: '4', gridRow: `${i + 1}`, ...mPnt('l', 3.6 + i * 0.42) }}
             contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', gap: '16px', padding: '28px 32px' }}>
             <MLabel color={paint[i].fg} style={{ fontWeight: 400 }}>{l.label}</MLabel>
             <div style={{ fontFamily: M_DISPLAY, fontSize: '24px', color: paint[i].fg, letterSpacing: '-0.02em', lineHeight: 1.1, whiteSpace: 'pre-line' }}>{l.text}</div>
@@ -2539,10 +2548,10 @@ function MAbout() {
         ))}
         {field.map(b => (
           <MPlane key={`${b.col}-${b.row}`} fill={b.fill} dir={b.dir} wob={b.wob}
-            style={{ gridColumn: b.col, gridRow: b.row, ...mPnt(b.pnt[0], b.pnt[1], 600) }} />
+            style={{ gridColumn: b.col, gridRow: b.row, ...mPnt(b.pnt[0], b.pnt[1]) }} />
         ))}
         <MPlane fill={M_BLUE} dir="h" wob="c"
-          style={{ gridColumn: '1 / 5', gridRow: '4', ...mPnt('r', 1120, 700) }}
+          style={{ gridColumn: '1 / 5', gridRow: '4', ...mPnt('r', 6.9, 700) }}
           contentStyle={{ display: 'flex', alignItems: 'center', padding: '0 56px' }}>
           <p style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(28px, 3.5vw, 48px)', color: M_W[0], letterSpacing: '-0.03em', lineHeight: 0.95, textTransform: 'uppercase' }}>
             Sometimes Something Useful
@@ -2613,7 +2622,7 @@ function MTools() {
     return (
       <MSectionCanvas cols="repeat(3, minmax(0, 1fr))" rows={`180px 88px repeat(${maxTools}, minmax(96px, auto))`}>
         <MPlane fill={M_W[0]} dir="h" wob="a"
-          style={{ gridColumn: '1 / 3', gridRow: '1', ...mPnt('r', 0, 800) }}
+          style={{ gridColumn: '1 / 3', gridRow: '1', ...mPnt('r', 2.9, 800) }}
           contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '14px', padding: '0 40px 0 56px' }}>
           <h1 style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(40px, 4.6vw, 72px)', color: M_INK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase' }}>
             How <span style={{ color: M_BLUE }}>I</span> work.
@@ -2621,7 +2630,7 @@ function MTools() {
           <p style={{ fontFamily: M_SANS, fontSize: '15px', fontWeight: 500, color: M_INK, lineHeight: 1.55, maxWidth: '58ch' }}>No strong opinions on tools. Strong opinions on outcomes. These just happen to be what's in the stack right now.</p>
         </MPlane>
         <MPlane fill={M_RED} dir="v" wob="c"
-          style={{ gridColumn: '3', gridRow: '1', ...mPnt('d', 200, 600) }}
+          style={{ gridColumn: '3', gridRow: '1', ...mPnt('d', 3.4) }}
           contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '24px 32px' }}>
           <MLabel color={M_W[0]}>Total</MLabel>
           <div style={{ fontFamily: M_DISPLAY, fontSize: '76px', color: M_W[0], lineHeight: 1.0, letterSpacing: '-0.04em' }}>{cats.reduce((n, c) => n + c.tools.length, 0)}</div>
@@ -2630,7 +2639,7 @@ function MTools() {
           const fg = cat.color === M_YELLOW ? M_INK : M_W[0];
           return (
             <MPlane key={`h-${cat.label}`} fill={cat.color} dir="h" wob={wobs[i % 3]}
-              style={{ gridColumn: `${i + 1}`, gridRow: '2', ...mPnt('d', 320 + i * 120, 500) }}
+              style={{ gridColumn: `${i + 1}`, gridRow: '2', ...mPnt('d', 3.9 + i * 0.34) }}
               contentStyle={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', padding: '20px 24px' }}>
               <h3 style={{ fontFamily: M_DISPLAY, fontSize: '24px', color: fg, letterSpacing: '-0.02em', textTransform: 'uppercase' }}>{cat.label}</h3>
               <MLabel color={fg} size="10px">{String(cat.tools.length).padStart(2,'0')}</MLabel>
@@ -2644,7 +2653,7 @@ function MTools() {
             return (
               <MPlane key={`${cat.label}-${rowIdx}`} fill={t ? M_W[(rowIdx + colIdx) % 3] : M_W[3]}
                 dir={colIdx % 2 ? 'v' : 'h'} wob={wobs[n % 3]}
-                style={{ gridColumn: `${colIdx + 1}`, gridRow: `${rowIdx + 3}`, ...mPnt('u', 560 + n * 45, 500) }}
+                style={{ gridColumn: `${colIdx + 1}`, gridRow: `${rowIdx + 3}`, ...mPnt('u', 5.0 + n * 0.14, 480) }}
                 contentStyle={{ padding: '18px 24px' }}>
                 {t && (
                   <>
@@ -2884,20 +2893,20 @@ function MContact() {
         {/* The heading takes its own band, so the form below fills a plane of
             its own rather than floating at the top of a tall one */}
         <MPlane fill={M_W[1]} dir="h" wob="b"
-          style={{ gridColumn: '1', gridRow: '1', ...mPnt('r', 0, 800) }}
+          style={{ gridColumn: '1', gridRow: '1', ...mPnt('r', 2.9, 800) }}
           contentStyle={{ display: 'flex', alignItems: 'center', padding: '0 40px 0 56px' }}>
           <h1 style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(44px, 5.2vw, 84px)', color: M_INK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase' }}>
             Say <span style={{ color: M_RED }}>hello.</span>
           </h1>
         </MPlane>
         <MPlane fill={M_W[0]} dir="h" wob="a"
-          style={{ gridColumn: '1', gridRow: '2 / 4', ...mPnt('u', 260, 900) }}
+          style={{ gridColumn: '1', gridRow: '2 / 4', ...mPnt('u', 3.5, 900) }}
           contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '40px 40px 40px 56px' }}>
           {form}
         </MPlane>
         {sidebar.map((l, i) => (
           <MPlane key={l.label} fill={l.bg} dir={paint[i].dir} wob={paint[i].wob}
-            style={{ gridColumn: '2', gridRow: `${i + 1}`, ...mPnt('l', 250 + i * 180, 600) }}
+            style={{ gridColumn: '2', gridRow: `${i + 1}`, ...mPnt('l', 4.2 + i * 0.42) }}
             contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '28px 32px' }}>
             <MLabel color={l.bg === M_YELLOW ? M_INK : M_W[0]}>{l.label}</MLabel>
             <div style={{ fontFamily: M_DISPLAY, fontSize: '26px', color: l.bg === M_YELLOW ? M_INK : M_W[0], letterSpacing: '-0.02em', lineHeight: 1.1, whiteSpace: 'pre-line' }}>{l.text}</div>
@@ -2936,13 +2945,13 @@ function MProjectDetail({ project, onBack }) {
       <MSectionCanvas cols="minmax(320px, 2fr) minmax(240px, 1fr)"
         rows="72px minmax(280px, auto) minmax(240px, auto)">
         <MPlane as="button" fill={M_W[1]} dir="h" wob="b" onClick={onBack}
-          style={{ gridColumn: '1', gridRow: '1', cursor: 'pointer', ...mPnt('r', 0, 500) }}
+          style={{ gridColumn: '1', gridRow: '1', cursor: 'pointer', ...mPnt('r', 2.9, 450) }}
           contentStyle={{ display: 'flex', alignItems: 'center', paddingLeft: 56 }}>
           <span style={{ fontFamily: M_MONO, fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: M_INK }}>← back to work</span>
         </MPlane>
-        <MPlane fill={M_YELLOW} dir="h" wob="c" style={{ gridColumn: '2', gridRow: '1', ...mPnt('l', 150, 450) }} />
+        <MPlane fill={M_YELLOW} dir="h" wob="c" style={{ gridColumn: '2', gridRow: '1', ...mPnt('l', 3.3, 450) }} />
         <MPlane fill={accent} dir="v" wob="a"
-          style={{ gridColumn: '1', gridRow: '2', ...mPnt('r', 220, 800) }}
+          style={{ gridColumn: '1', gridRow: '2', ...mPnt('r', 3.7, 800) }}
           contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '40px 40px 40px 56px' }}>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
             {project.tags.map(t => (
@@ -2953,19 +2962,19 @@ function MProjectDetail({ project, onBack }) {
           {project.tagline && <p style={{ fontFamily: M_SANS, fontWeight: 700, fontSize: '20px', color: accentFg, marginTop: 16, letterSpacing: '-0.01em' }}>{project.tagline}</p>}
         </MPlane>
         <MPlane fill={M_INK} dir="v" wob="b"
-          style={{ gridColumn: '2', gridRow: '2', ...mPnt('d', 420, 650) }}
+          style={{ gridColumn: '2', gridRow: '2', ...mPnt('d', 4.3, 650) }}
           contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '40px' }}>
           <MLabel color={M_W[0]}>Year</MLabel>
           <div style={{ fontFamily: M_DISPLAY, fontSize: '88px', color: M_W[0], lineHeight: 1.0, letterSpacing: '-0.04em' }}>{project.year}</div>
         </MPlane>
         <MPlane fill={M_W[0]} dir="h" wob="c"
-          style={{ gridColumn: '1', gridRow: '3', ...mPnt('u', 600, 650) }}
+          style={{ gridColumn: '1', gridRow: '3', ...mPnt('u', 4.8, 650) }}
           contentStyle={{ padding: '40px 40px 40px 56px' }}>
           <MLabel color={M_INK}>Brief</MLabel>
           <p style={{ fontFamily: M_SANS, fontSize: '17px', fontWeight: 500, color: M_INK, lineHeight: 1.65, marginTop: 16, maxWidth: '68ch' }}>{project.detail || project.description}</p>
         </MPlane>
         <MPlane fill={M_W[2]} dir="v" wob="a"
-          style={{ gridColumn: '2', gridRow: '3', ...mPnt('l', 750, 600) }}
+          style={{ gridColumn: '2', gridRow: '3', ...mPnt('l', 5.3) }}
           contentStyle={{ display: 'flex', flexDirection: 'column', gap: 24, padding: '40px' }}>
           {project.role && <div><MLabel color={M_INK} size="10px">Role</MLabel><div style={{ fontFamily: M_SANS, fontWeight: 500, fontSize: '15px', color: M_INK, marginTop: 6 }}>{project.role}</div></div>}
           {project.stack && (
@@ -3053,7 +3062,7 @@ function MWorkRow({ project, idx, row, onSelect }) {
         gridColumn: `${col}`, gridRow: `${row}`, cursor: isClickable ? 'pointer' : 'default',
         transition: 'transform 200ms cubic-bezier(.2,.8,.2,1)',
         transform: h && isClickable ? 'translateY(-3px)' : 'none',
-        ...mPnt('r', 300 + idx * 130, 550),
+        ...mPnt('r', 3.9 + idx * 0.34, 520),
       }}
       contentStyle={{ display: 'flex', alignItems: 'center', padding: '0 24px', ...extra }}>
       {content}
@@ -3092,7 +3101,7 @@ function MWorkTable({ onSelect }) {
       <MSectionCanvas cols="98px minmax(260px, 1fr) 150px 110px 240px 98px"
         rows={`160px repeat(${PROJECTS.length}, minmax(96px, auto))`}>
         <MPlane fill={M_W[0]} dir="h" wob="a"
-          style={{ gridColumn: '1 / 5', gridRow: '1', ...mPnt('r', 0, 800) }}
+          style={{ gridColumn: '1 / 5', gridRow: '1', ...mPnt('r', 2.9, 800) }}
           contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '12px', padding: '0 40px 0 56px' }}>
           <MLabel color={M_INK} size="11px">Every project</MLabel>
           <h1 style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(40px, 4.6vw, 72px)', color: M_INK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase' }}>Work.</h1>
@@ -3100,7 +3109,7 @@ function MWorkTable({ onSelect }) {
         {/* Ink, not blue: this plane sits directly under the blue edition tile,
             and two blues stacked read as one column */}
         <MPlane fill={M_INK} dir="v" wob="c"
-          style={{ gridColumn: '5 / 7', gridRow: '1', ...mPnt('d', 200, 600) }}
+          style={{ gridColumn: '5 / 7', gridRow: '1', ...mPnt('d', 3.4) }}
           contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '22px 32px' }}>
           <MLabel color={M_W[0]}>Count</MLabel>
           <div style={{ fontFamily: M_DISPLAY, fontSize: '64px', color: M_W[0], lineHeight: 1.0, letterSpacing: '-0.04em' }}>{String(PROJECTS.length).padStart(2,'0')}</div>

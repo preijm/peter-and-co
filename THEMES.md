@@ -367,26 +367,43 @@ Every desktop page is a painting, not just home. The shared pieces:
 When a page mounts, each block sweeps in using CSS `clip-path` animations — the feeling of fresh paint being applied.
 
 **The leading edge is a ragged polygon, not a straight `inset`.** Each keyframe
-is a 12-point polygon: two fixed corners plus ten points down the advancing
-edge, whose targets differ by a few percent, so the points arrive at slightly
+is an 18-point polygon: two fixed corners plus **sixteen** points down the
+advancing edge, whose targets differ by up to ~4.5%, so the points arrive at
 different times and the edge stays notched all the way across. A straight inset
 wipe reads as a shutter or a flip; this reads as a loaded brush laying colour
-down. Ten points is the floor — with five or six the notches are far enough
-apart to read as one big chevron instead of brush texture.
+down. Three things were tuned by eye and all of them matter:
 
-Every `to` value clears 100% (e.g. `101%`–`104%`), so the plane ends fully
+- **Point count.** Sixteen is the floor. With five or six the notches are far
+  enough apart to read as one big chevron; with ten it is legible only if you
+  already know to look for it.
+- **Depth.** ~4.5% of the plane. At 7–9% the edge stops reading as a brush and
+  starts reading as torn paper.
+- **Irregularity.** Targets must not alternate deep/shallow evenly or the edge
+  becomes a uniform sawtooth. Runs of similar values give it a hand.
+
+Every `to` value clears 100% (e.g. `100.5%`–`105%`), so the plane ends fully
 revealed and nothing snaps when `backwards` fill hands the element back
 unclipped. A `to` value **below** 100% would leave a permanent sliver cut out
 of that edge.
 
+**Planes are painted one at a time.** `mPnt(dir, order, dur?)` takes a position
+in the paint order, not a millisecond delay, so the sequence reads in the
+markup and the whole cascade retunes from two constants: `M_STEP` (420ms,
+the gap between one plane's stroke and the next) and `M_DUR` (560ms, one
+stroke). `M_STEP` is deliberately close to `M_DUR` — a plane has all but
+finished before the next begins, so the eye follows a single brush around the
+canvas rather than watching the page assemble itself at once. The shared
+header band takes an `order` prop for where it starts: home paints its hero
+first and passes `order={1}`; every other page lets it default to 0 and starts
+its own content at 2.9.
+
 Rules:
-- Default duration: ~900ms per block
-- Easing: `cubic-bezier(0.25, 0.46, 0.45, 0.94)`
-- Blocks are staggered with `animationDelay`; last block lands around 2.2s
+- Easing: `cubic-bezier(0.22, 0.61, 0.36, 1)` — a stroke decelerates into place
+- Home's last plane lands around 3.5s; subpages a little later
 - **No flash or sheen after** — blocks settle cleanly with no outro effect
 - **`animation-fill-mode` must be `backwards`, never `both`** — the keyframes
-  end on `clip-path: inset(0)`, and holding that after the animation clips the
-  wobbled plane edges back to straight rectangles (`mPnt` does this right)
+  end past 100%, and holding that after the animation clips the wobbled plane
+  edges (`mPnt` does this right)
 
 ### Mondriaan Colours
 ```js
