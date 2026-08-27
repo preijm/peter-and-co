@@ -23,16 +23,28 @@ Before designing or modifying any theme, read **[THEMES.md](THEMES.md)** — it 
 The Mondriaan theme lives in a `<script type="text/plain" id="mondriaan-src">` blob inside `index.html`. It is compiled by Babel at runtime in dev and pre-compiled by `build.js` in CI. Key constants used throughout:
 
 ```js
-const M_LINE   = 6           // grid gap / border width (px)
-const M_BLACK  = '#0a0a0a'
+const M_LINE   = 6           // grid gap / border width on subpages (px)
+const M_PLINE  = 10          // painted line width on the home canvas (px)
+const M_BLACK  = '#0a0a0a'   // text + subpage borders
+const M_INK    = '#141210'   // painted line black (home canvas)
+const M_LINEN  = '#efece3'   // raw-canvas page ground
 const M_RED    = '#d72027'
 const M_BLUE   = '#1d4ed8'
 const M_YELLOW = '#fcc60b'
-const M_WHITE  = '#ffffff'
+const M_WHITE  = '#f6f3ea'   // painted white — warm, never pure
+const M_W      = ['#faf7ef', '#f1eee3', '#f6f3ea', '#edeadf'] // broken whites, one per plane
 const M_DISPLAY = 'Archivo Black, sans-serif'
 const M_SANS    = 'Space Grotesk, sans-serif'
 const M_MONO    = 'Space Mono, monospace'
 ```
+
+Every desktop page renders as a full-bleed painting (see THEMES.md "Mondriaan
+Home Painting" and "Painted subpages"): SVG turbulence filters wobble every
+plane edge, brush-streak masks add directional paint, and a fixed grain +
+linen overlay covers the whole edition. Home is a single viewport-filling
+canvas with no footer; the other pages stack `MPaintedHeader` and an
+`MSectionCanvas` composition. The painted `MFooter` renders only on the
+contact page. Mobile keeps the classic bordered layouts.
 
 ## PR Workflow
 - Always check PR state before pushing (`gh pr list --state open`)

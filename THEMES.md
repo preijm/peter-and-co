@@ -273,51 +273,181 @@ declaration overrides `animation-play-state` and every plane animates at once.
 Only the photographs live in the repo, because they are page furniture rather than
 content — see [footage/README.md](footage/README.md).
 
-### Mondriaan Home Grid (v1)
+### Mondriaan Home Painting (v1)
+
+The home page is one **full-bleed painting** — no 1280px container, no separate
+header, and **no footer**: the canvas is the whole viewport (`minHeight: 100vh`
+with the hero row flexible, so the painting stretches rather than leaving linen
+below). Logo, nav and the edition switch are painted tiles inside the
+composition (`MHomePainting`, via the shared `MHeaderTiles` fragment).
+The right-hand column bleeds off the top and right edges with no black line,
+like the unbounded planes on the real canvases (via `marginTop: -M_PLINE` and
+the container's right padding being 0).
+
 ```
-gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 0.7fr) minmax(0, 0.5fr) 80px'
-gridTemplateRows:    '480px 70px 110px 90px'
-gap / border:        M_LINE = 6px solid #0a0a0a
+gridTemplateColumns: M_COLS = '98px 170px minmax(220px, 1fr) 76px 110px 110px 110px 110px 124px'
+gridTemplateRows:    '104px minmax(360px, 1fr) 82px 162px 122px'
+gap / outer padding: M_PLINE = 10px on background M_INK
 ```
 
-Cell layout:
+Cell layout (cols 1–9):
 | Area | Column | Row | Content |
 |------|--------|-----|---------|
-| Hero text | 1 / 4 | 1 | White — headline copy |
-| Red accent | 4 | 1 | Solid red |
-| Work label | 1 / 4 | 2 | White — "Selected Work" label |
-| Yellow accent | 4 | 2 | Solid yellow |
-| Project 1 (red) | 1 | 3 / 5 | Tall red card |
-| Black square | 2 | 3 | Solid black |
-| Project 2 (blue) | 3 | 3 | Blue card |
-| Project 3 (yellow) compact | 2 / 4 | 4 | Wide yellow compact card |
-| White block | 4 | 3 / 5 | Solid white |
+| Logo "P" tile | 1 | 1 | Red — navigates home |
+| Peter / & Co. stack | 2 | 1 | White + yellow tiles |
+| White plane | 3 / 5 | 1 | Empty broken white |
+| Nav tiles | 5–8 | 1 | work · tools · about · contact |
+| Edition tile | 9 | 1 | Red block, bleeds top+right |
+| Red column | 9 | 2 | Bleeds right, beside the hero |
+| Hero | 1 / 9 | 2 | Headline on warmest white |
+| Work label | 1 / 6 | 3 | "Selected Work · NN / NN" |
+| Project 2 (blue) | 6 / 9 | 3 / 5 | Blue card |
+| Yellow accent | 9 | 3 | Bleeds right |
+| Project 1 (red) | 1 / 4 | 4 / 6 | Tall red card |
+| Black square | 4 / 6 | 4 | Wikipedia easter egg |
+| Project 3 (yellow) compact | 4 / 9 | 5 | Wide compact card |
+| White block | 9 | 4 / 6 | Bleeds right |
+
+### Painterly System
+Nothing on the home canvas is pixel-perfect — it must read as a painting, not
+a diagram. The machinery lives in the mondriaan blob:
+
+- **`MPaintDefs`** — hidden SVG filter bank: three turbulence-displacement
+  filters (`m-wob-a/b/c`, different seeds so adjacent planes never wander in
+  sync), two brush-streak masks (`m-str-h/v`), and canvas grain (`m-grain`).
+  Filter regions are proportional (`-15% … 130%`), **never** a big fixed
+  `userSpaceOnUse` box — a fixed region sized for the hero allocates the same
+  huge buffer on every small tile and can wedge software rasterization.
+- **`MPlane`** — every plane's colour is an absolute layer displaced by a
+  wobble filter, so edges wander into the 10px black gaps and the grid reads
+  as hand-ruled lines. A nested streak layer (shade from `M_STREAK`) adds
+  directional brushwork. Content sits on top, crisp — type is printed over the
+  painting, never painted.
+- **`MPaintOverlay`** — fixed grain + linen weave over the whole edition
+  (z 50, under the Editions modal at z 1000), on every page.
+- Whites are **broken whites** (`M_W`), one tint per plane; `M_WHITE` itself is
+  warm (`#f6f3ea`) so text on colored planes and the subpages match.
+
+### Painted subpages
+Every desktop page is a painting, not just home. The shared pieces:
+
+- **`MPaintedHeader`** — the `MHeaderTiles` band (grid on `M_COLS`, 104px row)
+  on every page except home. Mobile keeps the classic bordered `MHeader`.
+- **Every header tile is a block**, the edition switch included
+  (`MEditionTile`): it is nav-sized in the last column, bleeding off the right
+  edge only — it keeps a painted line above it like every other tile — painted
+  standing rather than on hover (it is the one control that leaves the
+  edition) and lightening a shade when hovered. It is **blue** —
+  red already carries the logo, the home hero's right-hand column and the
+  first project card. On home a red plane below it carries that column down
+  beside the hero, so the right edge stacks blue / red / yellow / white.
+- **Nothing sits under the edition tile in its own colour.** Work's count
+  plane is ink rather than blue for exactly this reason; Tools' total stays
+  red. Balance each plane against its neighbours rather than assigning one
+  colour per kind of content.
+- **Nav hover colours are `M_RED` / `M_YELLOW` / `M_BLUE` / `M_INK`** — contact
+  takes ink, because a white hover on a paper tile is no hover at all.
+- **`MSectionCanvas`** — a full-bleed painted grid for page content. Its top
+  padding is 0: the header band's bottom padding supplies the shared 10px line,
+  so stacking them never doubles it.
+- **Work** is a painted table — `MWorkRow` renders six planes per project that
+  share hover state (the row lifts together, the arrow tile repaints yellow).
+  Accent number tiles rotate red → blue → yellow → ink.
+- **Tools / About / Contact / Project detail** rebuild their old compositions
+  as planes: same content, painted surfaces; the contact form is defined once
+  and shared between the desktop plane and the mobile card.
+- **About's lower field carries no copy on purpose.** Six blocks — paper, a
+  narrow red bar, yellow, a narrow ink bar — divide the space under the
+  statement into a rhythm. A Mondriaan canvas is mostly empty rectangles, so
+  the answer to a large blank area in this edition is more divisions, not more
+  words. Its row sizes and headline clamp are tuned so the whole composition,
+  blue statement band included, lands inside a 1440×900 viewport.
+- **Those six blocks are the only ones a reader may repaint** (`M_ABOUT_FIELD`,
+  `M_REPAINT`). Clicking one strokes it to the next colour — red, yellow,
+  blue, ink, then back to where it started on the fifth click — so the
+  composition can be rearranged the way Mondriaan rearranged the coloured
+  cards on his studio wall. They earn the interaction by being the only planes
+  on the site with **no other job**: everywhere else a click already navigates,
+  and a canvas where some blocks go somewhere and others change colour teaches
+  the reader nothing. Nothing is hidden behind them, so a reader who never
+  clicks still sees the intended painting. They are real `<button>`s with an
+  `aria-label`, and remounting on the stroke count is what replays the paint —
+  a repaint arrives from a rotating side with no delay, while the first paint
+  keeps its place in the page's sequence.
+- **Form controls are painted too** (`MPaintField`, `MPaintButton`): a wobbled
+  ink slab is the frame with a 7px-inset paper plane on top of it — the two
+  wobble on different seeds, so the border's thickness varies down its length
+  like a brushed line — and the real `input`/`textarea` rides on top with no
+  border or background of its own (focus repaints the inner plane yellow).
+  The submit button is an offset ink slab plus a red face, both wobbled, so
+  its "shadow" reads as a second brushstroke rather than a drop shadow.
+  Mobile keeps the flat bordered controls.
+- **`MFooter`** is a full-bleed painted band (©-plane + red github, blue
+  linkedin, yellow email tiles) rendered **only on the contact page** — its
+  job is "reach me", so every other page ends where its painting ends. Mobile
+  keeps the bordered footer, same rule.
+- **A page that fills exactly one screen subtracts its chrome**: `M_HEAD_H`
+  (124) always, plus `M_FOOT_H` (116) on contact, which is the only page
+  carrying the footer. Contact sizes itself to
+  `calc(100vh - M_HEAD_H - M_FOOT_H)` so the footer band lands in view without
+  scrolling; About subtracts the header alone.
+- Vertical lines between the header band and a page's own grid do **not**
+  align — rows with different divisions are the authentic Mondriaan move, not
+  a bug to fix.
 
 ### Paint-In Animation
-When the home page mounts, each block sweeps in using CSS `clip-path` animations — the feeling of fresh paint being applied.
+When a page mounts, each block sweeps in using CSS `clip-path` animations — the feeling of fresh paint being applied.
 
-Keyframes (global CSS):
-```css
-@keyframes m-paint-r { from{clip-path:inset(0 100% 0 0)} to{clip-path:inset(0 0 0 0)} }
-@keyframes m-paint-d { from{clip-path:inset(0 0 100% 0)} to{clip-path:inset(0 0 0 0)} }
-@keyframes m-paint-u { from{clip-path:inset(100% 0 0 0)} to{clip-path:inset(0 0 0 0)} }
-@keyframes m-paint-l { from{clip-path:inset(0 0 0 100%)} to{clip-path:inset(0 0 0 0)} }
-```
+**The leading edge is a ragged polygon, not a straight `inset`.** Each keyframe
+is an 18-point polygon: two fixed corners plus **sixteen** points down the
+advancing edge, whose targets differ by up to ~4.5%, so the points arrive at
+different times and the edge stays notched all the way across. A straight inset
+wipe reads as a shutter or a flip; this reads as a loaded brush laying colour
+down. Three things were tuned by eye and all of them matter:
+
+- **Point count.** Sixteen is the floor. With five or six the notches are far
+  enough apart to read as one big chevron; with ten it is legible only if you
+  already know to look for it.
+- **Depth.** ~4.5% of the plane. At 7–9% the edge stops reading as a brush and
+  starts reading as torn paper.
+- **Irregularity.** Targets must not alternate deep/shallow evenly or the edge
+  becomes a uniform sawtooth. Runs of similar values give it a hand.
+
+Every `to` value clears 100% (e.g. `100.5%`–`105%`), so the plane ends fully
+revealed and nothing snaps when `backwards` fill hands the element back
+unclipped. A `to` value **below** 100% would leave a permanent sliver cut out
+of that edge.
+
+**Planes are painted one at a time.** `mPnt(dir, order, dur?)` takes a position
+in the paint order, not a millisecond delay, so the sequence reads in the
+markup and the whole cascade retunes from two constants: `M_STEP` (420ms,
+the gap between one plane's stroke and the next) and `M_DUR` (560ms, one
+stroke). `M_STEP` is deliberately close to `M_DUR` — a plane has all but
+finished before the next begins, so the eye follows a single brush around the
+canvas rather than watching the page assemble itself at once. The shared
+header band takes an `order` prop for where it starts: home paints its hero
+first and passes `order={1}`; every other page lets it default to 0 and starts
+its own content at 2.9.
 
 Rules:
-- Default duration: ~900ms per block
-- Easing: `cubic-bezier(0.25, 0.46, 0.45, 0.94)`
-- Blocks are staggered with `animationDelay`; last block lands around 2.2s
+- Easing: `cubic-bezier(0.22, 0.61, 0.36, 1)` — a stroke decelerates into place
+- Home's last plane lands around 3.5s; subpages a little later
 - **No flash or sheen after** — blocks settle cleanly with no outro effect
-- No brush texture overlay — plain flat colour only
+- **`animation-fill-mode` must be `backwards`, never `both`** — the keyframes
+  end past 100%, and holding that after the animation clips the wobbled plane
+  edges (`mPnt` does this right)
 
 ### Mondriaan Colours
 ```js
 M_RED    = '#d72027'
 M_BLUE   = '#1d4ed8'
 M_YELLOW = '#fcc60b'
-M_BLACK  = '#0a0a0a'
-M_WHITE  = '#ffffff'
+M_BLACK  = '#0a0a0a'   // text + subpage borders
+M_WHITE  = '#f6f3ea'   // painted white — warm, never pure
+M_INK    = '#141210'   // painted line black (home canvas + theme border token)
+M_LINEN  = '#efece3'   // raw-canvas page ground
+M_W      = ['#faf7ef', '#f1eee3', '#f6f3ea', '#edeadf']  // broken whites
+M_PLINE  = 10          // painted line width (home); M_LINE = 6 stays on subpages
 ```
 
 ### Typography
