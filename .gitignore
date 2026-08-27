@@ -16,6 +16,10 @@ dist/
 
 # Internal reference files
 _intern/
+# Design canvases: the .dc.html artboards an edition was drafted from, and the
+# ~2MB seeded canvas each is published as. Scratch inputs, not site code — the
+# shipped edition is the deliverable and the canvas lives on as its Artifact.
+design/
 # Footage: only the encoded file the manifest names is ever deployed — build.js copies
 # nothing else — so the repo carries the .webp and none of the inputs behind it. HEIC
 # originals belong in OneDrive; the .jpg/.png are intermediates `npm run footage`
