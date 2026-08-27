@@ -2269,14 +2269,17 @@ function MNavTile({ id, color, wob, active, delay, onNavigate, style }) {
   );
 }
 
-// The edition switch is a nav-sized block like its neighbours, but painted red
+// The edition switch is a nav-sized block like its neighbours, but painted
 // standing rather than on hover: it is the one control that leaves the edition,
-// so it reads as the canvas's signature block. Hover lifts it a shade.
+// so it reads as the canvas's signature block. Blue, not red — red already
+// carries the logo, the column directly beneath it and the first project card,
+// and a blue corner over that red column is the better balance. Hover lifts it
+// a shade.
 function MEditionTile({ delay, style }) {
   const { openEditions } = useTheme();
   const [h, setH] = React.useState(false);
   return (
-    <MPlane as="button" fill={h ? M_STREAK[M_RED] : M_RED} dir="v" wob="c"
+    <MPlane as="button" fill={h ? M_STREAK[M_BLUE] : M_BLUE} dir="v" wob="c"
       onClick={openEditions}
       onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
       style={{ cursor: 'pointer', ...mPnt('d', delay, 450), ...style }}
@@ -3054,7 +3057,9 @@ function MWorkTable({ onSelect }) {
           <MLabel color={M_INK} size="11px">Every project</MLabel>
           <h1 style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(40px, 4.6vw, 72px)', color: M_INK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase' }}>Work.</h1>
         </MPlane>
-        <MPlane fill={M_BLUE} dir="v" wob="c"
+        {/* Ink, not blue: this plane sits directly under the blue edition tile,
+            and two blues stacked read as one column */}
+        <MPlane fill={M_INK} dir="v" wob="c"
           style={{ gridColumn: '5 / 7', gridRow: '1', ...mPnt('d', 200, 600) }}
           contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '22px 32px' }}>
           <MLabel color={M_W[0]}>Count</MLabel>

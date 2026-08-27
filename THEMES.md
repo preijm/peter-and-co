@@ -315,9 +315,15 @@ Every desktop page is a painting, not just home. The shared pieces:
   on every page except home. Mobile keeps the classic bordered `MHeader`.
 - **Every header tile is a block**, the edition switch included
   (`MEditionTile`): it is nav-sized in the last column, bleeding off the top
-  and right, painted red standing rather than on hover (it is the one control
-  that leaves the edition) and lightening a shade when hovered. On home a
-  separate red plane carries that colour down beside the hero.
+  and right, painted standing rather than on hover (it is the one control that
+  leaves the edition) and lightening a shade when hovered. It is **blue** —
+  red already carries the logo, the home hero's right-hand column and the
+  first project card. On home a red plane below it carries that column down
+  beside the hero, so the right edge stacks blue / red / yellow / white.
+- **Nothing sits under the edition tile in its own colour.** Work's count
+  plane is ink rather than blue for exactly this reason; Tools' total stays
+  red. Balance each plane against its neighbours rather than assigning one
+  colour per kind of content.
 - **Nav hover colours are `M_RED` / `M_YELLOW` / `M_BLUE` / `M_INK`** — contact
   takes ink, because a white hover on a paper tile is no hover at all.
 - **`MSectionCanvas`** — a full-bleed painted grid for page content. Its top
