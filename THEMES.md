@@ -322,6 +322,14 @@ Every desktop page is a painting, not just home. The shared pieces:
 - **Tools / About / Contact / Project detail** rebuild their old compositions
   as planes: same content, painted surfaces; the contact form is defined once
   and shared between the desktop plane and the mobile card.
+- **Form controls are painted too** (`MPaintField`, `MPaintButton`): a wobbled
+  ink slab is the frame with a 7px-inset paper plane on top of it — the two
+  wobble on different seeds, so the border's thickness varies down its length
+  like a brushed line — and the real `input`/`textarea` rides on top with no
+  border or background of its own (focus repaints the inner plane yellow).
+  The submit button is an offset ink slab plus a red face, both wobbled, so
+  its "shadow" reads as a second brushstroke rather than a drop shadow.
+  Mobile keeps the flat bordered controls.
 - **`MFooter`** is a full-bleed painted band (©-plane + red github, blue
   linkedin, yellow email tiles) rendered **only on the contact page** — its
   job is "reach me", so every other page ends where its painting ends. Mobile
