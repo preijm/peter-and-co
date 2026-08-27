@@ -253,25 +253,57 @@ declaration overrides `animation-play-state` and every plane animates at once.
 Only the photographs live in the repo, because they are page furniture rather than
 content — see [footage/README.md](footage/README.md).
 
-### Mondriaan Home Grid (v1)
+### Mondriaan Home Painting (v1)
+
+The home page is one **full-bleed painting** — no 1280px container, no separate
+header. Logo, nav and the edition switch are painted tiles inside the
+composition (`MHomePainting`); `MHeader` renders on every page *except* home.
+The right-hand column bleeds off the top and right edges with no black line,
+like the unbounded planes on the real canvases (via `marginTop: -M_PLINE` and
+the container's right padding being 0).
+
 ```
-gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 0.7fr) minmax(0, 0.5fr) 80px'
-gridTemplateRows:    '480px 70px 110px 90px'
-gap / border:        M_LINE = 6px solid #0a0a0a
+gridTemplateColumns: '98px 176px minmax(280px, 1fr) 90px 120px 120px 120px 120px 128px'
+gridTemplateRows:    '104px 520px 82px 162px 122px'
+gap / outer padding: M_PLINE = 10px on background M_INK
 ```
 
-Cell layout:
+Cell layout (cols 1–9):
 | Area | Column | Row | Content |
 |------|--------|-----|---------|
-| Hero text | 1 / 4 | 1 | White — headline copy |
-| Red accent | 4 | 1 | Solid red |
-| Work label | 1 / 4 | 2 | White — "Selected Work" label |
-| Yellow accent | 4 | 2 | Solid yellow |
-| Project 1 (red) | 1 | 3 / 5 | Tall red card |
-| Black square | 2 | 3 | Solid black |
-| Project 2 (blue) | 3 | 3 | Blue card |
-| Project 3 (yellow) compact | 2 / 4 | 4 | Wide yellow compact card |
-| White block | 4 | 3 / 5 | Solid white |
+| Logo "P" tile | 1 | 1 | Red — navigates home |
+| Peter / & Co. stack | 2 | 1 | White + yellow tiles |
+| White plane | 3 / 5 | 1 | Empty broken white |
+| Nav tiles | 5–8 | 1 | work · tools · about · contact |
+| Red column | 9 | 1 / 3 | Bleeds top+right; carries EDITION |
+| Hero | 1 / 9 | 2 | Headline on warmest white |
+| Work label | 1 / 6 | 3 | "Selected Work · NN / NN" |
+| Project 2 (blue) | 6 / 9 | 3 / 5 | Blue card |
+| Yellow accent | 9 | 3 | Bleeds right |
+| Project 1 (red) | 1 / 4 | 4 / 6 | Tall red card |
+| Black square | 4 / 6 | 4 | Wikipedia easter egg |
+| Project 3 (yellow) compact | 4 / 9 | 5 | Wide compact card |
+| White block | 9 | 4 / 6 | Bleeds right |
+
+### Painterly System
+Nothing on the home canvas is pixel-perfect — it must read as a painting, not
+a diagram. The machinery lives in the mondriaan blob:
+
+- **`MPaintDefs`** — hidden SVG filter bank: three turbulence-displacement
+  filters (`m-wob-a/b/c`, different seeds so adjacent planes never wander in
+  sync), two brush-streak masks (`m-str-h/v`), and canvas grain (`m-grain`).
+  Filter regions are proportional (`-15% … 130%`), **never** a big fixed
+  `userSpaceOnUse` box — a fixed region sized for the hero allocates the same
+  huge buffer on every small tile and can wedge software rasterization.
+- **`MPlane`** — every plane's colour is an absolute layer displaced by a
+  wobble filter, so edges wander into the 10px black gaps and the grid reads
+  as hand-ruled lines. A nested streak layer (shade from `M_STREAK`) adds
+  directional brushwork. Content sits on top, crisp — type is printed over the
+  painting, never painted.
+- **`MPaintOverlay`** — fixed grain + linen weave over the whole edition
+  (z 50, under the Editions modal at z 1000), on every page.
+- Whites are **broken whites** (`M_W`), one tint per plane; `M_WHITE` itself is
+  warm (`#f6f3ea`) so text on colored planes and the subpages match.
 
 ### Paint-In Animation
 When the home page mounts, each block sweeps in using CSS `clip-path` animations — the feeling of fresh paint being applied.
@@ -289,15 +321,21 @@ Rules:
 - Easing: `cubic-bezier(0.25, 0.46, 0.45, 0.94)`
 - Blocks are staggered with `animationDelay`; last block lands around 2.2s
 - **No flash or sheen after** — blocks settle cleanly with no outro effect
-- No brush texture overlay — plain flat colour only
+- **`animation-fill-mode` must be `backwards`, never `both`** — the keyframes
+  end on `clip-path: inset(0)`, and holding that after the animation clips the
+  wobbled plane edges back to straight rectangles (`mPnt` does this right)
 
 ### Mondriaan Colours
 ```js
 M_RED    = '#d72027'
 M_BLUE   = '#1d4ed8'
 M_YELLOW = '#fcc60b'
-M_BLACK  = '#0a0a0a'
-M_WHITE  = '#ffffff'
+M_BLACK  = '#0a0a0a'   // text + subpage borders
+M_WHITE  = '#f6f3ea'   // painted white — warm, never pure
+M_INK    = '#141210'   // painted line black (home canvas + theme border token)
+M_LINEN  = '#efece3'   // raw-canvas page ground
+M_W      = ['#faf7ef', '#f1eee3', '#f6f3ea', '#edeadf']  // broken whites
+M_PLINE  = 10          // painted line width (home); M_LINE = 6 stays on subpages
 ```
 
 ### Typography

@@ -270,24 +270,24 @@ const THEMES = [
     },
     googleFonts: 'https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap',
     colors: {
-      bg:          '#ffffff',
-      bgDark:      '#ffffff',
-      bgInput:     '#ffffff',
-      surface:     '#ffffff',
-      border:      '#0a0a0a',
-      borderSubtle:'#0a0a0a',
-      text:        '#0a0a0a',
+      bg:          '#f6f3ea',
+      bgDark:      '#f1eee3',
+      bgInput:     '#faf7ef',
+      surface:     '#faf7ef',
+      border:      '#141210',
+      borderSubtle:'#141210',
+      text:        '#141210',
       textMuted:   '#1a1a1a',
       textDim:     '#3a3a3a',
       textFaint:   '#5a5a5a',
       textGhost:   '#8a8a8a',
       btnBg:       '#d72027',
-      btnText:     '#ffffff',
+      btnText:     '#f6f3ea',
       red:    '#d72027',
       blue:   '#1d4ed8',
       yellow: '#fcc60b',
-      black:  '#0a0a0a',
-      white:  '#ffffff',
+      black:  '#141210',
+      white:  '#f6f3ea',
     },
   },
   {
@@ -548,10 +548,10 @@ function ThemeSwatch({ themeId }) {
     </div>
   );
   return (
-    <div style={{ width:'100%', aspectRatio:'16/9', background:'#0a0a0a', display:'grid', gap:'3px', gridTemplateColumns:'2fr 1fr 0.8fr', gridTemplateRows:'3fr 2fr', overflow:'hidden' }}>
-      <div style={{ background:'#ffffff', gridColumn:'1', gridRow:'1/3' }} />
+    <div style={{ width:'100%', aspectRatio:'16/9', background:'#141210', display:'grid', gap:'3px', gridTemplateColumns:'2fr 1fr 0.8fr', gridTemplateRows:'3fr 2fr', overflow:'hidden' }}>
+      <div style={{ background:'#faf7ef', gridColumn:'1', gridRow:'1/3' }} />
       <div style={{ background:'#d72027', gridColumn:'2', gridRow:'1' }} />
-      <div style={{ background:'#ffffff', gridColumn:'3', gridRow:'1' }} />
+      <div style={{ background:'#f1eee3', gridColumn:'3', gridRow:'1' }} />
       <div style={{ background:'#fcc60b', gridColumn:'2', gridRow:'2' }} />
       <div style={{ background:'#1d4ed8', gridColumn:'3', gridRow:'2' }} />
     </div>
@@ -2037,8 +2037,17 @@ const M_RED    = '#d72027';
 const M_BLUE   = '#1d4ed8';
 const M_YELLOW = '#fcc60b';
 const M_BLACK  = '#0a0a0a';
-const M_WHITE  = '#ffffff';
+const M_WHITE  = '#f6f3ea';  // painted white — warm, never pure
 const M_LINE   = 6;
+
+// Painterly system. The home page renders as one hand-painted canvas: every
+// plane is displaced by a turbulence filter so no edge is ruler-straight, and
+// a second layer masked to directional streaks adds brushwork. M_W gives each
+// white plane its own broken white — a real Mondriaan never repeats one white.
+const M_INK   = '#141210';                                     // painted line black, warmer than M_BLACK
+const M_LINEN = '#efece3';                                     // raw-canvas page ground behind the sections
+const M_W     = ['#faf7ef', '#f1eee3', '#f6f3ea', '#edeadf'];  // broken whites, one per plane
+const M_PLINE = 10;                                            // painted line width — wobble needs room; M_LINE stays for subpages
 
 const M_DISPLAY = "'Archivo Black', 'Helvetica Neue', sans-serif";
 const M_SANS    = "'Space Grotesk', 'Helvetica Neue', sans-serif";
@@ -2051,6 +2060,87 @@ function MLabel({ children, color, size, style }) {
       textTransform: 'uppercase', color: color || M_BLACK, fontWeight: 700,
       ...style,
     }}>{children}</span>
+  );
+}
+
+// Streak shade per paint colour — the lighter (or darker) tone the brush layer
+// drags through the base coat.
+const M_STREAK = {
+  [M_RED]: '#e04046', [M_BLUE]: '#3563e0', [M_YELLOW]: '#ffd93d', [M_INK]: '#2c2822',
+  [M_W[0]]: '#fffef8', [M_W[1]]: '#f8f5ec', [M_W[2]]: '#fdfbf4', [M_W[3]]: '#f5f2e8',
+};
+
+// SVG filter bank for the painting. Three wobble variants (different seeds, so
+// adjacent planes never wander in sync), two brush-streak masks (horizontal /
+// vertical strokes), and the canvas grain. userSpaceOnUse regions are sized to
+// cover any plane on any desktop viewport.
+function MPaintDefs() {
+  // Regions are proportional (default objectBoundingBox units) so each filtered
+  // plane allocates a buffer near its own size — a fixed user-space region big
+  // enough for the hero would cost tens of MB on every small tile.
+  const wob = (id, seed, bf, scale) => (
+    <filter id={id} x="-15%" y="-15%" width="130%" height="130%">
+      <feTurbulence type="fractalNoise" baseFrequency={bf} numOctaves="4" seed={seed} result="n" />
+      <feDisplacementMap in="SourceGraphic" in2="n" scale={scale} xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  );
+  const str = (id, seed, bf) => (
+    <filter id={id} x="-15%" y="-15%" width="130%" height="130%">
+      <feTurbulence type="fractalNoise" baseFrequency={bf} numOctaves="4" seed={seed} result="n" />
+      <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0.45 0.45 0.45 0 -0.28" result="m" />
+      <feComposite in="SourceGraphic" in2="m" operator="in" />
+    </filter>
+  );
+  return (
+    <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
+      <defs>
+        {wob('m-wob-a', 3, '0.011 0.013', 7)}
+        {wob('m-wob-b', 11, '0.013 0.011', 7)}
+        {wob('m-wob-c', 27, '0.012 0.012', 8)}
+        {str('m-str-h', 7, '0.004 0.14')}
+        {str('m-str-v', 19, '0.14 0.004')}
+        <filter id="m-grain" x="0" y="0" width="100%" height="100%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="5" result="n" />
+          <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0.25 0.25 0.25 0 -0.28" result="m" />
+          <feComposite in="SourceGraphic" in2="m" operator="in" />
+        </filter>
+      </defs>
+    </svg>
+  );
+}
+
+// One painted plane. The colour lives on an absolute layer displaced by a
+// wobble filter, so its edges wander into the black gaps around the cell and
+// the grid reads as hand-ruled lines; the streak layer is nested inside so the
+// brushwork is displaced with it. `paint` takes extra marks (deliberate
+// swathes) that must share the plane's wobbled edges. Content sits on top,
+// crisp — the type is printed over the painting, not painted.
+function MPlane({ as, fill, dir, wob, paint, style, contentStyle, children, ...rest }) {
+  const Tag = as || 'div';
+  const reset = as ? { background: 'none', border: 'none', padding: 0, font: 'inherit', textAlign: 'inherit', color: 'inherit', textDecoration: 'none', display: 'block' } : null;
+  return (
+    <Tag style={{ ...reset, position: 'relative', ...style }} {...rest}>
+      <div style={{ position: 'absolute', inset: 0, background: fill, filter: `url(#m-wob-${wob || 'a'})` }}>
+        {M_STREAK[fill] && (
+          <div style={{ position: 'absolute', inset: 0, background: M_STREAK[fill], filter: `url(#m-str-${dir || 'h'})`, opacity: 0.5 }} />
+        )}
+        {paint}
+      </div>
+      <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', ...contentStyle }}>{children}</div>
+    </Tag>
+  );
+}
+
+// Canvas surface over the whole edition: grain speckle plus a linen weave.
+// Fixed and pointer-transparent; sits under the Editions modal.
+function MPaintOverlay() {
+  return (
+    <>
+      <svg style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 50 }} aria-hidden="true">
+        <rect x="0" y="0" width="100%" height="100%" fill="#4a4030" opacity="0.5" filter="url(#m-grain)" />
+      </svg>
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 50, mixBlendMode: 'multiply', opacity: 0.5, backgroundImage: 'repeating-linear-gradient(0deg, rgba(120,105,80,0.10) 0px, rgba(120,105,80,0.10) 1px, transparent 1px, transparent 3px), repeating-linear-gradient(90deg, rgba(120,105,80,0.10) 0px, rgba(120,105,80,0.10) 1px, transparent 1px, transparent 3px)' }} />
+    </>
   );
 }
 
@@ -2156,99 +2246,158 @@ function MHeader({ activePage, onNavigate }) {
   );
 }
 
-function MHomeComposition({ onNavigate, onSelect }) {
-  const ease = 'cubic-bezier(0.25,0.46,0.45,0.94)';
-  const pnt = (dir, delay, dur = 900) => ({
-    animation: `m-paint-${dir} ${dur}ms ${ease} ${delay}ms both`,
-  });
+// Paint-in timing. Fill mode is 'backwards', never 'both': the keyframes end on
+// clip-path inset(0), and holding that after the animation would clip the
+// wobbled plane edges back to straight rectangles.
+const M_EASE = 'cubic-bezier(0.25,0.46,0.45,0.94)';
+const mPnt = (dir, delay, dur = 900) => ({
+  animation: `m-paint-${dir} ${dur}ms ${M_EASE} ${delay}ms backwards`,
+});
 
+function MNavTile({ id, color, wob, active, delay, onNavigate, style }) {
+  const [h, setH] = React.useState(false);
+  const lit = active || h;
+  const fg = (color === M_YELLOW || color === M_W[3]) ? M_INK : M_W[0];
   return (
-    <div style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '24px' }}>
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 0.3fr) minmax(0, 0.9fr) 80px',
-        gridTemplateRows: '480px 70px 110px 90px',
-        gap: `${M_LINE}px`,
-        background: M_BLACK,
-        border: `${M_LINE}px solid ${M_BLACK}`,
-        position: 'relative',
-        overflow: 'hidden',
-      }}>
-        {/* RED accent top-right */}
-        <div style={{ background: M_RED, gridColumn: '4', gridRow: '1', ...pnt('d', 250, 650) }} />
-
-        {/* Hero text block — spans cols 1-3 */}
-        <div style={{ background: M_WHITE, gridColumn: '1 / 4', gridRow: '1', padding: '24px 40px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '20px', ...pnt('r', 0, 1000) }}>
-          <MLabel size="11px">Rotterdam, NL · Digital Studio</MLabel>
-          <h1 style={{
-            fontFamily: M_DISPLAY, fontSize: 'clamp(30px, 5.6vw, 88px)',
-            color: M_BLACK, lineHeight: 0.9, letterSpacing: '-0.04em', textTransform: 'uppercase', overflowWrap: 'break-word',
-          }}>
-            I build things.<br/>Sometimes<br/><span style={{ color: M_BLUE }}>they're useful.</span>
-          </h1>
-        </div>
-
-        {/* Selected work label — spans cols 1–2, ending at black square */}
-        <div style={{ background: M_WHITE, gridColumn: '1 / 3', gridRow: '2', padding: '0 40px', display: 'flex', alignItems: 'center', ...pnt('r', 880, 620) }}>
-          <MLabel>Selected Work · {String(PROJECTS.filter(p => p.featured).length).padStart(2,'0')} / {String(PROJECTS.length).padStart(2,'0')} projects</MLabel>
-        </div>
-        <div style={{ background: M_YELLOW, gridColumn: '4', gridRow: '2', ...pnt('d', 960, 500) }} />
-
-        {/* Project cards */}
-        <div style={{ gridColumn: '1', gridRow: '3 / 5', display: 'flex', ...pnt('u', 1200, 750) }}>
-          <MMiniProjectCard project={PROJECTS.filter(p => p.featured)[0]} index={0} onClick={() => onSelect(PROJECTS.filter(p => p.featured)[0])} />
-        </div>
-        <a href="https://en.wikipedia.org/wiki/Piet_Mondrian" target="_blank" rel="noopener noreferrer" style={{ background: M_BLACK, gridColumn: '2', gridRow: '3', display: 'block', cursor: 'pointer', ...pnt('d', 1280, 500) }} />
-        <div style={{ gridColumn: '3', gridRow: '2 / 4', display: 'flex', ...pnt('u', 1380, 680) }}>
-          <MMiniProjectCard project={PROJECTS.filter(p => p.featured)[1]} index={1} onClick={() => onSelect(PROJECTS.filter(p => p.featured)[1])} />
-        </div>
-        <div style={{ gridColumn: '2 / 4', gridRow: '4', display: 'flex', ...pnt('r', 1520, 620) }}>
-          <MMiniProjectCard project={PROJECTS.filter(p => p.featured)[2]} index={2} compact onClick={() => onSelect(PROJECTS.filter(p => p.featured)[2])} />
-        </div>
-        <div style={{ background: M_WHITE, gridColumn: '4', gridRow: '3 / 5', ...pnt('l', 1560, 600) }} />
-      </div>
-    </div>
+    <MPlane as="button" fill={lit ? color : M_W[2]} dir="v" wob={wob}
+      onClick={() => onNavigate(id)}
+      onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
+      style={{ cursor: 'pointer', ...mPnt('d', delay, 450), ...style }}
+      contentStyle={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <span style={{ fontFamily: M_SANS, fontWeight: 700, fontSize: '13px', letterSpacing: '0.08em', textTransform: 'uppercase', color: lit ? fg : M_INK }}>{id}</span>
+    </MPlane>
   );
 }
 
-function MMiniProjectCard({ project, index, onClick, compact }) {
+function MPaintCard({ project, index, fill, dir, wob, compact, onClick, style }) {
   if (!project) return null;
-  const colors = [M_RED, M_BLUE, M_YELLOW];
-  const fill = colors[index % colors.length];
-  const fg = fill === M_YELLOW ? M_BLACK : M_WHITE;
+  const fg = fill === M_YELLOW ? M_INK : M_W[0];
   const [h, setH] = React.useState(false);
+  const hover = {
+    onMouseEnter: () => setH(true), onMouseLeave: () => setH(false),
+    style: {
+      cursor: 'pointer', transition: 'transform 200ms cubic-bezier(.2,.8,.2,1)',
+      transform: h ? 'translateY(-4px)' : 'none', ...style,
+    },
+  };
   if (compact) {
     return (
-      <div onClick={onClick} onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)} style={{
-        background: fill, cursor: 'pointer',
-        display: 'flex', flexDirection: 'row', alignItems: 'center', padding: '0 22px',
-        gap: '20px', width: '100%', flex: 1, overflow: 'hidden',
-        transition: 'transform 200ms cubic-bezier(.2,.8,.2,1)',
-        transform: h ? 'translateY(-4px)' : 'none',
-      }}>
-        <span style={{ fontFamily: M_DISPLAY, fontSize: '36px', color: fg, lineHeight: 1, letterSpacing: '-0.03em' }}>{String(index + 1).padStart(2, '0')}</span>
-        <h3 style={{ fontFamily: M_DISPLAY, fontSize: '22px', color: fg, letterSpacing: '-0.025em', lineHeight: 1, textTransform: 'uppercase', flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{project.title}</h3>
+      <MPlane fill={fill} dir={dir} wob={wob} onClick={onClick} {...hover}
+        contentStyle={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '24px', padding: '0 42px' }}>
+        <span style={{ fontFamily: M_DISPLAY, fontSize: '38px', color: fg, lineHeight: 1, letterSpacing: '-0.03em' }}>{String(index + 1).padStart(2, '0')}</span>
+        <h3 style={{ flex: 1, fontFamily: M_DISPLAY, fontSize: '24px', color: fg, letterSpacing: '-0.025em', lineHeight: 1, textTransform: 'uppercase', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{project.title}</h3>
         <MLabel color={fg} size="10px">{(project.tags[0] || 'project').toUpperCase()} →</MLabel>
-      </div>
+      </MPlane>
     );
   }
   return (
-    <div onClick={onClick} onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)} style={{
-      background: fill, cursor: 'pointer',
-      display: 'flex', flexDirection: 'column', padding: '20px 22px',
-      gap: '20px', justifyContent: 'space-between',
-      width: '100%', flex: 1, overflow: 'hidden',
-      transition: 'transform 200ms cubic-bezier(.2,.8,.2,1)',
-      transform: h ? 'translateY(-4px)' : 'none',
-    }}>
+    <MPlane fill={fill} dir={dir} wob={wob} onClick={onClick} {...hover}
+      contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '28px 38px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
         <span style={{ fontFamily: M_DISPLAY, fontSize: '44px', color: fg, lineHeight: 1, letterSpacing: '-0.03em' }}>{String(index + 1).padStart(2, '0')}</span>
         <MLabel color={fg} size="10px">{(project.tags[0] || 'project').toUpperCase()}</MLabel>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        <h3 style={{ fontFamily: M_DISPLAY, fontSize: '26px', color: fg, letterSpacing: '-0.025em', lineHeight: 0.95, textTransform: 'uppercase' }}>{project.title}</h3>
+        <h3 style={{ fontFamily: M_DISPLAY, fontSize: '30px', color: fg, letterSpacing: '-0.025em', lineHeight: 0.95, textTransform: 'uppercase' }}>{project.title}</h3>
         <div style={{ fontFamily: M_MONO, fontSize: '11px', color: fg, fontWeight: 700, letterSpacing: '0.04em', opacity: 0.85 }}>{project.url} →</div>
       </div>
+    </MPlane>
+  );
+}
+
+// The home page as one full-bleed painting. Logo, nav and the edition switch
+// are tiles inside the composition — there is no separate header on home. The
+// right-hand column bleeds off the top and right edges with no black line,
+// like the unbounded planes on the real canvases.
+function MHomePainting({ activePage, onNavigate, onSelect }) {
+  const { openEditions } = useTheme();
+  const feat = PROJECTS.filter(p => p.featured);
+  const navLinks = [
+    { id: 'work',    color: M_RED,   wob: 'b' },
+    { id: 'tools',   color: M_YELLOW, wob: 'c' },
+    { id: 'about',   color: M_BLUE,  wob: 'a' },
+    { id: 'contact', color: M_W[3],  wob: 'b' },
+  ];
+  return (
+    <div style={{
+      display: 'grid', width: '100%', boxSizing: 'border-box',
+      gridTemplateColumns: '98px 176px minmax(280px, 1fr) 90px 120px 120px 120px 120px 128px',
+      gridTemplateRows: '104px 520px 82px 162px 122px',
+      gap: `${M_PLINE}px`,
+      padding: `${M_PLINE}px 0 ${M_PLINE}px ${M_PLINE}px`,
+      background: M_INK, position: 'relative', overflow: 'hidden',
+    }}>
+      {/* Header band — logo and nav as painted tiles */}
+      <MPlane as="button" fill={M_RED} dir="v" wob="a" aria-label="Peter & Co."
+        onClick={() => onNavigate('home')}
+        style={{ gridColumn: '1', gridRow: '1', cursor: 'pointer', ...mPnt('d', 150, 450) }}
+        contentStyle={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ fontFamily: M_DISPLAY, fontSize: '54px', color: M_W[0], lineHeight: 1, paddingTop: 4 }}>P</span>
+      </MPlane>
+      <div style={{ gridColumn: '2', gridRow: '1', display: 'grid', gridTemplateRows: '1fr 1fr', gap: `${M_PLINE}px`, ...mPnt('r', 280, 500) }}>
+        <MPlane fill={M_W[0]} dir="h" wob="b" contentStyle={{ display: 'flex', alignItems: 'center', paddingLeft: 20 }}>
+          <span style={{ fontFamily: M_DISPLAY, fontSize: '20px', letterSpacing: '-0.02em', color: M_INK }}>Peter</span>
+        </MPlane>
+        <MPlane fill={M_YELLOW} dir="h" wob="c" contentStyle={{ display: 'flex', alignItems: 'center', paddingLeft: 20 }}>
+          <span style={{ fontFamily: M_SANS, fontWeight: 700, fontSize: '15px', letterSpacing: '0.02em', color: M_INK }}>&amp; Co.</span>
+        </MPlane>
+      </div>
+      <MPlane fill={M_W[1]} dir="v" wob="a" style={{ gridColumn: '3 / 5', gridRow: '1', ...mPnt('r', 380, 600) }} />
+      {navLinks.map((l, i) => (
+        <MNavTile key={l.id} {...l} active={activePage === l.id} delay={500 + i * 110} onNavigate={onNavigate}
+          style={{ gridColumn: `${5 + i}`, gridRow: '1' }} />
+      ))}
+
+      {/* Red column — bleeds off the top and right edge, carries the edition switch */}
+      <MPlane fill={M_RED} dir="v" wob="c"
+        style={{ gridColumn: '9', gridRow: '1 / 3', marginTop: -M_PLINE, ...mPnt('d', 250, 650) }}
+        paint={<div style={{ position: 'absolute', left: 16, top: 80, width: 28, bottom: 120, background: '#b8191f', filter: 'url(#m-str-v)', opacity: 0.5 }} />}>
+        <button onClick={openEditions} style={{
+          background: 'none', border: 'none', cursor: 'pointer', width: '100%',
+          padding: '46px 0 0', fontFamily: M_MONO, fontWeight: 700, fontSize: '11px',
+          letterSpacing: '0.16em', color: M_W[0],
+        }}>EDITION</button>
+      </MPlane>
+
+      {/* Hero plane */}
+      <MPlane fill={M_W[0]} dir="h" wob="a"
+        style={{ gridColumn: '1 / 9', gridRow: '2', ...mPnt('r', 0, 1000) }}
+        paint={<>
+          <div style={{ position: 'absolute', left: '8%', top: 190, width: '64%', height: 22, background: '#efe9da', filter: 'url(#m-str-h)', opacity: 0.5 }} />
+          <div style={{ position: 'absolute', left: '14%', bottom: 60, width: '48%', height: 18, background: '#fffdf4', filter: 'url(#m-str-h)', opacity: 0.6 }} />
+        </>}
+        contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '28px', padding: '24px 40px 24px 56px' }}>
+        <MLabel size="11px" color={M_INK}>Rotterdam, NL · Digital Studio</MLabel>
+        <h1 style={{
+          fontFamily: M_DISPLAY, fontSize: 'clamp(48px, 6.3vw, 112px)',
+          color: M_INK, lineHeight: 0.92, letterSpacing: '-0.04em', textTransform: 'uppercase', overflowWrap: 'break-word',
+        }}>
+          I build things.<br/>Sometimes<br/><span style={{ color: M_BLUE }}>they're useful.</span>
+        </h1>
+      </MPlane>
+
+      {/* Label band + right accents */}
+      <MPlane fill={M_W[2]} dir="h" wob="b"
+        style={{ gridColumn: '1 / 6', gridRow: '3', ...mPnt('r', 880, 620) }}
+        contentStyle={{ display: 'flex', alignItems: 'center', paddingLeft: 56 }}>
+        <MLabel color={M_INK}>Selected Work · {String(feat.length).padStart(2,'0')} / {String(PROJECTS.length).padStart(2,'0')} projects</MLabel>
+      </MPlane>
+      <MPlane fill={M_YELLOW} dir="h" wob="b" style={{ gridColumn: '9', gridRow: '3', ...mPnt('d', 960, 500) }} />
+
+      {/* Project cards */}
+      <MPaintCard project={feat[0]} index={0} fill={M_RED} dir="v" wob="c" onClick={() => onSelect(feat[0])}
+        style={{ gridColumn: '1 / 4', gridRow: '4 / 6', ...mPnt('u', 1200, 750) }} />
+      <MPlane as="a" href="https://en.wikipedia.org/wiki/Piet_Mondrian" target="_blank" rel="noopener noreferrer"
+        aria-label="Piet Mondriaan" fill={M_INK} dir="v" wob="a"
+        style={{ gridColumn: '4 / 6', gridRow: '4', cursor: 'pointer', ...mPnt('d', 1280, 500) }} />
+      <MPaintCard project={feat[1]} index={1} fill={M_BLUE} dir="h" wob="a" onClick={() => onSelect(feat[1])}
+        style={{ gridColumn: '6 / 9', gridRow: '3 / 5', ...mPnt('u', 1380, 680) }} />
+      <MPaintCard project={feat[2]} index={2} fill={M_YELLOW} dir="h" wob="c" compact onClick={() => onSelect(feat[2])}
+        style={{ gridColumn: '4 / 9', gridRow: '5', ...mPnt('r', 1520, 620) }} />
+      <MPlane fill={M_W[3]} dir="v" wob="b" style={{ gridColumn: '9', gridRow: '4 / 6', ...mPnt('l', 1560, 600) }} />
+
+      {/* Varnish — a breath of depth over the whole canvas */}
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 2, background: 'radial-gradient(120% 90% at 50% 40%, rgba(0,0,0,0) 55%, rgba(60,50,30,0.10) 100%)' }} />
     </div>
   );
 }
@@ -2728,11 +2877,14 @@ function MFooter() {
 }
 
 function MondriaanApp({ page, selectedProject, navigate, selectProject, activePage }) {
+  const isHome = page === 'home' && !selectedProject;
   return (
-    <div style={{ background: M_WHITE, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <MHeader activePage={activePage} onNavigate={navigate} />
+    <div style={{ background: M_LINEN, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <MPaintDefs />
+      {/* On home the painting carries its own header tiles */}
+      {!isHome && <MHeader activePage={activePage} onNavigate={navigate} />}
       <main style={{ flex: 1 }}>
-        {page === 'home' && !selectedProject && <MHomeComposition activePage={activePage} onNavigate={navigate} onSelect={selectProject} />}
+        {isHome && <MHomePainting activePage={activePage} onNavigate={navigate} onSelect={selectProject} />}
         {page === 'work' && !selectedProject && <MWorkTable onSelect={selectProject} />}
         {page === 'about'   && <MAbout />}
         {page === 'tools'   && <MTools />}
@@ -2740,6 +2892,7 @@ function MondriaanApp({ page, selectedProject, navigate, selectProject, activePa
         {page === 'project' && selectedProject && <MProjectDetail project={selectedProject} onBack={() => navigate('work')} />}
       </main>
       <MFooter />
+      <MPaintOverlay />
     </div>
   );
 }
@@ -4948,6 +5101,13 @@ function chStyles() {
     // and this edition does not have one anywhere.
     '.ch-row { transition: opacity 140ms ease; }',
     '.ch-row:hover { opacity: 0.55; }',
+
+    // NUDGE — the one looping animation here, and it earns the exception. The first
+    // sheet is exactly one viewport ending in a hard rule, so nothing bleeds past the
+    // fold and the composition reads as finished: the next section starts 90px BELOW
+    // the fold, which is to say invisibly. A closed poster needs to say it continues.
+    '@keyframes ch-nudge { 0%,100% { transform: translateY(0); opacity: 0.75; } 50% { transform: translateY(3px); opacity: 1; } }',
+    '.ch-nudge { animation: ch-nudge 2.4s ease-in-out infinite; }',
   ].join('\n');
   document.head.appendChild(st);
 }
@@ -5055,14 +5215,19 @@ function CHStatement({ children, size, maxWidth, nowrap, className }) {
   return <h1 className={className} style={st}>{children}</h1>;
 }
 
-function CHListings({ projects, mobile, onSelect }) {
+function CHListings({ projects, mobile, onSelect, onMore }) {
   const { theme } = useTheme();
   const list = projects.slice(0, 5);
   return (
     <div style={{ flexShrink: 0, paddingBottom: 'clamp(22px, 3vh, 34px)' }}>
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', paddingBottom: '10px' }}>
         <CHLabel>the listings</CHLabel>
-        <CHLabel>{String(list.length).padStart(2, '0')} entries · 2025&ndash;2026</CHLabel>
+        {!mobile && <CHLabel>{String(list.length).padStart(2, '0')} entries · 2025&ndash;2026</CHLabel>}
+        {/* A newspaper says "continued on page 4" for exactly this reason. */}
+        <button onClick={onMore} className="ch-row ch-nudge" style={{
+          background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+          fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_INK,
+        }}>continued &darr;</button>
       </div>
       <CHRule />
       <div style={{
@@ -5134,7 +5299,7 @@ function CHHero({ projects, mobile, onSelect, onTop, openEditions, onJump }) {
           </div>
         </div>
       </div>
-      <CHListings projects={projects} mobile={mobile} onSelect={onSelect} />
+      <CHListings projects={projects} mobile={mobile} onSelect={onSelect} onMore={() => onJump('ch-work')} />
     </CHSheet>
   );
 }
@@ -5305,7 +5470,7 @@ function CHColophon({ mobile }) {
   );
 }
 
-function CHProject({ project, projects, mobile, onSelect, onBack, openEditions }) {
+function CHProject({ project, projects, mobile, onSelect, onBack, openEditions, onJump }) {
   const { theme } = useTheme();
   const p = project;
   const accent = fitAccent(resolveAccent(p, theme.id), CH_PAPER) || CH_INK;
@@ -5316,6 +5481,13 @@ function CHProject({ project, projects, mobile, onSelect, onBack, openEditions }
   // can, and these were written as statements already, so the name drops to a masthead
   // line and the tagline takes the scale.
   const statement = p.tagline || p.description;
+  // Sanity puts the real pixel dimensions in the filename, so the plate's box can be
+  // reserved before the image loads. Without this the img has no height until it
+  // arrives: the whole project page measured 278px of scroll range, the "the plate"
+  // cue scrolled to a plate that was not there yet, and everything below jumped when
+  // it finally decoded. Falls back to 16/9, which is what every screenshot here is.
+  const plateDims = (p.screenshot || '').match(/-(\d+)x(\d+)\.[a-z]+/i);
+  const plateRatio = plateDims ? (plateDims[1] + ' / ' + plateDims[2]) : '16 / 9';
   const facts = [
     ['role', p.role || '—'],
     ['year', p.year || '—'],
@@ -5376,10 +5548,17 @@ function CHProject({ project, projects, mobile, onSelect, onBack, openEditions }
         <div style={{ flexShrink: 0, paddingBottom: 'clamp(22px, 3vh, 34px)' }}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', paddingBottom: '10px' }}>
             <CHLabel>the particulars</CHLabel>
-            <button onClick={() => onSelect(next)} className="ch-row" style={{
-              background: 'none', border: 'none', cursor: 'pointer', minHeight: '44px', padding: 0,
-              fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_MUTE, textAlign: 'right',
-            }}>next · {next.title.toLowerCase()} &rarr;</button>
+            {p.screenshot ? (
+              <button onClick={() => onJump('ch-plate')} className="ch-row ch-nudge" style={{
+                background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_INK, textAlign: 'right',
+              }}>the plate &darr;</button>
+            ) : (
+              <button onClick={() => onSelect(next)} className="ch-row" style={{
+                background: 'none', border: 'none', cursor: 'pointer', minHeight: '44px', padding: 0,
+                fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_MUTE, textAlign: 'right',
+              }}>next · {next.title.toLowerCase()} &rarr;</button>
+            )}
           </div>
           <CHRule />
           <div style={{
@@ -5411,15 +5590,19 @@ function CHProject({ project, projects, mobile, onSelect, onBack, openEditions }
           trade of the two. */}
       {p.screenshot ? (
         <CHSheet style={{ paddingTop: 'clamp(40px, 7vh, 90px)' }}>
+          <div id="ch-plate" />
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', paddingBottom: '10px' }}>
             <CHLabel>the plate</CHLabel>
-            <CHLabel>{p.url || ''}</CHLabel>
+            <button onClick={() => onSelect(next)} className="ch-row" style={{
+              background: 'none', border: 'none', cursor: 'pointer', minHeight: '44px', padding: 0,
+              fontFamily: CH_MONO, fontSize: '10px', letterSpacing: '0.14em', color: CH_MUTE, textAlign: 'right',
+            }}>next · {next.title.toLowerCase()} &rarr;</button>
           </div>
           <CHRule weight="1px" draw />
           {/* Sized through the CDN rather than shipping the 3840px original into a
               1448px slot — the plate is the heaviest thing this edition loads. */}
           <img className="ch-riser" src={typeof sanityImg === 'function' ? sanityImg(p.screenshot, 1600) : p.screenshot} alt={p.title} loading="lazy" decoding="async" style={{
-            width: '100%', height: 'auto', display: 'block', marginTop: '18px',
+            width: '100%', height: 'auto', aspectRatio: plateRatio, display: 'block', marginTop: '18px',
             border: '1px solid ' + CH_LINE, background: CH_SURFACE,
           }} />
         </CHSheet>
@@ -5447,7 +5630,7 @@ function ChalkApp({ selectedProject, navigate, selectProject }) {
   return (
     <div className="chalk-root" style={{ background: CH_PAPER, color: CH_INK, fontFamily: CH_MONO, minHeight: '100vh' }}>
       {selectedProject
-        ? <CHProject project={selectedProject} projects={projects} mobile={mobile} onSelect={selectProject} onBack={() => navigate('work')} openEditions={openEditions} />
+        ? <CHProject project={selectedProject} projects={projects} mobile={mobile} onSelect={selectProject} onBack={() => navigate('work')} openEditions={openEditions} onJump={onJump} />
         : (
           <React.Fragment>
             <CHHero projects={projects} mobile={mobile} onSelect={selectProject} onTop={onTop} openEditions={openEditions} onJump={onJump} />
