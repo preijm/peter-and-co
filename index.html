@@ -6039,34 +6039,62 @@ function BSWork({ projects, mobile, onSelect }) {
 }
 
 function BSBackground({ mobile }) {
-  const questions = [
-    'Which oat milk is actually best?',
-    'Why does that take a Reddit deep-dive?',
-    'Where is my money really sitting?',
-    'Why does seeing it cost a monthly fee?',
-    'And how many designs can one website be?',
+  // Was five questions in a ruled list, carried over from Prism. They were the same
+  // five on two editions, they said nothing about the person behind the work, and they
+  // left the sheet short.
+  //
+  // The site already had a proper background and this edition was not using it: the
+  // shared About page, in Peter's own words. So that is what this is now — his copy,
+  // labelled and ruled in Broadside's idiom, not a story written to fill a page.
+  const story = [
+    ['the route', 'Background in plant science. Ended up in data. Now doing product. None of it was planned, just curiosity pointing in the right direction.'],
+    ['the method', 'I explore ideas by building them. Curious about the tech, focused on the output. These projects are the random ideas that would not leave me alone.'],
+    ['off screen', 'Running roads, mountain biking trails, keeping plants alive, or tracking down rare draft beers one check-in at a time.'],
+    ['the point', 'Sometimes something useful comes out of it.'],
   ];
   return (
-    <BSSection page id="bs-background" label="background" meta="est. 2025" mobile={mobile}>
-      <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1.1fr 1fr', gap: mobile ? '32px' : '64px', alignItems: 'start' }}>
+    <BSSection page id="bs-background" label="background" meta="not a studio · just me" mobile={mobile}>
+      {/* stretch, not start: the columns have to be given the sheet's height before
+          anything inside them can be pushed to the foot of it. With alignItems start
+          both columns hugged the top and left 420px of paper under them. */}
+      <div style={{
+        display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1.05fr 1.2fr',
+        gap: mobile ? '32px' : '64px',
+        alignItems: mobile ? 'start' : 'stretch', flex: mobile ? undefined : 1,
+      }}>
         <div className="bs-riser" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <BSStatement size={mobile ? 'clamp(30px, 8vw, 40px)' : 'clamp(36px, 4vw, 60px)'} maxWidth="17ch">
-            Most of it starts because a question would not leave me alone.
+          <BSStatement size={mobile ? 'clamp(30px, 8vw, 40px)' : 'clamp(36px, 4.4vw, 66px)'} maxWidth="13ch">
+            Not a studio. Just me.
           </BSStatement>
           <span style={{ fontFamily: BS_MONO, fontSize: '11px', lineHeight: 1.9, color: BS_BODY, maxWidth: '46ch', textWrap: 'pretty' }}>
             I have wanted to build things for as long as I can remember. I just never wanted to learn to write the code. AI closed that gap, and I would rather ship something unfinished than get it right on paper.
           </span>
+          <span style={{ fontFamily: BS_MONO, fontSize: '10px', letterSpacing: '0.14em', color: BS_MUTE, marginTop: 'auto', paddingTop: '20px' }}>
+            peter reijm &middot; rotterdam, nl
+          </span>
         </div>
-        <div className="bs-riser" style={{ display: 'flex', flexDirection: 'column' }}>
-          {questions.map((q, i) => (
-            <div key={i} style={{
-              display: 'flex', gap: '16px', alignItems: 'baseline', padding: '14px 0',
-              borderBottom: i < questions.length - 1 ? '1px solid ' + BS_LINE : 'none',
+
+        {/* A label and a statement per entry, the same object the particulars use. The
+            numbers are gone with the questions: this is a life in four parts, not a list
+            of five things, and numbering it would make it a list again. */}
+        {/* space-between so the four parts spread down the sheet rather than stacking at
+            the top of it — the rules then divide the whole column, which is what this
+            edition does everywhere else. */}
+        <div className="bs-riser" style={{
+          display: 'flex', flexDirection: 'column',
+          justifyContent: mobile ? undefined : 'space-between',
+        }}>
+          {story.map((row, i) => (
+            <div key={row[0]} style={{
+              display: 'flex', flexDirection: 'column', gap: '8px',
+              padding: i === 0 ? '0 0 18px' : '18px 0',
+              borderBottom: i < story.length - 1 ? '1px solid ' + BS_LINE : 'none',
             }}>
-              <span style={{ fontFamily: BS_MONO, fontSize: '10px', letterSpacing: '0.1em', color: BS_MUTE, flexShrink: 0 }}>
-                {String(i + 1).padStart(2, '0')}
-              </span>
-              <span style={{ fontFamily: BS_DISPLAY, fontSize: mobile ? '19px' : '23px', lineHeight: 1.28, letterSpacing: '-0.015em', color: BS_INK, textWrap: 'pretty' }}>{q}</span>
+              <BSLabel>{row[0]}</BSLabel>
+              <span style={{
+                fontFamily: BS_DISPLAY, fontSize: mobile ? '18px' : 'clamp(18px, 1.5vw, 22px)',
+                lineHeight: 1.32, letterSpacing: '-0.015em', color: BS_INK, textWrap: 'pretty',
+              }}>{row[1]}</span>
             </div>
           ))}
         </div>
@@ -6115,28 +6143,20 @@ function BSContact({ mobile }) {
     ['github', 'https://github.com/preijm', true],
     ['linkedin', 'https://www.linkedin.com/in/peter-reijm-47165b5b/', true],
   ];
-  // The sheet held a statement, one line of prose and three buttons, and then 394px of
-  // nothing before the colophon — 37% of a 1058px screen. Every other sheet in this
-  // edition fills itself: work has five ruled rows, the kit three shelves, background
-  // two columns. This one had no second thing to say.
-  //
-  // These three facts are not invented for the space. Mondriaan's contact plane already
-  // states all three, so this is the same information in Broadside's own idiom rather
-  // than new claims written to fill a hole — and the two editions now agree.
-  const particulars = [
-    ['response time', 'Usually within a day or two.'],
-    ['open to', 'Side projects. Interesting ideas. Not for hire.'],
-    ['location', 'Rotterdam, the Netherlands.'],
-  ];
+  // This sheet had 394px of nothing under it. A facts grid was tried here and taken back
+  // out — it filled the space but it turned the one page whose whole job is "write to
+  // me" into a page of admin. The edition already has a way to fill a sheet, and it is
+  // the way the home sheet does it: put the type up. So the question is set at poster
+  // scale rather than propped up by a second block.
   return (
     <BSSection page id="bs-contact" label="contact" meta="open to a good problem" mobile={mobile}>
       <div className="bs-riser" style={{
         display: 'flex', flexDirection: 'column', gap: '22px', alignItems: 'flex-start',
-        // centred in the space above the particulars rather than stacked at the top,
-        // so what is left over is shared instead of all falling to the foot
+        // centred rather than stacked at the top, so the leftover is shared above and
+        // below instead of all falling to the foot
         flex: mobile ? undefined : 1, justifyContent: mobile ? undefined : 'center',
       }}>
-        <BSStatement size={mobile ? 'clamp(32px, 9vw, 46px)' : 'clamp(42px, 6.2vw, 104px)'} maxWidth="14ch">
+        <BSStatement size={mobile ? 'clamp(32px, 9vw, 46px)' : 'clamp(46px, 11vw, 190px)'} maxWidth="12ch">
           Got a problem worth building?
         </BSStatement>
         <span style={{ fontFamily: BS_MONO, fontSize: '11px', lineHeight: 1.9, color: BS_BODY, maxWidth: '44ch', textWrap: 'pretty' }}>
@@ -6145,34 +6165,6 @@ function BSContact({ mobile }) {
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '4px' }}>
           <BSButton primary href="mailto:peterreijm@live.nl">start a conversation &rarr;</BSButton>
           {links.map(l => <BSButton key={l[0]} href={l[1]} newTab={l[2]}>{l[0]}</BSButton>)}
-        </div>
-      </div>
-
-      {/* Same object as the project sheet's particulars: a label row, the heavy rule,
-          then the facts. Nothing new had to be invented to build it. */}
-      <div style={{ marginTop: mobile ? '40px' : 'auto', flexShrink: 0, paddingTop: mobile ? 0 : '24px' }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', paddingBottom: '10px' }}>
-          <BSLabel>the particulars</BSLabel>
-          <BSLabel>peterreijm@live.nl</BSLabel>
-        </div>
-        <BSRule draw />
-        <div style={{
-          display: 'grid', gap: mobile ? '0' : '18px', paddingTop: mobile ? '2px' : '14px',
-          gridTemplateColumns: mobile ? '1fr' : 'repeat(3, minmax(0, 1fr))',
-        }}>
-          {particulars.map((f, i) => (
-            <div key={f[0]} style={{
-              display: 'flex', flexDirection: 'column', gap: '6px',
-              padding: mobile ? '12px 0' : 0,
-              borderBottom: mobile && i < particulars.length - 1 ? '1px solid ' + BS_LINE : 'none',
-            }}>
-              <BSLabel>{f[0]}</BSLabel>
-              <span style={{
-                fontFamily: BS_DISPLAY, fontSize: mobile ? '17px' : '19px', lineHeight: 1.25,
-                letterSpacing: '-0.015em', color: BS_INK, textWrap: 'pretty',
-              }}>{f[1]}</span>
-            </div>
-          ))}
         </div>
       </div>
     </BSSection>
