@@ -6507,9 +6507,12 @@ function BSRule({ weight, draw }) {
   return <div className={draw ? 'bs-rule' : undefined} style={{ height: weight || '3px', background: BS_INK, width: '100%' }} />;
 }
 
-function BSButton({ children, onClick, href, newTab, primary }) {
+// `full` makes the button fill its cell instead of shrinking to its label, which is what
+// lets three buttons of different word lengths line up on a phone.
+function BSButton({ children, onClick, href, newTab, primary, full }) {
   const base = {
-    display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+    display: full ? 'flex' : 'inline-flex', width: full ? '100%' : undefined,
+    alignItems: 'center', justifyContent: 'center', gap: '8px',
     minHeight: '44px', padding: '0 26px', borderRadius: '2px', boxSizing: 'border-box',
     fontFamily: BS_MONO, fontSize: '12px', letterSpacing: '0.08em', cursor: 'pointer',
     textDecoration: 'none', border: '1px solid ' + BS_INK,
@@ -6918,9 +6921,11 @@ function BSContact({ mobile }) {
     <BSSection page id="bs-contact" mobile={mobile}>
       <div className="bs-riser" style={{
         display: 'flex', flexDirection: 'column', gap: '22px', alignItems: 'flex-start',
-        // centred rather than stacked at the top, so the leftover is shared above and
-        // below instead of all falling to the foot
-        flex: mobile ? undefined : 1, justifyContent: mobile ? undefined : 'center',
+        // Centred rather than stacked at the top, so the leftover paper is shared above
+        // and below instead of all falling to the foot. On mobile too now — the sheet is
+        // a full viewport there as well, so top-aligning it left the same wedge of empty
+        // space under the buttons that it did on desktop.
+        flex: 1, justifyContent: 'center',
       }}>
         {/* "open to a good problem" was the meta on the old section head and went with it.
             It is back as this sheet's eyebrow, which is a better place for it than a
@@ -6936,9 +6941,21 @@ function BSContact({ mobile }) {
         <span style={{ fontFamily: BS_MONO, fontSize: '11px', lineHeight: 1.9, color: BS_BODY, maxWidth: '44ch', textWrap: 'pretty' }}>
           Work, a collaboration, or just a sharp idea worth chasing.
         </span>
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '4px' }}>
-          <BSButton primary href="mailto:peterreijm@live.nl">start a conversation &rarr;</BSButton>
-          {links.map(l => <BSButton key={l[0]} href={l[1]} newTab={l[2]}>{l[0]}</BSButton>)}
+        {/* On a phone: a two-column grid with the primary spanning both, so it sits over
+            github and linkedin and measures exactly as wide as the pair of them. Wrapping
+            a flex row did that badly — the three buttons are 22, 6 and 8 characters, so
+            they broke into ragged rows of whatever happened to fit. Desktop keeps the
+            single row, where three different widths side by side is the point. */}
+        <div style={{
+          display: mobile ? 'grid' : 'flex',
+          gridTemplateColumns: mobile ? '1fr 1fr' : undefined,
+          gap: '10px', flexWrap: mobile ? undefined : 'wrap',
+          marginTop: '4px', width: mobile ? '100%' : undefined,
+        }}>
+          <div style={{ gridColumn: mobile ? '1 / -1' : undefined, display: 'flex' }}>
+            <BSButton primary full={mobile} href="mailto:peterreijm@live.nl">start a conversation &rarr;</BSButton>
+          </div>
+          {links.map(l => <BSButton key={l[0]} full={mobile} href={l[1]} newTab={l[2]}>{l[0]}</BSButton>)}
         </div>
       </div>
     </BSSection>
