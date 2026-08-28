@@ -6908,11 +6908,19 @@ function BSContact({ mobile }) {
         // below instead of all falling to the foot
         flex: mobile ? undefined : 1, justifyContent: mobile ? undefined : 'center',
       }}>
+        {/* "open to a good problem" was the meta on the old section head and went with it.
+            It is back as this sheet's eyebrow, which is a better place for it than a
+            masthead: it is a standing status, not a page name.
+            The paragraph's closing sentence went the other way. It read "I am always up
+            for a good problem", which is this line said a second time eighteen words
+            later — and with the eyebrow restored the page would have made the same offer
+            three times counting the headline. */}
+        <BSLabel>open to a good problem</BSLabel>
         <BSStatement size={mobile ? 'clamp(32px, 9vw, 46px)' : 'clamp(46px, 11vw, 190px)'} maxWidth="12ch">
           Got a problem worth building?
         </BSStatement>
         <span style={{ fontFamily: BS_MONO, fontSize: '11px', lineHeight: 1.9, color: BS_BODY, maxWidth: '44ch', textWrap: 'pretty' }}>
-          Work, a collaboration, or just a sharp idea worth chasing. I am always up for a good problem.
+          Work, a collaboration, or just a sharp idea worth chasing.
         </span>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '4px' }}>
           <BSButton primary href="mailto:peterreijm@live.nl">start a conversation &rarr;</BSButton>
