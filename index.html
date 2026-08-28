@@ -604,6 +604,9 @@ function EditionModal() {
   // render to the same width to a tenth of a pixel. The display face is the part
   // of an edition anyone actually recognises, so the label takes that instead,
   // a point larger and tracked a little tighter to carry it.
+  // Used by the panel label and the two controls under the grid. Everything else
+  // in here — the taglines, the "current" marker — stays on the mono: they are
+  // captions against the display face, and the contrast is the point.
   const LABEL_FONT = theme.fonts.display || theme.fonts.serif;
   // Grain is the one edition that forbids weights above 400; a synthesised 600 is
   // exactly the heavy face it exists to avoid.
@@ -776,14 +779,14 @@ function EditionModal() {
           {!mobile && (
             <button
               onClick={() => { pickRandom(); closeEditions(); }}
-              style={{ fontFamily:MONO, fontSize:'11px', color:c.randomColor, background:'none', border:'none', cursor:'pointer', letterSpacing:'0.06em' }}
+              style={{ fontFamily:LABEL_FONT, fontWeight:400, fontSize:'11px', color:c.randomColor, background:'none', border:'none', cursor:'pointer', letterSpacing:'0.06em' }}
               onMouseEnter={e => e.currentTarget.style.color = c.randomHover}
               onMouseLeave={e => e.currentTarget.style.color = c.randomColor}
             >random edition →</button>
           )}
           <button
             onClick={closeEditions}
-            style={{ fontFamily:MONO, fontSize:'10px', color:c.closeColor, background:'none', border:'none', cursor:'pointer', letterSpacing:'0.1em', textTransform:c.caps }}
+            style={{ fontFamily:LABEL_FONT, fontWeight:400, fontSize:'10px', color:c.closeColor, background:'none', border:'none', cursor:'pointer', letterSpacing:'0.1em', textTransform:c.caps }}
             onMouseEnter={e => e.currentTarget.style.color = c.closeHover}
             onMouseLeave={e => e.currentTarget.style.color = c.closeColor}
           >{mobile ? 'close' : 'esc to close'}</button>

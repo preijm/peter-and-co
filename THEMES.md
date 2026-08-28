@@ -72,11 +72,14 @@ Every theme needs a swatch in `ThemeSwatch` — `aspectRatio: '16/9'`, `width: '
 ---
 
 ## Editions Modal Rules
-- The panel's label is set in the edition's **display** face, not its mono. Four
+- The panel's label **and the two controls under the grid** ("random edition",
+  "esc to close") are set in the edition's **display** face, not its mono. Four
   of the six map `fonts.mono` to a grotesque monospace, and at 10px uppercase
   JetBrains Mono and Geist Mono render to the same width to a tenth of a pixel —
   so a per-edition label that nobody could tell apart. The display face is the
-  part of an edition anyone recognises.
+  part of an edition anyone recognises. The taglines and the "current" marker
+  stay on the mono deliberately: they are captions against that face, and the
+  contrast is what makes the panel read as typeset rather than uniform.
 - **Each edition keeps its stylesheet once fetched** (`link[data-pco-font]`,
   appended rather than swapping one href). Swapping meant every switch
   re-requested the faces and the page — modal included, which is exactly what
