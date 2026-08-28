@@ -6425,10 +6425,24 @@ function bsStyles() {
     '} }',
     '@media (prefers-reduced-motion: reduce) { .broadside-root *, .broadside-root *::before { animation: none !important; transition: none !important; } }',
 
-    // Listing rows fade on hover rather than filling: a filled row would be a card,
-    // and this edition does not have one anywhere.
-    '.bs-row { transition: opacity 140ms ease; }',
-    '.bs-row:hover { opacity: 0.55; }',
+    // Rows used to answer a hover by fading to 55%, which reads as disabled rather than
+    // as pointing at something — the one thing a hover must not say. The constraint that
+    // produced it still holds (a filled row would be a card, and this edition does not
+    // have one anywhere), so the rule under the entry thickens to ink instead: a ruled
+    // index answering in its own grammar.
+    //
+    // An inset box-shadow rather than a thicker border, which would move every row below
+    // it by a pixel, and rather than border-color, which the inline border on each row
+    // would beat without !important. Nothing sets box-shadow inline, so it just wins.
+    //
+    // Not a transform either: .bs-row is also .bs-riser on the work sheet, whose entry
+    // animation holds a transform under fill:both forever after, and an animation beats
+    // a rule. A transform hover would work on the hero listing and silently do nothing
+    // on the sheet the rows actually live on.
+    '@media (hover: hover) {',
+    '  .bs-row { transition: box-shadow 140ms ease; }',
+    '  .bs-row:hover { box-shadow: inset 0 -2px 0 #0a0a0a; }',
+    '}',
 
     // NUDGE — the one looping animation here, and it earns the exception. The first
     // sheet is exactly one viewport ending in a hard rule, so nothing bleeds past the
