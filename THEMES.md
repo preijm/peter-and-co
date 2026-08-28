@@ -102,7 +102,15 @@ Every theme needs a swatch in `ThemeSwatch` — `aspectRatio: '16/9'`, `width: '
   frame crosses the card's own swatch, and a yellow that reads on a dark one
   (Ink, Volt, Grain) all but vanishes on a light one (Broadside, Prism) — the
   same frame looked whole on half the grid and partial on the other half. Out
-  in the gutter it is always on black.
+  in the gutter it is always on black. **The current marker sits in the gutter
+  too** (`outline-offset: 0` for both): an inset marker against an outset hover
+  made the hovered card look 10px wider than the one it was being compared to.
+  Both rings now occupy exactly the same space — measured 255x216 either way.
+- **Hover rotates through the edition's other primaries** by card index —
+  yellow, blue, a broken white (`cardHoverCycle`) — because the painting itself
+  rotates its accents and one fixed highlight made the grid look like it had a
+  single hot state. Red is excluded (it marks the current edition) and so is
+  black (it would vanish into the gutter the ring is drawn in).
 - `paintedGrid: true` (Mondriaan) turns the card grid into a composition: the
   gutters become the black lines by giving the grid the panel's border colour
   with a 10px gap and padding, the cards drop their own frames, and the current

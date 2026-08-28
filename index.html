@@ -652,7 +652,13 @@ function EditionModal() {
     // yellow: unmissable against the ground, and unmistakably not the red that
     // marks the current edition.
     cardHover:    t.textDim,
+    // Hover rotates through the edition's other primaries rather than always
+    // being yellow — the painting itself rotates its accents, and one fixed
+    // highlight colour made the grid look like it had a single "hot" state.
+    // Red is left out: that marks the current edition, and black would vanish
+    // into the gutter the ring is drawn in.
     cardHoverPainted: t.yellow || t.textGhost,
+    cardHoverCycle: [t.yellow, t.blue, t.white].filter(Boolean),
     tagline:      t.textMuted,
     divider:      edge,
     randomColor:  t.textMuted,
@@ -737,7 +743,7 @@ function EditionModal() {
             background: c.paintedGrid ? c.panelBorder : 'none',
             padding: c.paintedGrid ? '10px' : 0,
           }}>
-            {themes.map((t) => {
+            {themes.map((t, i) => {
               const isActive = t.id === theme.id;
               return (
                 <button
@@ -746,8 +752,13 @@ function EditionModal() {
                   style={{
                     background: c.paintedGrid ? c.panel : 'none',
                     border: c.paintedGrid ? 'none' : `${c.borderW} solid ${isActive ? c.cardActive : c.cardInactive}`,
+                    // Both rings sit in the gutter at offset 0, never inset: a
+                    // hovered card and the current one then occupy exactly the
+                    // same space, where an inset marker against an outset hover
+                    // made the hovered card look 10px wider than the one it was
+                    // being compared to.
                     outline: c.paintedGrid && isActive ? `5px solid ${c.cardActive}` : 'none',
-                    outlineOffset: '-5px',
+                    outlineOffset: c.paintedGrid ? '0px' : '-5px',
                     borderRadius:c.cardRadius, overflow:'hidden',
                     cursor:'pointer', padding:'0', textAlign:'left', display:'flex', flexDirection:'column', width:'100%',
                   }}
@@ -761,7 +772,10 @@ function EditionModal() {
                       // Prism) — the same frame looked whole on half the grid
                       // and partial on the other half. Out here it is always on
                       // black. Red stays inset, so the two never read alike.
-                      e.currentTarget.style.outline = `5px solid ${c.cardHoverPainted}`;
+                      const ring = c.cardHoverCycle.length
+                        ? c.cardHoverCycle[i % c.cardHoverCycle.length]
+                        : c.cardHoverPainted;
+                      e.currentTarget.style.outline = `5px solid ${ring}`;
                       e.currentTarget.style.outlineOffset = '0px';
                     }
                     else e.currentTarget.style.borderColor = c.cardHover;
@@ -770,7 +784,7 @@ function EditionModal() {
                     if (isActive) return;
                     if (c.paintedGrid) {
                       e.currentTarget.style.outline = 'none';
-                      e.currentTarget.style.outlineOffset = '-5px';
+                      e.currentTarget.style.outlineOffset = '0px';
                     }
                     else e.currentTarget.style.borderColor = c.cardInactive;
                   }}
