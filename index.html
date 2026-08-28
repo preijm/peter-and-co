@@ -3335,8 +3335,19 @@ function MProjectDetail({ project, onBack }) {
   if (!mobile) {
     const accentFg = accent === M_YELLOW ? M_INK : M_W[0];
     return (
+      // The canvas fills the height main gives it, and the two content rows take
+      // the slack as fr rather than sitting at their content height. main is
+      // flex:1 inside a column that is at least the viewport tall, so on a big
+      // screen it stretched while the grid inside did not — and the linen page
+      // ground showed through underneath, a bare strip between the last plane
+      // and the footer. It was there before the footer arrived too; the page
+      // simply ended in it, so it read as the painting stopping rather than as a
+      // hole. The mins are unchanged, so a short viewport still scrolls instead
+      // of crushing the rows. 1.15 against 1 gives the title plane slightly more
+      // of the slack than the brief, since it is the one carrying the name.
       <MSectionCanvas cols="minmax(320px, 2fr) minmax(240px, 1fr)"
-        rows="72px minmax(280px, auto) minmax(240px, auto)">
+        style={{ flex: 1 }}
+        rows="72px minmax(280px, 1.15fr) minmax(240px, 1fr)">
         <MPlane as="button" fill={M_W[1]} dir="h" wob="b" onClick={onBack}
           style={{ gridColumn: '1', gridRow: '1', cursor: 'pointer', ...mPnt('r', 2.9, 450) }}
           contentStyle={{ display: 'flex', alignItems: 'center', paddingLeft: 56 }}>
@@ -3643,7 +3654,14 @@ function MondriaanApp({ page, selectedProject, navigate, selectProject, activePa
       {!isHome && (mobile
         ? <MPaintedHeaderMobile activePage={activePage} onNavigate={navigate} />
         : <MPaintedHeader activePage={activePage} onNavigate={navigate} />)}
-      <main style={{ flex: 1 }}>
+      {/* A flex column, so a page inside can ask to fill the height rather than
+          stop at its content. main already stretched — it is flex:1 in a column
+          at least the viewport tall — but as a block its computed height stays
+          auto, so a percentage height on the child had nothing to resolve
+          against and the linen ground showed through beneath the painting.
+          Every page here renders a single child, so the column changes nothing
+          for the ones that do not opt in. */}
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         {isHome && <MHomePainting activePage={activePage} onNavigate={navigate} onSelect={selectProject} />}
         {page === 'work' && !selectedProject && <MWorkTable onSelect={selectProject} />}
         {page === 'about'   && <MAbout />}
