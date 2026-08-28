@@ -6673,13 +6673,17 @@ function BSWork({ projects, mobile, onSelect }) {
   const { theme } = useTheme();
   return (
     <BSSection page id="bs-work" label="the work" meta={String(projects.length).padStart(2, '0') + ' entries'} mobile={mobile}>
-      {/* The rows spread down the sheet instead of stacking at the top of it. Five
-          entries left 250px of paper underneath, and a ruled index that stops two
-          thirds of the way down reads as a list that ran out rather than one that
-          divides the page. Same device the background sheet uses. */}
+      {/* The rows used to spread down the sheet on space-between. That distributes the
+          free space BETWEEN items, so the first row got none of it: Milk Me Not sat
+          flush against the top with 0px above it while every other row was given 105px.
+          One entry visibly tighter than the rest.
+          A fixed gap instead. Every row gets the same air, and the list grows down the
+          sheet as projects are added rather than being stretched to fill it — landing
+          near 60% of the paper today, which reads as a list with room after it rather
+          than one that ran out. */}
       <div style={{
         display: 'flex', flexDirection: 'column',
-        flex: mobile ? undefined : 1, justifyContent: mobile ? undefined : 'space-between',
+        gap: mobile ? undefined : 'clamp(24px, 3.4vh, 48px)',
       }}>
         {projects.map((p, i) => {
           const accent = fitAccent(resolveAccent(p, theme.id), BS_PAPER) || BS_INK;
@@ -6746,11 +6750,24 @@ function BSBackground({ mobile }) {
         gap: mobile ? '32px' : '64px',
         alignItems: mobile ? 'start' : 'stretch', flex: mobile ? undefined : 1,
       }}>
-        <div className="bs-riser" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <BSStatement size={mobile ? 'clamp(30px, 8vw, 40px)' : 'clamp(36px, 4.4vw, 66px)'} maxWidth="13ch">
+        {/* space-between, which is what the stretch above was for. Bigger type alone
+            only took the content from 214px to 280px of a 928px column — two short
+            elements cannot fill that height at any size that is still tasteful. So the
+            paragraph goes to the foot instead, and the column spans the sheet the way
+            the four parts beside it already do, landing on the same baseline. */}
+        <div className="bs-riser" style={{
+          display: 'flex', flexDirection: 'column', gap: '20px',
+          justifyContent: mobile ? undefined : 'space-between',
+        }}>
+          {/* Sized up. The column is stretched to the sheet's full height so something
+              can be pushed to the foot of it, but nothing ever was: statement and
+              paragraph ended 693px short of the bottom, three quarters of the column
+              empty. Bigger type rather than more words — this sheet is deliberately
+              four short parts, and padding it out with prose would undo that. */}
+          <BSStatement size={mobile ? 'clamp(32px, 8.4vw, 44px)' : 'clamp(42px, 5.6vw, 84px)'} maxWidth="13ch">
             Not a studio. Just me.
           </BSStatement>
-          <span style={{ fontFamily: BS_MONO, fontSize: '11px', lineHeight: 1.9, color: BS_BODY, maxWidth: '46ch', textWrap: 'pretty' }}>
+          <span style={{ fontFamily: BS_MONO, fontSize: mobile ? '11px' : '13px', lineHeight: 1.85, color: BS_BODY, maxWidth: '42ch', textWrap: 'pretty' }}>
             I have wanted to build things for as long as I can remember. I just never wanted to learn to write the code. AI closed that gap, and I would rather ship something unfinished than get it right on paper.
           </span>
         </div>
@@ -6784,6 +6801,9 @@ function BSBackground({ mobile }) {
   );
 }
 
+// The shelves read as small print rather than as a page: 18px names over 10px
+// descriptions, filling 59% of the sheet. Sizes go up on desktop only — the phone is a
+// single column where the same type is already right for its measure.
 function BSTools({ mobile }) {
   const cats = TOOL_CATEGORIES;
   return (
@@ -6800,15 +6820,15 @@ function BSTools({ mobile }) {
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               {cat.tools.map((t, i) => (
                 <div key={t.name} style={{
-                  display: 'flex', flexDirection: 'column', gap: '4px', padding: '11px 0',
+                  display: 'flex', flexDirection: 'column', gap: '5px', padding: mobile ? '11px 0' : '14px 0',
                   borderBottom: i < cat.tools.length - 1 ? '1px solid ' + BS_LINE : 'none',
                   opacity: t.status === 'retired' ? 0.55 : 1,
                 }}>
                   <span style={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' }}>
-                    <span style={{ fontFamily: BS_DISPLAY, fontSize: '18px', lineHeight: 1.15, letterSpacing: '-0.015em', color: BS_INK }}>{t.name}</span>
+                    <span style={{ fontFamily: BS_DISPLAY, fontSize: mobile ? '18px' : '23px', lineHeight: 1.15, letterSpacing: '-0.015em', color: BS_INK }}>{t.name}</span>
                     {t.status === 'retired' ? <BSLabel style={{ fontSize: '9px' }}>retired</BSLabel> : null}
                   </span>
-                  <span style={{ fontFamily: BS_MONO, fontSize: '10px', lineHeight: 1.7, color: BS_BODY, textWrap: 'pretty' }}>{t.desc}</span>
+                  <span style={{ fontFamily: BS_MONO, fontSize: mobile ? '10px' : '11.5px', lineHeight: 1.7, color: BS_BODY, textWrap: 'pretty' }}>{t.desc}</span>
                 </div>
               ))}
             </div>
