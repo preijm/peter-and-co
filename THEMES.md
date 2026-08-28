@@ -97,7 +97,12 @@ Every theme needs a swatch in `ThemeSwatch` — `aspectRatio: '16/9'`, `width: '
   `textDim`, which reads on a panel but vanishes in black gutters — Mondriaan's
   is `#3a3a3a`, so the hover was drawn and invisible. `cardHoverPainted` takes
   the edition's yellow instead: unmissable against the ground, and unmistakably
-  not the red that marks the current edition.
+  not the red that marks the current edition. It is drawn **in the gutter**
+  (`outline-offset: 0`) rather than inset like the current marker: inset, the
+  frame crosses the card's own swatch, and a yellow that reads on a dark one
+  (Ink, Volt, Grain) all but vanishes on a light one (Broadside, Prism) — the
+  same frame looked whole on half the grid and partial on the other half. Out
+  in the gutter it is always on black.
 - `paintedGrid: true` (Mondriaan) turns the card grid into a composition: the
   gutters become the black lines by giving the grid the panel's border colour
   with a 10px gap and padding, the cards drop their own frames, and the current
