@@ -6030,8 +6030,14 @@ function BSBackground({ mobile }) {
     ['off screen', 'Running roads, mountain biking trails, keeping plants alive, or tracking down rare draft beers one check-in at a time.'],
     ['the point', 'Sometimes something useful comes out of it.'],
   ];
+  // The meta read "not a studio · just me", which is the statement immediately below it
+  // said a second time. The name takes that slot instead — it is the one fact on this
+  // sheet that appears nowhere else on the site, where the location is not: the chrome
+  // at the top of every sheet already reads "peter & co. · rotterdam, nl", which is also
+  // why the byline that used to sit at the foot of the left column is gone rather than
+  // moved.
   return (
-    <BSSection page id="bs-background" label="background" meta="not a studio · just me" mobile={mobile}>
+    <BSSection page id="bs-background" label="background" meta="peter reijm" mobile={mobile}>
       {/* stretch, not start: the columns have to be given the sheet's height before
           anything inside them can be pushed to the foot of it. With alignItems start
           both columns hugged the top and left 420px of paper under them. */}
@@ -6046,9 +6052,6 @@ function BSBackground({ mobile }) {
           </BSStatement>
           <span style={{ fontFamily: BS_MONO, fontSize: '11px', lineHeight: 1.9, color: BS_BODY, maxWidth: '46ch', textWrap: 'pretty' }}>
             I have wanted to build things for as long as I can remember. I just never wanted to learn to write the code. AI closed that gap, and I would rather ship something unfinished than get it right on paper.
-          </span>
-          <span style={{ fontFamily: BS_MONO, fontSize: '10px', letterSpacing: '0.14em', color: BS_MUTE, marginTop: 'auto', paddingTop: '20px' }}>
-            peter reijm &middot; rotterdam, nl
           </span>
         </div>
 
