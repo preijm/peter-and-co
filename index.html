@@ -642,7 +642,14 @@ function EditionModal() {
     cardName:     t.text,
     cardActive:   t.btnBg,
     cardInactive: edge,
+    // On a bordered grid the card frame sits on the panel, where textDim reads.
+    // On a painted one it sits in black gutters, where Mondriaan's textDim
+    // (#3a3a3a) all but disappears — the hover was there and invisible. An
+    // edition that paints its grid declares its primaries, so hover takes the
+    // yellow: unmissable against the ground, and unmistakably not the red that
+    // marks the current edition.
     cardHover:    t.textDim,
+    cardHoverPainted: t.yellow || t.textGhost,
     tagline:      t.textMuted,
     divider:      edge,
     randomColor:  t.textMuted,
@@ -743,7 +750,7 @@ function EditionModal() {
                   }}
                   onMouseEnter={e => {
                     if (isActive) return;
-                    if (c.paintedGrid) e.currentTarget.style.outline = `5px solid ${c.cardHover}`;
+                    if (c.paintedGrid) e.currentTarget.style.outline = `5px solid ${c.cardHoverPainted}`;
                     else e.currentTarget.style.borderColor = c.cardHover;
                   }}
                   onMouseLeave={e => {

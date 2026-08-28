@@ -90,6 +90,11 @@ Every theme needs a swatch in `ThemeSwatch` — `aspectRatio: '16/9'`, `width: '
   instead of its mono. **Weight must drop to 400 with it** — those families ship
   a single weight, so the 600 the mono names carry gets synthesised into a
   smear, the same trap `NAME_WEIGHT` already sidesteps for Grain.
+- On a painted grid, **hover cannot use `cardHover`**. That derives from
+  `textDim`, which reads on a panel but vanishes in black gutters — Mondriaan's
+  is `#3a3a3a`, so the hover was drawn and invisible. `cardHoverPainted` takes
+  the edition's yellow instead: unmissable against the ground, and unmistakably
+  not the red that marks the current edition.
 - `paintedGrid: true` (Mondriaan) turns the card grid into a composition: the
   gutters become the black lines by giving the grid the panel's border colour
   with a 10px gap and padding, the cards drop their own frames, and the current
