@@ -4335,7 +4335,13 @@ function VBackground({ mobile }) {
     ['day_job', 'Product Owner, ' + poYrs + ' yrs'],
     ['builds_with', 'AI (+ a 3D printer)'],
     ['since', '2025'],
-    ['focus', 'Finance · Food · Making'],
+    // Websites, not Making. Making had no project behind it — the 3D printer is a
+    // tool, and the line above already credits it — while `site` is now the most
+    // common tag on the site, carrying Peter & Co. and both client rebuilds. The
+    // old three described two of five projects and claimed a category that was not
+    // there; these three cover all five. Sanity is the source for the tags this
+    // tracks, so it is worth re-reading when a project is added.
+    ['focus', 'Finance · Food · Websites'],
   ];
   // Derived from TOOL_CATEGORIES (Sanity-managed via each tool's "Highlight in
   // summary" flag), so this stays in sync automatically — no hand-typed list to
