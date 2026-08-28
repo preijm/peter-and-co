@@ -5710,7 +5710,21 @@ function pzStyles() {
     // fields, and those became one fixed field at the root. Only PZSection changes:
     // the hero and the project page use .pz-in, which is time-based and does not care
     // what it sits inside.
-    '  .pz-rise { animation: pz-rise linear both; animation-timeline: view(); animation-range: entry 0% entry 100%; }',
+    // Desktop only, and the breakpoint matches useMobile(600) so JS and CSS agree on
+    // what a phone is.
+    //
+    // The reveal is driven across the element's OWN height: the entry range runs from
+    // the element's leading edge entering the scrollport to its trailing edge doing the
+    // same, which is a distance equal to its height. A short element therefore resolves
+    // in a few hundred pixels of scroll and reads as a reveal. A tall one does not.
+    //
+    // On a phone the kit's three category columns become one, and INFRASTRUCTURE is
+    // 751px inside an 812px viewport. Halfway through its range the clip-path still cuts
+    // 39% off its top — so the block sits on screen visibly missing its first few rows
+    // for most of a screen of scrolling, which is what a reader notices rather than a
+    // reveal. Desktop keeps it because the same content is three columns of ~250px
+    // there, and 250px of scroll is a wipe rather than a truncation.
+    '  @media (min-width: 601px) { .pz-rise { animation: pz-rise linear both; animation-timeline: view(); animation-range: entry 0% entry 100%; } }',
     '} }',
 
     // SHEEN.
