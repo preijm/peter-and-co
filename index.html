@@ -4007,7 +4007,12 @@ function VTerminal({ projects, mobile }) {
            '  footprint    what building it cost',
            '  contact      how to reach me',
            '  editions     switch site edition   (alias: theme)',
-           '  clear        clear the screen'];
+           '  clear        clear the screen',
+           '',
+           // An undiscoverable easter egg is one nobody finds. This admits they exist
+           // without naming any, which is the whole trade: the invitation is public,
+           // the payoff still has to be earned.
+           'not everything is on this list.'];
     } else if (n === 'whoami') {
       a = ['peter reijm, product owner by day, builder the rest of the time.',
            'not a developer: i bring the ideas and the taste; AI handles the code.'];
@@ -4069,8 +4074,38 @@ function VTerminal({ projects, mobile }) {
       a = ['opening editions…']; openEditions();
     } else if (n === 'clear') {
       setHistory([]); return;
+    // Not in `help`, on purpose — the existing sudo line set that rule and a listed
+    // easter egg stops being one. They answer the things a person types into a
+    // terminal to find out whether anyone was listening, so they stay short, stay
+    // lowercase, and never pretend to have done anything.
     } else if (n === 'sudo') {
       a = ["nice try, you don't have root here :)"];
+    } else if (n === 'rm') {
+      a = ['bold. this is a portfolio, not your problem.'];
+    } else if (n === 'vim' || n === 'vi' || n === 'nano' || n === 'emacs') {
+      a = ["you're already in it. good luck leaving."];
+    } else if (n === 'npm' || n === 'yarn' || n === 'pnpm') {
+      a = ["added 1204 packages in 4s.", "1203 of them you'll never call."];
+    } else if (n === 'git') {
+      a = (args[0] || '').toLowerCase() === 'blame'
+        ? ['claude, mostly. i bring the ideas and the taste.', 'the stubbornness to ship is still mine.']
+        : ['everything here is one repo and one file. it is fine. it is fine.'];
+    } else if (n === 'exit' || n === 'quit' || n === 'q') {
+      a = ["there is no exit. try 'editions' if you want a different room."];
+    } else if (n === 'pwd') {
+      a = ['~/peter-and-co', 'you are, in every sense, here.'];
+    } else if (n === 'uptime') {
+      // The one with real numbers behind it, which is the only reason it is funny.
+      // Reads the same footprint.json the rest of the site does, so it cannot drift
+      // into quoting a figure nothing else agrees with, and says nothing at all if
+      // the fetch has not landed.
+      const own = projects.find(p => p.id === 'peter-and-co');
+      const fp = own && footprintFor(own);
+      a = fp
+        ? [fp.measured.activeHours + 'h across ' + fp.measured.sessions + ' sessions, on this site alone.',
+           "measured, not estimated. type 'footprint' for the rest.",
+           'the hours not counted here went on deciding.']
+        : ['up since 2025. nights and weekends, mostly.'];
     } else {
       a = ['command not found: ' + name + ". try 'help'"];
     }
