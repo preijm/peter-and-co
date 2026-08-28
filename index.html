@@ -5679,6 +5679,22 @@ function pzStyles() {
     // which left clip-path: inset(-1.4%) slicing the top off its title on a phone.
     // `entry 100%` is the moment the element is fully in the scrollport, which anything
     // a reader can actually see has reached by definition.
+    // view() measures its subject against the nearest SCROLL CONTAINER, and
+    // overflow:hidden makes one. Every PZSection carried it, so each heading and card
+    // was measured against its own section — a box that never scrolls — instead of
+    // against the page. The timeline was degenerate: these animations sat at 4-13%
+    // progress in state "finished" and never moved again. A reveal that never
+    // revealed, on every section, since the day it was written.
+    //
+    // The section simply has no overflow now. overflow:clip was the obvious fix and
+    // it is the wrong one: it stops being a scroll container, but the timeline then
+    // resolves to nothing and goes inactive, which drops the effect entirely — the
+    // animation is still there and applies no clip-path at all. Measured both ways.
+    //
+    // Nothing needs the clipping any more. It was containing the per-section colour
+    // fields, and those became one fixed field at the root. Only PZSection changes:
+    // the hero and the project page use .pz-in, which is time-based and does not care
+    // what it sits inside.
     '  .pz-rise { animation: pz-rise linear both; animation-timeline: view(); animation-range: entry 0% entry 100%; }',
     '} }',
 
@@ -5738,7 +5754,7 @@ function PZField({ mobile, fixed }) {
 // transparent and it shows through all of them, which is the whole point.
 function PZSection({ children, mobile, style, id, n, label }) {
   return (
-    <section id={id} style={{ position: 'relative', overflow: 'hidden', padding: `${PZ_GAP} ${PZ_EDGE}`, ...(style || {}) }}>
+    <section id={id} style={{ position: 'relative', padding: `${PZ_GAP} ${PZ_EDGE}`, ...(style || {}) }}>
       <div style={{ position: 'relative', zIndex: 1, maxWidth: '1180px', margin: '0 auto' }}>
         {n ? <PZRule n={n}>{label}</PZRule> : null}
         {children}
