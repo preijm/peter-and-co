@@ -6002,7 +6002,14 @@ function BSWork({ projects, mobile, onSelect }) {
   const { theme } = useTheme();
   return (
     <BSSection page id="bs-work" label="the work" meta={String(projects.length).padStart(2, '0') + ' entries'} mobile={mobile}>
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
+      {/* The rows spread down the sheet instead of stacking at the top of it. Five
+          entries left 250px of paper underneath, and a ruled index that stops two
+          thirds of the way down reads as a list that ran out rather than one that
+          divides the page. Same device the background sheet uses. */}
+      <div style={{
+        display: 'flex', flexDirection: 'column',
+        flex: mobile ? undefined : 1, justifyContent: mobile ? undefined : 'space-between',
+      }}>
         {projects.map((p, i) => {
           const accent = fitAccent(resolveAccent(p, theme.id), BS_PAPER) || BS_INK;
           return (
