@@ -6578,6 +6578,93 @@ function BSColophon({ mobile }) {
   );
 }
 
+// What building it cost, in the same furniture the particulars are set in: a
+// lowercase head, a 3px rule, and the same four-column label-over-serif grid.
+//
+// It gets its own sheet rather than joining the particulars on the opening one.
+// That sheet is 100svh with the hero on flex:1 and the particulars pinned under
+// it at flexShrink:0, so anything added inside it comes straight out of the
+// headline's height on a short screen. BroadsideApp already says how this
+// edition handles a new block — everything the old scroll held now has its own
+// sheet — so this follows that rather than compressing the poster.
+//
+// Renders nothing until footprint.json resolves, and nothing for a project with
+// no entry, which is every project the extractor's allowlist does not publish.
+function BSReckoning({ project, mobile }) {
+  const fp = footprintFor(project);
+  if (!fp) return null;
+
+  const c = fp.coverage || {};
+  const pct = typeof c.commitCoveragePct === 'number' ? c.commitCoveragePct : null;
+  // 0% means not one commit falls inside the measured window, so the figures
+  // describe a later visit rather than the build. Same call the other two
+  // editions make: drop them, and say why in the line underneath.
+  const noRecord = pct === 0;
+  const mixed = !!(fp.combined && fp.manualSources && fp.manualSources.length);
+  const prompts = (fp.combined ? fp.combined.prompts : fp.measured.prompts) || 0;
+
+  // Prompts is the only figure that spans both tools, so where a hand-counted
+  // source did most of the work the hours and tokens are dropped rather than set
+  // beside it at equal weight. Months comes from git and covers either case.
+  const facts = noRecord
+    ? [['measured', '0%']]
+    : (mixed
+        ? [['prompts', prompts.toLocaleString('en-US')], ['months', String(spanMonths(fp))], ['measured in cc', pct === null ? '—' : pct + '%']]
+        : [['prompts', prompts.toLocaleString('en-US')], ['hours', String(fp.measured.activeHours)], ['tokens out', fmtTokens(fp.tokens.output)], ['measured', pct === null ? '—' : pct + '%']]);
+
+  return (
+    <BSSheet style={{ paddingTop: 'clamp(40px, 7vh, 90px)' }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', paddingBottom: '10px' }}>
+        <BSLabel>the reckoning</BSLabel>
+        <BSLabel>{noRecord ? 'no measured record' : 'a floor, never a total'}</BSLabel>
+      </div>
+      <BSRule />
+      <div style={{
+        display: 'grid', gap: mobile ? '0' : '18px', paddingTop: mobile ? '2px' : '14px',
+        gridTemplateColumns: mobile ? '1fr' : 'repeat(' + facts.length + ', minmax(0, 1fr))',
+      }}>
+        {facts.map((f, i) => (
+          <div key={f[0]} style={{
+            display: 'flex', flexDirection: mobile ? 'row' : 'column',
+            justifyContent: mobile ? 'space-between' : undefined,
+            alignItems: mobile ? 'baseline' : 'flex-start', gap: mobile ? '16px' : '6px',
+            padding: mobile ? '11px 0' : 0,
+            borderBottom: mobile && i < facts.length - 1 ? '1px solid ' + BS_LINE : 'none',
+          }}>
+            <BSLabel style={{ flexShrink: 0 }}>{f[0]}</BSLabel>
+            <span style={{
+              fontFamily: BS_DISPLAY, fontSize: mobile ? '17px' : '20px', lineHeight: 1.15,
+              letterSpacing: '-0.015em', color: BS_INK, textAlign: mobile ? 'right' : 'left',
+            }}>{f[1]}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* This edition is built from rules, so the meter is a rule that is only
+          partly drawn rather than a bar with a fill. Black on the same hairline
+          grey every other line here uses — no red, no green: a thin record is a
+          fact about the archive, not a grade. */}
+      {pct !== null && (
+        <div
+          role="img"
+          aria-label={`${pct}% of this project's commits fall inside the measured window`}
+          style={{ height: '2px', background: BS_LINE, marginTop: mobile ? '16px' : '20px' }}>
+          <div style={{ width: pct + '%', height: '100%', background: BS_INK }} />
+        </div>
+      )}
+
+      {/* Not lowercased. This edition sets its labels lowercase — "the
+          particulars", "the plate" — but its body prose keeps its capitals, the
+          way the kit's tool descriptions do. Folding the sentence down would
+          take "Claude Code" and "Lovable" with it. */}
+      <p style={{
+        fontFamily: BS_MONO, fontSize: '10px', lineHeight: 1.9, color: BS_BODY,
+        margin: '14px 0 0', maxWidth: '66ch',
+      }}>{footprintCaveat(fp)}</p>
+    </BSSheet>
+  );
+}
+
 function BSProject({ project, projects, mobile, onSelect, onBack, openEditions, onJump }) {
   const { theme } = useTheme();
   const p = project;
@@ -6721,6 +6808,8 @@ function BSProject({ project, projects, mobile, onSelect, onBack, openEditions, 
           }} />
         </BSSheet>
       ) : null}
+
+      <BSReckoning project={p} mobile={mobile} />
 
       <BSColophon mobile={mobile} />
     </React.Fragment>
