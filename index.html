@@ -6834,6 +6834,15 @@ function BSBackground({ mobile }) {
 // The shelves read as small print rather than as a page: 18px names over 10px
 // descriptions, filling 59% of the sheet. Sizes go up on desktop only — the phone is a
 // single column where the same type is already right for its measure.
+//
+// The category heads are gone — each column opened with its name over a 1px ink rule,
+// which was three more labels and three more bars on a sheet already being stripped of
+// both. The columns still group by category, and cat.label still keys them; the grouping
+// is just not announced any more.
+//
+// What that costs: nothing on the page now says why these three columns are three
+// columns. The tools are ordered by category and read as a sensible run either way, but
+// "build" / "infrastructure" / "craft" was the only thing naming the shelves.
 function BSTools({ mobile }) {
   const cats = TOOL_CATEGORIES;
   return (
@@ -6844,9 +6853,6 @@ function BSTools({ mobile }) {
       }}>
         {cats.map(cat => (
           <div key={cat.label} className="bs-riser" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <div style={{ paddingBottom: '9px', borderBottom: '1px solid ' + BS_INK }}>
-              <BSLabel>{cat.label}</BSLabel>
-            </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               {cat.tools.map((t, i) => (
                 <div key={t.name} style={{
