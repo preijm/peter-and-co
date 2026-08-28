@@ -1128,12 +1128,19 @@ function ProjectCard({ project, index, onClick }) {
   const [hovered, setHovered] = React.useState(false);
   const { theme } = useTheme();
   const accent = fitAccent(resolveAccent(project, theme.id), accentSurface(theme)) || theme.colors.text;
+  // A button, not a div. The whole card is the control, and as a div it was clickable
+  // by pointer only: no keyboard focus, and nothing announcing it. There is no link or
+  // button inside it, so the card itself can be the element. The reset below only
+  // neutralises what a button brings of its own — the card's own background, border and
+  // padding are set further down and stay.
   return (
-    <div
+    <button
+      type="button"
       onClick={() => onClick(project)}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
+        font: 'inherit', color: 'inherit', textAlign: 'left', width: '100%', boxSizing: 'border-box',
         background: hovered ? theme.colors.surface : theme.colors.bgDark, cursor: 'pointer', padding: '28px 28px 0',
         display: 'flex', flexDirection: 'column',
         border: `1px solid ${theme.colors.borderSubtle}`,
@@ -1170,7 +1177,7 @@ function ProjectCard({ project, index, onClick }) {
         position: 'absolute', bottom: 0, left: 0, right: 0, height: '2px',
         background: hovered ? accent : 'transparent', transition: 'background 150ms ease',
       }} />
-    </div>
+    </button>
   );
 }
 
@@ -1189,11 +1196,14 @@ function ProjectStrip({ onSelect, projects, onViewAll }) {
           if (mobile) {
             return (
               <div key={p.id} style={{ position: 'relative' }}>
-                <div
+                <button
+                  type="button"
                   onClick={() => onSelect(p)}
                   onMouseEnter={() => setHovered(true)}
                   onMouseLeave={() => setHovered(false)}
                   style={{
+                    font: 'inherit', color: 'inherit', textAlign: 'left',
+                    width: '100%', boxSizing: 'border-box', border: 'none',
                     display: 'flex', alignItems: 'center', gap: '12px',
                     padding: '18px 0',
                     borderBottom: `1px solid ${theme.colors.borderSubtle}`,
@@ -1213,17 +1223,20 @@ function ProjectStrip({ onSelect, projects, onViewAll }) {
                     </div>
                   </div>
                   <span style={{ fontFamily: theme.fonts.mono, fontSize: '13px', color: hovered ? theme.colors.text : theme.colors.textGhost, transition: 'color 150ms ease', flexShrink: 0 }}>→</span>
-                </div>
+                </button>
               </div>
             );
           }
           return (
             <div key={p.id} style={{ position: 'relative' }}>
-              <div
+              <button
+                type="button"
                 onClick={() => onSelect(p)}
                 onMouseEnter={() => setHovered(true)}
                 onMouseLeave={() => setHovered(false)}
                 style={{
+                  font: 'inherit', color: 'inherit', textAlign: 'left',
+                  width: '100%', boxSizing: 'border-box', border: 'none',
                   display: 'grid',
                   gridTemplateColumns: '28px 1fr 72px 96px 150px 20px',
                   alignItems: 'center',
@@ -1252,7 +1265,7 @@ function ProjectStrip({ onSelect, projects, onViewAll }) {
                   <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: accent, letterSpacing: '0.04em' }}>{p.url}</span>
                 </span>
                 <span style={{ fontFamily: theme.fonts.mono, fontSize: '13px', color: hovered ? theme.colors.text : theme.colors.textGhost, transition: 'color 150ms ease', textAlign: 'right' }}>→</span>
-              </div>
+              </button>
             </div>
           );
         })}
