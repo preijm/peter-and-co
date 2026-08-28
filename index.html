@@ -472,8 +472,22 @@ function ThemeProvider({ children }) {
     const root = document.documentElement;
     root.style.setProperty('--color-bg', theme.colors.bg);
     root.style.setProperty('--color-text', theme.colors.text);
-    const link = document.getElementById('theme-fonts');
-    if (link) link.href = theme.googleFonts;
+    // Editions keep their stylesheet once it has been fetched. Swapping a single
+    // link's href meant every switch re-requested the faces and the whole page —
+    // the Editions modal included, which is what you are looking at when you
+    // switch — rendered in a fallback until they landed, then swapped. Worse, it
+    // refetched even when going back to an edition already seen. Appending makes
+    // a revisit instant; the cost is a few KB of CSS left open per edition
+    // visited, and a face nothing references costs nothing to have declared.
+    const head = document.getElementById('theme-fonts');
+    const links = [head, ...document.querySelectorAll('link[data-pco-font]')].filter(Boolean);
+    if (!links.some(l => l.href === theme.googleFonts)) {
+      const l = document.createElement('link');
+      l.rel = 'stylesheet';
+      l.href = theme.googleFonts;
+      l.setAttribute('data-pco-font', theme.id);
+      document.head.appendChild(l);
+    }
     const favicon = document.querySelector("link[rel='icon']");
     if (favicon) favicon.href = `themes/${theme.id}/favicon.svg`;
   }, [theme]);
@@ -583,6 +597,14 @@ function EditionModal() {
   // system monospace with a synthesised weight. Reading theme.fonts.mono fixes both
   // and every edition added later.
   const MONO = theme.fonts.mono;
+  // The panel already wears each edition's colour, shape and — where it asks —
+  // its names. The label was the last thing left on a shared face, and it did
+  // not read as shared-on-purpose: four of the six editions map fonts.mono to a
+  // grotesque monospace, and at 10px uppercase JetBrains Mono and Geist Mono
+  // render to the same width to a tenth of a pixel. The display face is the part
+  // of an edition anyone actually recognises, so the label takes that instead,
+  // a point larger and tracked a little tighter to carry it.
+  const LABEL_FONT = theme.fonts.display || theme.fonts.serif;
   // Grain is the one edition that forbids weights above 400; a synthesised 600 is
   // exactly the heavy face it exists to avoid.
   const NAME_WEIGHT = theme.id === 'grain-v1' ? 400 : 600;
@@ -660,7 +682,7 @@ function EditionModal() {
         onClick={e => e.stopPropagation()}
         style={{ background:c.panel, border:`${c.borderW} solid ${c.panelBorder}`, borderRadius:c.radius, maxWidth:'860px', width:'100%', padding:'36px' }}
       >
-        <div style={{ fontFamily:MONO, fontSize:'10px', letterSpacing:'0.14em', color:c.label, marginBottom:'28px', textTransform:c.caps }}>
+        <div style={{ fontFamily:LABEL_FONT, fontWeight:400, fontSize:'11px', letterSpacing:'0.12em', color:c.label, marginBottom:'28px', textTransform:c.caps }}>
           choose edition
         </div>
         {mobile ? (
