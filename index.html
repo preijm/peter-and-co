@@ -5892,6 +5892,81 @@ function PZArrow({ size }) {
   );
 }
 
+// The phone had no way through this edition. The section nav is desktop-only, and the
+// page is 4866px: the only jump was "Selected work" in the hero, which leaves the kit at
+// 2539 and contact at 4375 to be scrolled to by hand. Grain solves the same shape with a
+// menu and Volt gets away without one because its terminal takes "contact" as a command;
+// this had neither.
+//
+// Fixed rather than in the chrome. Prism's chrome is position:relative and scrolls away
+// with the hero, so a button living in it would only exist on the first screen — which is
+// the one screen you do not need it on.
+function PZMenuButton({ open, onToggle }) {
+  const bar = {
+    display: 'block', width: '17px', height: '1.5px', background: PZ_INK, borderRadius: '2px',
+    transition: 'transform 300ms cubic-bezier(0.22,0.61,0.36,1)',
+  };
+  return (
+    <button
+      onClick={onToggle}
+      aria-label={open ? 'Close menu' : 'Open menu'}
+      aria-expanded={open}
+      aria-controls="pz-menu"
+      style={{
+        position: 'fixed', top: '18px', right: PZ_EDGE, zIndex: 120,
+        width: '44px', height: '44px', padding: 0, cursor: 'pointer',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '5px',
+        // The same pill the edition uses everywhere else, so the control reads as part of
+        // it rather than as furniture bolted on top. It needs its own ground: it floats
+        // over whatever section happens to be under it.
+        background: 'rgba(255,255,255,0.72)', backdropFilter: 'blur(10px)',
+        border: '1px solid rgba(27,26,34,0.14)', borderRadius: '999px',
+      }}
+    >
+      <span style={{ ...bar, transform: open ? 'translateY(3.25px) rotate(45deg)' : 'none' }} />
+      <span style={{ ...bar, transform: open ? 'translateY(-3.25px) rotate(-45deg)' : 'none' }} />
+    </button>
+  );
+}
+
+function PZMenu({ open, onClose, onJump, openEditions }) {
+  const items = [['Work', 'pz-work'], ['Background', 'pz-background'], ['Kit', 'pz-tools'], ['Contact', 'pz-contact']];
+  React.useEffect(() => {
+    if (!open) return;
+    const h = e => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', h);
+    return () => document.removeEventListener('keydown', h);
+  }, [open, onClose]);
+  return (
+    <div id="pz-menu" style={{
+      position: 'fixed', inset: 0, zIndex: 110,
+      background: 'rgba(251,251,253,0.94)', backdropFilter: 'blur(22px)',
+      opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none',
+      visibility: open ? 'visible' : 'hidden',
+      transition: open
+        ? 'opacity 320ms cubic-bezier(0.22,0.61,0.36,1), visibility 0ms'
+        : 'opacity 320ms cubic-bezier(0.22,0.61,0.36,1), visibility 0ms 320ms',
+      display: 'flex', flexDirection: 'column', justifyContent: 'center',
+      gap: '34px', padding: PZ_EDGE, boxSizing: 'border-box',
+      overflowY: 'auto', overscrollBehavior: 'contain',
+    }}>
+      <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        {items.map(it => (
+          <button key={it[1]} onClick={() => { onClose(); onJump(it[1]); }} style={{
+            background: 'none', border: 'none', padding: '10px 0', cursor: 'pointer',
+            minHeight: '44px', textAlign: 'left', color: PZ_INK,
+            fontFamily: PZ_DISPLAY, fontWeight: 400, fontSize: 'clamp(30px, 9vw, 40px)',
+            lineHeight: 1.15, letterSpacing: '-0.02em',
+          }}>{it[0]}</button>
+        ))}
+      </nav>
+      <div style={{ display: 'flex' }}>
+        <PZPill onClick={() => { onClose(); openEditions(); }}>Editions</PZPill>
+      </div>
+    </div>
+  );
+}
+
 function PZChrome({ mobile, onTop, openEditions, onJump }) {
   const nav = [['Work', 'pz-work'], ['Background', 'pz-background'], ['Kit', 'pz-tools'], ['Contact', 'pz-contact']];
   return (
@@ -5918,7 +5993,9 @@ function PZChrome({ mobile, onTop, openEditions, onJump }) {
             fontFamily: PZ_SANS, fontSize: '13px', color: PZ_BODY,
           }}>{n[0]}</button>
         ))}
-        <PZPill onClick={openEditions}>Editions</PZPill>
+        {/* Desktop only. On a phone this lives in the menu, which leaves the top-right
+            corner to the fixed menu button rather than stacking the two. */}
+        {!mobile && <PZPill onClick={openEditions}>Editions</PZPill>}
       </div>
     </div>
   );
@@ -6373,6 +6450,27 @@ function PrismApp({ selectedProject, navigate, selectProject }) {
   const { openEditions } = useTheme();
   const projects = PROJECTS;
   const [pendingJump, setPendingJump] = React.useState(null);
+  const [menuOpen, setMenuOpen] = React.useState(false);
+
+  // The menu covers the page, so the page underneath must not scroll behind it.
+  React.useEffect(() => {
+    if (!mobile) return;
+    const root = document.documentElement;
+    root.style.overflow = menuOpen ? 'hidden' : '';
+    document.body.style.overflow = menuOpen ? 'hidden' : '';
+    return () => { root.style.overflow = ''; document.body.style.overflow = ''; };
+  }, [menuOpen, mobile]);
+
+  // Closing the menu releases that lock on the NEXT render, but the jump runs now — and a
+  // scroll into a locked <html> is simply swallowed, which is the bug Grain's goTo already
+  // carries a note about. So the lock comes off in the same tick as the jump rather than
+  // on a frame, which a tab that is not compositing may never paint at all.
+  const jumpFromMenu = (id) => {
+    setMenuOpen(false);
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
+    onJump(id);
+  };
 
   React.useEffect(() => { pzStyles(); }, []);
   // Leaving a project changes this dependency from an id to null, which would fire a
@@ -6439,6 +6537,10 @@ function PrismApp({ selectedProject, navigate, selectProject }) {
           edge. It sits on both the sectioned page and a case study, which is why it
           lives here rather than in either. */}
       <PZField mobile={mobile} fixed />
+      {/* Mounted here rather than in PZChrome for the same reason the field is: it has to
+          exist on the sectioned page and on a case study, and it must not scroll away. */}
+      {mobile && <PZMenuButton open={menuOpen} onToggle={() => setMenuOpen(o => !o)} />}
+      {mobile && <PZMenu open={menuOpen} onClose={() => setMenuOpen(false)} onJump={jumpFromMenu} openEditions={openEditions} />}
       {selectedProject
         ? <PZProject project={selectedProject} projects={projects} mobile={mobile} onSelect={selectProject} onBack={() => navigate('work')} onTop={onTop} openEditions={openEditions} onJump={onJump} />
         : (
