@@ -34,9 +34,14 @@ Themes that fully replace the page layout also set `mondriaan: true`.
 **Default edition.** A first-time visitor lands on **Volt** (`DEFAULT_THEME_ID` in
 `index.html`). It leads because its terminal demonstrates the site's claim rather than
 describing it, and because it is composed rather than adapted from a named studio's
-system. Note that the third reason it used to carry — that it was the one that worked
-on a phone while Mondriaan did not — no longer holds: Mondriaan has a portrait
-composition now. The default is a live decision again rather than a forced one.
+system.
+
+The third reason it used to carry — that it was the one that worked on a phone while
+Mondriaan did not — no longer holds: Mondriaan has a portrait composition and is
+selectable on mobile. **Volt stays the default anyway**, on the two merits above rather
+than by default of the alternatives. That is a decision, not an oversight; Mondriaan is
+the more distinctive edition and the case for leading with it is real, so do not treat
+this as unfinished business and quietly switch it.
 
 The value is a named constant rather than the array's first entry: the `THEMES` order is
 the sequence the Editions modal presents, which is a separate decision from which
