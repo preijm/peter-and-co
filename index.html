@@ -1823,6 +1823,13 @@ function BuildFootprint({ project }) {
   const prompts = (fp.combined ? fp.combined.prompts : fp.measured.prompts) || 0;
   const mixed = !!(fp.combined && fp.manualSources && fp.manualSources.length);
 
+  // 0% coverage means not one of the project's commits falls inside the measured
+  // window, so the figures describe some later visit rather than the build. They
+  // are true and they are worse than nothing — "2 prompts" under a shipped site
+  // reads as a claim about how it was made. The bar still renders at zero, which
+  // is the honest statement, and the caveat explains the gap.
+  const noRecord = !!(fp.coverage && fp.coverage.commitCoveragePct === 0);
+
   // Every stat on the rule has to share one scope, or the reader reads a
   // parity that isn't there. Where another tool did most of the building,
   // hours and tokens describe only the Claude Code sliver while prompts
@@ -1852,7 +1859,7 @@ function BuildFootprint({ project }) {
       }}>BUILD FOOTPRINT</div>
 
       <div style={{
-        display: 'flex', gap: mobile ? '28px' : '48px',
+        display: noRecord ? 'none' : 'flex', gap: mobile ? '28px' : '48px',
         flexWrap: 'wrap', marginBottom: '14px',
       }}>
         {stats.map(s => (
@@ -2172,8 +2179,10 @@ const monthLabel = (ym) => {
 
 function footprintCaveat(fp) {
   const c = fp.coverage || {};
+  // A one-day project reads "2026-07-24 to 2026-07-24" without this.
   const window = c.measuredFrom && c.measuredTo
-    ? `${c.measuredFrom} to ${c.measuredTo}` : 'the logged sessions';
+    ? (c.measuredFrom === c.measuredTo ? `a single day, ${c.measuredFrom}` : `${c.measuredFrom} to ${c.measuredTo}`)
+    : 'the logged sessions';
   const pct = c.commitCoveragePct;
 
   // With a hand-entered source, prompts span both tools but everything else
@@ -2190,6 +2199,17 @@ function footprintCaveat(fp) {
            `so they'd describe only the smaller half of the work.`;
   }
 
+  // Nothing measured landed inside the project's life. Boer Transport is the
+  // case: twelve commits on one day in May, and the only session that mentions
+  // it comes two months later. Two prompts and zero hours are true numbers that
+  // describe nothing, so the stats are dropped upstream and this says why. An
+  // explicit "no record" is a better answer than a silent gap.
+  if (pct === 0) {
+    const n = c.totalCommits;
+    return `No measured record. ${n ? `All ${n.toLocaleString('en-US')} of this project's commits fall` : 'This project\'s commits fall'} ` +
+           `outside the logged sessions (${window}), so nothing measured here describes how it was built. ` +
+           `It was made before this archive existed, or outside Claude Code.`;
+  }
   if (pct === 100) {
     return `Measured from Claude Code, ${window}. The full life of this project. Only work done through Claude Code is counted.`;
   }
