@@ -5442,12 +5442,24 @@ function PZContact({ mobile }) {
       </div>
       <div style={{
         marginTop: 'clamp(48px, 8vw, 96px)', paddingTop: '20px', borderTop: `1px solid ${PZ_LINE}`,
-        display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: '10px',
+        display: 'flex', flexDirection: 'row', gap: '10px',
         justifyContent: 'space-between', alignItems: 'flex-start',
         fontFamily: PZ_SANS, fontSize: '13px', color: PZ_MUTE,
       }}>
-        <span>Rotterdam, NL</span>
-        <span>Prism, edition v1</span>
+        {/* One line on a phone, not two. On desktop the gap between these is what says
+            they are different kinds of thing — where I am, and which edition you are
+            reading. Stacked they lose that and become two sentences of identical size,
+            weight and colour, which reads as a list rather than a footer. Joined they
+            measure 199px of the 335px available, so there is no reason to stack them.
+            Grain already does exactly this: "Rotterdam, NL · est. 2025". */}
+        {mobile ? (
+          <span>Rotterdam, NL &middot; Prism, edition v1</span>
+        ) : (
+          <React.Fragment>
+            <span>Rotterdam, NL</span>
+            <span>Prism, edition v1</span>
+          </React.Fragment>
+        )}
       </div>
     </PZSection>
   );
@@ -6118,11 +6130,22 @@ function BSColophon({ mobile }) {
           line the reader does not scroll to is set, not animated. */}
       <BSRule weight="1px" />
       <div style={{
-        display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: '10px',
+        display: 'flex', flexDirection: 'row', gap: '10px',
         justifyContent: 'space-between', paddingTop: '18px',
       }}>
-        <BSLabel>broadside · edition v1</BSLabel>
-        <BSLabel>peter &amp; co. · rotterdam, nl</BSLabel>
+        {/* Same fix as Prism's footer, with two differences. Both halves already carry
+            middots, so joining them whole would make a chain of four. And "peter & co."
+            is already in the chrome at the top of every sheet, so the colophon repeating
+            it is duplication rather than information — dropped, which also takes the
+            line from 311px to about 213px and stops it wrapping on a 320px phone. */}
+        {mobile ? (
+          <BSLabel>rotterdam, nl &middot; broadside v1</BSLabel>
+        ) : (
+          <React.Fragment>
+            <BSLabel>broadside · edition v1</BSLabel>
+            <BSLabel>peter &amp; co. · rotterdam, nl</BSLabel>
+          </React.Fragment>
+        )}
       </div>
     </BSSheet>
   );
