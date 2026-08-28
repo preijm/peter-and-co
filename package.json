@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build": "node build.js",
-    "footprint": "node tools/footprint/extract.js --json footprint.json --only milk-me-not,folio",
+    "footprint": "node tools/footprint/extract.js --json footprint.json --only milk-me-not,folio,peter-and-co,reijm-tuinaanleg,boer-transport",
     "footage": "node tools/footage/heic.js && node tools/footage/webp.js && node tools/footage/manifest.js"
   },
   "devDependencies": {
