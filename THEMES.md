@@ -463,7 +463,11 @@ Every desktop page is a painting, not just home. The shared pieces:
   on the site with **no other job**: everywhere else a click already navigates,
   and a canvas where some blocks go somewhere and others change colour teaches
   the reader nothing. Nothing is hidden behind them, so a reader who never
-  clicks still sees the intended painting. They are real `<button>`s with an
+  clicks still sees the intended painting. **A phone gets the first three of
+  them**, in one row above the statement band — three planes are enough to
+  rearrange, six do not fit, and they share the desktop's stroke counts, so a
+  plane repainted in one layout is repainted in the other for as long as the
+  page is open. They are real `<button>`s with an
   `aria-label`, and remounting on the stroke count is what replays the paint —
   a repaint arrives from a rotating side with no delay, while the first paint
   keeps its place in the page's sequence.

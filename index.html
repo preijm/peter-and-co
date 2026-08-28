@@ -2750,7 +2750,7 @@ function MAbout() {
   // unevenly (one wide, then a pair) so the page is not three equal shelves.
   return (
     <MSectionCanvas cols="repeat(4, minmax(0, 1fr))"
-      rows="minmax(180px, 1fr) 86px minmax(92px, auto) 76px"
+      rows="minmax(150px, 1fr) 86px minmax(92px, auto) 58px 76px"
       style={{ minHeight: `calc(100vh - ${M_HEAD_H_M}px)` }}>
       <MPlane fill={M_W[0]} dir="h" wob="a"
         lead style={{ gridColumn: '1 / 5', gridRow: '1', ...mPnt('r', 0, 560) }}
@@ -2779,8 +2779,26 @@ function MAbout() {
         <MLabel color={M_W[0]} size="9px" style={{ fontWeight: 400 }}>Off-screen</MLabel>
         <div style={{ fontFamily: M_DISPLAY, fontSize: '15px', color: M_W[0], letterSpacing: '-0.02em', lineHeight: 1.15, whiteSpace: 'pre-line' }}>{cards[2].text}</div>
       </MPlane>
+      {/* The same planes the desktop hands over, in a single row: three is
+          enough to rearrange, and a phone has no room for six. They share the
+          desktop's stroke counts, so a plane repainted on one is repainted on
+          the other for as long as the page is open. */}
+      {M_ABOUT_FIELD.slice(0, 3).map((b, i) => {
+        const n = strokes[i];
+        const cycle = mCycleFor(b.fill);
+        const spans = ['1 / 3', '3 / 4', '4 / 5'];
+        return (
+          <MPlane key={`${i}-${n}`} as="button" fill={cycle[n % cycle.length]} dir={b.dir} wob={b.wob}
+            aria-label="Repaint this plane"
+            onClick={() => setStrokes(st => st.map((v, j) => (j === i ? v + 1 : v)))}
+            style={{
+              gridColumn: spans[i], gridRow: '4', cursor: 'pointer',
+              ...(n === 0 ? mPnt(b.pnt[0], b.pnt[1]) : mPnt(M_REPAINT_DIRS[n % M_REPAINT_DIRS.length], 0, 520)),
+            }} />
+        );
+      })}
       <MPlane fill={M_BLUE} dir="h" wob="c"
-        style={{ gridColumn: '1 / 5', gridRow: '4', ...mPnt('r', 4.3, 700) }}
+        style={{ gridColumn: '1 / 5', gridRow: '5', ...mPnt('r', 4.3, 700) }}
         contentStyle={{ display: 'flex', alignItems: 'center', padding: '0 20px' }}>
         <p style={{ fontFamily: M_DISPLAY, fontSize: '21px', color: M_W[0], letterSpacing: '-0.03em', lineHeight: 0.98, textTransform: 'uppercase' }}>
           Sometimes Something Useful
