@@ -536,6 +536,12 @@ reading as a wait: Tools alone was stroking 24 tool cells.
 Rules:
 - Easing: `cubic-bezier(0.22, 0.61, 0.36, 1)` — a stroke decelerates into place
 - Home's last plane lands around 3.5s; subpages a little later
+- **Gated behind `prefers-reduced-motion`** like every other edition, via
+  `.mondriaan-root` and `animation/transition: none !important`. The important
+  is load-bearing: each plane carries its animation as an inline style, which a
+  normal rule cannot reach. Asked for less motion, the planes simply appear —
+  verified byte-identical to the settled page 400ms in, where an unreduced load
+  is still mid-cascade.
 - **No flash or sheen after** — blocks settle cleanly with no outro effect
 - **`animation-fill-mode` must be `backwards`, never `both`** — the keyframes
   end past 100%, and holding that after the animation clips the wobbled plane
