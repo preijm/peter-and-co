@@ -74,8 +74,12 @@ Every theme needs a swatch in `ThemeSwatch` — `aspectRatio: '16/9'`, `width: '
 ## Editions Modal Rules
 - Colour comes from the theme's own tokens; **shape and casing are identity and
   cannot be derived**, so an edition opts in through `modalChrome`
-  (`borderW`, `radius`, `cardRadius`, `caps`, `paintedGrid`). Anything without
-  it keeps the 2px square panel and uppercase labels.
+  (`borderW`, `radius`, `cardRadius`, `caps`, `paintedGrid`, `nameDisplay`).
+  Anything without it keeps the 2px square panel and uppercase labels.
+- `nameDisplay: true` sets the edition names in the active theme's display face
+  instead of its mono. **Weight must drop to 400 with it** — those families ship
+  a single weight, so the 600 the mono names carry gets synthesised into a
+  smear, the same trap `NAME_WEIGHT` already sidesteps for Grain.
 - `paintedGrid: true` (Mondriaan) turns the card grid into a composition: the
   gutters become the black lines by giving the grid the panel's border colour
   with a 10px gap and padding, the cards drop their own frames, and the current
