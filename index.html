@@ -276,7 +276,7 @@ const THEMES = [
     // The modal sits on top of a painting, so generic light chrome reads as a
     // dialog pasted over the canvas. Heavy rules and a card grid whose gaps are
     // the black lines make it one more composition instead.
-    modalChrome: { borderW: '6px', radius: '0', cardRadius: '0', paintedGrid: true },
+    modalChrome: { borderW: '6px', radius: '0', cardRadius: '0', paintedGrid: true, nameDisplay: true },
     fonts: {
       display: "'Archivo Black', 'Helvetica Neue', sans-serif",
       sans:    "'Space Grotesk', 'Helvetica Neue', sans-serif",
@@ -636,6 +636,15 @@ function EditionModal() {
     ...(theme.modalChrome || { borderW: '2px', radius: '0', cardRadius: '0' }),
   };
 
+  // An edition whose identity is a display face can set the names in it. Those
+  // families ship a single weight, so the 600 the mono names carry would be
+  // synthesised into a smear — the same trap Grain's NAME_WEIGHT avoids. 400 is
+  // the real face.
+  const NAME_FONT  = c.nameDisplay ? (theme.fonts.display || theme.fonts.serif) : MONO;
+  const NAME_W     = c.nameDisplay ? 400 : NAME_WEIGHT;
+  const NAME_TRACK = c.nameDisplay ? '-0.025em' : '-0.01em';
+  const NAME_CASE  = c.nameDisplay ? 'uppercase' : 'none';
+
   React.useEffect(() => {
     const handler = e => { if (e.key === 'Escape') closeEditions(); };
     document.addEventListener('keydown', handler);
@@ -674,7 +683,7 @@ function EditionModal() {
                 >
                   <div>
                     <div style={{ display:'flex', alignItems:'baseline', gap:'8px', marginBottom:'3px' }}>
-                      <span style={{ fontFamily:MONO, fontSize:'16px', fontWeight:NAME_WEIGHT, color:c.cardName, letterSpacing:'-0.01em' }}>{t.name}</span>
+                      <span style={{ fontFamily:NAME_FONT, fontSize:'16px', fontWeight:NAME_W, color:c.cardName, letterSpacing:NAME_TRACK, textTransform:NAME_CASE }}>{t.name}</span>
                       {isActive && <span style={{ fontFamily:MONO, fontSize:'9px', letterSpacing:'0.1em', color:c.tagline, textTransform:c.caps }}>current</span>}
                     </div>
                     <span style={{ fontFamily:MONO, fontSize:'10px', color:c.tagline, letterSpacing:'0.04em' }}>{t.tagline}</span>
@@ -724,7 +733,7 @@ function EditionModal() {
                   <ThemeSwatch themeId={t.id} />
                   <div style={{ padding:'14px 16px' }}>
                     <div style={{ display:'flex', alignItems:'baseline', gap:'8px', marginBottom:'4px' }}>
-                      <span style={{ fontFamily:MONO, fontSize:'14px', fontWeight:NAME_WEIGHT, color:c.cardName, letterSpacing:'-0.01em' }}>{t.name}</span>
+                      <span style={{ fontFamily:NAME_FONT, fontSize:'15px', fontWeight:NAME_W, color:c.cardName, letterSpacing:NAME_TRACK, textTransform:NAME_CASE }}>{t.name}</span>
                       {isActive && <span style={{ fontFamily:MONO, fontSize:'9px', letterSpacing:'0.1em', color:c.tagline, textTransform:c.caps }}>current</span>}
                     </div>
                     <div style={{ fontFamily:MONO, fontSize:'10px', color:c.tagline, letterSpacing:'0.04em', lineHeight:1.5, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{t.tagline}</div>
