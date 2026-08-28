@@ -3091,7 +3091,13 @@ function MPaintField({ id, label, type, ph, rows, wob, wobIn }) {
   return (
     <div>
       <label htmlFor={id} style={{ display: 'block', marginBottom: 8 }}><MLabel size="11px" color={M_INK}>{label}</MLabel></label>
-      <div style={{ position: 'relative' }}>
+      {/* The 7px is padding here rather than a margin on the control, so the
+          control's box lands on the paper plane instead of over the ink frame.
+          As a margin it collapsed straight out through this wrapper — no border
+          or padding to stop it — and moved the whole field rather than insetting
+          anything. Both painted layers are absolutely positioned against this
+          box, which padding does not move, so they are unaffected. */}
+      <div style={{ position: 'relative', padding: '7px' }}>
         <div style={{ position: 'absolute', inset: 0, background: M_INK, filter: `url(#m-wob-${wob})` }} />
         <div style={{ position: 'absolute', inset: '7px', background: fill, filter: `url(#m-wob-${wobIn})` }}>
           <div style={{ position: 'absolute', inset: 0, background: M_STREAK[fill], filter: 'url(#m-str-h)', opacity: 0.5 }} />
@@ -3099,10 +3105,25 @@ function MPaintField({ id, label, type, ph, rows, wob, wobIn }) {
         <Tag id={id} name={id} type={rows ? undefined : type} rows={rows} placeholder={ph}
           onFocus={() => setFocus(true)} onBlur={() => setFocus(false)}
           style={{
-            position: 'relative', display: 'block', width: '100%', boxSizing: 'border-box',
-            padding: '16px 18px', fontFamily: M_SANS, fontWeight: 500, fontSize: '16px',
+            // Sits on the paper plane, not over the whole wrapper — see the 7px
+            // padding above. The control is transparent, so for typing it made no
+            // difference either way, but an autofilled field is one Chrome insists
+            // on painting a background on, and the only way to override that is an
+            // inset shadow filling the box. With the box spanning the wrapper that
+            // shadow covered the wobbled ink frame underneath, and the field lost
+            // its border the moment it was filled. Bounded to the paper, it covers
+            // only what it should.
+            //
+            // 7 + 9 and 7 + 11 keep the text exactly where 16 and 18 put it.
+            position: 'relative', display: 'block', boxSizing: 'border-box',
+            width: '100%', padding: '9px 11px',
+            fontFamily: M_SANS, fontWeight: 500, fontSize: '16px',
             color: M_INK, background: 'transparent', border: 'none', outline: 'none',
             resize: rows ? 'vertical' : undefined,
+            // Follows the plane it covers, so an autofilled field that is then
+            // focused still turns yellow instead of staying on the resting paper.
+            '--pco-autofill-bg': fill,
+            '--pco-autofill-fg': M_INK,
           }} />
       </div>
     </div>
