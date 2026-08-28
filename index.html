@@ -283,7 +283,8 @@ const THEMES = [
     // in reserve for the 3px section rules. `caps: none` because Broadside is lowercase
     // everywhere — "the listings", "the particulars", "editions" — so a modal shouting
     // CHOOSE EDITION over it was the one place the edition broke its own voice.
-    modalChrome: { borderW: '1px', radius: '2px', cardRadius: '2px', caps: 'none' },
+    // 0.14em is what BSLabel tracks its lowercase labels at.
+    modalChrome: { borderW: '1px', radius: '2px', cardRadius: '2px', caps: 'none', labelTrack: '0.14em' },
     mobileOptimized: true,
     fonts: {
       serif: "'DM Serif Display', Georgia, serif",
@@ -318,7 +319,9 @@ const THEMES = [
     // The modal sits on top of a painting, so generic light chrome reads as a
     // dialog pasted over the canvas. Heavy rules and a card grid whose gaps are
     // the black lines make it one more composition instead.
-    modalChrome: { borderW: '6px', radius: '0', cardRadius: '0', paintedGrid: true, nameDisplay: true },
+    // labelWeight/labelTrack match MLabel, which is what every other label in this
+    // edition is set in: Space Mono at 700, tracked 0.18em, uppercase.
+    modalChrome: { borderW: '6px', radius: '0', cardRadius: '0', paintedGrid: true, nameDisplay: true, labelWeight: 700, labelTrack: '0.18em' },
     fonts: {
       display: "'Archivo Black', 'Helvetica Neue', sans-serif",
       sans:    "'Space Grotesk', 'Helvetica Neue', sans-serif",
@@ -355,6 +358,9 @@ const THEMES = [
     mondriaan: true,
     srcId: 'volt-src',
     appGlobal: 'VoltApp',
+    // VLabel tracks at 0.06em, half the shared default. Everything else about the
+    // panel is already right, which is what the override-only merge is for.
+    modalChrome: { labelTrack: '0.06em' },
     mobileOptimized: true,
     fonts: {
       sans:  "'Geist', system-ui, 'Helvetica Neue', sans-serif",
@@ -436,7 +442,8 @@ const THEMES = [
     },
     googleFonts: 'https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap',
     // The one edition that opts out of the square 2px panel.
-    modalChrome: { borderW: '1px', radius: '20px', cardRadius: '14px' },
+    // PZLabel carries a 500, which is the weight this edition's labels are set in.
+    modalChrome: { borderW: '1px', radius: '20px', cardRadius: '14px', labelWeight: 500 },
     colors: {
       bg:          '#fbfbfd',
       bgDark:      '#f4f3f7',
@@ -642,12 +649,6 @@ function EditionModal() {
   // system monospace with a synthesised weight. Reading theme.fonts.mono fixes both
   // and every edition added later.
   const MONO = theme.fonts.mono;
-  // The panel already wears each edition's colour, shape and — where it asks —
-  // its names. The label was the last thing left on a shared face, and it did
-  // not read as shared-on-purpose: four of the six editions map fonts.mono to a
-  // grotesque monospace, and at 10px uppercase JetBrains Mono and Geist Mono
-  // render to the same width to a tenth of a pixel. The display face is the part
-  // of an edition anyone actually recognises, so the label takes that instead,
   // The panel label and the two controls under the grid. These used to take the
   // display face, for contrast against the mono captions beside them. It reads as
   // the wrong font rather than as contrast: every edition sets its 10-11px tracked
@@ -719,13 +720,23 @@ function EditionModal() {
     randomHover:  t.btnBg,
     closeColor:   t.textMuted,
     closeHover:   t.text,
-    // Shape and casing are identity, not colour, so neither can be derived. Editions
-    // opt in; everything else keeps the 2px square panel and the uppercase labels it
-    // has always had. `caps` sits BEFORE the spread deliberately — an edition whose
-    // modalChrome predates the key (Prism) must keep uppercase rather than silently
-    // losing it to an undefined.
+    // Shape, casing and the label's weight and tracking are identity, not colour,
+    // so none of them can be derived. Every default sits BEFORE the spread, which
+    // makes theme.modalChrome a pure set of overrides: an edition can name one key
+    // without silently losing the rest to an undefined. That trap was real — `caps`
+    // was already hoisted for it, and the fallback object it replaces meant an
+    // edition could not add a label tweak without also restating its whole shape.
+    //
+    // Weight and tracking are here because matching the typeface was not enough.
+    // Mondriaan sets every micro-label in Space Mono at 700 and 0.18em — its own
+    // MLabel, its chrome, the APP / TOOL rules on the work table — while the modal
+    // used the same face at 400 and 0.12em. Right family, wrong voice, which is
+    // most of why the panel still read as a visitor.
+    borderW: '2px', radius: '0', cardRadius: '0',
     caps: 'uppercase',
-    ...(theme.modalChrome || { borderW: '2px', radius: '0', cardRadius: '0' }),
+    labelWeight: 400,
+    labelTrack: '0.12em',
+    ...(theme.modalChrome || {}),
   };
 
   // An edition whose identity is a display face can set the names in it. Those
@@ -752,7 +763,7 @@ function EditionModal() {
         onClick={e => e.stopPropagation()}
         style={{ background:c.panel, border:`${c.borderW} solid ${c.panelBorder}`, borderRadius:c.radius, maxWidth:'860px', width:'100%', padding:'36px' }}
       >
-        <div style={{ fontFamily:LABEL_FONT, fontWeight:400, fontSize:'11px', letterSpacing:'0.12em', color:c.label, marginBottom:'28px', textTransform:c.caps }}>
+        <div style={{ fontFamily:LABEL_FONT, fontWeight:c.labelWeight, fontSize:'11px', letterSpacing:c.labelTrack, color:c.label, marginBottom:'28px', textTransform:c.caps }}>
           choose edition
         </div>
         {mobile ? (
@@ -860,14 +871,14 @@ function EditionModal() {
           {!mobile && (
             <button
               onClick={() => { pickRandom(); closeEditions(); }}
-              style={{ fontFamily:LABEL_FONT, fontWeight:400, fontSize:'11px', color:c.randomColor, background:'none', border:'none', cursor:'pointer', letterSpacing:'0.06em' }}
+              style={{ fontFamily:LABEL_FONT, fontWeight:c.labelWeight, fontSize:'11px', color:c.randomColor, background:'none', border:'none', cursor:'pointer', letterSpacing:c.labelTrack }}
               onMouseEnter={e => e.currentTarget.style.color = c.randomHover}
               onMouseLeave={e => e.currentTarget.style.color = c.randomColor}
             >random edition →</button>
           )}
           <button
             onClick={closeEditions}
-            style={{ fontFamily:LABEL_FONT, fontWeight:400, fontSize:'10px', color:c.closeColor, background:'none', border:'none', cursor:'pointer', letterSpacing:'0.1em', textTransform:c.caps }}
+            style={{ fontFamily:LABEL_FONT, fontWeight:c.labelWeight, fontSize:'10px', color:c.closeColor, background:'none', border:'none', cursor:'pointer', letterSpacing:c.labelTrack, textTransform:c.caps }}
             onMouseEnter={e => e.currentTarget.style.color = c.closeHover}
             onMouseLeave={e => e.currentTarget.style.color = c.closeColor}
           >{mobile ? 'close' : 'esc to close'}</button>
@@ -3289,9 +3300,15 @@ function MProjectDetail({ project, onBack }) {
   // Titles render huge and uppercase; a single long word (no space to wrap on)
   // can overflow the colored box, so scale the whole clamp down for long words.
   const longestWord = Math.max(...project.title.split(' ').map(w => w.length));
-  const titleFontSize = longestWord >= 10 ? 'clamp(28px, 5.4vw, 76px)'
-    : longestWord >= 8 ? 'clamp(40px, 7vw, 104px)'
-    : 'clamp(56px, 9vw, 132px)';
+  // Sized up a step across all three bands. The title is the one thing on this
+  // page that is allowed to be loud — it is a De Stijl canvas and the name is the
+  // subject — and at the old sizes it sat well inside its plane with the tagline
+  // floating under it, which read as a title in a box rather than a title filling
+  // one. The long-word bands keep their proportional distance so nothing overflows
+  // the accent plane it is painted on.
+  const titleFontSize = longestWord >= 10 ? 'clamp(32px, 6.2vw, 88px)'
+    : longestWord >= 8 ? 'clamp(46px, 8vw, 120px)'
+    : 'clamp(64px, 10.5vw, 152px)';
   if (!mobile) {
     const accentFg = accent === M_YELLOW ? M_INK : M_W[0];
     return (
@@ -3611,9 +3628,15 @@ function MondriaanApp({ page, selectedProject, navigate, selectProject, activePa
         {page === 'contact' && <MContact />}
         {page === 'project' && selectedProject && <MProjectDetail project={selectedProject} onBack={() => navigate('work')} />}
       </main>
-      {/* The footer's job is "reach me", so it hangs only under the contact
-          page — every other page ends where its painting ends */}
-      {page === 'contact' && <MFooter />}
+      {/* The footer's job is "reach me", which is why it hung only under the
+          contact page. A case study wants it too, and for the same reason: the
+          reader has just finished the one page on this site that argues for the
+          work, and the painting stopped dead underneath them with nothing to do
+          next. It also closes a composition that ended thin — the brief plane
+          runs short against the taller stack beside it, so the canvas trailed
+          off rather than landing. Every other page still ends where its
+          painting ends. */}
+      {(page === 'contact' || (page === 'project' && selectedProject)) && <MFooter />}
       <MPaintOverlay />
     </div>
   );
