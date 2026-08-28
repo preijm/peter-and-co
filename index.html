@@ -190,6 +190,17 @@
   @keyframes m-paint-l { from { clip-path: inset(0 0 0 100%) } to { clip-path: inset(0 0 0 -4%) } }
   @keyframes m-paint-d { from { clip-path: inset(0 0 100% 0) } to { clip-path: inset(-4% 0 0 0) } }
   @keyframes m-paint-u { from { clip-path: inset(100% 0 0 0) } to { clip-path: inset(0 0 -4% 0) } }
+  /* The paint-in is the largest motion on the site: seventeen planes sweeping
+     across the home page. Every other edition gates its motion behind this and
+     Mondriaan did not, so a visitor who asked for less motion got the most of
+     it. !important because the animation is set inline per plane, and a normal
+     rule cannot reach an inline declaration. The planes simply appear. */
+  @media (prefers-reduced-motion: reduce) {
+    .mondriaan-root *, .mondriaan-root *::before, .mondriaan-root *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
 </style>
 </head>
 <body>
@@ -3419,7 +3430,7 @@ function MondriaanApp({ page, selectedProject, navigate, selectProject, activePa
   const mobile = useMobile();
   const isHome = page === 'home' && !selectedProject;
   return (
-    <div style={{ background: M_LINEN, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="mondriaan-root" style={{ background: M_LINEN, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <MPaintDefs />
       {/* On home the painting carries its own header tiles; mobile keeps the classic header */}
       {!isHome && (mobile
