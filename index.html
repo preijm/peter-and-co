@@ -1783,7 +1783,7 @@ function Completeness({ fp, mixed }) {
 
   const clamped = Math.max(0, Math.min(100, pct));
   return (
-    <div style={{ marginBottom: '14px', maxWidth: '360px' }}>
+    <div style={{ marginTop: '18px', maxWidth: '360px' }}>
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', marginBottom: '6px' }}>
         <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', letterSpacing: '0.12em', color: theme.colors.textGhost }}>
           DATA COMPLETENESS
@@ -1868,8 +1868,6 @@ function BuildFootprint({ project }) {
         ))}
       </div>
 
-      <Completeness fp={fp} mixed={mixed} />
-
       {/* textDim, not textFaint: this line is the disclosure, so it has to stay
           legible. textFaint now clears AA on the dark editions, but still fails on
           the light ones. */}
@@ -1877,6 +1875,8 @@ function BuildFootprint({ project }) {
         fontFamily: theme.fonts.mono, fontSize: '11px', color: theme.colors.textDim,
         lineHeight: 1.75, margin: 0, maxWidth: '62ch',
       }}>{footprintCaveat(fp)}</p>
+
+      <Completeness fp={fp} mixed={mixed} />
     </div>
   );
 }
