@@ -3883,6 +3883,7 @@ function VTerminal({ projects, mobile }) {
            '  open <n>     open project n in a new tab',
            '  background   the short story       (alias: about)',
            '  stack        what i build with',
+           '  footprint    what building it cost',
            '  contact      how to reach me',
            '  editions     switch site edition   (alias: theme)',
            '  clear        clear the screen'];
@@ -3906,6 +3907,39 @@ function VTerminal({ projects, mobile }) {
       a = ['build:  claude · lovable · stitch',
            'infra:  github · supabase · netlify · mapbox',
            'make:   a 3d printer, for turning files into things'];
+    } else if (n === 'footprint') {
+      // Reads the same footprint.json the Ink layout does, through the same
+      // helper, so the terminal can never quote a different number from the
+      // rest of the site. Empty until loadFootprint resolves, hence the guard.
+      const rows = projects.map(p => ({ p, fp: footprintFor(p) })).filter(r => r.fp);
+      if (!rows.length) {
+        a = ['no footprint data loaded.'];
+      } else {
+        // Desktop gets aligned columns; a phone terminal is ~30 characters wide,
+        // so padding there would wrap every row into two ragged lines instead.
+        const w = Math.max(...rows.map(r => r.p.title.length));
+        a = ['measured with claude code. a floor, never a total:', ''];
+        rows.forEach(({ p, fp }) => {
+          const c = fp.coverage || {};
+          const pct = typeof c.commitCoveragePct === 'number' ? c.commitCoveragePct : null;
+          const name = p.title.toLowerCase();
+          if (pct === 0) {
+            a.push('  ' + (mobile ? name : name.padEnd(w + 2)) + '  no measured record');
+            return;
+          }
+          const prompts = (fp.combined ? fp.combined.prompts : fp.measured.prompts) || 0;
+          // Same scope rule the rendered block follows. Where a hand-counted
+          // tool did most of the building, prompts span both tools while hours
+          // cover only the Claude Code sliver — printing them side by side
+          // reads as a parity that isn't there, so hours give way to months.
+          const mixed = !!(fp.combined && fp.manualSources && fp.manualSources.length);
+          const bits = [prompts.toLocaleString('en-US') + ' prompts',
+                        mixed ? spanMonths(fp) + ' months' : fp.measured.activeHours + 'h'];
+          if (pct !== null) bits.push(pct + (mixed ? '% in cc' : '% measured'));
+          a.push('  ' + (mobile ? name : name.padEnd(w + 2)) + '  ' + bits.join(' · '));
+        });
+        a.push('', 'earlier work, and anything built in other tools, is not counted.');
+      }
     } else if (n === 'contact') {
       a = ['email     peterreijm@live.nl',
            'github    github.com/preijm',
@@ -4210,6 +4244,100 @@ function VBackground({ mobile }) {
   );
 }
 
+// The build footprint, which until now only the Ink layout showed. It belongs
+// here more than anywhere: this is the edition that calls itself systems, and
+// measured telemetry is its native register rather than a guest in it.
+//
+// Reads footprint.json through footprintFor, the same helper the Ink layout
+// uses, so the two can never quote different numbers. Renders nothing at all
+// until the fetch resolves, and nothing for a project with no entry.
+function VFootprint({ projects, mobile }) {
+  const rows = projects.map(p => ({ p, fp: footprintFor(p) })).filter(r => r.fp);
+  if (!rows.length) return null;
+
+  return (
+    <section id="v-footprint" style={vWrap(mobile, mobile ? '88px' : '140px')}>
+      <div className="v-reveal" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: mobile ? '28px' : '48px', gap: '16px' }}>
+        <VLabel>build footprint</VLabel>
+        <span style={{ fontFamily: V_MONO, fontSize: '12px', color: V_FAINT, textAlign: 'right' }}>
+          a floor, never a total
+        </span>
+      </div>
+
+      <div className="v-reveal" style={{ border: '1px solid ' + V_LINEC, background: V_SUR }}>
+        <div style={{ fontFamily: V_MONO, fontSize: '11px', color: V_FAINT, padding: mobile ? '16px 20px 10px' : '18px 24px 12px' }}>
+          ~/footprint.json
+        </div>
+        {rows.map(({ p, fp }) => {
+          const c = fp.coverage || {};
+          const pct = typeof c.commitCoveragePct === 'number' ? c.commitCoveragePct : null;
+          // 0% means not one commit falls inside the measured window, so the
+          // figures describe a later visit rather than the build. Same call the
+          // Ink layout makes: drop them and say so.
+          const noRecord = pct === 0;
+          const prompts = (fp.combined ? fp.combined.prompts : fp.measured.prompts) || 0;
+          const mixed = !!(fp.combined && fp.manualSources && fp.manualSources.length);
+          return (
+            <div key={p.id} style={{
+              borderTop: '1px solid ' + V_LINEC, padding: mobile ? '16px 20px' : '18px 24px',
+              display: 'flex', flexDirection: mobile ? 'column' : 'row',
+              alignItems: mobile ? 'stretch' : 'center', gap: mobile ? '12px' : '24px',
+            }}>
+              <div style={{ flex: mobile ? undefined : '1 1 34%', minWidth: 0 }}>
+                <div style={{ fontFamily: V_SANS, fontSize: mobile ? '15px' : '16px', color: V_INK, letterSpacing: '-0.01em' }}>
+                  {p.title}
+                </div>
+                <div style={{ fontFamily: V_MONO, fontSize: '11px', color: V_FAINT, marginTop: '3px' }}>
+                  {noRecord ? 'no measured record' : (mixed ? 'claude code + ' + fp.manualSources.map(s => s.tool.toLowerCase()).join(' + ') : 'claude code')}
+                </div>
+              </div>
+
+              <div style={{
+                flex: mobile ? undefined : '1 1 30%',
+                fontFamily: V_MONO, fontSize: '12px', color: noRecord ? V_FAINT : V_MUTE,
+                display: 'flex', gap: '14px', flexWrap: 'wrap',
+              }}>
+                {noRecord ? <span>&mdash;</span> : (
+                  <>
+                    <span>{prompts.toLocaleString('en-US')} prompts</span>
+                    {mixed ? <span>{spanMonths(fp)} months</span> : <span>{fp.measured.activeHours}h</span>}
+                    {!mixed && <span>{fmtTokens(fp.tokens.output)} out</span>}
+                  </>
+                )}
+              </div>
+
+              {pct !== null && (
+                <div style={{ flex: mobile ? undefined : '1 1 26%', minWidth: mobile ? undefined : '120px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '5px', fontFamily: V_MONO, fontSize: '11px' }}>
+                    <span style={{ color: V_FAINT }}>{mixed ? 'measured in cc' : 'measured'}</span>
+                    <span style={{ color: V_MUTE }}>{pct}%</span>
+                  </div>
+                  {/* V_MUTE, not the lime. Lime is this edition's emphasis colour
+                      and would read as a score worth hitting. A thin record is a
+                      fact about the archive, not a grade. */}
+                  <div
+                    role="img"
+                    aria-label={`${pct}% of ${p.title}'s commits fall inside the measured window`}
+                    style={{ height: '2px', background: V_LINEC, overflow: 'hidden' }}>
+                    <div style={{ width: pct + '%', height: '100%', background: V_MUTE }} />
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <p className="v-reveal" style={{
+        fontFamily: V_MONO, fontSize: '11px', color: V_FAINT, lineHeight: 1.8,
+        margin: mobile ? '16px 0 0' : '18px 0 0', maxWidth: '68ch',
+      }}>
+        Only work done through Claude Code is counted, and only sessions this archive recorded. Earlier work, and anything built in other tools, isn&rsquo;t counted &mdash; the real numbers are higher. Type <span style={{ color: V_MUTE }}>footprint</span> in the terminal above for the same figures.
+      </p>
+    </section>
+  );
+}
+
 function VContact({ mobile }) {
   const time = useRotterdamTime();
   const [hot, setHot] = React.useState(false);
@@ -4308,6 +4436,7 @@ function VoltApp(props) {
       <VFloatingChrome onTop={onTop} />
       <VHero mobile={mobile} projects={projects} />
       <VWork projects={projects} mobile={mobile} />
+      <VFootprint projects={projects} mobile={mobile} />
       <VBackground mobile={mobile} />
       <VContact mobile={mobile} />
     </div>
