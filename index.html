@@ -753,12 +753,25 @@ function EditionModal() {
                   }}
                   onMouseEnter={e => {
                     if (isActive) return;
-                    if (c.paintedGrid) e.currentTarget.style.outline = `5px solid ${c.cardHoverPainted}`;
+                    if (c.paintedGrid) {
+                      // Drawn in the gutter, not inset like the current-edition
+                      // marker. Inset, the frame crosses the card's own swatch,
+                      // and the yellow that reads on a dark one (Ink, Volt,
+                      // Grain) all but vanishes on a light one (Broadside,
+                      // Prism) — the same frame looked whole on half the grid
+                      // and partial on the other half. Out here it is always on
+                      // black. Red stays inset, so the two never read alike.
+                      e.currentTarget.style.outline = `5px solid ${c.cardHoverPainted}`;
+                      e.currentTarget.style.outlineOffset = '0px';
+                    }
                     else e.currentTarget.style.borderColor = c.cardHover;
                   }}
                   onMouseLeave={e => {
                     if (isActive) return;
-                    if (c.paintedGrid) e.currentTarget.style.outline = 'none';
+                    if (c.paintedGrid) {
+                      e.currentTarget.style.outline = 'none';
+                      e.currentTarget.style.outlineOffset = '-5px';
+                    }
                     else e.currentTarget.style.borderColor = c.cardInactive;
                   }}
                 >
