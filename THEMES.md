@@ -72,6 +72,16 @@ Every theme needs a swatch in `ThemeSwatch` — `aspectRatio: '16/9'`, `width: '
 ---
 
 ## Editions Modal Rules
+- Colour comes from the theme's own tokens; **shape and casing are identity and
+  cannot be derived**, so an edition opts in through `modalChrome`
+  (`borderW`, `radius`, `cardRadius`, `caps`, `paintedGrid`). Anything without
+  it keeps the 2px square panel and uppercase labels.
+- `paintedGrid: true` (Mondriaan) turns the card grid into a composition: the
+  gutters become the black lines by giving the grid the panel's border colour
+  with a 10px gap and padding, the cards drop their own frames, and the current
+  edition is marked with an inset outline so nothing shifts. It also thickens
+  the mobile list's rules. The modal sits on top of a painting, and generic
+  light chrome read as a dialog pasted over the canvas.
 - Cards sit in a `repeat(3, 1fr)` grid with `alignItems: 'stretch'`.
 - Each card button uses `display: flex, flexDirection: column` so all cards are the same height regardless of content.
 - Tagline text uses `whiteSpace: nowrap` to prevent wrapping.

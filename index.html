@@ -273,6 +273,10 @@ const THEMES = [
     srcId: 'mondriaan-src',
     appGlobal: 'MondriaanApp',
     mobileOptimized: true,
+    // The modal sits on top of a painting, so generic light chrome reads as a
+    // dialog pasted over the canvas. Heavy rules and a card grid whose gaps are
+    // the black lines make it one more composition instead.
+    modalChrome: { borderW: '6px', radius: '0', cardRadius: '0', paintedGrid: true },
     fonts: {
       display: "'Archivo Black', 'Helvetica Neue', sans-serif",
       sans:    "'Space Grotesk', 'Helvetica Neue', sans-serif",
@@ -661,7 +665,8 @@ function EditionModal() {
                   onClick={mobileAvailable ? () => { setThemeById(t.id); closeEditions(); } : undefined}
                   disabled={!mobileAvailable}
                   style={{
-                    width:'100%', background:'none', border:'none', borderBottom: i < themes.length - 1 ? `1px solid ${c.divider}` : 'none',
+                    width:'100%', background:'none', border:'none',
+                    borderBottom: i < themes.length - 1 ? `${c.paintedGrid ? '4px' : '1px'} solid ${c.divider}` : 'none',
                     padding:'16px 0', textAlign:'left', cursor: mobileAvailable ? 'pointer' : 'default',
                     display:'flex', justifyContent:'space-between', alignItems:'center',
                     opacity: mobileAvailable ? 1 : 0.35,
@@ -683,7 +688,14 @@ function EditionModal() {
 
           </div>
         ) : (
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'16px', marginBottom:'28px', alignItems:'stretch' }}>
+          <div style={{
+            display:'grid', gridTemplateColumns:'repeat(3,1fr)', marginBottom:'28px', alignItems:'stretch',
+            // Painted: the gutters are the black lines, so they take the panel's
+            // border colour and the cards drop their own frames.
+            gap: c.paintedGrid ? '10px' : '16px',
+            background: c.paintedGrid ? c.panelBorder : 'none',
+            padding: c.paintedGrid ? '10px' : 0,
+          }}>
             {themes.map((t) => {
               const isActive = t.id === theme.id;
               return (
@@ -691,11 +703,23 @@ function EditionModal() {
                   key={t.id}
                   onClick={() => { setThemeById(t.id); closeEditions(); }}
                   style={{
-                    background:'none', border:`${c.borderW} solid ${isActive ? c.cardActive : c.cardInactive}`, borderRadius:c.cardRadius, overflow:'hidden',
+                    background: c.paintedGrid ? c.panel : 'none',
+                    border: c.paintedGrid ? 'none' : `${c.borderW} solid ${isActive ? c.cardActive : c.cardInactive}`,
+                    outline: c.paintedGrid && isActive ? `5px solid ${c.cardActive}` : 'none',
+                    outlineOffset: '-5px',
+                    borderRadius:c.cardRadius, overflow:'hidden',
                     cursor:'pointer', padding:'0', textAlign:'left', display:'flex', flexDirection:'column', width:'100%',
                   }}
-                  onMouseEnter={e => { if (!isActive) e.currentTarget.style.borderColor = c.cardHover; }}
-                  onMouseLeave={e => { if (!isActive) e.currentTarget.style.borderColor = c.cardInactive; }}
+                  onMouseEnter={e => {
+                    if (isActive) return;
+                    if (c.paintedGrid) e.currentTarget.style.outline = `5px solid ${c.cardHover}`;
+                    else e.currentTarget.style.borderColor = c.cardHover;
+                  }}
+                  onMouseLeave={e => {
+                    if (isActive) return;
+                    if (c.paintedGrid) e.currentTarget.style.outline = 'none';
+                    else e.currentTarget.style.borderColor = c.cardInactive;
+                  }}
                 >
                   <ThemeSwatch themeId={t.id} />
                   <div style={{ padding:'14px 16px' }}>
