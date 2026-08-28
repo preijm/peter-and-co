@@ -5595,6 +5595,22 @@ const PZ_DISPLAY = "'Instrument Serif', Georgia, 'Times New Roman', serif";
 const PZ_SANS = "'Instrument Sans', system-ui, -apple-system, sans-serif";
 const PZ_EDGE = 'clamp(20px, 4vw, 56px)';
 const PZ_GAP = 'clamp(64px, 11vw, 148px)';
+// Sections alternate ground so every boundary is a change of background.
+// Whitespace alone was not separating them — on one continuous field ~296px of
+// gap reads as more page, not as a new chapter.
+//
+// Two weights rather than one, because with a single tint the parity is forced:
+// background sits third of five and has to stay tinted, which puts the tint on
+// the hero as well. Measured, that cost the field two thirds of its presence —
+// (30,50,11) against paper down to (8,14,3) — in the one place the colour is
+// the whole point. So the hero and contact stay clear and carry the field at
+// full strength, work and kit take the light tint, and background takes the
+// deep one. Every boundary is still a change, and background is still the most
+// distinct ground on the page:
+//
+//   hero  clear -> work  light -> background  deep -> kit  light -> contact  clear
+const PZ_TINT = 'rgba(244,243,247,0.72)';
+const PZ_TINT_DEEP = 'rgba(233,231,241,0.88)';
 // 44px control plus 18px of padding either side. The hero subtracts this so the
 // first screen is exactly one viewport, header included.
 const PZ_CHROME = '80px';
@@ -5871,7 +5887,7 @@ function PZWork({ projects, mobile, onSelect }) {
     // 148px of top padding, so jumping here scrolled straight past the breathing
     // room the section exists to have and landed "Selected work" hard against the
     // top edge — the one target of four that did.
-    <PZSection mobile={mobile} id="pz-work">
+    <PZSection mobile={mobile} id="pz-work" style={{ background: PZ_TINT }}>
       <div style={{ display: 'flex', alignItems: mobile ? 'flex-start' : 'flex-end', justifyContent: 'space-between', gap: '24px', marginBottom: '38px', flexDirection: mobile ? 'column' : 'row' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <PZLabel>Selected work</PZLabel>
@@ -5961,7 +5977,7 @@ function PZBackground({ mobile }) {
     // Translucent now, not solid. This band exists to give the page a calmer beat
     // between two colourful sections, and it still does — but opaque it would be
     // the one place the ground stops, which is the seam this change removes.
-    <PZSection mobile={mobile} id="pz-background" style={{ background: 'rgba(244,243,247,0.72)' }}>
+    <PZSection mobile={mobile} id="pz-background" style={{ background: PZ_TINT_DEEP }}>
       <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1fr 1fr', gap: mobile ? '34px' : '64px', alignItems: 'start' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <PZLabel>Background</PZLabel>
@@ -6001,7 +6017,7 @@ function PZTools({ mobile }) {
   const count = cats.reduce((n, c) => n + c.tools.length, 0);
   const tints = ['#c9a9ef', '#9fd0ee', '#f2cf9d'];
   return (
-    <PZSection mobile={mobile} id="pz-tools">
+    <PZSection mobile={mobile} id="pz-tools" style={{ background: PZ_TINT }}>
       <div style={{ display: 'flex', alignItems: mobile ? 'flex-start' : 'flex-end', justifyContent: 'space-between', gap: '24px', marginBottom: '38px', flexDirection: mobile ? 'column' : 'row' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <PZLabel>Kit</PZLabel>
