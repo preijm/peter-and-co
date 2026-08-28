@@ -6174,9 +6174,24 @@ function PrismApp({ selectedProject, navigate, selectProject }) {
   // Leaving a project changes this dependency from an id to null, which would fire a
   // scroll to the top at the same moment a pending jump is aiming at a section. Skip
   // it while one is in flight so the two cannot race.
-  React.useEffect(() => {
+  //
+  // Instant, and before paint. Opening a project is not a journey through the
+  // document, it is a different document, and gliding there put three movements on
+  // screen at once: React swaps the short project page in under a reader scrolled
+  // down the long work list, the browser clamps the scroll to the new height in one
+  // jump, and only then does the smooth glide start — across pz-in already revealing.
+  // That stack is the flicker.
+  //
+  // A layout effect runs before the browser paints, so the reset lands with the new
+  // page rather than after it, and the clamp is never seen. behavior:auto because the
+  // option overrides the global html { scroll-behavior: smooth }, and it makes the
+  // reduced-motion branch unnecessary — there is no motion left to reduce.
+  //
+  // In-page jumps keep their glide. There the movement is the point: the reader stays
+  // in one document and the travel shows them where they went.
+  React.useLayoutEffect(() => {
     if (pendingJump) return;
-    window.scrollTo({ top: 0, behavior: pzReduced() ? 'auto' : 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'auto' });
   }, [selectedProject && selectedProject.id]);
 
   const onTop = () => window.scrollTo({ top: 0, behavior: pzReduced() ? 'auto' : 'smooth' });
