@@ -494,6 +494,14 @@ header band takes an `order` prop for where it starts: home paints its hero
 first and passes `order={1}`; every other page lets it default to 0 and starts
 its own content at 2.9.
 
+**Only home paints itself in.** `MSectionCanvas` puts its contents in a still
+context (`MStill`), so every plane on a subpage is simply there; the one plane
+marked `lead` — each page's title band, or the project title — keeps a single
+stroke. Home is where the painting gets made, and the reader watches that once.
+Replaying the whole cascade on every navigation put ceremony in front of the
+content, and because it repeated it stopped reading as an entrance and started
+reading as a wait: Tools alone was stroking 24 tool cells.
+
 Rules:
 - Easing: `cubic-bezier(0.22, 0.61, 0.36, 1)` — a stroke decelerates into place
 - Home's last plane lands around 3.5s; subpages a little later
