@@ -2213,8 +2213,13 @@ function footprintCaveat(fp) {
   if (pct === 100) {
     return `Measured from Claude Code, ${window}. The full life of this project. Only work done through Claude Code is counted.`;
   }
+  // The percentage used to be stated here as well. The bar sits directly below
+  // this line and says it plainly, so the sentence would only be repeating the
+  // number a reader has already been given. It carries the scope instead —
+  // what the figure covers and why it is a floor — which is the part a bar
+  // cannot express.
   if (typeof pct === 'number') {
-    return `Measured from Claude Code, ${window}. About ${pct}% of this project's commits. Earlier work, and anything built in other tools, isn't counted. The real number is higher.`;
+    return `Measured from Claude Code, ${window}. Earlier work, and anything built in other tools, isn't counted — the real number is higher.`;
   }
   return `Measured from Claude Code, ${window}. Work in other tools isn't counted, so the real number is higher.`;
 }
