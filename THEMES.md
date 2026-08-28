@@ -354,12 +354,25 @@ on mobile home — and at phone size its texture is close to invisible, so a
 phone was paying a real rasterisation cost for something nobody can see. The
 wobbled edges and the grain, which are what actually read as paint, stay.
 
-Home is the only page with a **painted** mobile layout; the other pages use
-the classic bordered mobile layouts. That is a smaller gap than it sounds —
-they share the palette, the type and the linen surface, so they read as the
-same edition, just crisper. Mondriaan therefore carries
-`mobileOptimized: true` and is selectable on a phone. Painting those four is
-the obvious next step, not a prerequisite.
+**Every mobile page is painted now**, not just home. `MHeaderTilesMobile`
+renders the two tile rows shared by the home painting and `MPaintedHeaderMobile`,
+which sits above every other page, so the chrome is one painted object
+throughout. Each page then reuses `MSectionCanvas` on the same four columns:
+
+- **Work** — `MWorkRowMobile`: a colour number tile in column 1 beside a wide
+  content plane, both sharing one tap target. No `minHeight`, or a handful of
+  rows stretch across the whole screen.
+- **Tools** — a full-width category band, then its tools two-up. Odd counts
+  leave one black cell, which reads as an empty plane rather than a gap.
+- **About** — the statement keeps the screen, then Origin wide with
+  Method/Off-screen paired beneath it, then the blue band.
+- **Contact** — heading band, form plane, the two info planes paired and
+  Location wide, over the painted mobile footer.
+- **Project detail** — back band, accent title plane, then year and link
+  paired, brief and particulars full width.
+
+The classic bordered mobile layouts are gone, and with them `MHeader`,
+`MNav`, `MLogo` and `MThemeDropdown`, which nothing rendered any more.
 
 ### Painted subpages
 Every desktop page is a painting, not just home. The shared pieces:
