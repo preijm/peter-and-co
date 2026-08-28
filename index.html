@@ -2163,7 +2163,14 @@ function MPaintDefs() {
 // brushwork is displaced with it. `paint` takes extra marks (deliberate
 // swathes) that must share the plane's wobbled edges. Content sits on top,
 // crisp — the type is printed over the painting, not painted.
-function MPlane({ as, fill, dir, wob, paint, style, contentStyle, children, ...rest }) {
+// Subpages arrive after the painting has already been made once. Replaying the
+// whole cascade on every navigation puts ceremony in front of the content — and
+// it repeats, which is what turns it from an entrance into a wait. So the
+// planes inside an MSectionCanvas are simply there, and only the page's lead
+// plane is stroked. Home is untouched: that is where the painting gets made.
+const MStill = React.createContext(false);
+
+function MPlane({ as, fill, dir, wob, paint, style, contentStyle, lead, children, ...rest }) {
   const Tag = as || 'div';
   const reset = as ? { background: 'none', border: 'none', padding: 0, font: 'inherit', textAlign: 'inherit', color: 'inherit', textDecoration: 'none', display: 'block' } : null;
   // The paint-in animation is lifted off the frame and run on the colour layer
@@ -2173,7 +2180,9 @@ function MPlane({ as, fill, dir, wob, paint, style, contentStyle, children, ...r
   // From in here the advancing edge is displaced by the same turbulence that
   // wanders the plane's own edges, so it arrives looking like the paint that
   // is already on the canvas rather than like something cut out.
-  const { animation, ...frame } = style || {};
+  const { animation: authored, ...frame } = style || {};
+  const still = React.useContext(MStill);
+  const animation = still && !lead ? undefined : authored;
   // The brush-streak layer is desktop only. It is the second filter on every
   // plane — more than half the filtered layers on a page — and at phone size
   // its texture is close to invisible, so a phone pays a real rasterisation
@@ -2385,7 +2394,7 @@ function MSectionCanvas({ cols, rows, style, children }) {
       gap: `${M_PLINE}px`, padding: `0 0 ${M_PLINE}px ${M_PLINE}px`,
       background: M_INK, position: 'relative', overflow: 'hidden', ...style,
     }}>
-      {children}
+      <MStill.Provider value={true}>{children}</MStill.Provider>
     </div>
   );
 }
@@ -2621,7 +2630,7 @@ function MAbout() {
         rows="minmax(220px, 1fr) minmax(140px, 0.6fr) minmax(140px, 0.6fr) 116px"
         style={{ minHeight: `calc(100vh - ${M_HEAD_H}px)` }}>
         <MPlane fill={M_W[0]} dir="h" wob="a"
-          style={{ gridColumn: '1 / 4', gridRow: '1', ...mPnt('r', 2.9, 900) }}
+          lead style={{ gridColumn: '1 / 4', gridRow: '1', ...mPnt('r', 0, 560) }}
           paint={<div style={{ position: 'absolute', left: '8%', bottom: '16%', width: '58%', height: 24, background: '#efe9da', filter: 'url(#m-str-h)', opacity: 0.5 }} />}
           contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '32px 40px 32px 56px' }}>
           <h1 style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(48px, 5.3vw, 88px)', color: M_INK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase' }}>
@@ -2674,7 +2683,7 @@ function MAbout() {
       rows="minmax(180px, 1fr) 86px minmax(92px, auto) 76px"
       style={{ minHeight: `calc(100vh - ${M_HEAD_H_M}px)` }}>
       <MPlane fill={M_W[0]} dir="h" wob="a"
-        style={{ gridColumn: '1 / 5', gridRow: '1', ...mPnt('r', 2.6, 800) }}
+        lead style={{ gridColumn: '1 / 5', gridRow: '1', ...mPnt('r', 0, 560) }}
         contentStyle={{ display: 'flex', alignItems: 'center', padding: '20px 16px 20px 20px' }}>
         <h1 style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(30px, 10vw, 44px)', color: M_INK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase' }}>
           Not a studio.<br/>
@@ -2721,7 +2730,7 @@ function MTools() {
     return (
       <MSectionCanvas cols="repeat(3, minmax(0, 1fr))" rows={`180px 88px repeat(${maxTools}, minmax(96px, auto))`}>
         <MPlane fill={M_W[0]} dir="h" wob="a"
-          style={{ gridColumn: '1 / 3', gridRow: '1', ...mPnt('r', 2.9, 800) }}
+          lead style={{ gridColumn: '1 / 3', gridRow: '1', ...mPnt('r', 0, 560) }}
           contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '14px', padding: '0 40px 0 56px' }}>
           <h1 style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(40px, 4.6vw, 72px)', color: M_INK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase' }}>
             How <span style={{ color: M_BLUE }}>I</span> work.
@@ -2772,7 +2781,7 @@ function MTools() {
   return (
     <MSectionCanvas cols="repeat(2, minmax(0, 1fr))" style={{ gridAutoRows: 'minmax(62px, auto)' }}>
       <MPlane fill={M_W[0]} dir="h" wob="a"
-        style={{ gridColumn: '1 / 3', ...mPnt('r', 2.6, 700) }}
+        lead style={{ gridColumn: '1 / 3', ...mPnt('r', 0, 560) }}
         contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 8, padding: '18px 16px 18px 20px' }}>
         <h1 style={{ fontFamily: M_DISPLAY, fontSize: '32px', color: M_INK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase' }}>
           How <span style={{ color: M_BLUE }}>I</span> work.
@@ -2976,7 +2985,7 @@ function MContact() {
         {/* The heading takes its own band, so the form below fills a plane of
             its own rather than floating at the top of a tall one */}
         <MPlane fill={M_W[1]} dir="h" wob="b"
-          style={{ gridColumn: '1', gridRow: '1 / 3', ...mPnt('r', 2.9, 800) }}
+          lead style={{ gridColumn: '1', gridRow: '1 / 3', ...mPnt('r', 0, 560) }}
           contentStyle={{ display: 'flex', alignItems: 'center', padding: '0 40px 0 56px' }}>
           <h1 style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(44px, 5.2vw, 84px)', color: M_INK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase' }}>
             Say <span style={{ color: M_RED }}>hello.</span>
@@ -3003,7 +3012,7 @@ function MContact() {
       rows="82px auto 84px 76px"
       style={{ minHeight: `calc(100vh - ${M_HEAD_H_M + M_FOOT_H_M}px)` }}>
       <MPlane fill={M_W[1]} dir="h" wob="b"
-        style={{ gridColumn: '1 / 5', gridRow: '1', ...mPnt('r', 2.6, 700) }}
+        lead style={{ gridColumn: '1 / 5', gridRow: '1', ...mPnt('r', 0, 560) }}
         contentStyle={{ display: 'flex', alignItems: 'center', padding: '0 20px' }}>
         <h1 style={{ fontFamily: M_DISPLAY, fontSize: '38px', color: M_INK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase' }}>
           Say <span style={{ color: M_RED }}>hello.</span>
@@ -3058,7 +3067,7 @@ function MProjectDetail({ project, onBack }) {
         </MPlane>
         <MPlane fill={M_YELLOW} dir="h" wob="c" style={{ gridColumn: '2', gridRow: '1', ...mPnt('l', 3.3, 450) }} />
         <MPlane fill={accent} dir="v" wob="a"
-          style={{ gridColumn: '1', gridRow: '2', ...mPnt('r', 3.7, 800) }}
+          lead style={{ gridColumn: '1', gridRow: '2', ...mPnt('r', 0, 560) }}
           contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '40px 40px 40px 56px' }}>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
             {project.tags.map(t => (
@@ -3111,7 +3120,7 @@ function MProjectDetail({ project, onBack }) {
       </MPlane>
       <MPlane fill={M_YELLOW} dir="h" wob="c" style={{ gridColumn: '4', gridRow: '1', ...mPnt('l', 2.9, 450) }} />
       <MPlane fill={accent} dir="v" wob="a"
-        style={{ gridColumn: '1 / 5', gridRow: '2', ...mPnt('r', 3.2, 800) }}
+        lead style={{ gridColumn: '1 / 5', gridRow: '2', ...mPnt('r', 0, 560) }}
         contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 10, padding: '20px' }}>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
           {project.tags.map(t => (
@@ -3245,7 +3254,7 @@ function MWorkTable({ onSelect }) {
       <MSectionCanvas cols="98px minmax(260px, 1fr) 150px 110px 240px 98px"
         rows={`160px repeat(${PROJECTS.length}, minmax(96px, auto))`}>
         <MPlane fill={M_W[0]} dir="h" wob="a"
-          style={{ gridColumn: '1 / 5', gridRow: '1', ...mPnt('r', 2.9, 800) }}
+          lead style={{ gridColumn: '1 / 5', gridRow: '1', ...mPnt('r', 0, 560) }}
           contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '12px', padding: '0 40px 0 56px' }}>
           <MLabel color={M_INK} size="11px">Every project</MLabel>
           <h1 style={{ fontFamily: M_DISPLAY, fontSize: 'clamp(40px, 4.6vw, 72px)', color: M_INK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase' }}>Work.</h1>
@@ -3271,7 +3280,7 @@ function MWorkTable({ onSelect }) {
   return (
     <MSectionCanvas cols="64px repeat(3, minmax(0, 1fr))" rows={`92px repeat(${PROJECTS.length}, minmax(72px, auto))`}>
       <MPlane fill={M_W[0]} dir="h" wob="a"
-        style={{ gridColumn: '1 / 4', gridRow: '1', ...mPnt('r', 2.6, 700) }}
+        lead style={{ gridColumn: '1 / 4', gridRow: '1', ...mPnt('r', 0, 560) }}
         contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 6, padding: '0 16px 0 20px' }}>
         <MLabel color={M_INK} size="9px">Every project</MLabel>
         <h1 style={{ fontFamily: M_DISPLAY, fontSize: '32px', color: M_INK, lineHeight: 0.92, letterSpacing: '-0.035em', textTransform: 'uppercase' }}>Work.</h1>
