@@ -712,27 +712,24 @@ function EditionModal() {
     // yellow: unmissable against the ground, and unmistakably not the red that
     // marks the current edition.
     cardHover:    t.textDim,
-    // Hover rotates through the edition's other primaries rather than always
-    // being yellow — the painting itself rotates its accents, and one fixed
-    // highlight colour made the grid look like it had a single "hot" state.
+    // One colour, and it is yellow. The ring is drawn in the gutter, which is
+    // this edition's black, and that is the whole argument: yellow measures 11.8
+    // against it, blue 2.8. A dark blue on a near-black gutter is a ring you have
+    // to look for, so half the grid highlighted well and half barely highlighted
+    // at all. White fails differently — it reads against the gutter, but the card
+    // it borders is the panel colour, near enough to white that the ring merged
+    // into it and looked like the card bleeding outward rather than a frame.
     //
-    // White is out. The ring is drawn in the gutter, which is black, so white
-    // reads there — but the card it borders is the panel colour, near enough to
-    // white that the ring merged into it. Instead of framing the card it looked
-    // like the card had bled into the gutter.
+    // That leaves yellow. Red is spoken for, marking the current edition, and
+    // black is the gutter itself. So the rotation this used to do was never a
+    // choice between four primaries — it was yellow plus two colours that did not
+    // work, dressed up as variety.
     //
-    // Losing it also fixes the striping, which was the worse problem. The cycle
-    // was three long and the grid is three wide, so the period matched the
-    // column count exactly and every column came out one colour: Ink over Volt
-    // both yellow, Broadside over Grain both blue, Mondriaan over Prism both
-    // white. Two colours across three columns cannot land in step — it
-    // alternates, so no column or row repeats.
-    //
-    // Two is the ceiling here, not a preference. Red marks the current edition
-    // and black is the gutter the ring sits in, which leaves yellow and blue as
-    // the only primaries that read.
+    // It was also striped rather than varied: the cycle ran three long and the
+    // grid is three wide, so the period matched the column count exactly and
+    // every column came out one colour — Ink over Volt both yellow, Broadside
+    // over Grain both blue.
     cardHoverPainted: t.yellow || t.textGhost,
-    cardHoverCycle: [t.yellow, t.blue].filter(Boolean),
     tagline:      t.textMuted,
     divider:      edge,
     randomColor:  t.textMuted,
@@ -856,10 +853,7 @@ function EditionModal() {
                       // Prism) — the same frame looked whole on half the grid
                       // and partial on the other half. Out here it is always on
                       // black. Red stays inset, so the two never read alike.
-                      const ring = c.cardHoverCycle.length
-                        ? c.cardHoverCycle[i % c.cardHoverCycle.length]
-                        : c.cardHoverPainted;
-                      e.currentTarget.style.outline = `5px solid ${ring}`;
+                      e.currentTarget.style.outline = `5px solid ${c.cardHoverPainted}`;
                       e.currentTarget.style.outlineOffset = '0px';
                     }
                     else e.currentTarget.style.borderColor = c.cardHover;
