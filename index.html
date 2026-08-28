@@ -1761,6 +1761,53 @@ function BeforeAfterSlider({ before, after, alt, accent }) {
   );
 }
 
+// ── Data completeness ──────────────────────────────────────
+// How much of a project the numbers above actually cover, as a bar rather than
+// only as a sentence. The figure is commitCoveragePct, computed by the
+// extractor: the share of the project's commits that fall inside the measured
+// window. It is a coverage measure, not a quality one — a low score says the
+// record is thin, not that the project is.
+//
+// The label carries the scope, because the same number means different things
+// either side of a hand-counted source. Milk Me Not measures 4%: it was built
+// almost entirely in Lovable, so Claude Code saw almost none of its 3,054
+// commits. Its prompt count is still nearly whole — the Lovable figure is
+// counted right beside it — so a bare "4% complete" would report the project as
+// undocumented when it is the token and hour figures alone that are thin. On a
+// mixed project the label says which tool the percentage is about, and the
+// caveat underneath names the other source and what it does not report.
+function Completeness({ fp, mixed }) {
+  const { theme } = useTheme();
+  const pct = fp.coverage && fp.coverage.commitCoveragePct;
+  if (typeof pct !== 'number') return null;
+
+  const clamped = Math.max(0, Math.min(100, pct));
+  return (
+    <div style={{ marginBottom: '14px', maxWidth: '360px' }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', marginBottom: '6px' }}>
+        <span style={{ fontFamily: theme.fonts.mono, fontSize: '10px', letterSpacing: '0.12em', color: theme.colors.textGhost }}>
+          DATA COMPLETENESS
+        </span>
+        <span style={{ fontFamily: theme.fonts.mono, fontSize: '11px', color: theme.colors.textDim }}>
+          {clamped}%
+        </span>
+      </div>
+      {/* A track one step off the page ground, and a fill in body text colour —
+          no red, no green. A thin record is a fact about the archive, not a
+          failure to grade. */}
+      <div
+        role="img"
+        aria-label={`${clamped}% of this project's commits fall inside the measured window`}
+        style={{ height: '3px', background: theme.colors.border, borderRadius: '2px', overflow: 'hidden' }}>
+        <div style={{ width: clamped + '%', height: '100%', background: theme.colors.textDim }} />
+      </div>
+      <div style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textDim, marginTop: '6px' }}>
+        {mixed ? 'of commits measured in Claude Code' : 'of commits measured'}
+      </div>
+    </div>
+  );
+}
+
 // ── Build Footprint ────────────────────────────────────────
 // One rule, three stats, one honest caveat. Renders nothing when there's no
 // measured data for this project.
@@ -1820,6 +1867,8 @@ function BuildFootprint({ project }) {
           </div>
         ))}
       </div>
+
+      <Completeness fp={fp} mixed={mixed} />
 
       {/* textDim, not textFaint: this line is the disclosure, so it has to stay
           legible. textFaint now clears AA on the dark editions, but still fails on
