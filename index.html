@@ -229,9 +229,17 @@ const THEMES = [
       borderSubtle:'#1e1e1e',
       text:        '#ffffff',
       textMuted:   '#a8a8a8',
-      textDim:     '#808080',
-      textFaint:   '#4a4a4a',
-      textGhost:   '#3a3a3a',
+      // The bottom three steps, measured against `surface` (#1e1e1e) rather than the
+      // page ground, because that is the lightest thing any of them ever sits on and
+      // so the worst case. The old values were quiet to the point of unreadable —
+      // textDim 4.22, textFaint 2.23, textGhost 1.74 — and they carry real content at
+      // 10-12px: section labels, the ROLE / STACK / TOOLS rules on a case study, the
+      // footer links, the tool descriptions. Two comments elsewhere in this file used
+      // to route around the failure by reaching for a lighter token; the token itself
+      // is the right place to fix it. Each step still reads as a step: 5.9, 5.2, 4.5.
+      textDim:     '#9a9a9a',
+      textFaint:   '#8f8f8f',
+      textGhost:   '#858585',
       btnBg:       '#ffffff',
       btnText:     '#0a0a0a',
     },
@@ -513,19 +521,22 @@ function ThemeProvider({ children }) {
 // ── ThemeDropdown ──────────────────────────────────────────
 function ThemeDropdown() {
   const { theme, openEditions } = useTheme();
+  const mobile = useMobile();
+  const rule = React.useRef(null);
   return (
     <button
       onClick={openEditions}
       style={{
         fontFamily: theme.fonts.mono, fontSize: '11px', letterSpacing: '0.08em',
         color: theme.colors.textDim, background: 'none', border: 'none', cursor: 'pointer',
-        borderBottom: '1px solid transparent', paddingBottom: '2px', paddingTop: '0',
-        transition: 'color 150ms ease',
+        padding: 0, transition: 'color 150ms ease', ...tapArea(mobile),
       }}
-      onMouseEnter={e => { e.currentTarget.style.color = theme.colors.text; e.currentTarget.style.borderBottomColor = theme.colors.textDim; }}
-      onMouseLeave={e => { e.currentTarget.style.color = theme.colors.textDim; e.currentTarget.style.borderBottomColor = 'transparent'; }}
+      onMouseEnter={e => { e.currentTarget.style.color = theme.colors.text; if (rule.current) rule.current.style.borderBottomColor = theme.colors.textDim; }}
+      onMouseLeave={e => { e.currentTarget.style.color = theme.colors.textDim; if (rule.current) rule.current.style.borderBottomColor = 'transparent'; }}
     >
-      edition
+      {/* The rule underlines the word, so it lives on the word. Left on the button it
+          would sit at the bottom of the tap target, 15px adrift of the text on mobile. */}
+      <span ref={rule} style={{ borderBottom: '1px solid transparent', paddingBottom: '2px' }}>edition</span>
     </button>
   );
 }
@@ -642,12 +653,16 @@ function EditionModal() {
   };
   const panel = t.surface;
   const panelDark = pzLum(panel) < 0.35;
-  // A quiet edge on the panel: on a dark surface that is textGhost, on a light one
+  // A quiet edge on the panel: on a dark surface that is border, on a light one
   // borderSubtle. Mondriaan's borderSubtle is hard black, so it keeps its rule.
-  const edge = panelDark ? t.textGhost : t.borderSubtle;
-  // Labels read textMuted, not textDim. textDim measured 4.22 on Ink and 4.04 on
-  // Broadside — both under AA, and the old hardcoded #6b6b6b was worse still. textMuted
-  // puts the worst case across all six at 7.01.
+  // This used to read textGhost on the dark side, back when that token happened to sit
+  // at hairline darkness. It is a text colour, and once it was lifted to clear AA it
+  // started drawing a bright grey outline around the panel, every card and every
+  // divider. A rule wants the rule token.
+  const edge = panelDark ? t.border : t.borderSubtle;
+  // Labels read textMuted, not textDim. Ink's textDim has since been lifted clear of
+  // AA, but Broadside's still measures 4.04, and the old hardcoded #6b6b6b was worse
+  // still. textMuted puts the worst case across all six at 7.01.
   const c = {
     overlay:      rgba(panelDark ? t.bg : t.text, panelDark ? 0.9 : 0.6),
     panel:        panel,
@@ -845,6 +860,20 @@ function useMobile(breakpoint = 600) {
   return mobile;
 }
 
+// A text-sized control is only as tall as its line box — 13 to 17px for the 10-12px
+// mono this edition labels things in, well under the 44px a thumb needs. The padding
+// grows the tap target; the equal negative margin takes it straight back out of the
+// layout, so spacing on the page is unchanged and nothing shifts. Desktop keeps the
+// tight box: a cursor is precise, and there the extra area would only overlap
+// neighbours. `x` widens narrow targets (an icon button); text links are already wide
+// enough and only ever fail on height. `y` defaults to the 16px that lifts a 10-13px
+// line box over 44, and is passed explicitly where the text is already tall.
+const tapArea = (mobile, x, y) => {
+  if (!mobile) return null;
+  const v = y == null ? 16 : y;
+  return { padding: `${v}px ${x || 0}px`, margin: `-${v}px ${x ? -x + 'px' : '0px'}` };
+};
+
 // ── Tag ────────────────────────────────────────────────────
 function Tag({ children, filled, muted }) {
   const { theme } = useTheme();
@@ -872,7 +901,7 @@ function SiteHeader({ activePage, onNavigate }) {
   return (
     <div style={{ maxWidth: '1080px', margin: '0 auto', padding: mobile ? '24px 20px 0' : '48px 32px 0' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <button onClick={() => handleNav('home')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'baseline', gap: '5px' }}>
+        <button onClick={() => handleNav('home')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'baseline', gap: '5px', ...tapArea(mobile, 0, 9) }}>
           <span style={{ fontFamily: theme.fonts.serif, fontSize: mobile ? '26px' : '36px', color: theme.colors.text, letterSpacing: '-0.03em', lineHeight: 1.0 }}>Peter</span>
           <span style={{ fontFamily: theme.fonts.serif, fontSize: mobile ? '16px' : '22px', color: theme.colors.textDim, letterSpacing: '-0.02em', lineHeight: 1.0 }}>&amp; Co.</span>
         </button>
@@ -895,7 +924,7 @@ function SiteHeader({ activePage, onNavigate }) {
           )}
           {!mobile && <ThemeDropdown />}
           {mobile && (
-            <button onClick={() => setMenuOpen(o => !o)} aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
+            <button onClick={() => setMenuOpen(o => !o)} aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '5px', ...tapArea(true, 11) }}>
               <span style={{ display: 'block', width: '22px', height: '1.5px', background: theme.colors.text, transition: 'transform 200ms ease, opacity 200ms ease', transform: menuOpen ? 'translateY(6.5px) rotate(45deg)' : 'none' }} />
               <span style={{ display: 'block', width: '22px', height: '1.5px', background: theme.colors.text, transition: 'opacity 200ms ease', opacity: menuOpen ? 0 : 1 }} />
               <span style={{ display: 'block', width: '22px', height: '1.5px', background: theme.colors.text, transition: 'transform 200ms ease, opacity 200ms ease', transform: menuOpen ? 'translateY(-6.5px) rotate(-45deg)' : 'none' }} />
@@ -907,7 +936,7 @@ function SiteHeader({ activePage, onNavigate }) {
       {mobile && menuOpen && (
         <div style={{ position: 'fixed', inset: 0, background: theme.colors.bg, zIndex: 100, display: 'flex', flexDirection: 'column', padding: '24px 20px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <button onClick={() => handleNav('home')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'baseline', gap: '5px' }}>
+            <button onClick={() => handleNav('home')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'baseline', gap: '5px', ...tapArea(mobile, 0, 9) }}>
               <span style={{ fontFamily: theme.fonts.serif, fontSize: '26px', color: theme.colors.text, letterSpacing: '-0.03em', lineHeight: 1.0 }}>Peter</span>
               <span style={{ fontFamily: theme.fonts.serif, fontSize: '16px', color: theme.colors.textDim, letterSpacing: '-0.02em', lineHeight: 1.0 }}>&amp; Co.</span>
             </button>
@@ -956,7 +985,7 @@ function Hero({ onCTA, activePage, onNavigate }) {
           <button onClick={() => onNavigate('contact')} style={{
             fontFamily: theme.fonts.mono, fontSize: '12px', letterSpacing: '0.08em',
             color: theme.colors.btnText, background: theme.colors.btnBg, border: `1px solid ${theme.colors.btnBg}`,
-            padding: '11px 28px', borderRadius: '2px', cursor: 'pointer', transition: 'opacity 150ms ease',
+            padding: '14px 28px', borderRadius: '2px', cursor: 'pointer', transition: 'opacity 150ms ease',
             whiteSpace: 'nowrap',
           }}
           onMouseEnter={e => e.currentTarget.style.opacity = '0.7'}
@@ -1181,6 +1210,7 @@ function ProjectStrip({ onSelect, projects, onViewAll }) {
               fontFamily: theme.fonts.mono, fontSize: '10px', letterSpacing: '0.08em',
               color: theme.colors.textFaint, background: 'none', border: 'none',
               cursor: 'pointer', padding: 0, transition: 'color 150ms ease',
+              ...tapArea(mobile),
             }}
             onMouseEnter={e => e.currentTarget.style.color = theme.colors.text}
             onMouseLeave={e => e.currentTarget.style.color = theme.colors.textFaint}
@@ -1279,7 +1309,7 @@ function ProjectGrid({ onSelect, featured, onViewAll }) {
           {featured ? 'FEATURED WORK' : 'SELECTED PROJECTS'}
         </span>
         {onViewAll ? (
-          <button onClick={onViewAll} style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.1em', background: 'none', border: 'none', cursor: 'pointer', padding: 0, transition: 'color 150ms ease' }}
+          <button onClick={onViewAll} style={{ fontFamily: theme.fonts.mono, fontSize: '10px', color: theme.colors.textGhost, letterSpacing: '0.1em', background: 'none', border: 'none', cursor: 'pointer', padding: 0, transition: 'color 150ms ease', ...tapArea(mobile) }}
             onMouseEnter={e => e.currentTarget.style.color = theme.colors.text}
             onMouseLeave={e => e.currentTarget.style.color = theme.colors.textGhost}
           >{String(visible.length).padStart(2, '0')} / {String(PROJECTS.length).padStart(2, '0')} projects →</button>
@@ -1595,6 +1625,9 @@ function Contact() {
     fontSize: '13px', color: theme.colors.text, background: theme.colors.bgInput,
     border: `1px solid ${theme.colors.border}`, borderRadius: '2px', outline: 'none',
     boxSizing: 'border-box',
+    // A single-line field lands at 39px from its padding alone. This is the one control
+    // on the page you have to hit before you can type, so it gets the full 44.
+    minHeight: '44px',
   };
   return (
     <section style={{ maxWidth: '640px', margin: '0 auto', padding: mobile ? '48px 20px' : '80px 32px' }}>
@@ -1639,7 +1672,7 @@ function Contact() {
           <button type="submit" disabled={sending} style={{
             alignSelf: 'flex-start', fontFamily: theme.fonts.mono, fontSize: '12px',
             letterSpacing: '0.08em', color: theme.colors.btnText, background: theme.colors.btnBg,
-            border: `1px solid ${theme.colors.btnBg}`, padding: '10px 28px', borderRadius: '2px', cursor: sending ? 'default' : 'pointer',
+            border: `1px solid ${theme.colors.btnBg}`, padding: '14px 28px', borderRadius: '2px', cursor: sending ? 'default' : 'pointer',
             opacity: sending ? 0.5 : 1,
           }}
           onMouseEnter={e => { if (!sending) e.currentTarget.style.opacity = '0.7'; }}
@@ -1789,7 +1822,8 @@ function BuildFootprint({ project }) {
       </div>
 
       {/* textDim, not textFaint: this line is the disclosure, so it has to stay
-          legible. textFaint fails WCAG AA on both the light and dark themes. */}
+          legible. textFaint now clears AA on the dark editions, but still fails on
+          the light ones. */}
       <p style={{
         fontFamily: theme.fonts.mono, fontSize: '11px', color: theme.colors.textDim,
         lineHeight: 1.75, margin: 0, maxWidth: '62ch',
@@ -1808,7 +1842,9 @@ function ProjectDetail({ project, onBack }) {
       <button onClick={onBack} style={{
         fontFamily: theme.fonts.mono, fontSize: '11px', letterSpacing: '0.08em',
         color: theme.colors.textFaint, background: 'none', border: 'none', cursor: 'pointer',
-        padding: 0, marginBottom: '48px', display: 'block', transition: 'color 150ms ease',
+        padding: 0, display: 'block', transition: 'color 150ms ease',
+        ...tapArea(mobile),
+        marginBottom: mobile ? '32px' : '48px',
       }}
       onMouseEnter={e => e.currentTarget.style.color = theme.colors.text}
       onMouseLeave={e => e.currentTarget.style.color = theme.colors.textFaint}
@@ -1884,6 +1920,9 @@ function ProjectDetail({ project, onBack }) {
               <a href={project.href} target="_blank" rel="noopener noreferrer" style={{
                 fontFamily: theme.fonts.mono, fontSize: '12px', color: accent,
                 textDecoration: 'none', letterSpacing: '0.04em',
+                // inline-block so the vertical padding actually builds a box to hit;
+                // on an inline anchor it would paint outwards and leave the target flat.
+                display: 'inline-block', ...tapArea(mobile),
               }}
               onMouseEnter={e => e.target.style.opacity = '0.7'}
               onMouseLeave={e => e.target.style.opacity = '1'}
@@ -3856,7 +3895,8 @@ function VTerminal({ projects, mobile }) {
             {h.a.map((line, j) => <div key={j} style={{ color: V_MUTE, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{line}</div>)}
           </div>
         ))}
-        <div style={{ display: 'flex', alignItems: 'center', color: V_INK }}>
+        <div style={{ display: 'flex', alignItems: 'center', color: V_INK }}
+          onClick={mobile ? () => inputRef.current && inputRef.current.focus() : undefined}>
           <span style={{ marginRight: '8px', flexShrink: 0 }}>{prompt}</span>
           <input
             ref={inputRef} value={value} onChange={e => setValue(e.target.value)} onKeyDown={onKey}
@@ -3864,7 +3904,13 @@ function VTerminal({ projects, mobile }) {
             aria-label="terminal command input"
             placeholder="try: help, projects, contact"
             style={{
-              flex: 1, minWidth: 0, background: 'transparent', border: 'none', outline: 'none', padding: 0,
+              flex: 1, minWidth: 0, background: 'transparent', border: 'none', outline: 'none',
+              // A bare input is only as tall as its line box — 15px, which is nothing to
+              // hit with a thumb. The padding grows the tap target to 45px and the equal
+              // negative margin takes it straight back out of the layout, so the row, and
+              // the fixed terminal height above that this all hangs off, do not move.
+              padding: mobile ? '15px 0' : 0,
+              margin: mobile ? '-15px 0' : 0,
               color: V_INK, fontFamily: V_MONO, fontSize: mobile ? '12px' : '13px', letterSpacing: '0.02em', caretColor: V_LIME,
             }}
           />
@@ -5312,7 +5358,7 @@ function PZArrow({ size }) {
 }
 
 function PZChrome({ mobile, onTop, openEditions, onJump }) {
-  const nav = [['Work', 'pz-work'], ['Background', 'pz-background'], ['Contact', 'pz-contact']];
+  const nav = [['Work', 'pz-work'], ['Background', 'pz-background'], ['Kit', 'pz-tools'], ['Contact', 'pz-contact']];
   return (
     <div style={{
       position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center',
@@ -5524,6 +5570,65 @@ function PZBackground({ mobile }) {
   );
 }
 
+// Prism was the only edition that never showed the kit at all — no Tools page, no
+// inline strip, no mention. Every other one carries it: Ink and Mondriaan as a page,
+// Broadside as "the kit", Grain as a table, Volt as a highlight row. This is the same
+// Sanity-managed data those read, in Prism's own furniture: the glass panel the work
+// grid is built from, one per category.
+//
+// Deliberately not `pz-card` — that class carries a hover lift, which on a panel you
+// cannot click reads as a promise the section does not keep. It gets the styling and
+// the reveal, not the affordance.
+function PZTools({ mobile }) {
+  const cats = visibleToolCategories();
+  const count = cats.reduce((n, c) => n + c.tools.length, 0);
+  const tints = ['#c9a9ef', '#9fd0ee', '#f2cf9d'];
+  return (
+    <PZSection mobile={mobile} fields id="pz-tools">
+      <div style={{ display: 'flex', alignItems: mobile ? 'flex-start' : 'flex-end', justifyContent: 'space-between', gap: '24px', marginBottom: '38px', flexDirection: mobile ? 'column' : 'row' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <PZLabel>Kit</PZLabel>
+          <h2 className="pz-rise" style={{
+            fontFamily: PZ_DISPLAY, fontWeight: 400, margin: 0, color: PZ_INK,
+            fontSize: mobile ? 'clamp(32px, 8vw, 40px)' : 'clamp(40px, 4.4vw, 56px)',
+            lineHeight: 1.0, letterSpacing: '-0.022em',
+          }}>Whatever gets it shipped.</h2>
+        </div>
+        {/* Counted off the categories, so a tool added in Sanity cannot strand a number here. */}
+        <span style={{ fontSize: '13px', color: PZ_MUTE, whiteSpace: 'nowrap', paddingBottom: mobile ? 0 : '8px' }}>
+          {String(count).padStart(2, '0')} tools
+        </span>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : 'repeat(' + Math.min(cats.length, 3) + ', minmax(0, 1fr))', gap: mobile ? '12px' : '18px', alignItems: 'start' }}>
+        {cats.map((cat, i) => (
+          <div key={cat.label} className="pz-rise" style={{
+            borderRadius: mobile ? '17px' : '20px', padding: mobile ? '18px 20px' : '26px 28px',
+            background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.92)',
+            backdropFilter: mobile ? undefined : 'blur(16px)',
+            display: 'flex', flexDirection: 'column', gap: '14px',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ width: '9px', height: '9px', borderRadius: '50%', flexShrink: 0, background: tints[i % tints.length] }} />
+              <PZLabel>{cat.label}</PZLabel>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              {cat.tools.map((t, j) => (
+                <div key={t.name} style={{
+                  display: 'flex', flexDirection: 'column', gap: '4px', padding: '11px 0',
+                  borderBottom: j < cat.tools.length - 1 ? '1px solid ' + PZ_LINE : 'none',
+                }}>
+                  <span style={{ fontFamily: PZ_DISPLAY, fontSize: mobile ? '19px' : '21px', lineHeight: 1.18, letterSpacing: '-0.015em', color: PZ_INK }}>{t.name}</span>
+                  {t.desc && <span style={{ fontFamily: PZ_SANS, fontSize: '13px', lineHeight: 1.55, color: PZ_BODY, textWrap: 'pretty' }}>{t.desc}</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </PZSection>
+  );
+}
+
 function PZContact({ mobile }) {
   // Email is gone: it pointed at the same mailto as "Start a conversation" right above
   // it, so the section offered one destination twice — and having both made the primary
@@ -5662,7 +5767,7 @@ function PZProject({ project, projects, mobile, onSelect, onBack, onTop, openEdi
             backdropFilter: mobile ? undefined : 'blur(16px)',
           }}>
             {project.screenshot
-              ? <img src={typeof sanityImg === 'function' ? sanityImg(project.screenshot, 900) : project.screenshot} alt="" loading="lazy" decoding="async" style={{ width: '100%', borderRadius: '12px', display: 'block' }} />
+              ? <img src={typeof sanityImg === 'function' ? sanityImg(project.screenshot, 900) : project.screenshot} alt={project.title} loading="lazy" decoding="async" style={{ width: '100%', borderRadius: '12px', display: 'block' }} />
               : <div style={{ borderRadius: '12px', background: '#efedf4', height: '220px' }} />}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '14px 18px', marginTop: '20px' }}>
               {meta.map(m => (
@@ -5747,6 +5852,7 @@ function PrismApp({ selectedProject, navigate, selectProject }) {
             <PZHero mobile={mobile} openEditions={openEditions} onWork={onWork} onTop={onTop} onJump={onJump} />
             <PZWork projects={projects} mobile={mobile} onSelect={selectProject} />
             <PZBackground mobile={mobile} />
+            <PZTools mobile={mobile} />
             <PZContact mobile={mobile} />
           </React.Fragment>
         )}
