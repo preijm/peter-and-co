@@ -5542,6 +5542,30 @@ const PZ_GAP = 'clamp(64px, 11vw, 148px)';
 // first screen is exactly one viewport, header included.
 const PZ_CHROME = '80px';
 
+// A display line set at 0.98 leading is shorter than the glyphs it carries, so a
+// descender on the last line hangs below the box: at 78px the h1 measures 76 and
+// its content 88. Two things cut at exactly that edge — the wrapper was
+// overflow:hidden, and pz-in's clip-path ends at a bottom inset of 0 — so the
+// tail of the g in "Reijm Tuinaanleg" was sliced off, and the p in "Boer
+// Transport" with it. Only the last line is ever at risk, which is why the hero
+// never showed it: it ends on "twice."
+//
+// The padding grows the border box to hold the descender, which is what the
+// clip-path measures against, and the matching negative margin takes the space
+// straight back so nothing below moves. Both belong on the heading, not on the
+// wrapper: em resolves against the element's own font-size, and the wrapper
+// inherits 16px while the heading sets 78. A -0.18em on the wrapper is 2.88px
+// against a 14px padding, which is how this first went wrong.
+//
+// The wrapper's overflow:hidden goes with it. It was a second mask over an
+// element the clip-path already hides completely at rest, and there is no
+// version of it that clips the descender and not the reveal.
+//
+// The leading is untouched. 0.98 is the point of the type at this size and was
+// never what was wrong.
+const PZ_DESCENDER = '0.18em';
+const pzDisplayBleed = { paddingBottom: PZ_DESCENDER, marginBottom: `-${PZ_DESCENDER}` };
+
 const pzReduced = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 function pzStyles() {
@@ -5712,11 +5736,12 @@ function PZHero({ mobile, openEditions, onWork, onTop, onJump }) {
       <PZField mobile={mobile} />
       <PZChrome mobile={mobile} onTop={onTop} openEditions={openEditions} onJump={onJump} />
       <div style={{ position: 'relative', zIndex: 1, maxWidth: '1180px', margin: '0 auto', width: '100%', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-        <div style={{ overflow: 'hidden' }}>
+        <div>
           <h1 className="pz-in" style={{
             fontFamily: PZ_DISPLAY, fontWeight: 400, margin: 0, color: PZ_INK,
             fontSize: mobile ? 'clamp(46px, 13vw, 62px)' : 'clamp(64px, 8vw, 108px)',
             lineHeight: 0.98, letterSpacing: '-0.026em', maxWidth: '15ch',
+            ...pzDisplayBleed,
           }}>
             Ideas worth <em style={{ fontStyle: 'italic', color: '#6d4fd0' }}>building</em> twice.
           </h1>
@@ -6044,11 +6069,12 @@ function PZProject({ project, projects, mobile, onSelect, onBack, onTop, openEdi
         }}>
         <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1.15fr 1fr', gap: mobile ? '30px' : '64px', alignItems: 'start' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div style={{ overflow: 'hidden' }}>
+            <div>
               <h1 className="pz-in" style={{
                 fontFamily: PZ_DISPLAY, fontWeight: 400, margin: 0, color: PZ_INK,
                 fontSize: mobile ? 'clamp(38px, 10vw, 48px)' : 'clamp(52px, 6vw, 78px)',
                 lineHeight: 0.98, letterSpacing: '-0.026em',
+                ...pzDisplayBleed,
               }}>{project.title}</h1>
             </div>
             <p className="pz-in pz-d1" style={{ fontFamily: PZ_SANS, margin: 0, color: PZ_INK, fontSize: mobile ? '18px' : '22px', lineHeight: 1.4, letterSpacing: '-0.012em', maxWidth: '28ch', textWrap: 'pretty' }}>
