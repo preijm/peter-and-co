@@ -474,7 +474,10 @@ const DEFAULT_THEME_ID = 'volt-v1';
 const ThemeContext = React.createContext();
 const useTheme = () => React.useContext(ThemeContext);
 
-function ThemeProvider({ children }) {
+// onEditionChange fires when the reader actually moves to a different edition,
+// and App uses it to send them to that edition's home. Picking the edition you
+// are already on does not fire it: that closes the modal and nothing else.
+function ThemeProvider({ children, onEditionChange }) {
   const [editionsOpen, setEditionsOpen] = React.useState(false);
   const [themeIdx, setThemeIdx] = React.useState(() => {
     try {
@@ -498,8 +501,10 @@ function ThemeProvider({ children }) {
   const setThemeById = (id) => {
     const idx = THEMES.findIndex(t => t.id === id);
     if (idx >= 0) {
+      const moved = idx !== themeIdx;
       setThemeIdx(idx);
       try { localStorage.setItem('pco-theme', id); } catch {}
+      if (moved && onEditionChange) onEditionChange();
     }
   };
 
@@ -2030,11 +2035,11 @@ function AppShell({ page, selectedProject, activePage, navigate, selectProject }
   const modal = editionsOpen ? <EditionModal /> : null;
 
   React.useEffect(() => {
-    // Volt and Grain are single-page takeovers that ignore page/selectedProject for
-    // their own rendering, so a stale selectedProject from before switching themes
-    // (e.g. viewing a project detail page, then picking one of them from the editions
-    // modal) must not leak into the tab title — it'd show a project that isn't
-    // actually visible anywhere on the page.
+    // Volt is one page and has no project view, so its title is its name and
+    // nothing else. This used to be a guard against stale state: a selectedProject
+    // carried across the theme switch would name a project that was not visible
+    // anywhere. Switching edition now clears that, so the leak is gone — but the
+    // line stays, because it is also just the right title for a single page.
     if (theme.appGlobal === 'VoltApp') { document.title = 'Peter & Co.'; return; }
     const titles = { home: 'Peter & Co.', work: 'Work · Peter & Co.', tools: 'Tools · Peter & Co.', about: 'About · Peter & Co.', contact: 'Contact · Peter & Co.' };
     document.title = selectedProject ? `${selectedProject.title} · Peter & Co.` : (titles[page] || 'Peter & Co.');
@@ -2284,7 +2289,17 @@ function App() {
   const activePage = selectedProject ? 'work' : page;
 
   return (
-    <ThemeProvider>
+    // Changing edition returns you to that edition's home, and clears any project
+    // you had open with it. Each edition argues for itself on its home — the
+    // painting, the poster, the terminal — and landing on a subpage of the one you
+    // just chose shows you a contact form instead of the edition.
+    //
+    // It also removes a seam rather than adding a rule. Volt and Grain ignore page
+    // and selectedProject entirely, so they already dropped you at their top while
+    // the old position sat underneath, invisible, waiting to reappear the moment
+    // you switched away — you would land on a page you never navigated to. Now the
+    // six behave alike and there is no hidden position to restore.
+    <ThemeProvider onEditionChange={() => navigate('home')}>
       <AppShell page={page} selectedProject={selectedProject} activePage={activePage} navigate={navigate} selectProject={selectProject} />
     </ThemeProvider>
   );
