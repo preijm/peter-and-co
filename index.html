@@ -6935,7 +6935,13 @@ function BSContact({ mobile }) {
             later — and with the eyebrow restored the page would have made the same offer
             three times counting the headline. */}
         <BSLabel>open to a good problem</BSLabel>
-        <BSStatement size={mobile ? 'clamp(32px, 9vw, 46px)' : 'clamp(46px, 11vw, 190px)'} maxWidth="12ch">
+        {/* No 12ch cap on a phone. ch scales with the font, so the cap is the same
+            measure in characters at every size — but the column it sits in does not
+            scale with it. At 33.75px, 12ch is 203px inside a 335px column, which broke
+            the question over three lines with a third of the sheet's width unused. Off
+            the leash it balances over two. Desktop keeps the cap: the type runs to 190px
+            there and without it the line would run the full 1560px sheet. */}
+        <BSStatement size={mobile ? 'clamp(32px, 9vw, 46px)' : 'clamp(46px, 11vw, 190px)'} maxWidth={mobile ? undefined : '12ch'}>
           Got a problem worth building?
         </BSStatement>
         <span style={{ fontFamily: BS_MONO, fontSize: '11px', lineHeight: 1.9, color: BS_BODY, maxWidth: '44ch', textWrap: 'pretty' }}>
