@@ -1,4 +1,5 @@
 const fs = require('fs');
+const crypto = require('crypto');
 const path = require('path');
 const babel = require('@babel/core');
 const footage = require('./tools/footage/manifest');
@@ -35,14 +36,27 @@ html = html.replace(
   `    const compiled = document.getElementById(theme.srcId).textContent;`
 );
 
-// 1. Compile main text/babel script → external app.js with defer
+// 1. Compile main text/babel script → external, content-hashed bundle with defer.
+// The name used to be a plain app.js, which is a stable URL: a returning visitor
+// could run a cached bundle against freshly deployed HTML until their copy expired,
+// so a deploy looked like it had not landed. Verified that happening — the fix was
+// live in app.js on the server while the browser kept executing the old one. The
+// hash changes whenever the code does, so every deploy is a new URL and the stale
+// copy is simply never asked for again.
 html = html.replace(
   /<script type="text\/babel">([\s\S]*?)<\/script>/,
   (_, src) => {
     console.log('Compiling main script…');
     const { code } = babel.transformSync(src.trim(), babelConfig);
-    fs.writeFileSync('dist/app.js', code);
-    return `<script src="app.js" defer></script>`;
+    const hash = crypto.createHash('sha256').update(code).digest('hex').slice(0, 8);
+    const file = `app.${hash}.js`;
+    // Drop any earlier bundle so a local dist does not collect one per build.
+    for (const stale of fs.readdirSync('dist').filter(f => /^app\.(?:[0-9a-f]{8}\.)?js$/.test(f))) {
+      fs.unlinkSync(path.join('dist', stale));
+    }
+    fs.writeFileSync(path.join('dist', file), code);
+    console.log(`  → ${file}`);
+    return `<script src="${file}" defer></script>`;
   }
 );
 
