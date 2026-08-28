@@ -5619,7 +5619,20 @@ function pzStyles() {
     // moves at reading speed. Default state is VISIBLE, and the animation is layered
     // on inside @supports — a browser without scroll-driven timelines shows the page
     // rather than a column of invisible blocks.
-    '@keyframes pz-rise { from { clip-path: inset(104% 0 0 0); transform: translateY(18px); } to { clip-path: inset(-26% 0 0 0); transform: translateY(0); } }',
+    // The bottom inset opens to -40px rather than staying at 0. At 0 the rule
+    // does not just reveal an element, it keeps clipping it at its own bottom
+    // edge forever after — so anything a child paints below that edge is cut.
+    // The scroll cue is the visible case: its row is align-items:flex-end, so the
+    // arrow starts flush with the bottom and pz-cue then walks it 6px further
+    // down. It was losing 6px at rest and 12px at the bottom of its bounce.
+    //
+    // It stays 0 at the start, so the reveal is unchanged: the clip is empty
+    // while the top inset is past the bottom, and nothing shows early. It opens
+    // on the way out, by which point the element is already arriving. A length
+    // rather than a percentage because the elements this runs on range from a
+    // 50px row to a 230px heading, and 26% of the short one is 13px — under the
+    // 12px the arrow needs, which is no margin at all.
+    '@keyframes pz-rise { from { clip-path: inset(104% 0 0 0); transform: translateY(18px); } to { clip-path: inset(-26% 0 -40px 0); transform: translateY(0); } }',
     '.pz-in { animation: pz-rise 900ms cubic-bezier(0.22,0.61,0.36,1) both; }',
     '.pz-d1 { animation-delay: 90ms; } .pz-d2 { animation-delay: 180ms; } .pz-d3 { animation-delay: 280ms; } .pz-d4 { animation-delay: 380ms; }',
     '@supports (animation-timeline: view()) { @media (prefers-reduced-motion: no-preference) {',
