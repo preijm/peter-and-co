@@ -3458,7 +3458,9 @@ function MProjectDetail({ project, onBack }) {
         style={{ gridColumn: '3 / 5', gridRow: '3', ...mPnt('l', 4.0) }}
         contentStyle={{ display: 'flex', alignItems: 'center', padding: '0 16px' }}>
         {project.href
-          ? <a href={project.href} target="_blank" rel="noopener noreferrer" style={{ fontFamily: M_DISPLAY, fontSize: '13px', color: M_RED, textDecoration: 'none', letterSpacing: '-0.02em' }}>{project.url} &#8599;</a>
+          /* Vertical padding on an inline element grows the hit box without touching the
+             line box, so the row does not move and the link stops being an 18px target. */
+          ? <a href={project.href} target="_blank" rel="noopener noreferrer" style={{ fontFamily: M_DISPLAY, fontSize: '13px', color: M_RED, textDecoration: 'none', letterSpacing: '-0.02em', padding: '13px 0' }}>{project.url} &#8599;</a>
           : <span style={{ fontFamily: M_MONO, fontSize: '10px', color: M_INK }}>{project.url}</span>}
       </MPlane>
       <MPlane fill={M_W[0]} dir="h" wob="a"
@@ -3493,8 +3495,13 @@ function MWorkRow({ project, idx, row, onSelect }) {
   const accent = [M_RED, M_BLUE, M_YELLOW, M_INK][idx % 4];
   const accentFg = accent === M_YELLOW ? M_INK : M_W[0];
   const wobs = ['a', 'b', 'c'];
-  const cell = (col, fill, dir, content, extra) => (
-    <MPlane fill={fill} dir={dir} wob={wobs[(idx + col) % 3]}
+  // asTag on one cell only. Every cell in the row carries the same onClick so the whole
+  // row is a target for a pointer, but six buttons per project would be six identical
+  // stops for a keyboard and six announcements for a screen reader. The title cell is
+  // the one that carries the project's name, so it is the one that becomes the control.
+  const cell = (col, fill, dir, content, extra, asTag) => (
+    <MPlane as={isClickable ? asTag : undefined} type={asTag ? 'button' : undefined}
+      fill={fill} dir={dir} wob={wobs[(idx + col) % 3]}
       onClick={isClickable ? () => onSelect(project) : undefined}
       onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
       style={{
@@ -3517,7 +3524,7 @@ function MWorkRow({ project, idx, row, onSelect }) {
           <span style={{ fontFamily: M_DISPLAY, fontSize: '22px', color: M_INK, letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1 }}>{project.title}</span>
           {project.description && <span style={{ fontFamily: M_MONO, fontSize: '11px', color: '#5a5a5a', letterSpacing: '0.02em', lineHeight: 1.4 }}>{project.description}</span>}
         </>,
-        { flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center', gap: 4, padding: '14px 24px' })}
+        { flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center', gap: 4, padding: '14px 24px' }, 'button')}
       {cell(3, M_W[(idx + 1) % 3], 'h',
         <span style={{ fontFamily: M_MONO, fontSize: '11px', fontWeight: 700, color: M_INK, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{project.tags[0]}</span>)}
       {cell(4, M_W[(idx + 2) % 3], 'v',
@@ -3549,8 +3556,12 @@ function MWorkRowMobile({ project, idx, row, onSelect }) {
         contentStyle={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <span style={{ fontFamily: M_MONO, fontSize: '11px', fontWeight: 700, color: accentFg, letterSpacing: '0.04em' }}>{String(idx + 1).padStart(2, '0')}</span>
       </MPlane>
-      <MPlane fill={M_W[idx % 3]} dir="h" wob={wobs[(idx + 1) % 3]} onClick={onClick}
-        style={{ gridColumn: '2 / 5', gridRow: `${row}`, cursor, ...mPnt('r', 3.45 + idx * 0.3, 520) }}
+      {/* The content plane is the button, not both planes: the number tile beside it
+          fires the same onClick for a thumb, but a keyboard should stop once per project
+          and hear its name, not twice and hear "01" first. */}
+      <MPlane as={clickable ? 'button' : undefined} type={clickable ? 'button' : undefined}
+        fill={M_W[idx % 3]} dir="h" wob={wobs[(idx + 1) % 3]} onClick={onClick}
+        style={{ gridColumn: '2 / 5', gridRow: `${row}`, cursor, width: '100%', ...mPnt('r', 3.45 + idx * 0.3, 520) }}
         contentStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 5, padding: '12px 16px' }}>
         <span style={{ fontFamily: M_DISPLAY, fontSize: '17px', color: M_INK, letterSpacing: '-0.02em', textTransform: 'uppercase', lineHeight: 1 }}>{project.title}</span>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
