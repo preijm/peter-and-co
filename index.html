@@ -715,10 +715,24 @@ function EditionModal() {
     // Hover rotates through the edition's other primaries rather than always
     // being yellow — the painting itself rotates its accents, and one fixed
     // highlight colour made the grid look like it had a single "hot" state.
-    // Red is left out: that marks the current edition, and black would vanish
-    // into the gutter the ring is drawn in.
+    //
+    // White is out. The ring is drawn in the gutter, which is black, so white
+    // reads there — but the card it borders is the panel colour, near enough to
+    // white that the ring merged into it. Instead of framing the card it looked
+    // like the card had bled into the gutter.
+    //
+    // Losing it also fixes the striping, which was the worse problem. The cycle
+    // was three long and the grid is three wide, so the period matched the
+    // column count exactly and every column came out one colour: Ink over Volt
+    // both yellow, Broadside over Grain both blue, Mondriaan over Prism both
+    // white. Two colours across three columns cannot land in step — it
+    // alternates, so no column or row repeats.
+    //
+    // Two is the ceiling here, not a preference. Red marks the current edition
+    // and black is the gutter the ring sits in, which leaves yellow and blue as
+    // the only primaries that read.
     cardHoverPainted: t.yellow || t.textGhost,
-    cardHoverCycle: [t.yellow, t.blue, t.white].filter(Boolean),
+    cardHoverCycle: [t.yellow, t.blue].filter(Boolean),
     tagline:      t.textMuted,
     divider:      edge,
     randomColor:  t.textMuted,
