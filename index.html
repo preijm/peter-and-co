@@ -5694,6 +5694,10 @@ function pzStyles() {
     // Stopping the animation is not enough for the sheen: the gradient is a
     // background-image and would sit there as a static white streak.
     '@media (prefers-reduced-motion: reduce) {',
+    // Needs !important to beat the global html { scroll-behavior: smooth }. Grain has
+    // carried this line for a while; Prism never got it, so anything that scrolled by
+    // anchor rather than through scrollToId still glided.
+    '  html { scroll-behavior: auto !important; }',
     '  .pz-a, .pz-b, .pz-c, .pz-float, .pz-in, .pz-sheen, .pz-card, .pz-arrow, .pz-cue { animation: none !important; transition: none !important; }',
     '  .pz-in { clip-path: none !important; transform: none !important; }',
     '  .pz-sheen { background-image: none !important; }',
@@ -6281,21 +6285,29 @@ function PrismApp({ selectedProject, navigate, selectProject }) {
   // That stack is the flicker.
   //
   // A layout effect runs before the browser paints, so the reset lands with the new
-  // page rather than after it, and the clamp is never seen. behavior:auto because the
-  // option overrides the global html { scroll-behavior: smooth }, and it makes the
-  // reduced-motion branch unnecessary — there is no motion left to reduce.
+  // page rather than after it, and the clamp is never seen.
+  //
+  // behavior:'instant', not 'auto'. The option does NOT override the CSS: per the
+  // CSSOM spec 'auto' MEANS defer to scroll-behavior, and line 164 sets
+  // html { scroll-behavior: smooth } for the whole site. So this reset — the one
+  // this entire comment argues has to be instant and before paint — was animating
+  // the full length of the work list every time a project opened. Only 'instant'
+  // forces the jump. Measured in the page: scrollTo with 'auto' left scrollY where
+  // it was; with 'instant' it moved on the same tick.
   //
   // In-page jumps keep their glide. There the movement is the point: the reader stays
   // in one document and the travel shows them where they went.
   React.useLayoutEffect(() => {
     if (pendingJump) return;
-    window.scrollTo({ top: 0, behavior: 'auto' });
+    window.scrollTo({ top: 0, behavior: 'instant' });
   }, [selectedProject && selectedProject.id]);
 
-  const onTop = () => window.scrollTo({ top: 0, behavior: pzReduced() ? 'auto' : 'smooth' });
+  // 'instant' rather than 'auto' here too — 'auto' deferred to the global smooth
+  // rule, so asking for reduced motion still got a full animated scroll.
+  const onTop = () => window.scrollTo({ top: 0, behavior: pzReduced() ? 'instant' : 'smooth' });
   const scrollToId = (id) => {
     const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: pzReduced() ? 'auto' : 'smooth', block: 'start' });
+    if (el) el.scrollIntoView({ behavior: pzReduced() ? 'instant' : 'smooth', block: 'start' });
   };
 
   // A layout effect rather than a pair of nested requestAnimationFrames. Both wait for
