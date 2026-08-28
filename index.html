@@ -176,6 +176,29 @@
   }
   #root { min-height: 100vh; }
   input::placeholder, textarea::placeholder { color: #3a3a3a; }
+  /* Autofill. Chrome paints its own background on a filled field and does it at a
+     level an inline style cannot reach, so Ink's #141414 inputs turned white the
+     moment the browser filled them. The background is not settable either — the
+     only way to cover it is an inset box-shadow thick enough to fill the box, and
+     the text needs -webkit-text-fill-color because `color` is overridden too.
+     Each form sets the two properties below to its own field colours; the
+     fallback is the edition's page ground, so a form that forgets them still
+     lands somewhere on-theme rather than white. The long transition is the usual
+     trick for Chrome's delayed repaint on some fills. */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus,
+  select:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px var(--pco-autofill-bg, var(--color-bg, #0a0a0a)) inset !important;
+    box-shadow: 0 0 0 1000px var(--pco-autofill-bg, var(--color-bg, #0a0a0a)) inset !important;
+    -webkit-text-fill-color: var(--pco-autofill-fg, var(--color-text, #ffffff)) !important;
+    caret-color: var(--pco-autofill-fg, var(--color-text, #ffffff));
+    transition: background-color 9999s ease-in-out 0s;
+  }
   button:focus-visible, a:focus-visible {
     outline: 2px solid var(--color-text, #ffffff);
     outline-offset: 3px;
@@ -625,11 +648,16 @@ function EditionModal() {
   // grotesque monospace, and at 10px uppercase JetBrains Mono and Geist Mono
   // render to the same width to a tenth of a pixel. The display face is the part
   // of an edition anyone actually recognises, so the label takes that instead,
-  // a point larger and tracked a little tighter to carry it.
-  // Used by the panel label and the two controls under the grid. Everything else
-  // in here — the taglines, the "current" marker — stays on the mono: they are
-  // captions against the display face, and the contrast is the point.
-  const LABEL_FONT = theme.fonts.display || theme.fonts.serif;
+  // The panel label and the two controls under the grid. These used to take the
+  // display face, for contrast against the mono captions beside them. It reads as
+  // the wrong font rather than as contrast: every edition sets its 10-11px tracked
+  // micro-labels in mono — Ink's FEATURED WORK, Broadside's BSLabel, Volt's
+  // VLabel, even Mondriaan's MLabel, which uses Space Mono and not the Archivo
+  // Black the edition is named for. A display face at 11px is a display face used
+  // at caption size, so the modal announced itself as foreign to the edition it
+  // was sitting on. The theme names still take the display face — that is
+  // NAME_FONT below, and Mondriaan still gets Archivo Black for them.
+  const LABEL_FONT = MONO;
   // Grain is the one edition that forbids weights above 400; a synthesised 600 is
   // exactly the heavy face it exists to avoid.
   const NAME_WEIGHT = theme.id === 'grain-v1' ? 400 : 600;
@@ -1628,6 +1656,10 @@ function Contact() {
     // A single-line field lands at 39px from its padding alone. This is the one control
     // on the page you have to hit before you can type, so it gets the full 44.
     minHeight: '44px',
+    // Read by the :-webkit-autofill rule in the head, which cannot see these
+    // inline values any other way.
+    '--pco-autofill-bg': theme.colors.bgInput,
+    '--pco-autofill-fg': theme.colors.text,
   };
   return (
     <section style={{ maxWidth: '640px', margin: '0 auto', padding: mobile ? '48px 20px' : '80px 32px' }}>
@@ -3081,6 +3113,10 @@ function MContact() {
     width: '100%', padding: '14px 16px', fontFamily: M_SANS, fontWeight: 500,
     fontSize: '16px', color: M_BLACK, background: mobile ? M_WHITE : M_W[2],
     border: `${mobile ? M_LINE/2 + 1 : 4}px solid ${mobile ? M_BLACK : M_INK}`, outline: 'none', boxSizing: 'border-box',
+    // The other form on the site, and the other one Chrome would otherwise fill
+    // with its own pale blue. Read by the :-webkit-autofill rule in the head.
+    '--pco-autofill-bg': mobile ? M_WHITE : M_W[2],
+    '--pco-autofill-fg': M_BLACK,
   };
   const inpBg = mobile ? M_WHITE : M_W[2];
   const sidebar = [
