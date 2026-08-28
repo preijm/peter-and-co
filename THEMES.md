@@ -72,6 +72,16 @@ Every theme needs a swatch in `ThemeSwatch` — `aspectRatio: '16/9'`, `width: '
 ---
 
 ## Editions Modal Rules
+- The panel's label is set in the edition's **display** face, not its mono. Four
+  of the six map `fonts.mono` to a grotesque monospace, and at 10px uppercase
+  JetBrains Mono and Geist Mono render to the same width to a tenth of a pixel —
+  so a per-edition label that nobody could tell apart. The display face is the
+  part of an edition anyone recognises.
+- **Each edition keeps its stylesheet once fetched** (`link[data-pco-font]`,
+  appended rather than swapping one href). Swapping meant every switch
+  re-requested the faces and the page — modal included, which is exactly what
+  you are looking at when you switch — rendered in a fallback until they landed,
+  and refetched again on the way back.
 - Colour comes from the theme's own tokens; **shape and casing are identity and
   cannot be derived**, so an edition opts in through `modalChrome`
   (`borderW`, `radius`, `cardRadius`, `caps`, `paintedGrid`, `nameDisplay`).
