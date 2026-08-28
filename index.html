@@ -6486,11 +6486,21 @@ function BSChrome({ mobile, onTop, openEditions, onNavigate, activePage, left, r
       gap: '16px', height: BS_CHROME, flexShrink: 0,
       borderBottom: '1px solid ' + BS_INK,
     }}>
+      {/* The name only. This sits at the top of every sheet, so the location was being
+          set on every screen to say something that does not change and that nobody
+          navigates by. It also stops the masthead competing with the section label
+          directly under it, which is the line that actually says where you are.
+
+          Checked rather than assumed: the colophon still prints "peter & co. ·
+          rotterdam, nl" on work, background, the kit and contact. Home is the exception
+          — it is one viewport ending in a hard rule and has no colophon, so the location
+          now appears nowhere on the first sheet. That is the whole cost of this, and it
+          is the sheet where a poster wants the fewest words on it anyway. */}
       {left || (
         <button onClick={onTop} style={{
           background: 'none', border: 'none', cursor: 'pointer', padding: '0 10px 0 0', minHeight: '44px',
           fontFamily: BS_MONO, fontSize: '10px', letterSpacing: '0.14em', color: BS_MUTE, textAlign: 'left',
-        }}>peter &amp; co. · rotterdam, nl</button>
+        }}>peter &amp; co.</button>
       )}
       {right || (
         <div style={{ display: 'flex', alignItems: 'center', gap: mobile ? '2px' : '4px' }}>
