@@ -5732,11 +5732,42 @@ function PZField({ mobile, fixed }) {
 
 // `fields` is gone: the field is mounted once, at the root. The sections stay
 // transparent and it shows through all of them, which is the whole point.
-function PZSection({ children, mobile, style, id }) {
+function PZSection({ children, mobile, style, id, n, label }) {
   return (
     <section id={id} style={{ position: 'relative', overflow: 'hidden', padding: `${PZ_GAP} ${PZ_EDGE}`, ...(style || {}) }}>
-      <div style={{ position: 'relative', zIndex: 1, maxWidth: '1180px', margin: '0 auto' }}>{children}</div>
+      <div style={{ position: 'relative', zIndex: 1, maxWidth: '1180px', margin: '0 auto' }}>
+        {n ? <PZRule n={n}>{label}</PZRule> : null}
+        {children}
+      </div>
     </section>
+  );
+}
+
+// Where one section ends and the next begins. The ground is deliberately
+// continuous now, and the eyebrow each section already had was too quiet to
+// carry the boundary on its own: with up to ~296px of gap between sections, on
+// an unbroken field that whitespace reads as more page rather than as a new
+// chapter. Numbering them says the same thing the eyebrow said, but as
+// structure — you can see there are four parts and which one you are in.
+//
+// The rule stops at the content measure rather than running edge to edge. A
+// full-bleed line is a slab edge, which is what the clipped gradients were
+// accidentally drawing before; held to 1180px it reads as an editorial rule,
+// which is the thing actually wanted here.
+function PZRule({ n, children }) {
+  return (
+    <div style={{ marginBottom: 'clamp(28px, 3.4vw, 44px)' }}>
+      <div style={{ height: '1px', background: 'rgba(27,26,34,0.14)' }} />
+      <div style={{
+        marginTop: '13px', display: 'flex', alignItems: 'baseline', gap: '9px',
+        fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase',
+        color: PZ_MUTE, fontWeight: 500,
+      }}>
+        <span style={{ color: PZ_INK, fontWeight: 600 }}>{n}</span>
+        <span style={{ opacity: 0.4 }}>/</span>
+        <span>{children}</span>
+      </div>
+    </div>
   );
 }
 
@@ -5871,10 +5902,9 @@ function PZWork({ projects, mobile, onSelect }) {
     // 148px of top padding, so jumping here scrolled straight past the breathing
     // room the section exists to have and landed "Selected work" hard against the
     // top edge — the one target of four that did.
-    <PZSection mobile={mobile} id="pz-work">
+    <PZSection mobile={mobile} id="pz-work" n="01" label="Selected work">
       <div style={{ display: 'flex', alignItems: mobile ? 'flex-start' : 'flex-end', justifyContent: 'space-between', gap: '24px', marginBottom: '38px', flexDirection: mobile ? 'column' : 'row' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <PZLabel>Selected work</PZLabel>
           <h2 className="pz-rise" style={{
             fontFamily: PZ_DISPLAY, fontWeight: 400, margin: 0, color: PZ_INK,
             fontSize: mobile ? 'clamp(32px, 8vw, 40px)' : 'clamp(40px, 4.4vw, 56px)',
@@ -5961,10 +5991,9 @@ function PZBackground({ mobile }) {
     // Translucent now, not solid. This band exists to give the page a calmer beat
     // between two colourful sections, and it still does — but opaque it would be
     // the one place the ground stops, which is the seam this change removes.
-    <PZSection mobile={mobile} id="pz-background" style={{ background: 'rgba(244,243,247,0.72)' }}>
+    <PZSection mobile={mobile} id="pz-background" n="02" label="Background" style={{ background: 'rgba(244,243,247,0.72)' }}>
       <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1fr 1fr', gap: mobile ? '34px' : '64px', alignItems: 'start' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          <PZLabel>Background</PZLabel>
           <h2 className="pz-rise" style={{
             fontFamily: PZ_DISPLAY, fontWeight: 400, margin: 0, color: PZ_INK,
             fontSize: mobile ? 'clamp(30px, 7.5vw, 38px)' : 'clamp(38px, 4vw, 50px)',
@@ -6001,10 +6030,9 @@ function PZTools({ mobile }) {
   const count = cats.reduce((n, c) => n + c.tools.length, 0);
   const tints = ['#c9a9ef', '#9fd0ee', '#f2cf9d'];
   return (
-    <PZSection mobile={mobile} id="pz-tools">
+    <PZSection mobile={mobile} id="pz-tools" n="03" label="Kit">
       <div style={{ display: 'flex', alignItems: mobile ? 'flex-start' : 'flex-end', justifyContent: 'space-between', gap: '24px', marginBottom: '38px', flexDirection: mobile ? 'column' : 'row' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <PZLabel>Kit</PZLabel>
           <h2 className="pz-rise" style={{
             fontFamily: PZ_DISPLAY, fontWeight: 400, margin: 0, color: PZ_INK,
             fontSize: mobile ? 'clamp(32px, 8vw, 40px)' : 'clamp(40px, 4.4vw, 56px)',
@@ -6056,9 +6084,8 @@ function PZContact({ mobile }) {
     ['LinkedIn', 'https://www.linkedin.com/in/peter-reijm-47165b5b/', true],
   ];
   return (
-    <PZSection mobile={mobile} id="pz-contact">
+    <PZSection mobile={mobile} id="pz-contact" n="04" label="Contact">
       <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', maxWidth: '640px' }}>
-        <PZLabel>Contact</PZLabel>
         <h2 className="pz-rise" style={{
           fontFamily: PZ_DISPLAY, fontWeight: 400, margin: 0, color: PZ_INK,
           fontSize: mobile ? 'clamp(32px, 8vw, 40px)' : 'clamp(40px, 4.4vw, 56px)',
