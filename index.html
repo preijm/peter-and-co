@@ -5138,7 +5138,14 @@ function pzStyles() {
     '.pz-in { animation: pz-rise 900ms cubic-bezier(0.22,0.61,0.36,1) both; }',
     '.pz-d1 { animation-delay: 90ms; } .pz-d2 { animation-delay: 180ms; } .pz-d3 { animation-delay: 280ms; } .pz-d4 { animation-delay: 380ms; }',
     '@supports (animation-timeline: view()) { @media (prefers-reduced-motion: no-preference) {',
-    '  .pz-rise { animation: pz-rise linear both; animation-timeline: view(); animation-range: entry 0% cover 30%; }',
+    // Ends at `entry 100%`, not `cover 30%`. A cover-relative end is not always
+    // reachable: an element near the foot of the document runs out of scroller before
+    // it travels that far through its own cover range, so the animation freezes partway
+    // and never finishes. The last project card sat at 81% of this keyframe for good,
+    // which left clip-path: inset(-1.4%) slicing the top off its title on a phone.
+    // `entry 100%` is the moment the element is fully in the scrollport, which anything
+    // a reader can actually see has reached by definition.
+    '  .pz-rise { animation: pz-rise linear both; animation-timeline: view(); animation-range: entry 0% entry 100%; }',
     '} }',
 
     // SHEEN.
@@ -5667,8 +5674,13 @@ function bsStyles() {
     '.bs-in { animation: bs-rise 620ms cubic-bezier(0.22,0.61,0.36,1) both; }',
     '.bs-d1 { animation-delay: 90ms; } .bs-d2 { animation-delay: 180ms; }',
     '@supports (animation-timeline: view()) { @media (prefers-reduced-motion: no-preference) {',
-    '  .bs-rule { animation: bs-draw linear both; animation-timeline: view(); animation-range: entry 10% cover 22%; }',
-    '  .bs-riser { animation: bs-rise linear both; animation-timeline: view(); animation-range: entry 5% cover 26%; }',
+    // Both end at `entry 100%` for the reason given on Prism's .pz-rise: a cover-relative
+    // end is unreachable for anything near the foot of the document, and the animation
+    // then freezes partway. Here it was worse than a clipped card — the colophon's rule
+    // is a 1px element at the very bottom of every sheet, so it sat at scaleX(0) and was
+    // never drawn at all on background, the kit and contact.
+    '  .bs-rule { animation: bs-draw linear both; animation-timeline: view(); animation-range: entry 10% entry 100%; }',
+    '  .bs-riser { animation: bs-rise linear both; animation-timeline: view(); animation-range: entry 5% entry 100%; }',
     '} }',
     '@media (prefers-reduced-motion: reduce) { .broadside-root *, .broadside-root *::before { animation: none !important; transition: none !important; } }',
 
@@ -6099,7 +6111,12 @@ function BSContact({ mobile }) {
 function BSColophon({ mobile }) {
   return (
     <BSSheet style={{ paddingTop: 'clamp(48px, 8vh, 96px)', paddingBottom: 'clamp(24px, 4vh, 40px)' }}>
-      <BSRule weight="1px" draw />
+      {/* No `draw` here, and widening the range would not have rescued it. A view()
+          timeline needs a scroller to advance, and most sheets in this edition fit the
+          viewport exactly and never scroll — so this rule, the last element on the page,
+          sat at scaleX(0) and was simply never drawn. Same rule as above the fold: a
+          line the reader does not scroll to is set, not animated. */}
+      <BSRule weight="1px" />
       <div style={{
         display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: '10px',
         justifyContent: 'space-between', paddingTop: '18px',
