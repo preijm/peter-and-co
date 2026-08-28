@@ -6391,6 +6391,10 @@ const BS_SURFACE = '#e2e0db', BS_LINE = '#dddbd6';
 const BS_DISPLAY = "'DM Serif Display', Georgia, serif";
 const BS_MONO = "'JetBrains Mono', 'Fira Code', monospace";
 const BS_EDGE = 'clamp(20px, 4vw, 56px)';
+// The background sheet's hanging labels: the width of the margin they sit in, and the
+// gap to the text. The headline is indented by their sum, so they are constants rather
+// than two numbers written three times.
+const BS_GUTTER = 118, BS_GUTTER_GAP = 38;
 const BS_CHROME = '64px';
 
 const bsReduced = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -6734,68 +6738,58 @@ function BSBackground({ mobile }) {
     ['off screen', 'Running roads, mountain biking trails, keeping plants alive, or tracking down rare draft beers one check-in at a time.'],
     ['the point', 'Sometimes something useful comes out of it.'],
   ];
-  // The meta read "not a studio · just me", which is the statement immediately below it
-  // said a second time. The name takes that slot instead — it is the one fact on this
-  // sheet that appears nowhere else on the site, where the location is not: the chrome
-  // at the top of every sheet already reads "peter & co. · rotterdam, nl", which is also
-  // why the byline that used to sit at the foot of the left column is gone rather than
-  // moved.
+  // The headline and its standfirst are gone. "Not a studio. Just me." plus a paragraph
+  // about wanting to build things was the sheet introducing itself before saying
+  // anything, and the four parts below it already say all of it — the route says he was
+  // not trained for this, the method says he builds to find out. An introduction to
+  // four sentences is longer than the four sentences.
+  //
+  // Which leaves them as the whole page, so they are set at reading size rather than as
+  // captions under something larger.
+  //
+  // The meta is the name, and it is the one fact on this sheet that appears nowhere else
+  // on the site — where the location is not, since the colophon at the foot of every
+  // sheet carries rotterdam already. It read "not a studio · just me" while that was the
+  // statement directly beneath it, which was the sheet saying the same thing twice; both
+  // the statement and the column that held a byline under it are gone now.
   return (
     <BSSection page id="bs-background" label="background" meta="peter reijm" mobile={mobile}>
-      {/* stretch, not start: the columns have to be given the sheet's height before
-          anything inside them can be pushed to the foot of it. With alignItems start
-          both columns hugged the top and left 420px of paper under them. */}
-      <div style={{
-        display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1.05fr 1.2fr',
-        gap: mobile ? '32px' : '64px',
-        alignItems: mobile ? 'start' : 'stretch', flex: mobile ? undefined : 1,
-      }}>
-        {/* space-between, which is what the stretch above was for. Bigger type alone
-            only took the content from 214px to 280px of a 928px column — two short
-            elements cannot fill that height at any size that is still tasteful. So the
-            paragraph goes to the foot instead, and the column spans the sheet the way
-            the four parts beside it already do, landing on the same baseline. */}
-        <div className="bs-riser" style={{
-          display: 'flex', flexDirection: 'column', gap: '20px',
-          justifyContent: mobile ? undefined : 'space-between',
-        }}>
-          {/* Sized up. The column is stretched to the sheet's full height so something
-              can be pushed to the foot of it, but nothing ever was: statement and
-              paragraph ended 693px short of the bottom, three quarters of the column
-              empty. Bigger type rather than more words — this sheet is deliberately
-              four short parts, and padding it out with prose would undo that. */}
-          <BSStatement size={mobile ? 'clamp(32px, 8.4vw, 44px)' : 'clamp(42px, 5.6vw, 84px)'} maxWidth="13ch">
-            Not a studio. Just me.
-          </BSStatement>
-          <span style={{ fontFamily: BS_MONO, fontSize: mobile ? '11px' : '13px', lineHeight: 1.85, color: BS_BODY, maxWidth: '42ch', textWrap: 'pretty' }}>
-            I have wanted to build things for as long as I can remember. I just never wanted to learn to write the code. AI closed that gap, and I would rather ship something unfinished than get it right on paper.
-          </span>
-        </div>
+      {/* A leader column, not two columns. The split sheet kept posing the same
+          problem from both sides: one half always ran out of words before the other ran
+          out of paper, and every fix was a way of hiding that. So there is one measure
+          now, set in from the left, with the labels hanging in the margin beside the
+          text they name — the page furniture of a long read rather than a layout.
 
-        {/* A label and a statement per entry, the same object the particulars use. The
-            numbers are gone with the questions: this is a life in four parts, not a list
-            of five things, and numbering it would make it a list again. */}
-        {/* space-between so the four parts spread down the sheet rather than stacking at
-            the top of it — the rules then divide the whole column, which is what this
-            edition does everywhere else. */}
-        <div className="bs-riser" style={{
-          display: 'flex', flexDirection: 'column',
-          justifyContent: mobile ? undefined : 'space-between',
-        }}>
-          {story.map((row, i) => (
-            <div key={row[0]} style={{
-              display: 'flex', flexDirection: 'column', gap: '8px',
-              padding: i === 0 ? '0 0 18px' : '18px 0',
-              borderBottom: i < story.length - 1 ? '1px solid ' + BS_LINE : 'none',
-            }}>
-              <BSLabel>{row[0]}</BSLabel>
-              <span style={{
-                fontFamily: BS_DISPLAY, fontSize: mobile ? '18px' : 'clamp(18px, 1.5vw, 22px)',
-                lineHeight: 1.32, letterSpacing: '-0.015em', color: BS_INK, textWrap: 'pretty',
-              }}>{row[1]}</span>
-            </div>
-          ))}
-        </div>
+          The gutter and its gap are constants because the headline is indented by
+          exactly their sum. That is what puts the statement on the same left edge as
+          every paragraph under it, with only the labels breaking out of it. Two
+          literals would drift the first time either changed. */}
+      <div className="bs-riser" style={{
+        display: 'flex', flexDirection: 'column',
+        gap: mobile ? '30px' : 'clamp(30px, 4.4vh, 58px)',
+        marginLeft: mobile ? undefined : 'clamp(0px, 5vw, 96px)',
+        maxWidth: mobile ? undefined : '880px',
+        paddingTop: mobile ? undefined : 'clamp(8px, 3vh, 40px)',
+      }}>
+        {/* No rules between the parts. The hanging labels already divide them, and a
+            rule as well would be the ruled index from the work sheet wearing a margin.
+            The masthead rule at the top of the sheet keeps the edition's grammar. */}
+        {story.map(row => (
+          <div key={row[0]} style={{
+            display: 'grid',
+            gridTemplateColumns: mobile ? '1fr' : BS_GUTTER + 'px minmax(0, 58ch)',
+            columnGap: BS_GUTTER_GAP + 'px', rowGap: '8px',
+          }}>
+            {/* Nudged down to sit on the first line of its paragraph rather than on the
+                top of the box: 10px mono against a 25px serif do not share a first
+                baseline on their own. */}
+            <BSLabel style={{ paddingTop: mobile ? undefined : '10px' }}>{row[0]}</BSLabel>
+            <span style={{
+              fontFamily: BS_DISPLAY, fontSize: mobile ? '21px' : 'clamp(21px, 2vw, 29px)',
+              lineHeight: 1.4, letterSpacing: '-0.015em', color: BS_INK, textWrap: 'pretty',
+            }}>{row[1]}</span>
+          </div>
+        ))}
       </div>
     </BSSection>
   );
