@@ -5705,10 +5705,21 @@ function pzStyles() {
 // The drifting ground. Three fields on desktop, TWO on a phone, and a smaller blur
 // radius there — blur cost scales with radius and area, and this is the single most
 // expensive thing the edition paints.
-function PZField({ mobile }) {
+// One of these, fixed behind the whole edition — not one per section. Per-section
+// fields were the seam: every section clipped its own blobs at its own edge and an
+// unrelated set began below it, so what should read as one atmosphere was five
+// rectangles of colour butted together. The hero-to-work boundary was the worst of
+// them, a hard horizontal line straight across the page.
+//
+// Fixed rather than absolute over the full document. Absolute would stretch three
+// blobs across 4200px and wash out to nothing; fixed keeps them at viewport scale,
+// so the colour stays as dense as it was designed to be and the content scrolls
+// over a continuous ground. The trade is that the wash no longer travels with the
+// content — it sits behind it.
+function PZField({ mobile, fixed }) {
   return (
     <div aria-hidden="true" style={{
-      position: 'absolute', inset: mobile ? '-16%' : '-12%',
+      position: fixed ? 'fixed' : 'absolute', inset: mobile ? '-16%' : '-12%',
       filter: mobile ? 'blur(48px)' : 'blur(74px)',
       opacity: mobile ? 0.78 : 0.8, pointerEvents: 'none', zIndex: 0,
     }}>
@@ -5719,10 +5730,11 @@ function PZField({ mobile }) {
   );
 }
 
-function PZSection({ children, mobile, fields, style, id }) {
+// `fields` is gone: the field is mounted once, at the root. The sections stay
+// transparent and it shows through all of them, which is the whole point.
+function PZSection({ children, mobile, style, id }) {
   return (
     <section id={id} style={{ position: 'relative', overflow: 'hidden', padding: `${PZ_GAP} ${PZ_EDGE}`, ...(style || {}) }}>
-      {fields && <PZField mobile={mobile} />}
       <div style={{ position: 'relative', zIndex: 1, maxWidth: '1180px', margin: '0 auto' }}>{children}</div>
     </section>
   );
@@ -5803,7 +5815,6 @@ function PZHero({ mobile, openEditions, onWork, onTop, onJump }) {
       padding: `0 ${PZ_EDGE} clamp(24px, 4vw, 44px)`,
       boxSizing: 'border-box',
     }}>
-      <PZField mobile={mobile} />
       <PZChrome mobile={mobile} onTop={onTop} openEditions={openEditions} onJump={onJump} />
       <div style={{ position: 'relative', zIndex: 1, maxWidth: '1180px', margin: '0 auto', width: '100%', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
         <div>
@@ -5860,7 +5871,7 @@ function PZWork({ projects, mobile, onSelect }) {
     // 148px of top padding, so jumping here scrolled straight past the breathing
     // room the section exists to have and landed "Selected work" hard against the
     // top edge — the one target of four that did.
-    <PZSection mobile={mobile} fields id="pz-work">
+    <PZSection mobile={mobile} id="pz-work">
       <div style={{ display: 'flex', alignItems: mobile ? 'flex-start' : 'flex-end', justifyContent: 'space-between', gap: '24px', marginBottom: '38px', flexDirection: mobile ? 'column' : 'row' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <PZLabel>Selected work</PZLabel>
@@ -5947,7 +5958,10 @@ function PZBackground({ mobile }) {
     'And how many designs can one website be?',
   ];
   return (
-    <PZSection mobile={mobile} id="pz-background" style={{ background: '#f4f3f7' }}>
+    // Translucent now, not solid. This band exists to give the page a calmer beat
+    // between two colourful sections, and it still does — but opaque it would be
+    // the one place the ground stops, which is the seam this change removes.
+    <PZSection mobile={mobile} id="pz-background" style={{ background: 'rgba(244,243,247,0.72)' }}>
       <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1fr 1fr', gap: mobile ? '34px' : '64px', alignItems: 'start' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <PZLabel>Background</PZLabel>
@@ -5987,7 +6001,7 @@ function PZTools({ mobile }) {
   const count = cats.reduce((n, c) => n + c.tools.length, 0);
   const tints = ['#c9a9ef', '#9fd0ee', '#f2cf9d'];
   return (
-    <PZSection mobile={mobile} fields id="pz-tools">
+    <PZSection mobile={mobile} id="pz-tools">
       <div style={{ display: 'flex', alignItems: mobile ? 'flex-start' : 'flex-end', justifyContent: 'space-between', gap: '24px', marginBottom: '38px', flexDirection: mobile ? 'column' : 'row' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <PZLabel>Kit</PZLabel>
@@ -6042,7 +6056,7 @@ function PZContact({ mobile }) {
     ['LinkedIn', 'https://www.linkedin.com/in/peter-reijm-47165b5b/', true],
   ];
   return (
-    <PZSection mobile={mobile} fields id="pz-contact">
+    <PZSection mobile={mobile} id="pz-contact">
       <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', maxWidth: '640px' }}>
         <PZLabel>Contact</PZLabel>
         <h2 className="pz-rise" style={{
@@ -6113,7 +6127,6 @@ function PZProject({ project, projects, mobile, onSelect, onBack, onTop, openEdi
       display: 'flex', flexDirection: 'column',
       padding: `0 ${PZ_EDGE} clamp(28px, 4vw, 60px)`,
     }}>
-      <PZField mobile={mobile} />
       <PZChrome mobile={mobile} onTop={onTop} openEditions={openEditions} onJump={onJump} />
       <div style={{
         position: 'relative', zIndex: 1, maxWidth: '1180px', width: '100%', margin: '0 auto',
@@ -6281,6 +6294,10 @@ function PrismApp({ selectedProject, navigate, selectProject }) {
 
   return (
     <div className="prism-root" style={{ background: PZ_PAPER, color: PZ_INK, fontFamily: PZ_SANS, minHeight: '100vh' }}>
+      {/* The whole edition's ground, mounted once so it cannot be cut at a section
+          edge. It sits on both the sectioned page and a case study, which is why it
+          lives here rather than in either. */}
+      <PZField mobile={mobile} fixed />
       {selectedProject
         ? <PZProject project={selectedProject} projects={projects} mobile={mobile} onSelect={selectProject} onBack={() => navigate('work')} onTop={onTop} openEditions={openEditions} onJump={onJump} />
         : (
