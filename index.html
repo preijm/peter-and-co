@@ -6129,9 +6129,26 @@ function PZProject({ project, projects, mobile, onSelect, onBack, onTop, openEdi
             background: 'rgba(255,255,255,0.55)', border: '1px solid rgba(255,255,255,0.92)',
             backdropFilter: mobile ? undefined : 'blur(16px)',
           }}>
+            {/* One shape for the media slot, whatever is in it. The image carried no
+                size of its own, so the panel took whatever proportion each screenshot
+                happened to be — 410px tall on a 1.78 image, 423px on Folio's 1.70 —
+                and a project with no screenshot got a 220px block instead, which is
+                barely half. Four cards that should read as one set, each a different
+                height.
+
+                It also fixes a jump nobody asked about: the image is lazy and had no
+                reserved space, so it occupied nothing until it arrived and the panel
+                grew under the reader when it did. An aspect ratio holds the space from
+                the first paint.
+
+                16/9 because that is what the screenshots already are; cover rather
+                than contain so the odd one out is trimmed rather than letterboxed
+                against a colour this panel does not otherwise use, and anchored to the
+                top because these are interfaces — the chrome at the top is the part
+                that identifies them. */}
             {project.screenshot
-              ? <img src={typeof sanityImg === 'function' ? sanityImg(project.screenshot, 900) : project.screenshot} alt={project.title} loading="lazy" decoding="async" style={{ width: '100%', borderRadius: '12px', display: 'block' }} />
-              : <div style={{ borderRadius: '12px', background: '#efedf4', height: '220px' }} />}
+              ? <img src={typeof sanityImg === 'function' ? sanityImg(project.screenshot, 900) : project.screenshot} alt={project.title} loading="lazy" decoding="async" style={{ width: '100%', aspectRatio: '16 / 9', objectFit: 'cover', objectPosition: 'top', borderRadius: '12px', display: 'block' }} />
+              : <div style={{ borderRadius: '12px', background: '#efedf4', width: '100%', aspectRatio: '16 / 9' }} />}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '14px 18px', marginTop: '20px' }}>
               {meta.map(m => (
                 <div key={m[0]} style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
