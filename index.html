@@ -4046,13 +4046,21 @@ function VTerminal({ projects, mobile }) {
            'not a developer: i bring the ideas and the taste; AI handles the code.'];
     } else if (n === 'ls' || n === 'projects') {
       a = [projects.length + ' projects:'];
-      projects.forEach((p, idx) => a.push('  ' + String(idx + 1).padStart(2, '0') + '  ' + p.title + ' \u00b7 ' + (p.tagline || (p.tags || []).join(' · ')) + (p.public !== false && p.href ? '  ↗' : '  (soon)')));
+      // Two different reasons a project has no arrow, and they are not the same thing.
+      // public === false is "not launched yet". A launched project with no href is
+      // finished but has nowhere public to point - Folio runs on a local domain. Calling
+      // that "soon" says the work is unfinished, which is the one thing it is not.
+      projects.forEach((p, idx) => {
+        const mark = p.public === false ? '  (soon)' : (p.href ? '  ↗' : '  (local)');
+        a.push('  ' + String(idx + 1).padStart(2, '0') + '  ' + p.title + ' · ' + (p.tagline || (p.tags || []).join(' · ')) + mark);
+      });
       a.push("→ type 'open <n>' to visit one");
     } else if (n === 'open') {
       const idx = parseInt(args[0], 10);
       const p = projects[idx - 1] || projects.find(x => x.id === (args[0] || '').toLowerCase());
       if (!p) a = ["no such project. try 'projects'"];
-      else if (p.public === false || !p.href) a = [p.title + " isn't live yet. coming soon."];
+      else if (p.public === false) a = [p.title + " isn't live yet. coming soon."];
+      else if (!p.href) a = [p.title + ' runs locally - no public URL to open.'];
       else { a = ['opening ' + p.title + ' → ' + p.href]; window.open(p.href, '_blank', 'noopener'); }
     } else if (n === 'about' || n === 'background') {
       a = ["i've wanted to build things forever. i just never wanted to learn to write the code.",
