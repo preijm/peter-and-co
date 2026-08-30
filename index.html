@@ -2143,9 +2143,20 @@ const sanityUrl = (q) =>
 // Sanity's image CDN resizes/recompresses/reformats on the fly via query params —
 // without this, <img> tags request the full original upload as-is (often several
 // MB). No-op for non-Sanity URLs (local paths, data URIs) so it's safe everywhere.
+// `w` is the CSS width the image is drawn at, so on a 2x display it is half the pixels
+// the screen can actually show. Broadside is the clear case: it draws the plate 1448px
+// wide and asked for 1600, which is fine at 1x and 0.55x of what a retina panel wants —
+// visibly soft, and softer still if you open the file on its own.
+//
+// dpr multiplies w on Sanity's side, so a 1x screen keeps the small file and only
+// high-density screens pay for the larger one. Capped at 2: dpr 3 triples the request
+// for a difference almost nobody can see, and these are 3840px sources, so 2x is
+// comfortably within the original.
 const sanityImg = (url, w) => {
   if (!url || typeof url !== 'string' || !url.includes('cdn.sanity.io')) return url;
-  return `${url}${url.includes('?') ? '&' : '?'}w=${w}&auto=format&q=75&fit=max`;
+  const dpr = Math.min(Math.max(Math.round(typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1), 1), 2);
+  const q = `w=${w}&auto=format&q=75&fit=max${dpr > 1 ? `&dpr=${dpr}` : ''}`;
+  return `${url}${url.includes('?') ? '&' : '?'}${q}`;
 };
 const Q_PROJECTS = `*[_type=="project"]|order(order asc){"id":slug.current,title,description,tagline,detail,tags,year,url,href,"screenshot":screenshot.asset->url,"screenshotBefore":screenshotBefore.asset->url,livePreview,role,stack,tools,featured,isPublic,repo,"accent":{"default":accentDefault,"mondriaan-v1":accentMondriaan}}`;
 const Q_TOOLS = `*[_type=="tool"]|order(order asc){name,"desc":description,category,status,highlight}`;
