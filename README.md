@@ -27,7 +27,9 @@ Projects have per-theme accent colours defined in their data — a `resolveAccen
 
 ## Content: Sanity is the source of truth
 
-Projects and tools are **not** hardcoded — they're managed in a [Sanity Studio](studio/) and fetched live when the site loads (`loadSanityContent()` in `index.html`). The `PROJECTS` / `TOOL_CATEGORIES` arrays inline in `index.html` are only a **frozen fallback snapshot**, used if Sanity is ever unreachable, so the site never fully breaks — they are not kept in sync automatically and shouldn't be hand-edited for routine content changes.
+Projects and tools are **not** hardcoded — they're managed in a [Sanity Studio](studio/) and fetched live when the site loads (`loadSanityContent()` in `index.html`). The `PROJECTS` / `TOOL_CATEGORIES` arrays inline in `index.html` are the **fallback copy**: what the page paints before that fetch resolves, and what it keeps if Sanity is unreachable.
+
+They are **regenerated from Sanity on every deploy** — `build.js` runs `tools/sanity-snapshot.js`, which lifts the queries and mappers straight out of `index.html` and runs them in Node, so there is no second copy of the mapping to drift. The shipped fallback is therefore never more than one deploy stale and nobody hand-syncs it. The copy committed in `index.html` only affects local `npx serve .`. Either way, edit content in Sanity, not the arrays. Run `node tools/sanity-snapshot.js` to see exactly what a deploy would bake in.
 
 **To add or change a project or tool, edit it in Sanity Studio** — see [studio/README.md](studio/README.md) for setup and day-to-day use.
 
@@ -131,15 +133,16 @@ Lives in a `<script type="text/plain" id="mondriaan-src">` blob.
 
 | Component | What it does |
 |---|---|
-| `MHomeComposition` | Mondriaan-grid homepage with animated paint-in |
-| `MWorkTable` | Full-width table of all projects |
-| `MMiniProjectCard` | Compact card used in homepage grid |
-| `MProjectCard` | Full card for work page |
-| `MProjectDetail` | De Stijl project detail view |
-| `MAbout` | Geometric bio layout |
-| `MTools` | Row-aligned tools grid (reads from `TOOL_CATEGORIES`) |
-| `MContact` | Formspree form with Mondriaan styling |
-| `MHeader` / `MFooter` | Mondriaan nav and footer |
+| `MondriaanApp` | Top-level takeover — routes between the home canvas and the sheets |
+| `MHomePainting` / `MHomePaintingMobile` | The home canvas: a full-bleed painting on desktop, a bordered layout on a phone |
+| `MPaintedHeader` / `MPaintedHeaderMobile` | Painted header above every sheet |
+| `MPlane` | The painted-plane primitive every surface is built from — turbulence-wobbled edges, brush streaks, and an `as` prop so a plane can render as a real button |
+| `MPaintCard` | Featured project tile on the home canvas |
+| `MWorkTable` / `MWorkRow` / `MWorkRowMobile` | The work sheet; the row's title cell is the focusable control |
+| `MProjectDetail` | De Stijl project page |
+| `MAbout` / `MTools` / `MContact` | Background, kit and the Formspree form |
+| `MFooter` / `MFooterTile` | Painted footer — contact and project pages |
+| `MPaintDefs` / `MPaintOverlay` | The SVG turbulence filters, and the grain + linen wash over the whole edition |
 
 ### Volt components
 
@@ -155,6 +158,54 @@ Lives in a `<script type="text/plain" id="volt-src">` blob. A dark, restrained o
 | `VContact` | Contact CTA + footer |
 | `VParticles` | Scroll-reactive Three.js point field backdrop (lazy-loaded) |
 
+### Broadside components
+
+Lives in a `<script type="text/plain" id="broadside-src">` blob. A poster over ruled listings — see [THEMES.md](THEMES.md).
+
+| Component | What it does |
+|---|---|
+| `BroadsideApp` | Top-level takeover — page-driven, one sheet at a time |
+| `BSSheet` | The sheet: 1560px cap, `full` for the one-viewport hero |
+| `BSChrome` | Masthead and nav, with the edition's only rule at the head of a sheet |
+| `BSStatement` | The poster line — see the arithmetic note in THEMES.md before changing its words |
+| `BSHero` / `BSListings` | The poster, and the work index printed under it |
+| `BSSection` | A sheet's body. Carries no head of its own: the chrome names the page |
+| `BSWork` / `BSBackground` / `BSTools` / `BSContact` | The four inner sheets |
+| `BSProject` / `BSReckoning` | Case study, and the build-footprint sheet under it |
+| `BSColophon` | Foot of every inner sheet — location and edition |
+| `BSRule` / `BSLabel` / `BSButton` | 3px and 1px rules, the mono label, the ghost button |
+
+### Grain components
+
+Lives in a `<script type="text/plain" id="grain-src">` blob. Cinematic and achromatic — see [THEMES.md](THEMES.md).
+
+| Component | What it does |
+|---|---|
+| `GrainApp` | Top-level takeover — one long scroll plus project pages |
+| `RChrome` / `RMenu` | Fixed wordmark and hamburger, and the full-screen menu they open |
+| `RHero` / `RStatement` / `RIntertitle` | The opening, the big lines, and the cards between sections |
+| `RProjectPlane` | A project as a full-bleed plane. The plane takes the click; the title inside is a real button, so it stays keyboard-reachable |
+| `RWork` / `RWorkIntro` / `RTools` / `RContact` | The sections |
+| `RProjectDetail` | Project page |
+| `RField` | The drifting blobs and grain behind everything |
+| `useFootage` / `useCredits` / `RCredit` | Reads `footage/manifest.json` and `footage/credits.json`, and prints the photograph credit |
+| `RPill` / `RCaption` / `RDisplay` / `RBody` | The ghost pill and the type scale |
+
+### Prism components
+
+Lives in a `<script type="text/plain" id="prism-src">` blob. Light, colour and depth — see [THEMES.md](THEMES.md).
+
+| Component | What it does |
+|---|---|
+| `PrismApp` | Top-level takeover — sections on one page, plus project pages |
+| `PZField` | The colour ground. One instance, `position: fixed`, mounted at the root so no section edge can cut it |
+| `PZChrome` | Wordmark, section nav (desktop) and the Editions pill |
+| `PZMenuButton` / `PZMenu` | The phone's way through: a fixed button and a full-screen menu, since the chrome scrolls away |
+| `PZSection` / `PZRule` | A numbered section and the rule that opens it — `01 / SELECTED WORK` |
+| `PZHero` / `PZWork` / `PZBackground` / `PZTools` / `PZContact` | The five sections |
+| `PZProject` | Project page |
+| `PZPill` / `PZLabel` / `PZArrow` | The pill (`full` makes it fill a grid cell), the eyebrow, the arrow glyph |
+
 ---
 
 ## Other files
@@ -165,7 +216,7 @@ Lives in a `<script type="text/plain" id="volt-src">` blob. A dark, restrained o
 | `studio/` | Sanity Studio — the content admin (see [studio/README.md](studio/README.md)) |
 | `tools/footprint/` | Build-footprint extractor (see [its README](tools/footprint/README.md)) |
 | `footprint.json` | Generated build-footprint data, served from the site |
-| `THEMES.md` | Canonical rules for theme structure, tokens, and the Mondriaan/Volt internals |
+| `THEMES.md` | Canonical rules for theme structure, tokens, and each takeover's internals |
 | `themes/` | Per-theme favicon SVG assets |
 | `screenshots/` | Static project screenshots copied to `dist/` |
 | `social-card.png` | OG/Twitter share image (1200×630) |

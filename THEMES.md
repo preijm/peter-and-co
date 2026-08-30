@@ -176,6 +176,19 @@ Change the headline words and that 5.476 changes with them — re-measure, don't
    sheet drew to ~45% and stopped. Rules above the fold are simply set; only rules the
    reader scrolls to draw themselves in.
 
+**A sheet has no head of its own.** Each one used to open with a label and a meta line —
+`the work / 05 entries`, `background / peter reijm` — over a 3px rule. That put the sheet's
+name directly under a chrome that already marks the current page, so the name was the
+second thing on screen saying where you were, and its rule was the second bar within 60px.
+Both went. The chrome's 1px line is now the only rule at the head of a sheet, and the body
+is centred between it and the colophon rather than hanging off it.
+
+The meta line went with them. `open to a good problem` came back as the contact sheet's
+eyebrow, which is a better place for a standing status than a masthead was; `peter reijm`
+and the kit's shelf names did not, and nothing on those sheets replaces them. The masthead
+itself is just `peter & co.` — the location it used to carry is in the colophon, which the
+hero does not have.
+
 **Broadside is page-driven, not one long scroll** — the only edition besides Mondriaan that
 reads `page`. Home is the poster and nothing else: exactly one viewport, zero scroll.
 `work` / `background` / `kit` / `contact` in the chrome call `navigate()` and each opens
@@ -187,13 +200,23 @@ mark. Two consequences to keep in mind:
 
 - The hero listings **are** the work index, so `work` is dropped from the phone nav
   (which abbreviates `background` to `bg` to fit 375px). Logo → home → listings.
-- `the kit` is the one sheet that can exceed a viewport; 19 tools across 3 shelves runs
-  ~27px over at 1440×900. That is fine — chasing an exact fit is futile when viewport
-  heights vary this much.
+- No inner sheet is guaranteed to fit. At 1440×900 the kit runs 116px over, background
+  10px and work 7px; only contact lands exactly. The kit grew when its type went up and
+  its shelf heads came off. That is fine — chasing an exact fit is futile when viewport
+  heights vary this much. (17 tools across 3 shelves: build, infrastructure, daily.)
 
 **Motion** is near-zero on purpose — a print idiom does not float. Two primitives only:
-`ch-draw` (rules scaling in from the left, below the fold) and `ch-rise` (one 12px
-move). Nothing loops, and everything is off under `prefers-reduced-motion`.
+`bs-draw` (rules scaling in from the left, below the fold) and `bs-rise` (one 12px
+move). Nothing loops, and everything is off under `prefers-reduced-motion`. The `bs-`
+prefix is the edition's; the classes were renamed with it when Chalk became Broadside.
+
+**Background is a leader column, not two.** The split sheet posed the same problem from
+both sides — one half always ran out of words before the other ran out of paper, and
+bigger type and pushing the paragraph to the foot were both ways of hiding that. One
+measure now, set in from the left, with the mono labels hanging in the margin beside the
+text they name. `BS_GUTTER` and `BS_GUTTER_GAP` are constants because the labels and the
+text are positioned from the same two numbers. The headline and standfirst that opened it
+are gone: the four parts already say what they said.
 
 **Screenshots sit BELOW the poster sheet**, under a `the plate` label, sized through
 `sanityImg(url, 1600)`. Placing one beside the statement would destroy the scale
@@ -323,6 +346,51 @@ declaration overrides `animation-play-state` and every plane animates at once.
 **Content sources.** Projects and tools come from Sanity like every other edition.
 Only the photographs live in the repo, because they are page furniture rather than
 content — see [footage/README.md](footage/README.md).
+
+### Prism (v1) — light, colour, depth
+
+The one edition built on colour rather than its absence. Paper is `#fbfbfd`, ink
+`#1b1a22`, body `#4e4c63`, labels `#5b586f`, hairlines `rgba(27,26,34,0.10)`. Type is
+Instrument Serif over Instrument Sans. `PZ_EDGE` is `clamp(20px, 4vw, 56px)`, `PZ_GAP`
+`clamp(64px, 11vw, 148px)`, `PZ_CHROME` a flat `80px`.
+
+**One field, not one per section.** `PZField` is mounted once, on `.prism-root`, at
+`position: fixed`. Every section used to render its own copy and clip it at its own edge,
+so what should read as one atmosphere was five rectangles butted together — the
+hero-to-work boundary was a hard horizontal line straight across the page. Fixed rather
+than absolute over the document: absolute stretches three blobs across 4200px and washes
+them out to nothing, while fixed holds them at the scale they were drawn for. The trade
+is real and deliberate — **the wash no longer travels with the content, it sits behind
+it.**
+
+**Only `pz-background` is tinted** (`rgba(244,243,247,0.72)`), and translucent rather than
+solid so the ground continues through it. It is the calmer beat between two colourful
+sections. Alternating the tint across every section was built and reverted: background
+sits third of five, so keeping it tinted forces the parity onto the hero, and measured,
+that cost the field two thirds of its presence — a delta of (30,50,11) against paper down
+to (8,14,3) — in the one place the colour is the whole point.
+
+**Sections are numbered, and the rule stops at the measure.** Each opens with a hairline
+and `01 / SELECTED WORK`. Held to the 1180px content measure rather than run full-bleed: a
+full-bleed line is a slab edge, which is exactly what the clipped gradients were
+accidentally drawing before. The eyebrow each section used to carry separately went when
+the marker took over its name.
+
+**The reveal is desktop-only** — `.pz-rise` is gated to `@media (min-width: 601px)`, which
+matches `useMobile(600)`. It drives `clip-path` across the element's **own height**, so it
+resolves in a few hundred pixels for a short element and reads as a wipe. On a phone the
+kit's three columns become one and `INFRASTRUCTURE` is 751px inside an 812px viewport:
+halfway through its range the clip still cuts 39% off the top, so the block sits on screen
+visibly missing its first rows for most of a screen of scrolling. That is not a reveal, it
+is a block with a piece gone.
+
+**The phone needs its own way through.** The section nav is desktop-only and the page runs
+4866px, so `PZMenuButton` and `PZMenu` mount at the root beside the field — `position:
+fixed`, because `PZChrome` is `relative` and scrolls away with the hero, and a button
+living in it would exist only on the first screen. Editions moves into the menu there so
+the two do not stack in the same corner. Closing the menu releases the scroll lock on the
+*next* render while the jump runs *now*, so the lock is dropped in the same tick as the
+jump — a scroll into a locked `<html>` is simply swallowed.
 
 ### Mondriaan Home Painting (v1)
 
