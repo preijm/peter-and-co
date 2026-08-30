@@ -4815,8 +4815,10 @@ function RCredit({ credit, style, dim }) {
         /* Vertical padding on an inline element grows the hit box without touching the
            line box, so the credit is a thumb-sized target and the caption does not move.
            Same fix the colophon's "design after" credit got — this one is generated per
-           photograph from credits.json, so it was missed when that one was done. */
-        ? <a href={credit.url} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none', borderBottom: '1px solid rgba(250,250,250,0.28)', padding: '12px 0' }}>{credit.name}</a>
+           photograph from credits.json, so it was missed when that one was done.
+           13 rather than 12: an inline box takes no minHeight, so the padding is the only
+           thing carrying the 44 here, and 12 left it at 42.67 against an 18.67px line. */
+        ? <a href={credit.url} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none', borderBottom: '1px solid rgba(250,250,250,0.28)', padding: '13px 0' }}>{credit.name}</a>
         : credit.name}
       {credit.source ? ' via ' + credit.source : ''}
     </RCaption>
@@ -5051,6 +5053,12 @@ function RPill({ children, href, onClick, light, newTab }) {
   const line = light ? R_PAPER : R_INK;
   const style = {
     display: 'inline-flex', alignItems: 'center', gap: '8px',
+    // minHeight states the 44 rather than leaving it to arithmetic. The padding below
+    // was set to reach it as 12 + 12 + an 18px line box, but the line box the font
+    // actually renders is 19.33, so the pill measured 43.33 — the comment under this one
+    // claimed a target the edition was two thirds of a pixel short of. Every other
+    // edition sets it outright; PZPill and BSButton both do.
+    minHeight: '44px', boxSizing: 'border-box',
     // Horizontal padding gives way on narrow screens; vertical never does, so the
     // 44px tap target survives. At the 360px CSS width a Galaxy S, Pixel 5 or iPhone
     // 12 mini reports, the three contact pills needed 319.6px inside a 320px row -
@@ -5437,7 +5445,7 @@ function RContact({ mobile }) {
              /* Vertical padding on an INLINE element grows the hit box without touching
                 the line box, so the caption does not move and the credit becomes a
                 thumb-sized target rather than a 20px one. */
-             style={{ color: 'inherit', textDecoration: 'none', borderBottom: '1px solid rgba(250,250,250,0.28)', padding: '12px 0' }}>
+             style={{ color: 'inherit', textDecoration: 'none', borderBottom: '1px solid rgba(250,250,250,0.28)', padding: '13px 0' }}>
             Freytag Anderson
           </a>
         </RCaption>
