@@ -17,7 +17,12 @@ export default defineType({
     defineField({name: 'tags', title: 'Tags', type: 'array', of: [{type: 'string'}], options: {layout: 'tags'}, description: 'First tag is the category label'}),
     defineField({name: 'year', title: 'Year', type: 'string'}),
     defineField({name: 'url', title: 'Display URL', type: 'string', description: 'Short, no https://'}),
-    defineField({name: 'href', title: 'Live link', type: 'url', description: 'Full URL — leave empty if not live (shows "soon")'}),
+    // These three get confused for each other, so each says what it actually controls
+    // and, where it matters, what it does NOT control.
+    defineField({
+      name: 'href', title: 'Live link', type: 'url',
+      description: 'Where the ↗ goes. A project counts as live only when this is set AND "Launched" is on — either one missing shows "soon" instead.',
+    }),
     defineField({name: 'screenshot', title: 'Screenshot', type: 'image', options: {hotspot: true}, description: 'Optional — leave empty for the placeholder'}),
     defineField({
       name: 'screenshotBefore', title: 'Screenshot (before)', type: 'image', options: {hotspot: true},
@@ -30,8 +35,14 @@ export default defineType({
     defineField({name: 'role', title: 'Role', type: 'string', description: 'e.g. Idea, design, build, ship.'}),
     defineField({name: 'stack', title: 'Stack', type: 'array', of: [{type: 'string'}], options: {layout: 'tags'}}),
     defineField({name: 'tools', title: 'Tools used', type: 'array', of: [{type: 'string'}], options: {layout: 'tags'}}),
-    defineField({name: 'featured', title: 'Featured (show on homepage)', type: 'boolean', initialValue: false}),
-    defineField({name: 'isPublic', title: 'Public (show in all-projects list)', type: 'boolean', initialValue: true}),
+    defineField({
+      name: 'featured', title: 'Featured (show on homepage)', type: 'boolean', initialValue: false,
+      description: 'Homepage placement only. Nothing to do with whether the project is live.',
+    }),
+    defineField({
+      name: 'isPublic', title: 'Launched', type: 'boolean', initialValue: true,
+      description: 'On = live. Off = the project reads as "soon": faded, no ↗ link — but its case study still opens. It does NOT hide anything; every project appears in the work list either way.',
+    }),
     defineField({name: 'accentDefault', title: 'Accent colour (default)', type: 'string', description: 'Hex, e.g. #22c55e'}),
     defineField({name: 'accentMondriaan', title: 'Accent colour (Mondriaan)', type: 'string', description: 'A primary: #d72027, #1d4ed8, #fcc60b'}),
     defineField({name: 'order', title: 'Sort order', type: 'number', initialValue: 0, description: 'Lower shows first'}),
