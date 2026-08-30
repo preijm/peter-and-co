@@ -4812,7 +4812,11 @@ function RCredit({ credit, style, dim }) {
     <RCaption light style={{ ...col, ...(style || {}) }}>
       Photo:{' '}
       {credit.url
-        ? <a href={credit.url} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none', borderBottom: '1px solid rgba(250,250,250,0.28)' }}>{credit.name}</a>
+        /* Vertical padding on an inline element grows the hit box without touching the
+           line box, so the credit is a thumb-sized target and the caption does not move.
+           Same fix the colophon's "design after" credit got — this one is generated per
+           photograph from credits.json, so it was missed when that one was done. */
+        ? <a href={credit.url} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none', borderBottom: '1px solid rgba(250,250,250,0.28)', padding: '12px 0' }}>{credit.name}</a>
         : credit.name}
       {credit.source ? ' via ' + credit.source : ''}
     </RCaption>
