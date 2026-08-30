@@ -59,7 +59,7 @@ CI runs on every push to `master`:
 npm ci → node build.js → dist/ → GitHub Pages
 ```
 
-`build.js` compiles the JSX with Babel and writes `dist/`. It also copies static assets (`screenshots/`, `social-card.png`, `CNAME`, `themes/`, `robots.txt`, `sitemap.xml`, `google*.html`, `footprint.json`) and stamps `sitemap.xml`'s `lastmod` on every build. **Never edit `dist/`** — it is generated and not tracked in git.
+`build.js` compiles the JSX with Babel and writes `dist/`. It also copies static assets (`social-card.png`, `CNAME`, `themes/`, `robots.txt`, `sitemap.xml`, `google*.html`, `footprint.json`) and stamps `sitemap.xml`'s `lastmod` on every build. **Never edit `dist/`** — it is generated and not tracked in git.
 
 ---
 
@@ -218,6 +218,5 @@ Lives in a `<script type="text/plain" id="prism-src">` blob. Light, colour and d
 | `footprint.json` | Generated build-footprint data, served from the site |
 | `THEMES.md` | Canonical rules for theme structure, tokens, and each takeover's internals |
 | `themes/` | Per-theme favicon SVG assets |
-| `screenshots/` | Static project screenshots copied to `dist/` |
 | `social-card.png` | OG/Twitter share image (1200×630) |
 | `CNAME` | GitHub Pages custom domain |

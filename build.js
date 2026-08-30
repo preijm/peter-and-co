@@ -129,11 +129,6 @@ if (fs.existsSync('themes')) {
   copyDir('themes', 'dist/themes');
   console.log('Copied themes/');
 }
-if (fs.existsSync('screenshots')) {
-  fs.rmSync('dist/screenshots', { recursive: true, force: true });
-  copyDir('screenshots', 'dist/screenshots');
-  console.log('Copied screenshots/');
-}
 // Copy only the photographs the manifest actually names, plus the manifest itself.
 // The folder is a working directory: it holds HEIC originals no browser renders
 // (1.7 MB), the colour masters the WebP encodes replaced, and the shooting guide.

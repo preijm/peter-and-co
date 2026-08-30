@@ -53,7 +53,7 @@ contact page. Mobile keeps the classic bordered layouts.
 
 ## Build Output
 `build.js` copies these to `dist/` alongside the compiled HTML:
-`screenshots/`, `footage/`, `social-card.png`, `CNAME`, `themes/`, `robots.txt`, `sitemap.xml`, `google*.html`
+`footage/`, `social-card.png`, `CNAME`, `themes/`, `robots.txt`, `sitemap.xml`, `google*.html`
 
 It also regenerates `footage/manifest.json` from the contents of `footage/` before
 copying, so the Grain edition always sees the photographs that are actually there.
