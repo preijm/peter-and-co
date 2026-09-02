@@ -71,7 +71,7 @@ Project pages show a "build footprint" rule — prompts, active hours, and token
 npm run footprint
 ```
 
-On PowerShell, use `npm.cmd run footprint` — the default execution policy refuses to load npm's `.ps1` wrapper. `node tools/footprint/extract.js --json footprint.json --only milk-me-not,folio` works from any shell.
+On PowerShell, use `npm.cmd run footprint` — the default execution policy refuses to load npm's `.ps1` wrapper. Run the script rather than the underlying `node tools/footprint/extract.js` command directly: the publish allowlist lives in the script, and a hand-typed copy of it silently un-publishes whatever it leaves out.
 
 That regenerates `footprint.json`, which is committed and copied to `dist/`. CI cannot produce it: the session logs only exist on the machine that did the work, so it is generated locally and checked in. Re-run it whenever you want the numbers refreshed, then commit.
 

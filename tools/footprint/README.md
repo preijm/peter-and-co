@@ -55,15 +55,20 @@ hashes when a project has no git history.
 ### The publish allowlist
 
 `--only` gates **both** published artefacts — `footprint.json` on the website
-and `archive.json` in this repo:
+and `archive.json` in this repo.
+
+The list itself lives in one place — the `footprint` script in `package.json` —
+so run that rather than retyping it:
 
 ```bash
-node tools/footprint/extract.js --json footprint.json --only milk-me-not,folio
+npm run footprint
 ```
 
-Without it, every project you have ever opened Claude Code in would be named
-publicly. The terminal table always shows everything; only the written files
-are filtered. Add a project here when, and only when, it goes on the site.
+Without the flag, every project you have ever opened Claude Code in would be
+named publicly. The terminal table always shows everything; only the written
+files are filtered. Add a project to the script when, and only when, it goes on
+the site — and nowhere else. Copies of the list in docs or scheduled tasks go
+stale silently, and a short one un-publishes whatever it omits.
 
 To stop losing history in the first place, raise the retention window in
 `~/.claude/settings.json`:
