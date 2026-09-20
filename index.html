@@ -1840,13 +1840,19 @@ function BeforeAfterSlider({ before, after, alt, accent }) {
 // record is thin, not that the project is.
 //
 // The label carries the scope, because the same number means different things
-// either side of a hand-counted source. Milk Me Not measures 4%: it was built
-// almost entirely in Lovable, so Claude Code saw almost none of its 3,054
-// commits. Its prompt count is still nearly whole — the Lovable figure is
-// counted right beside it — so a bare "4% complete" would report the project as
-// undocumented when it is the token and hour figures alone that are thin. On a
-// mixed project the label says which tool the percentage is about, and the
-// caveat underneath names the other source and what it does not report.
+// either side of a hand-counted source. Milk Me Not is the case that forced it:
+// it was built almost entirely in Lovable, so Claude Code saw only a fraction of
+// its commits and the bar reads low. Its prompt count is still nearly whole —
+// the Lovable figure is counted right beside it — so a bare "N% complete" would
+// report the project as undocumented when it is the token and hour figures alone
+// that are thin. On a mixed project the label says which tool the percentage is
+// about, and the caveat underneath names the other source and what it does not
+// report.
+//
+// No figures quoted here on purpose. Coverage and commit totals are regenerated
+// into footprint.json on every `npm run footprint`, and the copy that used to sit
+// in this comment drifted to 4% of 3,054 commits while the live data had moved to
+// 10% of 3,278. Read the numbers from footprint.json, not from prose about it.
 function Completeness({ fp, mixed }) {
   const { theme } = useTheme();
   const pct = fp.coverage && fp.coverage.commitCoveragePct;
