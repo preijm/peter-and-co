@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-20T18:34:42.783Z",
+  "generatedAt": "2026-09-20T19:48:26.038Z",
   "source": "claude-code-session-logs",
   "disclaimer": "All figures are a measured floor, not a total. Only Claude Code usage is counted, and only sessions this archive recorded before their logs were deleted. Work in other tools is not included.",
   "methodology": {
@@ -54,28 +54,28 @@
       "manualSources": [],
       "combined": null,
       "measured": {
-        "prompts": 744,
-        "assistantMessages": 11274,
+        "prompts": 746,
+        "assistantMessages": 11346,
         "sessions": 7,
         "sessionsRetainedFromDeletedLogs": 0,
-        "activeHours": 56.2,
+        "activeHours": 56.6,
         "calendarDays": 32,
         "firstSeen": "2026-07-24",
         "lastSeen": "2026-09-20"
       },
       "tokens": {
-        "output": 6965054,
-        "input": 22500,
-        "cacheWrite": 80386205,
-        "cacheRead": 5237388740,
-        "total": 5324762499,
+        "output": 7036491,
+        "input": 22644,
+        "cacheWrite": 80498563,
+        "cacheRead": 5278030663,
+        "total": 5365588361,
         "cacheReadShare": 98.4
       },
       "work": {
-        "toolCalls": 11312,
-        "edits": 1103,
-        "bashCommands": 3859,
-        "filesTouched": 182,
+        "toolCalls": 11381,
+        "edits": 1105,
+        "bashCommands": 3913,
+        "filesTouched": 184,
         "branches": 140,
         "prs": 142,
         "webSearches": 0,
@@ -84,7 +84,7 @@
       },
       "models": {
         "claude-sonnet-5": 2860418826,
-        "claude-opus-5": 2464343673,
+        "claude-opus-5": 2505169535,
         "<synthetic>": 0
       },
       "skills": {
@@ -93,20 +93,20 @@
         "superpowers:brainstorming": 20
       },
       "pricing": {
-        "equivalentListPriceUSD": 2569.39,
+        "equivalentListPriceUSD": 2592.2,
         "unpricedModels": []
       },
       "emissions": {
         "gramsCO2e": {
-          "floor": 11994.8,
-          "midpoint": 183479.3,
-          "ceiling": 1489925.8
+          "floor": 12157.6,
+          "midpoint": 185240,
+          "ceiling": 1505575.4
         },
         "headline": {
-          "kgCO2e": 183.5,
-          "kmDriven": 1529,
-          "kettleBoils": 12232,
-          "phoneCharges": 101933
+          "kgCO2e": 185.2,
+          "kmDriven": 1544,
+          "kettleBoils": 12349,
+          "phoneCharges": 102911
         },
         "caveats": [
           "Range spans 124x between floor and ceiling; the variable is how cache reads are weighted.",
@@ -127,7 +127,7 @@
           "Any work done outside an AI coding tool entirely."
         ],
         "firstCommitDate": "2026-03-14",
-        "totalCommits": 372,
+        "totalCommits": 373,
         "commitsBeforeMeasuredWindow": 12,
         "commitCoveragePct": 97
       }
@@ -137,36 +137,36 @@
       "manualSources": [],
       "combined": null,
       "measured": {
-        "prompts": 675,
-        "assistantMessages": 7270,
+        "prompts": 677,
+        "assistantMessages": 7287,
         "sessions": 14,
         "sessionsRetainedFromDeletedLogs": 0,
-        "activeHours": 45.3,
+        "activeHours": 45.4,
         "calendarDays": 41,
         "firstSeen": "2026-06-12",
         "lastSeen": "2026-09-20"
       },
       "tokens": {
-        "output": 5488601,
-        "input": 50806,
-        "cacheWrite": 58867265,
-        "cacheRead": 3253822505,
-        "total": 3318229177,
+        "output": 5499782,
+        "input": 50840,
+        "cacheWrite": 59005909,
+        "cacheRead": 3256178815,
+        "total": 3320735346,
         "cacheReadShare": 98.1
       },
       "work": {
-        "toolCalls": 6733,
-        "edits": 749,
-        "bashCommands": 2613,
-        "filesTouched": 321,
+        "toolCalls": 6748,
+        "edits": 750,
+        "bashCommands": 2627,
+        "filesTouched": 322,
         "branches": 116,
-        "prs": 116,
+        "prs": 117,
         "webSearches": 0,
         "compactions": 10,
         "apiErrors": 12
       },
       "models": {
-        "claude-opus-5": 2678753620,
+        "claude-opus-5": 2681259789,
         "claude-sonnet-5": 428881723,
         "claude-opus-4-8": 154467195,
         "claude-fable-5": 53456069,
@@ -187,20 +187,20 @@
         "anthropic-skills:pptx": 66
       },
       "pricing": {
-        "equivalentListPriceUSD": 2025.97,
+        "equivalentListPriceUSD": 2028.3,
         "unpricedModels": []
       },
       "emissions": {
         "gramsCO2e": {
-          "floor": 11932.6,
-          "midpoint": 150570.9,
-          "ceiling": 1188876
+          "floor": 11958.1,
+          "midpoint": 150751.8,
+          "ceiling": 1189849.6
         },
         "headline": {
-          "kgCO2e": 150.6,
-          "kmDriven": 1255,
-          "kettleBoils": 10038,
-          "phoneCharges": 83651
+          "kgCO2e": 150.8,
+          "kmDriven": 1256,
+          "kettleBoils": 10050,
+          "phoneCharges": 83751
         },
         "caveats": [
           "Range spans 100x between floor and ceiling; the variable is how cache reads are weighted.",
