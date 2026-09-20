@@ -14,9 +14,11 @@ node tools/footprint/extract.js --json footprint.json
 
 Flags: `--json <path>` write machine-readable output · `--project <name>`
 filter · `--verbose` per-model and per-skill breakdown · `--no-archive`
-report without updating the archive.
+report without updating the archive · `--rebuild` recount every session still
+on disk and print what moved.
 
-No dependencies. Reads only `~/.claude/projects/`, never writes to it.
+No dependencies. Reads only `~/.claude/projects/` and the subagent transcripts
+beside each session, never writes to either.
 
 ---
 
@@ -34,7 +36,39 @@ reports from the archive rather than from disk:
   sessions stay accurate and nothing is double-counted (session IDs are unique).
 - A session whose log has been deleted **stays in the archive** and keeps
   counting. `coverage.sessionsRetainedFromDeletedLogs` reports how many.
-- Numbers are therefore monotonic: they can only go up.
+- Numbers are therefore monotonic: they can only go up — unless the way they
+  are counted changes, which is what `--rebuild` is for.
+
+### Counting: one API response, not one line
+
+Claude Code writes **one transcript record per content block** of a reply. A
+reply made of a thinking block, a text block and three tool calls is five
+lines, and every one of them carries an identical copy of that reply's
+`usage`. Adding usage up line by line counts that single API response five
+times.
+
+So usage is keyed by `message.id` while a session is read and folded into the
+totals **once per id** at the end. `assistantMessages` is the number of
+distinct ids, not the number of lines. Tool calls are deliberately *not*
+deduplicated: each block really does occur on exactly one line.
+
+Subagent transcripts — `<sessionId>/subagents/*.jsonl` — are read into their
+parent session under the same rule. Their user lines are the orchestrator
+briefing the subagent, not a human typing, so they never count as prompts.
+
+### `--rebuild`
+
+A normal run already overwrites the entry of every session still on disk, so
+a counting fix propagates on its own. `--rebuild` adds the accounting: it
+snapshots the archive first, then prints a per-project before/after for output
+and cache-read tokens over **the same sessions**, with sessions first archived
+on that run reported separately so new work does not muddy the comparison.
+
+It also names what it could not reach. A session whose transcript has been
+deleted cannot be recounted — the archive entry is the only record left — so
+if that entry predates the fix, its numbers stay wrong and the run says so
+rather than letting a silent inflation ride along in a figure called a floor.
+Entries counted under the current rule carry `countedPerMessageId: true`.
 
 ### Two files, because this repo is public
 

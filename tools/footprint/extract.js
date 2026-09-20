@@ -29,6 +29,9 @@
  *   node tools/footprint/extract.js --project folio # filter by name
  *   node tools/footprint/extract.js --verbose       # per-model breakdown
  *   node tools/footprint/extract.js --no-archive    # read-only, don't write
+ *   node tools/footprint/extract.js --rebuild       # re-read every session
+ *                                                   # still on disk and report
+ *                                                   # what changed
  */
 
 'use strict';
@@ -53,7 +56,10 @@ const ARCHIVE_LOCAL_PATH = path.join(__dirname, 'archive.local.json');
 // Committed, and only ever reported alongside the measured numbers — never
 // folded into the token, energy, or time totals.
 const MANUAL_SOURCES_PATH = path.join(__dirname, 'manual-sources.json');
-const ARCHIVE_VERSION = 2;
+// Bumped to 3 when usage counting moved from per-line to per-message.id. An
+// entry written by an older version carries no `countedPerMessageId` flag and
+// its token totals are inflated — see --rebuild.
+const ARCHIVE_VERSION = 3;
 
 // Gap between consecutive log records that still counts as "actively working".
 // Anything longer is treated as the user having walked away.
@@ -201,6 +207,132 @@ const hashId = (s) => crypto.createHash('sha256').update(String(s)).digest('hex'
 // ---------------------------------------------------------------------------
 
 /**
+ * Fold one transcript file into a session summary.
+ *
+ * Claude Code writes ONE RECORD PER CONTENT BLOCK of a reply: the thinking
+ * block, the text block, and every tool_use each get their own line, and all
+ * of them carry an IDENTICAL copy of that reply's `usage`. Adding usage up
+ * line by line therefore counts a single API response once per block — which
+ * is what this extractor used to do, inflating archived token totals by
+ * roughly 1.5x to 2.3x.
+ *
+ * So usage is not added here. It is collected into `acc.usageById`, keyed by
+ * `message.id`, and folded in once per id by foldUsage() after the whole
+ * session has been read. Tool calls are NOT deduplicated: each block really
+ * does occur on exactly one line, so counting those per line is correct.
+ */
+function readTranscript(s, filePath, acc, opts) {
+  let lines;
+  try {
+    lines = fs.readFileSync(filePath, 'utf8').split('\n');
+  } catch {
+    return false;
+  }
+
+  for (const line of lines) {
+    if (!line.trim()) continue;
+    let rec;
+    try { rec = JSON.parse(line); } catch { continue; }
+
+    // A subagent transcript is folded into its PARENT session, so its own
+    // sessionId must not rename the session it is being folded into.
+    if (rec.sessionId && opts.adoptSessionId) s.sessionId = rec.sessionId;
+    if (rec.cwd && !s.cwd) s.cwd = rec.cwd;
+    if (rec.timestamp) {
+      const t = Date.parse(rec.timestamp);
+      if (!Number.isNaN(t)) {
+        s.timestamps.push(t);
+        s.days.add(rec.timestamp.slice(0, 10));
+      }
+    }
+    if (rec.gitBranch) s.branches.add(rec.gitBranch);
+    if (rec.prNumber) s.prs.add(rec.prNumber);
+    if (rec.isCompactSummary || rec.compactMetadata) s.compactions++;
+    if (rec.isApiErrorMessage) s.apiErrors++;
+    if (rec.attributionSkill) {
+      s.skills[rec.attributionSkill] = (s.skills[rec.attributionSkill] || 0) + 1;
+    }
+
+    const msg = rec.message;
+
+    // A real human prompt: role user, string content, not a tool result or
+    // an injected meta record. A subagent's user lines are the orchestrator
+    // briefing it, not the human typing, so they are never prompts.
+    if (
+      opts.countPrompts &&
+      rec.type === 'user' && msg && msg.role === 'user' &&
+      !rec.isMeta && typeof msg.content === 'string'
+    ) {
+      s.prompts++;
+    }
+
+    if (rec.type !== 'assistant' || !msg) continue;
+
+    // One reply is one assistant message, however many blocks it was written
+    // across. A record with no id is counted on its own.
+    if (msg.id) acc.msgIds.add(msg.id); else acc.anonAssistant++;
+
+    if (msg.usage) {
+      const seen = { model: msg.model || 'unknown', usage: msg.usage };
+      // Every line of a reply carries the same numbers, so last one wins.
+      if (msg.id) acc.usageById.set(msg.id, seen); else acc.usageAnon.push(seen);
+    }
+
+    if (Array.isArray(msg.content)) {
+      for (const block of msg.content) {
+        if (block.type !== 'tool_use') continue;
+        s.tools[block.name] = (s.tools[block.name] || 0) + 1;
+        const fp = block.input && (block.input.file_path || block.input.notebook_path);
+        if (fp) s.files.add(String(fp).split(path.sep).join('/'));
+      }
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Add each API response's usage to the session exactly once, now that every
+ * line of every reply has been seen. Server tool use (web search, web fetch)
+ * rides along on the same record, so it is counted once per reply too.
+ */
+function foldUsage(s, acc) {
+  for (const { model, usage } of [...acc.usageById.values(), ...acc.usageAnon]) {
+    const t = {
+      input: usage.input_tokens || 0,
+      output: usage.output_tokens || 0,
+      cacheWrite: usage.cache_creation_input_tokens || 0,
+      cacheRead: usage.cache_read_input_tokens || 0,
+    };
+    for (const k of Object.keys(t)) s.totals[k] += t[k];
+    if (!s.byModel[model]) s.byModel[model] = emptyTotals();
+    for (const k of Object.keys(t)) s.byModel[model][k] += t[k];
+
+    if (usage.server_tool_use) {
+      s.webSearches += usage.server_tool_use.web_search_requests || 0;
+      s.webFetches += usage.server_tool_use.web_fetch_requests || 0;
+    }
+  }
+  s.assistantMessages = acc.msgIds.size + acc.anonAssistant;
+}
+
+/**
+ * The subagent transcripts belonging to one session, if it spawned any.
+ * They sit in <sessionId>/subagents/ next to the session file and have the
+ * same line format; the work in them is the session's work.
+ */
+function subagentFiles(dirPath, sessionId) {
+  const dir = path.join(dirPath, sessionId, 'subagents');
+  try {
+    return fs.readdirSync(dir)
+      .filter((f) => f.endsWith('.jsonl'))
+      .map((f) => path.join(dir, f));
+  } catch {
+    return [];
+  }
+}
+
+/**
  * Parse every session file in one Claude Code project directory.
  * Returns an array of per-session summaries (possibly empty — directories
  * routinely outlive the logs they held).
@@ -216,15 +348,10 @@ function parseSessionsInDir(dirPath) {
   const out = [];
 
   for (const file of files) {
-    let lines;
-    try {
-      lines = fs.readFileSync(path.join(dirPath, file), 'utf8').split('\n');
-    } catch {
-      continue;
-    }
+    const fileId = path.basename(file, '.jsonl');
 
     const s = {
-      sessionId: path.basename(file, '.jsonl'),
+      sessionId: fileId,
       dirName: path.basename(dirPath),
       cwd: null,
       prompts: 0,
@@ -244,70 +371,19 @@ function parseSessionsInDir(dirPath) {
       timestamps: [],
     };
 
-    for (const line of lines) {
-      if (!line.trim()) continue;
-      let rec;
-      try { rec = JSON.parse(line); } catch { continue; }
+    // One accumulator for the session and every subagent it spawned, so the
+    // once-per-message rule spans all of them.
+    const acc = { usageById: new Map(), usageAnon: [], msgIds: new Set(), anonAssistant: 0 };
 
-      if (rec.sessionId) s.sessionId = rec.sessionId;
-      if (rec.cwd && !s.cwd) s.cwd = rec.cwd;
-      if (rec.timestamp) {
-        const t = Date.parse(rec.timestamp);
-        if (!Number.isNaN(t)) {
-          s.timestamps.push(t);
-          s.days.add(rec.timestamp.slice(0, 10));
-        }
-      }
-      if (rec.gitBranch) s.branches.add(rec.gitBranch);
-      if (rec.prNumber) s.prs.add(rec.prNumber);
-      if (rec.isCompactSummary || rec.compactMetadata) s.compactions++;
-      if (rec.isApiErrorMessage) s.apiErrors++;
-      if (rec.attributionSkill) {
-        s.skills[rec.attributionSkill] = (s.skills[rec.attributionSkill] || 0) + 1;
-      }
+    if (!readTranscript(s, path.join(dirPath, file), acc, {
+      countPrompts: true, adoptSessionId: true,
+    })) continue;
 
-      const msg = rec.message;
-
-      // A real human prompt: role user, string content, not a tool result or
-      // an injected meta record.
-      if (
-        rec.type === 'user' && msg && msg.role === 'user' &&
-        !rec.isMeta && typeof msg.content === 'string'
-      ) {
-        s.prompts++;
-      }
-
-      if (rec.type !== 'assistant' || !msg) continue;
-      s.assistantMessages++;
-
-      const usage = msg.usage;
-      if (usage) {
-        const model = msg.model || 'unknown';
-        const t = {
-          input: usage.input_tokens || 0,
-          output: usage.output_tokens || 0,
-          cacheWrite: usage.cache_creation_input_tokens || 0,
-          cacheRead: usage.cache_read_input_tokens || 0,
-        };
-        for (const k of Object.keys(t)) s.totals[k] += t[k];
-        if (!s.byModel[model]) s.byModel[model] = emptyTotals();
-        for (const k of Object.keys(t)) s.byModel[model][k] += t[k];
-
-        if (usage.server_tool_use) {
-          s.webSearches += usage.server_tool_use.web_search_requests || 0;
-          s.webFetches += usage.server_tool_use.web_fetch_requests || 0;
-        }
-      }
-
-      if (Array.isArray(msg.content)) {
-        for (const block of msg.content) {
-          if (block.type !== 'tool_use') continue;
-          s.tools[block.name] = (s.tools[block.name] || 0) + 1;
-          const fp = block.input && (block.input.file_path || block.input.notebook_path);
-          if (fp) s.files.add(String(fp).split(path.sep).join('/'));
-        }
-      }
+    for (const sub of subagentFiles(dirPath, fileId)) {
+      readTranscript(s, sub, acc, { countPrompts: false, adoptSessionId: false });
     }
+
+    foldUsage(s, acc);
 
     if (!s.timestamps.length) continue;
     out.push(s);
@@ -385,6 +461,11 @@ function toArchiveEntry(s, identity, nowIso) {
     prCount: s.prs.size,
     skills: s.skills,
     archivedAt: nowIso,
+    // Marks an entry counted once per API response rather than once per
+    // transcript line. Absent on entries archived before that fix, whose
+    // token totals are inflated and can only be corrected by re-reading the
+    // transcript — which is impossible once the log has been deleted.
+    countedPerMessageId: true,
   };
 }
 
@@ -652,13 +733,129 @@ function computeCoverage(repo, g) {
 // Main
 // ---------------------------------------------------------------------------
 
-function collect(writeArchive, allowlist) {
+/** Every session id whose transcript is still on disk. */
+function sessionIdsOnDisk() {
+  const onDisk = new Set();
+  if (!isDir(PROJECTS_DIR)) return onDisk;
+  for (const entry of fs.readdirSync(PROJECTS_DIR)) {
+    let files;
+    try { files = fs.readdirSync(path.join(PROJECTS_DIR, entry)); } catch { continue; }
+    for (const f of files) {
+      if (f.endsWith('.jsonl')) onDisk.add(path.basename(f, '.jsonl'));
+    }
+  }
+  return onDisk;
+}
+
+/** Snapshot of what the archive held per session, for the --rebuild diff. */
+function snapshotSessions(sessions) {
+  const snap = new Map();
+  for (const [sid, e] of Object.entries(sessions)) {
+    snap.set(sid, {
+      projectName: e.projectName || 'unknown',
+      output: (e.totals && e.totals.output) || 0,
+      cacheRead: (e.totals && e.totals.cacheRead) || 0,
+      countedPerMessageId: !!e.countedPerMessageId,
+    });
+  }
+  return snap;
+}
+
+/**
+ * What --rebuild changed, and what it could not reach.
+ *
+ * The comparison covers only the sessions that were ALREADY archived and have
+ * been recounted, so the table shows the effect of the counting change and
+ * nothing else. Sessions first archived on this run would otherwise inflate
+ * the "now" column with work that is simply new, so they are reported apart.
+ *
+ * An archived session whose transcript has since been deleted cannot be
+ * recounted at all — the only record of it IS the archive entry. If such an
+ * entry predates the per-message fix its numbers stay inflated, and saying so
+ * is the difference between a floor and a guess.
+ */
+function reportRebuild(before, archive, onDisk, allowlist) {
+  const allowed = (nm) => !allowlist || allowlist.has(String(nm).toLowerCase());
+  const rows = new Map();
+  let added = 0, addedOutput = 0;
+
+  for (const [sid, e] of Object.entries(archive.sessions)) {
+    const prior = before.get(sid);
+    const name = e.projectName || 'unknown';
+    if (!allowed(name)) continue;
+    if (!prior) {
+      added++;
+      addedOutput += (e.totals && e.totals.output) || 0;
+      continue;
+    }
+    if (!rows.has(name)) {
+      rows.set(name, { wasOut: 0, nowOut: 0, wasCache: 0, nowCache: 0, sessions: 0 });
+    }
+    const r = rows.get(name);
+    r.sessions++;
+    r.wasOut += prior.output;
+    r.wasCache += prior.cacheRead;
+    r.nowOut += (e.totals && e.totals.output) || 0;
+    r.nowCache += (e.totals && e.totals.cacheRead) || 0;
+  }
+
+  console.log('');
+  console.log('REBUILD  —  the same archived sessions, recounted once per API response');
+  console.log('');
+  const head = pad('PROJECT', 20) + padLeft('SESSIONS', 9) +
+               padLeft('OUTPUT WAS', 13) + padLeft('OUTPUT NOW', 13) + padLeft('%', 7) +
+               padLeft('CACHEREAD WAS', 16) + padLeft('CACHEREAD NOW', 16) + padLeft('%', 7);
+  console.log(head);
+  console.log('-'.repeat(head.length));
+  const pct = (was, now) => (was ? Math.round((now / was) * 1000) / 10 + '%' : '-');
+  for (const nm of [...rows.keys()].sort()) {
+    const r = rows.get(nm);
+    console.log(
+      pad(nm, 20) + padLeft(r.sessions, 9) +
+      padLeft(n(r.wasOut), 13) + padLeft(n(r.nowOut), 13) + padLeft(pct(r.wasOut, r.nowOut), 7) +
+      padLeft(n(r.wasCache), 16) + padLeft(n(r.nowCache), 16) +
+      padLeft(pct(r.wasCache, r.nowCache), 7)
+    );
+  }
+  console.log('');
+  if (added) {
+    console.log('Plus ' + added + ' session(s) first archived on this run (' +
+                n(addedOutput) + ' output tokens), kept out of the table above ' +
+                'because they are new work, not a recount.');
+    console.log('');
+  }
+
+  const stale = [...before.entries()]
+    .filter(([sid, p]) => !p.countedPerMessageId && !onDisk.has(sid) && allowed(p.projectName));
+  if (stale.length) {
+    console.log('WARNING: ' + stale.length + ' archived session(s) have no transcript left on');
+    console.log('disk, so they could not be recounted and KEEP the old inflated figures:');
+    for (const [sid, p] of stale) {
+      console.log('  ' + sid + '  ' + p.projectName + '  (' + n(p.output) + ' output tokens)');
+    }
+    console.log('');
+  } else {
+    console.log('Every previously archived session was recounted from its transcript ' +
+                '— nothing stale.');
+    console.log('');
+  }
+}
+
+function collect(writeArchive, allowlist, rebuild) {
   const archive = loadArchive();
   const nowIso = new Date().toISOString();
   let seen = 0, fresh = 0;
 
+  const onDisk = sessionIdsOnDisk();
+  // Snapshot before pass 1 overwrites anything, so --rebuild can say what moved.
+  const before = rebuild ? snapshotSessions(archive.sessions) : null;
+
   // Pass 1: read what's on disk and fold it into the archive. A session still
-  // present is re-read and overwritten, so counts stay correct as it grows.
+  // present is re-read and its counts overwritten wholesale — nothing from the
+  // previous entry's tallies survives — so counts stay correct as it grows,
+  // and a run after a counting fix re-archives every reachable session from
+  // source. Only the resolved identity is carried over, because a repo that
+  // has since moved would otherwise regroup under a fresh key.
   if (isDir(PROJECTS_DIR)) {
     for (const entry of fs.readdirSync(PROJECTS_DIR)) {
       const dirPath = path.join(PROJECTS_DIR, entry);
@@ -666,8 +863,6 @@ function collect(writeArchive, allowlist) {
         const identity = projectIdentity(s.cwd);
         const prior = archive.sessions[s.sessionId];
         const next = toArchiveEntry(s, identity, nowIso);
-        // Keep the identity resolved on an earlier run if the repo has since
-        // moved or been deleted — a stale key still groups correctly.
         if (prior && prior.projectKey && (!identity || !identity.repo)) {
           next.projectKey = prior.projectKey;
           next.projectName = prior.projectName;
@@ -681,21 +876,12 @@ function collect(writeArchive, allowlist) {
     }
   }
 
+  if (rebuild) reportRebuild(before, archive, onDisk, allowlist);
+
   const written = writeArchive ? saveArchive(archive, allowlist) : null;
 
   // Pass 2: report from the archive, not from disk. Sessions whose logs are
   // gone still appear here — that is the entire point.
-  const onDisk = new Set();
-  if (isDir(PROJECTS_DIR)) {
-    for (const entry of fs.readdirSync(PROJECTS_DIR)) {
-      for (const f of (() => {
-        try { return fs.readdirSync(path.join(PROJECTS_DIR, entry)); } catch { return []; }
-      })()) {
-        if (f.endsWith('.jsonl')) onDisk.add(path.basename(f, '.jsonl'));
-      }
-    }
-  }
-
   const groups = new Map();
   for (const [sid, e] of Object.entries(archive.sessions)) {
     const key = e.projectKey || 'unknown';
@@ -889,6 +1075,10 @@ function main() {
   const onlyIdx = argv.indexOf('--only');
   const verbose = argv.includes('--verbose');
   const writeArchive = !argv.includes('--no-archive');
+  // --rebuild recounts every session still on disk from its transcript and
+  // prints what moved, then names the archived sessions whose transcript is
+  // gone and therefore could not be recounted.
+  const rebuild = argv.includes('--rebuild');
 
   // --only is the publish allowlist, and it gates BOTH published artefacts:
   // footprint.json (served from the site) and archive.json (committed to a
@@ -911,7 +1101,7 @@ function main() {
     return;
   }
 
-  const { projects: all, stats } = collect(writeArchive, allowlist);
+  const { projects: all, stats } = collect(writeArchive, allowlist, rebuild);
   let projects = all;
 
   if (allowlist) {
