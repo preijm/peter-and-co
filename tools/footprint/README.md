@@ -81,6 +81,15 @@ Entries counted under the current rule carry `countedPerMessageId: true`.
 throws away every session whose log has already been cleaned up. It is not in
 git, so it is not backed up by pushing — copy it if you move machines.
 
+> **Run the extractor from the main checkout, not a worktree.** The path is
+> resolved relative to `extract.js`, and because the file is gitignored a
+> worktree does not have one. The run then falls back to the committed
+> `archive.json` — the published subset — and writes *that* back out as the
+> complete local archive, silently dropping every unpublished project and every
+> session whose log is already gone. It fails quietly, because a smaller archive
+> still produces a perfectly plausible table. If you must run from a worktree,
+> copy `archive.local.json` in first and copy the updated file back afterwards.
+
 `archive.json` is the redacted subset that ships publicly. File paths and branch
 names are stored as one-way SHA-256 prefixes, which still union correctly for
 distinct counts but disclose nothing. Project keys are root commit SHAs, or
