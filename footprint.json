@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-25T18:54:15.365Z",
+  "generatedAt": "2026-10-01T09:25:43.759Z",
   "source": "claude-code-session-logs",
   "disclaimer": "All figures are a measured floor, not a total. Only Claude Code usage is counted, and only sessions this archive recorded before their logs were deleted. Work in other tools is not included.",
   "methodology": {
@@ -54,62 +54,71 @@
       "manualSources": [],
       "combined": null,
       "measured": {
-        "prompts": 748,
-        "assistantMessages": 11422,
-        "sessions": 7,
+        "prompts": 772,
+        "assistantMessages": 12041,
+        "sessions": 9,
         "sessionsRetainedFromDeletedLogs": 2,
-        "activeHours": 57,
-        "calendarDays": 33,
+        "activeHours": 59.2,
+        "calendarDays": 36,
         "firstSeen": "2026-07-24",
-        "lastSeen": "2026-09-24"
+        "lastSeen": "2026-09-29"
       },
       "tokens": {
-        "output": 7108245,
-        "input": 22796,
-        "cacheWrite": 81261513,
-        "cacheRead": 5327458243,
-        "total": 5415850797,
-        "cacheReadShare": 98.4
+        "output": 7426707,
+        "input": 25186,
+        "cacheWrite": 86160220,
+        "cacheRead": 5433699716,
+        "total": 5527311829,
+        "cacheReadShare": 98.3
       },
       "work": {
-        "toolCalls": 11452,
-        "edits": 1107,
-        "bashCommands": 3961,
-        "filesTouched": 186,
-        "branches": 140,
+        "toolCalls": 12130,
+        "edits": 1193,
+        "bashCommands": 4163,
+        "filesTouched": 276,
+        "branches": 141,
         "prs": 142,
         "webSearches": 0,
-        "compactions": 18,
+        "compactions": 20,
         "apiErrors": 18
       },
       "models": {
-        "claude-sonnet-5": 2860418826,
-        "claude-opus-5": 2555431971,
+        "claude-sonnet-5": 2882624089,
+        "claude-opus-5": 2566574580,
+        "claude-opus-5-5": 64510075,
+        "claude-haiku-4-5-20251001": 13603085,
         "<synthetic>": 0
       },
       "skills": {
         "artifact-design": 5,
         "fewer-permission-prompts": 14,
-        "superpowers:brainstorming": 20
+        "superpowers:brainstorming": 20,
+        "ecc:llm-trading-agent-security": 2,
+        "claude-api": 2,
+        "superpowers:writing-plans": 20,
+        "superpowers:subagent-driven-development": 83
       },
       "pricing": {
-        "equivalentListPriceUSD": 2623.47,
-        "unpricedModels": []
+        "equivalentListPriceUSD": 2644.83,
+        "unpricedModels": [
+          "claude-opus-5-5",
+          "claude-haiku-4-5-20251001"
+        ]
       },
       "emissions": {
         "gramsCO2e": {
-          "floor": 12321.2,
-          "midpoint": 187644.3,
-          "ceiling": 1524811.4
+          "floor": 13004.3,
+          "midpoint": 193385.7,
+          "ceiling": 1559639.9
         },
         "headline": {
-          "kgCO2e": 187.6,
-          "kmDriven": 1564,
-          "kettleBoils": 12510,
-          "phoneCharges": 104247
+          "kgCO2e": 193.4,
+          "kmDriven": 1612,
+          "kettleBoils": 12892,
+          "phoneCharges": 107437
         },
         "caveats": [
-          "Range spans 124x between floor and ceiling; the variable is how cache reads are weighted.",
+          "Range spans 120x between floor and ceiling; the variable is how cache reads are weighted.",
           "Opus/Fable emission factors are extrapolated by parameter ratio, not measured.",
           "Base factors: Jegham et al. 2025 (Sonnet-class, via the claude-carbon project)."
         ]
@@ -117,9 +126,9 @@
       "coverage": {
         "tool": "claude-code",
         "measuredFrom": "2026-07-24",
-        "measuredTo": "2026-09-24",
+        "measuredTo": "2026-09-29",
         "isFloor": true,
-        "sessionsMeasured": 7,
+        "sessionsMeasured": 9,
         "sessionsRetainedFromDeletedLogs": 2,
         "unmeasured": [
           "Sessions deleted before this archive first recorded them.",
@@ -127,7 +136,7 @@
           "Any work done outside an AI coding tool entirely."
         ],
         "firstCommitDate": "2026-03-14",
-        "totalCommits": 377,
+        "totalCommits": 378,
         "commitsBeforeMeasuredWindow": 12,
         "commitCoveragePct": 97
       }
@@ -137,40 +146,41 @@
       "manualSources": [],
       "combined": null,
       "measured": {
-        "prompts": 691,
-        "assistantMessages": 7357,
-        "sessions": 14,
+        "prompts": 703,
+        "assistantMessages": 7410,
+        "sessions": 15,
         "sessionsRetainedFromDeletedLogs": 0,
-        "activeHours": 45.8,
-        "calendarDays": 42,
+        "activeHours": 46.1,
+        "calendarDays": 43,
         "firstSeen": "2026-06-12",
-        "lastSeen": "2026-09-25"
+        "lastSeen": "2026-10-01"
       },
       "tokens": {
-        "output": 5533930,
-        "input": 50980,
-        "cacheWrite": 59446981,
-        "cacheRead": 3270435048,
-        "total": 3335466939,
+        "output": 5558439,
+        "input": 51086,
+        "cacheWrite": 59558114,
+        "cacheRead": 3283154488,
+        "total": 3348322127,
         "cacheReadShare": 98.1
       },
       "work": {
-        "toolCalls": 6807,
+        "toolCalls": 6849,
         "edits": 751,
-        "bashCommands": 2683,
+        "bashCommands": 2720,
         "filesTouched": 322,
-        "branches": 117,
-        "prs": 118,
+        "branches": 119,
+        "prs": 120,
         "webSearches": 0,
         "compactions": 10,
         "apiErrors": 12
       },
       "models": {
-        "claude-opus-5": 2695991382,
+        "claude-opus-5": 2708518729,
         "claude-sonnet-5": 428881723,
         "claude-opus-4-8": 154467195,
         "claude-fable-5": 53456069,
         "claude-sonnet-4-6": 2670570,
+        "claude-opus-5-5": 327841,
         "<synthetic>": 0
       },
       "skills": {
@@ -188,20 +198,22 @@
         "commit-commands:clean_gone": 26
       },
       "pricing": {
-        "equivalentListPriceUSD": 2039.04,
-        "unpricedModels": []
+        "equivalentListPriceUSD": 2046.03,
+        "unpricedModels": [
+          "claude-opus-5-5"
+        ]
       },
       "emissions": {
         "gramsCO2e": {
-          "floor": 12036,
-          "midpoint": 151581,
-          "ceiling": 1195512.5
+          "floor": 12091.9,
+          "midpoint": 152173,
+          "ceiling": 1200444
         },
         "headline": {
-          "kgCO2e": 151.6,
-          "kmDriven": 1263,
-          "kettleBoils": 10105,
-          "phoneCharges": 84212
+          "kgCO2e": 152.2,
+          "kmDriven": 1268,
+          "kettleBoils": 10145,
+          "phoneCharges": 84541
         },
         "caveats": [
           "Range spans 99x between floor and ceiling; the variable is how cache reads are weighted.",
@@ -212,9 +224,9 @@
       "coverage": {
         "tool": "claude-code",
         "measuredFrom": "2026-06-12",
-        "measuredTo": "2026-09-25",
+        "measuredTo": "2026-10-01",
         "isFloor": true,
-        "sessionsMeasured": 14,
+        "sessionsMeasured": 15,
         "sessionsRetainedFromDeletedLogs": 0,
         "unmeasured": [
           "Sessions deleted before this archive first recorded them.",
@@ -222,9 +234,9 @@
           "Any work done outside an AI coding tool entirely."
         ],
         "firstCommitDate": "2026-04-20",
-        "totalCommits": 216,
+        "totalCommits": 218,
         "commitsBeforeMeasuredWindow": 73,
-        "commitCoveragePct": 66
+        "commitCoveragePct": 67
       }
     },
     {
@@ -242,7 +254,7 @@
         }
       ],
       "combined": {
-        "prompts": 2898,
+        "prompts": 2912,
         "tools": [
           "Claude Code",
           "Lovable"
@@ -255,37 +267,38 @@
         }
       },
       "measured": {
-        "prompts": 583,
-        "assistantMessages": 8380,
-        "sessions": 16,
+        "prompts": 597,
+        "assistantMessages": 8475,
+        "sessions": 17,
         "sessionsRetainedFromDeletedLogs": 0,
-        "activeHours": 41.1,
-        "calendarDays": 26,
+        "activeHours": 41.6,
+        "calendarDays": 27,
         "firstSeen": "2026-07-24",
-        "lastSeen": "2026-09-25"
+        "lastSeen": "2026-09-27"
       },
       "tokens": {
-        "output": 5840802,
-        "input": 79311,
-        "cacheWrite": 51772690,
-        "cacheRead": 3080123334,
-        "total": 3137816137,
+        "output": 5913065,
+        "input": 79501,
+        "cacheWrite": 51925559,
+        "cacheRead": 3098771059,
+        "total": 3156689184,
         "cacheReadShare": 98.2
       },
       "work": {
-        "toolCalls": 8404,
-        "edits": 801,
-        "bashCommands": 4810,
-        "filesTouched": 837,
-        "branches": 98,
-        "prs": 155,
+        "toolCalls": 8491,
+        "edits": 810,
+        "bashCommands": 4859,
+        "filesTouched": 852,
+        "branches": 101,
+        "prs": 157,
         "webSearches": 0,
         "compactions": 8,
         "apiErrors": 17
       },
       "models": {
-        "claude-opus-5": 2976935130,
+        "claude-opus-5": 2992584395,
         "claude-sonnet-5": 160881007,
+        "claude-opus-5-5": 3223782,
         "<synthetic>": 0
       },
       "skills": {
@@ -295,26 +308,30 @@
         "design-review": 32,
         "anthropic-skills:schedule": 6,
         "design": 38,
-        "artifact-capabilities": 24
+        "artifact-capabilities": 24,
+        "claude-md-management:revise-claude-md": 44,
+        "ecc:remotion-video-creation": 56
       },
       "pricing": {
-        "equivalentListPriceUSD": 1959.19,
-        "unpricedModels": []
+        "equivalentListPriceUSD": 1968.1,
+        "unpricedModels": [
+          "claude-opus-5-5"
+        ]
       },
       "emissions": {
         "gramsCO2e": {
-          "floor": 12316.9,
-          "midpoint": 149984.9,
-          "ceiling": 1172066.9
+          "floor": 12481.7,
+          "midpoint": 150931,
+          "ceiling": 1179375.9
         },
         "headline": {
-          "kgCO2e": 150,
-          "kmDriven": 1250,
-          "kettleBoils": 9999,
-          "phoneCharges": 83325
+          "kgCO2e": 150.9,
+          "kmDriven": 1258,
+          "kettleBoils": 10062,
+          "phoneCharges": 83851
         },
         "caveats": [
-          "Range spans 95x between floor and ceiling; the variable is how cache reads are weighted.",
+          "Range spans 94x between floor and ceiling; the variable is how cache reads are weighted.",
           "Opus/Fable emission factors are extrapolated by parameter ratio, not measured.",
           "Base factors: Jegham et al. 2025 (Sonnet-class, via the claude-carbon project)."
         ]
@@ -322,9 +339,9 @@
       "coverage": {
         "tool": "claude-code",
         "measuredFrom": "2026-07-24",
-        "measuredTo": "2026-09-25",
+        "measuredTo": "2026-09-27",
         "isFloor": true,
-        "sessionsMeasured": 16,
+        "sessionsMeasured": 17,
         "sessionsRetainedFromDeletedLogs": 0,
         "unmeasured": [
           "Sessions deleted before this archive first recorded them.",
@@ -332,7 +349,7 @@
           "Any work done outside an AI coding tool entirely."
         ],
         "firstCommitDate": "2025-02-02",
-        "totalCommits": 3278,
+        "totalCommits": 3283,
         "commitsBeforeMeasuredWindow": 2943,
         "commitCoveragePct": 10
       }
