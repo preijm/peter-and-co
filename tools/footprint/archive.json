@@ -100,7 +100,7 @@
       ],
       "prCount": 0,
       "skills": {},
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "3b58d538-ea23-42d9-bf93-4b2e25291e28": {
@@ -358,7 +358,7 @@
       ],
       "prCount": 3,
       "skills": {},
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "6fa23323-2a90-47e5-ae50-7f513831a1e7": {
@@ -447,7 +447,7 @@
       ],
       "prCount": 1,
       "skills": {},
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "5af3ea58-0b99-4148-b5ab-1a688ced8e89": {
@@ -1064,7 +1064,7 @@
       ],
       "prCount": 0,
       "skills": {},
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "4ea5a860-072c-4306-8013-41737f8f0ce1": {
@@ -1179,7 +1179,7 @@
       ],
       "prCount": 21,
       "skills": {},
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "7df9be12-70d7-4b01-8245-c2e68deb81f2": {
@@ -2061,7 +2061,7 @@
       "skills": {
         "artifact-design": 175
       },
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "de86e295-8be4-4986-96c0-5d4521ec0da1": {
@@ -2303,7 +2303,7 @@
         "design-review": 32,
         "anthropic-skills:schedule": 6
       },
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "fec13739-8cbd-49eb-8d69-9cb811c6e69c": {
@@ -2424,7 +2424,7 @@
       "skills": {
         "artifact-design": 7
       },
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "cd14c8a2-7be6-4351-9542-d1781c5e8c28": {
@@ -2540,13 +2540,29 @@
         [
           1790272854076,
           1790272919265
+        ],
+        [
+          1790364802153,
+          1790365135059
+        ],
+        [
+          1790365777311,
+          1790365826191
+        ],
+        [
+          1790623364125,
+          1790623459138
+        ],
+        [
+          1790711986776,
+          1790712346358
         ]
       ],
       "projectKey": "git:31366172e2eb4de603359875c8027a28ab914eee",
       "projectName": "folio",
       "firstSeen": "2026-08-28T09:02:02.644Z",
-      "lastSeen": "2026-09-24T18:01:59.265Z",
-      "activeMs": 61609601,
+      "lastSeen": "2026-09-29T20:05:46.358Z",
+      "activeMs": 62445982,
       "days": [
         "2026-08-28",
         "2026-08-30",
@@ -2556,38 +2572,47 @@
         "2026-09-13",
         "2026-09-19",
         "2026-09-20",
-        "2026-09-24"
+        "2026-09-24",
+        "2026-09-25",
+        "2026-09-28",
+        "2026-09-29"
       ],
-      "prompts": 257,
-      "assistantMessages": 2751,
-      "compactions": 6,
+      "prompts": 265,
+      "assistantMessages": 2783,
+      "compactions": 8,
       "apiErrors": 3,
       "webSearches": 0,
       "webFetches": 0,
       "totals": {
-        "input": 5498,
-        "output": 1951934,
-        "cacheWrite": 10953510,
-        "cacheRead": 1271392460
+        "input": 5562,
+        "output": 1977562,
+        "cacheWrite": 12489003,
+        "cacheRead": 1287620366
       },
       "byModel": {
         "claude-opus-5": {
-          "input": 5498,
-          "output": 1951934,
-          "cacheWrite": 10953510,
-          "cacheRead": 1271392460
+          "input": 5528,
+          "output": 1962221,
+          "cacheWrite": 11660341,
+          "cacheRead": 1281817921
         },
         "<synthetic>": {
           "input": 0,
           "output": 0,
           "cacheWrite": 0,
           "cacheRead": 0
+        },
+        "claude-opus-5-5": {
+          "input": 34,
+          "output": 15341,
+          "cacheWrite": 828662,
+          "cacheRead": 5802445
         }
       },
       "tools": {
-        "Bash": 2128,
-        "PowerShell": 267,
-        "Read": 72,
+        "Bash": 2143,
+        "PowerShell": 277,
+        "Read": 74,
         "AskUserQuestion": 18,
         "mcp__Claude_Browser__preview_start": 119,
         "mcp__Claude_Browser__preview_logs": 6,
@@ -2599,10 +2624,10 @@
         "mcp__Claude_Browser__read_network_requests": 4,
         "mcp__Claude_Browser__preview_stop": 122,
         "mcp__Claude_Browser__preview_list": 4,
-        "Grep": 4,
-        "mcp__Claude_Browser__browser_batch": 231,
+        "Grep": 6,
+        "mcp__Claude_Browser__browser_batch": 233,
         "mcp__Claude_Browser__get_page_text": 5,
-        "ToolSearch": 8,
+        "ToolSearch": 9,
         "TaskStop": 1,
         "mcp__scheduled-tasks__create_scheduled_task": 1,
         "Write": 9,
@@ -2658,6 +2683,8 @@
         "b590a354269b",
         "5325687c0372",
         "62b1f195c2c4",
+        "a5ea2837711a",
+        "60ce7d6749ea",
         "32e66fa66f95",
         "0be7e957b9a7",
         "66b8d39b6e68",
@@ -2757,7 +2784,7 @@
         "fewer-permission-prompts": 14,
         "superpowers:brainstorming": 20
       },
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "20d0dc34-23d7-4a03-ba49-f65dc5585ed5": {
@@ -2837,7 +2864,7 @@
       ],
       "prCount": 4,
       "skills": {},
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "532370c3-f98b-4593-9b70-35f90bea2f76": {
@@ -2903,7 +2930,7 @@
       ],
       "prCount": 3,
       "skills": {},
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "891613f5-32d1-4260-b807-811769066e89": {
@@ -3154,7 +3181,7 @@
       "skills": {
         "artifact-design": 9
       },
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "b9b623a2-a3dc-45ff-82fa-39b7814d8cc1": {
@@ -3300,7 +3327,7 @@
       ],
       "prCount": 4,
       "skills": {},
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "a237ebd5-63aa-4c72-bb77-ba67fd65338e": {
@@ -3407,7 +3434,7 @@
       "skills": {
         "artifact-design": 8
       },
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "aff661aa-1262-45bf-8e2c-b164ac504d7e": {
@@ -3614,7 +3641,7 @@
       "skills": {
         "artifact-design": 6
       },
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "83c6a6b1-f1f7-4ffc-9855-92148896bd18": {
@@ -3683,7 +3710,7 @@
       ],
       "prCount": 0,
       "skills": {},
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "1cd4ee7d-dd54-46d1-ac5d-0afd853b2c28": {
@@ -4058,7 +4085,7 @@
         "design": 49,
         "artifact-capabilities": 15
       },
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "2f775f30-6a35-47a2-8993-8053696bb813": {
@@ -4428,7 +4455,7 @@
         "portfolio-updater": 28,
         "anthropic-skills:schedule": 5
       },
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "4b126088-313d-4807-a540-c5e6587a76b3": {
@@ -4565,7 +4592,7 @@
         "update-config": 8,
         "portfolio-updater": 13
       },
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "5e74701a-4f6c-4bcc-a661-3565856dd488": {
@@ -4620,7 +4647,7 @@
       ],
       "prCount": 1,
       "skills": {},
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "dd581ca4-8c9a-4a28-bb09-afbdf5abffa7": {
@@ -4711,7 +4738,7 @@
       "skills": {
         "portfolio-updater": 13
       },
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "3277207e-14fa-4158-b0cf-481e112c9ce2": {
@@ -4761,7 +4788,7 @@
       ],
       "prCount": 0,
       "skills": {},
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "1761c0bb-f948-40c6-9672-d36d28bce0e1": {
@@ -4966,7 +4993,7 @@
         "design": 59,
         "artifact-capabilities": 18
       },
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "4634449b-e68d-431e-a5f9-5a4ef0347c7e": {
@@ -5029,7 +5056,7 @@
       ],
       "prCount": 2,
       "skills": {},
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "abe3aa8d-95eb-4d5c-81f3-0f887ffbeab3": {
@@ -5125,7 +5152,7 @@
       "skills": {
         "design-review": 25
       },
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "fffbe724-1f8a-4c9e-a7c1-78b5527ed368": {
@@ -5350,7 +5377,7 @@
       "skills": {
         "update-config": 11
       },
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "0fa8286b-401e-4f19-a892-ee669e413345": {
@@ -5401,7 +5428,7 @@
       ],
       "prCount": 0,
       "skills": {},
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "073513b9-1173-4516-890d-8d678193271e": {
@@ -5455,7 +5482,7 @@
       ],
       "prCount": 0,
       "skills": {},
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "20f5bccb-3fad-4542-a03e-8444d80a42a8": {
@@ -5697,7 +5724,7 @@
       ],
       "prCount": 13,
       "skills": {},
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "9eacf4d5-b4eb-4f22-af8a-8a41ef7d6cb9": {
@@ -6249,7 +6276,7 @@
         "frontend-design": 41,
         "design-review": 95
       },
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "305ebefd-3d66-4aee-ad83-b2d151bd2e7d": {
@@ -6349,7 +6376,7 @@
       ],
       "prCount": 2,
       "skills": {},
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "1f21928c-7c9e-4d5d-af94-4cbaafe8b942": {
@@ -6465,7 +6492,7 @@
       ],
       "prCount": 0,
       "skills": {},
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "0a4ea698-c773-47e2-ad8a-a4b8be4bc8be": {
@@ -6522,7 +6549,7 @@
       ],
       "prCount": 0,
       "skills": {},
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "21e08a44-586e-4148-a7cd-a3afec0098a3": {
@@ -6600,7 +6627,7 @@
         "artifact-design": 2,
         "artifact-diagramming": 14
       },
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "ec7d99af-5954-405a-950e-45843514e015": {
@@ -6744,7 +6771,7 @@
       "skills": {
         "schedule": 7
       },
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "3e8bf833-e55a-4410-907d-d40115193df5": {
@@ -6827,7 +6854,7 @@
       ],
       "prCount": 5,
       "skills": {},
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "132eaf75-9012-4aab-844c-256fa592cc1b": {
@@ -6933,7 +6960,7 @@
         "design": 38,
         "artifact-capabilities": 24
       },
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "5d34c0b8-24aa-4b77-bbfb-2e2376bad5cc": {
@@ -7000,7 +7027,7 @@
       ],
       "prCount": 1,
       "skills": {},
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "e5992e69-51b4-4798-b519-eb55f3e85728": {
@@ -7065,7 +7092,7 @@
       ],
       "prCount": 0,
       "skills": {},
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "406c30e2-1dea-48ec-818e-b9e36f3bddf4": {
@@ -7114,7 +7141,7 @@
       ],
       "prCount": 0,
       "skills": {},
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "464a93f8-8d84-41d1-bf71-13e4317269ec": {
@@ -7184,7 +7211,7 @@
       "skills": {
         "anthropic-skills:pptx": 66
       },
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "5ceb8c07-e1e5-4bfb-b578-622b48877622": {
@@ -7203,29 +7230,29 @@
         ],
         [
           1790362205831,
-          1790362446008
+          1790363546950
         ]
       ],
       "projectKey": "git:d31ecebdae6a82965f89edfb16d2c1be0f710c01",
       "projectName": "peter-and-co",
       "firstSeen": "2026-09-20T17:14:11.713Z",
-      "lastSeen": "2026-09-25T18:54:06.008Z",
-      "activeMs": 2262203,
+      "lastSeen": "2026-09-25T19:12:26.950Z",
+      "activeMs": 3363145,
       "days": [
         "2026-09-20",
         "2026-09-25"
       ],
-      "prompts": 14,
-      "assistantMessages": 110,
+      "prompts": 25,
+      "assistantMessages": 159,
       "compactions": 0,
       "apiErrors": 1,
       "webSearches": 0,
       "webFetches": 0,
       "totals": {
-        "input": 218,
-        "output": 71044,
-        "cacheWrite": 469300,
-        "cacheRead": 16192465
+        "input": 316,
+        "output": 94312,
+        "cacheWrite": 497309,
+        "cacheRead": 28668437
       },
       "byModel": {
         "<synthetic>": {
@@ -7235,28 +7262,31 @@
           "cacheRead": 0
         },
         "claude-opus-5": {
-          "input": 218,
-          "output": 71044,
-          "cacheWrite": 469300,
-          "cacheRead": 16192465
+          "input": 316,
+          "output": 94312,
+          "cacheWrite": 497309,
+          "cacheRead": 28668437
         }
       },
       "tools": {
-        "Bash": 95,
+        "Bash": 130,
         "Write": 1,
-        "Skill": 1
+        "Skill": 1,
+        "ToolSearch": 1,
+        "ExitWorktree": 1
       },
       "fileHashes": [
         "828c85fade98"
       ],
       "branchHashes": [
-        "0b31cbfacf72"
+        "0b31cbfacf72",
+        "b5180223165a"
       ],
-      "prCount": 1,
+      "prCount": 3,
       "skills": {
         "commit-commands:clean_gone": 26
       },
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "2bd84b7a-a4ad-40d0-90dc-e282301d1c6f": {
@@ -7353,7 +7383,7 @@
       ],
       "prCount": 9,
       "skills": {},
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "2ded331b-13da-4972-9b51-af36f4146a5e": {
@@ -7434,7 +7464,7 @@
         "web-perf": 55,
         "superpowers:systematic-debugging": 39
       },
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     },
     "c39e0adf-5b35-475b-981d-c64b1e136fce": {
@@ -7449,55 +7479,416 @@
         ],
         [
           1790361469275,
-          1790362369303
+          1790363039038
+        ],
+        [
+          1790364075860,
+          1790364937812
         ]
       ],
       "projectKey": "git:d10143ad3128e919bef93e310937b12bbbb9a7ea",
       "projectName": "milk-me-not",
       "firstSeen": "2026-09-24T18:36:21.436Z",
-      "lastSeen": "2026-09-25T18:52:49.303Z",
-      "activeMs": 1576935,
+      "lastSeen": "2026-09-25T19:35:37.812Z",
+      "activeMs": 3108622,
       "days": [
         "2026-09-24",
         "2026-09-25"
       ],
-      "prompts": 14,
-      "assistantMessages": 88,
+      "prompts": 28,
+      "assistantMessages": 157,
       "compactions": 0,
       "apiErrors": 0,
       "webSearches": 0,
       "webFetches": 0,
       "totals": {
-        "input": 176,
-        "output": 55210,
-        "cacheWrite": 257311,
-        "cacheRead": 13064838
+        "input": 314,
+        "output": 89184,
+        "cacheWrite": 300436,
+        "cacheRead": 28636866
       },
       "byModel": {
         "claude-opus-5": {
-          "input": 176,
-          "output": 55210,
-          "cacheWrite": 257311,
-          "cacheRead": 13064838
+          "input": 314,
+          "output": 89184,
+          "cacheWrite": 300436,
+          "cacheRead": 28636866
         }
       },
       "tools": {
-        "Bash": 61,
-        "ToolSearch": 3,
+        "Bash": 95,
+        "ToolSearch": 5,
         "mcp__ccd_pr__get_status": 5,
         "mcp__terminal__read_terminal": 1,
-        "Monitor": 3,
-        "PushNotification": 1,
-        "ExitWorktree": 1
+        "Monitor": 7,
+        "PushNotification": 3,
+        "ExitWorktree": 3,
+        "mcp__ccd_directory__change_directory": 1,
+        "Skill": 1,
+        "EnterWorktree": 1,
+        "Read": 2,
+        "Edit": 3,
+        "Grep": 1,
+        "Write": 2
       },
-      "fileHashes": [],
+      "fileHashes": [
+        "88e1f4f09614",
+        "debd842fbc6f"
+      ],
       "branchHashes": [
         "313c350d8688",
-        "e40810d3cf24"
+        "e40810d3cf24",
+        "b5180223165a",
+        "7cc9a8b9b5a0"
       ],
-      "prCount": 2,
+      "prCount": 4,
+      "skills": {
+        "claude-md-management:revise-claude-md": 44
+      },
+      "archivedAt": "2026-10-01T09:25:31.718Z",
+      "countedPerMessageId": true
+    },
+    "0ec363c4-c00a-4ba7-ac32-6ca418c4d307": {
+      "intervals": [
+        [
+          1790711988771,
+          1790712002438
+        ]
+      ],
+      "projectKey": "git:31366172e2eb4de603359875c8027a28ab914eee",
+      "projectName": "folio",
+      "firstSeen": "2026-09-29T19:59:48.771Z",
+      "lastSeen": "2026-09-29T20:00:02.438Z",
+      "activeMs": 13667,
+      "days": [
+        "2026-09-29"
+      ],
+      "prompts": 1,
+      "assistantMessages": 1,
+      "compactions": 0,
+      "apiErrors": 0,
+      "webSearches": 0,
+      "webFetches": 0,
+      "totals": {
+        "input": 10,
+        "output": 786,
+        "cacheWrite": 38057,
+        "cacheRead": 26009
+      },
+      "byModel": {
+        "claude-haiku-4-5-20251001": {
+          "input": 10,
+          "output": 786,
+          "cacheWrite": 38057,
+          "cacheRead": 26009
+        }
+      },
+      "tools": {},
+      "fileHashes": [],
+      "branchHashes": [
+        "fc613b4dfd67"
+      ],
+      "prCount": 0,
       "skills": {},
-      "archivedAt": "2026-09-25T18:54:08.262Z",
+      "archivedAt": "2026-10-01T09:25:31.718Z",
+      "countedPerMessageId": true
+    },
+    "964803f3-1b75-4ed0-b209-c91d8ceb8ac9": {
+      "intervals": [
+        [
+          1790621486903,
+          1790624443873
+        ],
+        [
+          1790710179835,
+          1790714844822
+        ]
+      ],
+      "projectKey": "git:31366172e2eb4de603359875c8027a28ab914eee",
+      "projectName": "folio",
+      "firstSeen": "2026-09-28T18:51:26.903Z",
+      "lastSeen": "2026-09-29T20:47:24.822Z",
+      "activeMs": 7621957,
+      "days": [
+        "2026-09-28",
+        "2026-09-29"
+      ],
+      "prompts": 15,
+      "assistantMessages": 586,
+      "compactions": 0,
+      "apiErrors": 0,
+      "webSearches": 0,
+      "webFetches": 0,
+      "totals": {
+        "input": 2316,
+        "output": 292048,
+        "cacheWrite": 3325157,
+        "cacheRead": 89987558
+      },
+      "byModel": {
+        "claude-opus-5-5": {
+          "input": 436,
+          "output": 262328,
+          "cacheWrite": 1403978,
+          "cacheRead": 56196851
+        },
+        "claude-sonnet-5": {
+          "input": 386,
+          "output": 15998,
+          "cacheWrite": 1325608,
+          "cacheRead": 20863271
+        },
+        "claude-haiku-4-5-20251001": {
+          "input": 1494,
+          "output": 13722,
+          "cacheWrite": 595571,
+          "cacheRead": 12927436
+        }
+      },
+      "tools": {
+        "Read": 166,
+        "Skill": 5,
+        "Agent": 33,
+        "mcp__Claude_Browser__navigate": 1,
+        "mcp__Claude_Browser__get_page_text": 1,
+        "ToolSearch": 4,
+        "WebFetch": 17,
+        "AskUserQuestion": 5,
+        "WebSearch": 14,
+        "PowerShell": 75,
+        "Write": 60,
+        "Grep": 7,
+        "Glob": 1,
+        "Bash": 187,
+        "SendMessage": 5,
+        "ReadNotifications": 1,
+        "SubagentHandback": 38,
+        "Edit": 26
+      },
+      "fileHashes": [
+        "d7e204d4e0db",
+        "f6e29e4a6c4f",
+        "1eede153488b",
+        "4ffc83cab492",
+        "54d825733f5d",
+        "386f84eda444",
+        "9c3aab6b07d4",
+        "4fb5d663c3a3",
+        "75f26f073089",
+        "1417d23bf0e7",
+        "3aa3efe2e8b4",
+        "da4dee2dd3de",
+        "19fa1e3ee40a",
+        "3b12b1a07491",
+        "f7765e0f13e5",
+        "d523f211aa29",
+        "3bcc84c7a59d",
+        "116d1bb3c3d4",
+        "7eb10df1c2a3",
+        "9f36f4289fbb",
+        "32ce584b16f8",
+        "0bd8514d3b92",
+        "99a0b9f2da25",
+        "7c47be6ece55",
+        "24df43a837c5",
+        "fd954151e1ef",
+        "daf25cb49e53",
+        "b39085a3412a",
+        "dd2de2f751d9",
+        "47cd12496549",
+        "db24ed8cdb7b",
+        "d9bc7b93c434",
+        "3436de12ad1c",
+        "70501bf01e2c",
+        "38d2cca2268b",
+        "19cfd2df1bb1",
+        "23bcf4f50426",
+        "98a971c8b5ab",
+        "7eca3fd6f997",
+        "2d1cb2c193b9",
+        "9e9141fb1cc2",
+        "c3a8a426587e",
+        "bc4cb45930bf",
+        "69d3a38b6574",
+        "cec06813f7c2",
+        "8153b1b2c7e9",
+        "e53714fab504",
+        "a14cf1b918d9",
+        "9dcfe079f6f0",
+        "f6a4dadace61",
+        "0f2831e76c2e",
+        "0aeed42800bc",
+        "e528687fee28",
+        "c1d17e937744",
+        "3cba3ad131ce",
+        "5a749aee343f",
+        "afd6e877ccd3",
+        "45d36fa2adaa",
+        "32a70a17a2fd",
+        "75cb12d6c45e",
+        "ecffd7a56e5e",
+        "8823eab33a15",
+        "413726ad3e54",
+        "b132fcd701a2",
+        "9029e1ba1c87",
+        "6ad12c7f881b",
+        "e0382da6f87a",
+        "05319dea9f97",
+        "f4bb2e200768",
+        "e246fb8abdea",
+        "eca06688288a",
+        "98356060685f",
+        "b4fedd7a078e",
+        "04c3f22d2069",
+        "4342dfeeb2bb",
+        "3e26a0826874",
+        "f372270f4cd8",
+        "f7626d759f7b",
+        "11cf1658e5cc",
+        "a9be4341af22",
+        "705de72efbe6",
+        "1f1dbd37def4",
+        "5ea96c51504d",
+        "5a62b6e96f08",
+        "ca1fc81e3685",
+        "aadd437efcdf",
+        "32c1202dbd0d",
+        "a487de20222a"
+      ],
+      "branchHashes": [
+        "ee66b1527430"
+      ],
+      "prCount": 0,
+      "skills": {
+        "ecc:llm-trading-agent-security": 2,
+        "claude-api": 2,
+        "superpowers:writing-plans": 20,
+        "superpowers:subagent-driven-development": 83
+      },
+      "archivedAt": "2026-10-01T09:25:31.718Z",
+      "countedPerMessageId": true
+    },
+    "6f9d126d-f421-4945-9eb9-b125eeeeea0b": {
+      "intervals": [
+        [
+          1790538404231,
+          1790538851902
+        ]
+      ],
+      "projectKey": "git:d10143ad3128e919bef93e310937b12bbbb9a7ea",
+      "projectName": "milk-me-not",
+      "firstSeen": "2026-09-27T19:46:44.231Z",
+      "lastSeen": "2026-09-27T19:54:11.902Z",
+      "activeMs": 447671,
+      "days": [
+        "2026-09-27"
+      ],
+      "prompts": 0,
+      "assistantMessages": 26,
+      "compactions": 0,
+      "apiErrors": 0,
+      "webSearches": 0,
+      "webFetches": 0,
+      "totals": {
+        "input": 52,
+        "output": 38289,
+        "cacheWrite": 109744,
+        "cacheRead": 3075697
+      },
+      "byModel": {
+        "claude-opus-5-5": {
+          "input": 52,
+          "output": 38289,
+          "cacheWrite": 109744,
+          "cacheRead": 3075697
+        }
+      },
+      "tools": {
+        "Skill": 1,
+        "Bash": 15,
+        "Grep": 1,
+        "Read": 10,
+        "Write": 4,
+        "SendUserFile": 1
+      },
+      "fileHashes": [
+        "8ca4dac37d47",
+        "51e2fd61464c",
+        "6c80a511de5f",
+        "f469849a66d7",
+        "29b6b8235854",
+        "697dbfe643af",
+        "f4d103f9764d",
+        "3085536868d2",
+        "f1ff11c8e149",
+        "bdd4bb11a003",
+        "0654f773d0d0",
+        "fb61cd110e85",
+        "de6329b80417"
+      ],
+      "branchHashes": [
+        "bd56360f81a5"
+      ],
+      "prCount": 0,
+      "skills": {
+        "ecc:remotion-video-creation": 56
+      },
+      "archivedAt": "2026-10-01T09:25:31.718Z",
+      "countedPerMessageId": true
+    },
+    "b6490f78-1aea-49ca-a3bd-5aa10116ecce": {
+      "intervals": [
+        [
+          1790841681076,
+          1790841689658
+        ],
+        [
+          1790846724716,
+          1790846730205
+        ]
+      ],
+      "projectKey": "git:d31ecebdae6a82965f89edfb16d2c1be0f710c01",
+      "projectName": "peter-and-co",
+      "firstSeen": "2026-10-01T08:01:21.076Z",
+      "lastSeen": "2026-10-01T09:25:30.205Z",
+      "activeMs": 14071,
+      "days": [
+        "2026-10-01"
+      ],
+      "prompts": 1,
+      "assistantMessages": 4,
+      "compactions": 0,
+      "apiErrors": 0,
+      "webSearches": 0,
+      "webFetches": 0,
+      "totals": {
+        "input": 8,
+        "output": 1241,
+        "cacheWrite": 83124,
+        "cacheRead": 243468
+      },
+      "byModel": {
+        "claude-opus-5-5": {
+          "input": 8,
+          "output": 1241,
+          "cacheWrite": 83124,
+          "cacheRead": 243468
+        }
+      },
+      "tools": {
+        "Read": 1,
+        "Bash": 2,
+        "PowerShell": 2
+      },
+      "fileHashes": [
+        "828c85fade98"
+      ],
+      "branchHashes": [
+        "6a5ee072b77f"
+      ],
+      "prCount": 0,
+      "skills": {},
+      "archivedAt": "2026-10-01T09:25:31.718Z",
       "countedPerMessageId": true
     }
   }
