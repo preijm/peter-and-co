@@ -4144,6 +4144,22 @@ function VTerminal({ projects, mobile }) {
         : ['everything here is one repo and one file. it is fine. it is fine.'];
     } else if (n === 'exit' || n === 'quit' || n === 'q') {
       a = ["there is no exit. try 'editions' if you want a different room."];
+    } else if (n === 'dir') {
+      a = [' volume in drive C is peter-and-co',
+           '',
+           '  <DIR>   projects',
+           '  <DIR>   ideas        (mostly unfinished)',
+           '  <DIR>   taste',
+           '  1 file  index.html   (all of it)',
+           '',
+           "this isn't windows. try 'ls'."];
+    } else if (n === 'easter') {
+      // Lists every egg above on purpose: asking for the list is itself a
+      // way to find them. Keep in sync when adding one.
+      a = ['you found the list. the rest are on you:', '',
+           '  sudo  rm  vim  nano  npm  git  git blame',
+           '  exit  pwd  dir  uptime', '',
+           "none of them are in 'help'."];
     } else if (n === 'pwd') {
       a = ['~/peter-and-co', 'you are, in every sense, here.'];
     } else if (n === 'uptime') {
