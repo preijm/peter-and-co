@@ -901,7 +901,10 @@ function collect(writeArchive, allowlist, rebuild) {
     const total = t.input + t.output + t.cacheWrite + t.cacheRead;
     const edits = (g.tools.Edit || 0) + (g.tools.Write || 0) + (g.tools.NotebookEdit || 0);
 
-    const name = entries[0].projectName || 'unknown';
+    // A project whose folder was renamed has sessions under both names (same first
+    // commit, so same key). The newest session's name is the current one.
+    const newest = entries.reduce((a, b) => ((b.lastSeen || '') > (a.lastSeen || '') ? b : a), entries[0]);
+    const name = newest.projectName || 'unknown';
     const manualSources = manual[name] || [];
     const manualPrompts = manualSources.reduce((a, s) => a + (s.prompts || 0), 0);
 
