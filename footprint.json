@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-08T16:16:07.577Z",
+  "generatedAt": "2026-11-08T16:38:10.039Z",
   "source": "claude-code-session-logs",
   "disclaimer": "All figures are a measured floor, not a total. Only Claude Code usage is counted, and only sessions this archive recorded before their logs were deleted. Work in other tools is not included.",
   "methodology": {
@@ -240,7 +240,7 @@
           "Any work done outside an AI coding tool entirely."
         ],
         "firstCommitDate": "2026-04-20",
-        "totalCommits": 222,
+        "totalCommits": 221,
         "commitsBeforeMeasuredWindow": 73,
         "commitCoveragePct": 67
       }
@@ -452,40 +452,40 @@
       }
     },
     {
-      "name": "lg-home",
+      "name": "couch-launcher",
       "manualSources": [],
       "combined": null,
       "measured": {
-        "prompts": 99,
-        "assistantMessages": 725,
-        "sessions": 1,
+        "prompts": 104,
+        "assistantMessages": 780,
+        "sessions": 2,
         "sessionsRetainedFromDeletedLogs": 0,
-        "activeHours": 5,
+        "activeHours": 5.2,
         "calendarDays": 2,
         "firstSeen": "2026-11-07",
         "lastSeen": "2026-11-08"
       },
       "tokens": {
-        "output": 559351,
-        "input": 1680,
-        "cacheWrite": 1975781,
-        "cacheRead": 167789634,
-        "total": 170326446,
-        "cacheReadShare": 98.5
+        "output": 578303,
+        "input": 1808,
+        "cacheWrite": 2064582,
+        "cacheRead": 182740186,
+        "total": 185384879,
+        "cacheReadShare": 98.6
       },
       "work": {
-        "toolCalls": 796,
-        "edits": 63,
-        "bashCommands": 448,
-        "filesTouched": 100,
-        "branches": 1,
-        "prs": 0,
+        "toolCalls": 854,
+        "edits": 66,
+        "bashCommands": 470,
+        "filesTouched": 105,
+        "branches": 2,
+        "prs": 1,
         "webSearches": 0,
         "compactions": 6,
         "apiErrors": 1
       },
       "models": {
-        "claude-opus-5-5": 170326446,
+        "claude-opus-5-5": 185384879,
         "<synthetic>": 0
       },
       "skills": {
@@ -501,18 +501,18 @@
       },
       "emissions": {
         "gramsCO2e": {
-          "floor": 1275.3,
-          "midpoint": 8590.5,
-          "ceiling": 65786.8
+          "floor": 1318.5,
+          "midpoint": 9244,
+          "ceiling": 71545
         },
         "headline": {
-          "kgCO2e": 8.6,
-          "kmDriven": 72,
-          "kettleBoils": 573,
-          "phoneCharges": 4773
+          "kgCO2e": 9.2,
+          "kmDriven": 77,
+          "kettleBoils": 616,
+          "phoneCharges": 5136
         },
         "caveats": [
-          "Range spans 52x between floor and ceiling; the variable is how cache reads are weighted.",
+          "Range spans 54x between floor and ceiling; the variable is how cache reads are weighted.",
           "Opus/Fable emission factors are extrapolated by parameter ratio, not measured.",
           "Base factors: Jegham et al. 2025 (Sonnet-class, via the claude-carbon project)."
         ]
@@ -522,7 +522,7 @@
         "measuredFrom": "2026-11-07",
         "measuredTo": "2026-11-08",
         "isFloor": true,
-        "sessionsMeasured": 1,
+        "sessionsMeasured": 2,
         "sessionsRetainedFromDeletedLogs": 0,
         "unmeasured": [
           "Sessions deleted before this archive first recorded them.",
