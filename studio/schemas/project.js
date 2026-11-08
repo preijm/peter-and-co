@@ -23,6 +23,10 @@ export default defineType({
       name: 'href', title: 'Live link', type: 'url',
       description: 'Where the ↗ goes. A project counts as live only when this is set AND "Launched" is on — either one missing shows "soon" instead.',
     }),
+    defineField({
+      name: 'repo', title: 'Repo folder (build footprint)', type: 'string',
+      description: 'Only when the local project folder is named differently from the slug, e.g. lg-home. The build footprint is matched on this first, then on the slug.',
+    }),
     defineField({name: 'screenshot', title: 'Screenshot', type: 'image', options: {hotspot: true}, description: 'Optional — leave empty for the placeholder'}),
     defineField({
       name: 'screenshotBefore', title: 'Screenshot (before)', type: 'image', options: {hotspot: true},
