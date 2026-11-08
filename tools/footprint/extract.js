@@ -902,8 +902,12 @@ function collect(writeArchive, allowlist, rebuild) {
     const edits = (g.tools.Edit || 0) + (g.tools.Write || 0) + (g.tools.NotebookEdit || 0);
 
     // A project whose folder was renamed has sessions under both names (same first
-    // commit, so same key). The newest session's name is the current one.
-    const newest = entries.reduce((a, b) => ((b.lastSeen || '') > (a.lastSeen || '') ? b : a), entries[0]);
+    // commit, so same key). Name it by a published name when it has one (Folio's
+    // folder is folio-dashboard, but the site knows it as folio), and the newest of
+    // those when it has several (lg-home became couch-launcher).
+    const published = allowlist ? entries.filter((e) => allowlist.has(String(e.projectName).toLowerCase())) : [];
+    const pool = published.length ? published : entries;
+    const newest = pool.reduce((a, b) => ((b.lastSeen || '') > (a.lastSeen || '') ? b : a), pool[0]);
     const name = newest.projectName || 'unknown';
     const manualSources = manual[name] || [];
     const manualPrompts = manualSources.reduce((a, s) => a + (s.prompts || 0), 0);
