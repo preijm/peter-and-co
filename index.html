@@ -1378,7 +1378,9 @@ function ProjectGrid({ onSelect, featured, onViewAll }) {
   const mobile = useMobile();
   const [filter, setFilter] = React.useState('all');
 
-  const pool = featured ? PROJECTS.filter(p => p.featured) : PROJECTS.filter(p => p.public !== false);
+  // Home shows one full row of the three-wide grid: a fourth featured project would
+  // leave two empty cells. The rest are a click away on Work.
+  const pool = featured ? PROJECTS.filter(p => p.featured).slice(0, 3) : PROJECTS.filter(p => p.public !== false);
   const categories = ['all', ...new Set(PROJECTS.map(p => p.tags[0]))];
   const visible = (!featured && filter !== 'all') ? pool.filter(p => p.tags[0] === filter) : pool;
 
@@ -6169,7 +6171,6 @@ function PZWork({ projects, mobile, onSelect }) {
               background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.92)',
               backdropFilter: mobile ? undefined : 'blur(16px)',
               display: 'flex', flexDirection: 'column', gap: '14px', minHeight: '44px',
-              gridColumn: (!mobile && i === 0) ? 'span 2' : undefined,
             }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minWidth: 0 }}>
@@ -6858,7 +6859,10 @@ function BSStatement({ children, size, maxWidth, nowrap, className }) {
 
 function BSListings({ projects, mobile, onSelect }) {
   const { theme } = useTheme();
-  const list = projects.slice(0, 5);
+  // Five slots, and a project that is not live yet does not take one while a live
+  // project is left out (Boer Transport pushed Reijm Tuinaanleg off at six projects).
+  const live = projects.filter(p => p.public !== false);
+  const list = [...live, ...projects.filter(p => p.public === false)].slice(0, 5);
   return (
     <div style={{ flexShrink: 0, paddingBottom: 'clamp(22px, 3vh, 34px)' }}>
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', paddingBottom: '10px' }}>
