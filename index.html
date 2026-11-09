@@ -149,7 +149,7 @@
   var HERO = 'hero.webp'; /* build:hero */
   if (active === 'grain-v1' && HERO) {
     var p = document.createElement('link');
-    p.rel = 'preload'; p.as = 'image'; p.href = 'footage/' + HERO;
+    p.rel = 'preload'; p.as = 'image'; p.href = '/footage/' + HERO;
     p.setAttribute('fetchpriority', 'high');
     document.head.appendChild(p);
   }
@@ -511,6 +511,16 @@ function ThemeProvider({ children, onEditionChange }) {
       const moved = idx !== themeIdx;
       setThemeIdx(idx);
       try { localStorage.setItem('pco-theme', id); } catch {}
+      // ?theme= wins over the stored choice on load, and App carries the query along
+      // on every route change, so a stale one would undo this pick on the next reload.
+      // Rewritten in place, before onEditionChange pushes home with it.
+      try {
+        const q = new URLSearchParams(location.search);
+        if (q.has('theme') && q.get('theme') !== id) {
+          q.set('theme', id);
+          history.replaceState(history.state, '', location.pathname + '?' + q.toString() + location.hash);
+        }
+      } catch {}
       if (moved && onEditionChange) onEditionChange();
     }
   };
@@ -543,7 +553,7 @@ function ThemeProvider({ children, onEditionChange }) {
       document.head.appendChild(l);
     }
     const favicon = document.querySelector("link[rel='icon']");
-    if (favicon) favicon.href = `themes/${theme.id}/favicon.svg`;
+    if (favicon) favicon.href = `/themes/${theme.id}/favicon.svg`;
   }, [theme]);
 
   return (
@@ -2087,6 +2097,12 @@ function ProjectDetail({ project, onBack }) {
 }
 
 // ── App ────────────────────────────────────────────────
+// Section ids per single-page edition, for the page routes. Volt has no tools section.
+const SECTION_IDS = {
+  VoltApp:  { work: 'v-work', about: 'v-background', contact: 'v-contact' },
+  GrainApp: { work: 'r-work', tools: 'r-tools', about: 'r-background', contact: 'r-contact' },
+  PrismApp: { work: 'pz-work', tools: 'pz-tools', about: 'pz-background', contact: 'pz-contact' },
+};
 function AppShell({ page, selectedProject, activePage, navigate, selectProject }) {
   const { theme, editionsOpen } = useTheme();
   const [readyThemes, setReadyThemes] = React.useState([]);
@@ -2112,6 +2128,27 @@ function AppShell({ page, selectedProject, activePage, navigate, selectProject }
     document.head.appendChild(s);
     setReadyThemes(ids => [...ids, theme.id]);
   }, [theme, readyThemes]);
+
+  // Volt, Grain and Prism are one long page and ignore `page`, so /work, /tools,
+  // /about and /contact take the reader to that section instead. Polled briefly
+  // because the edition mounts a beat after its script is compiled, and run twice
+  // because Grain's planes use content-visibility: the ones above the target only get
+  // their real height once they have been laid out, which moves the target.
+  React.useEffect(() => {
+    const ids = SECTION_IDS[theme.appGlobal];
+    const id = ids && !selectedProject && ids[page];
+    if (!id || !readyThemes.includes(theme.id)) return;
+    const timers = [];
+    let tries = 0;
+    const go = (again) => {
+      const el = document.getElementById(id);
+      if (!el) { if (tries++ < 40) timers.push(setTimeout(() => go(again), 50)); return; }
+      el.scrollIntoView({ behavior: 'instant', block: 'start' });
+      if (again) timers.push(setTimeout(() => go(false), 400));
+    };
+    timers.push(setTimeout(() => go(true), 0));
+    return () => timers.forEach(clearTimeout);
+  }, [theme.id, page, selectedProject && selectedProject.id, readyThemes]);
 
   if (theme.mondriaan) {
     if (!readyThemes.includes(theme.id)) return <>{modal}<div style={{ minHeight: '100vh', background: theme.colors.bg }} /></>;
@@ -2235,7 +2272,7 @@ async function loadSanityContent() {
 let FOOTPRINT = null;
 async function loadFootprint() {
   try {
-    const r = await fetch('footprint.json', { cache: 'no-cache' });
+    const r = await fetch('/footprint.json', { cache: 'no-cache' });
     if (!r.ok) return false;
     const j = await r.json();
     if (!j || !Array.isArray(j.projects)) return false;
@@ -2330,17 +2367,82 @@ function footprintCaveat(fp) {
   return `Measured from Claude Code, ${window}. Work in other tools isn't counted, so the real number is higher.`;
 }
 
+// ── Routes ─────────────────────────────────────────────
+// Every view has a real path, so a project can be shared and Back/Forward work:
+//   /                  home
+//   /work /tools /about /contact
+//   /work/<project id> one project (the id is the Sanity slug)
+// build.js writes a static page for each of these with its own title, canonical and
+// og: tags, so a shared link previews as that project. dist/404.html is a copy of the
+// app too, so a path with no page of its own (a project added in Sanity since the
+// last deploy, or a typo) still boots and is resolved here. Locally serve.json
+// rewrites the same paths to index.html.
+//
+// The query string rides along on every push: ThemeProvider reads ?theme= on load but
+// never stores it, so dropping it would switch edition on the next reload.
+const ROUTE_PAGES = ['work', 'tools', 'about', 'contact'];
+function parseRoute(pathname) {
+  const parts = String(pathname || '/').replace(/\/index\.html$|\.html$/, '').split('/').filter(Boolean);
+  if (parts.length === 0) return { page: 'home', slug: null };
+  if (parts.length === 1 && ROUTE_PAGES.includes(parts[0])) return { page: parts[0], slug: null };
+  if (parts.length === 2 && parts[0] === 'work') {
+    try { return { page: 'project', slug: decodeURIComponent(parts[1]) }; } catch { return null; }
+  }
+  return null;
+}
+function routePath(page, slug) {
+  if (slug) return '/work/' + encodeURIComponent(slug);
+  return page && page !== 'home' ? '/' + page : '/';
+}
+function writeRoute(page, slug, replace) {
+  const url = routePath(page, slug) + location.search;
+  if (url === location.pathname + location.search) return;
+  try { history[replace ? 'replaceState' : 'pushState']({ page, slug }, '', url); } catch {}
+}
+
 function App() {
-  const [page, setPage] = React.useState('home');
-  const [selectedProject, setSelectedProject] = React.useState(null);
+  const initial = React.useMemo(() => parseRoute(location.pathname), []);
+  const [page, setPage] = React.useState(initial ? initial.page : 'home');
+  const [slug, setSlug] = React.useState(initial ? initial.slug : null);
+  const [contentLoaded, setContentLoaded] = React.useState(false);
   const [, setContentVersion] = React.useState(0);
 
   React.useEffect(() => {
     let alive = true;
     Promise.all([loadSanityContent(), loadFootprint()]).then(results => {
       if (alive && results.some(Boolean)) setContentVersion(v => v + 1);
-    });
+    }).finally(() => { if (alive) setContentLoaded(true); });
     return () => { alive = false; };
+  }, []);
+
+  // Looked up every render rather than stored: loadSanityContent replaces the
+  // PROJECTS entries in place, so a stored object would go stale under the reader.
+  const selectedProject = slug ? (PROJECTS.find(p => p.id === slug) || null) : null;
+
+  // An unknown path, or a slug no project has, lands on home. A slug is only given
+  // up once Sanity has answered, because a project published since the last deploy
+  // is not in the baked copy yet; until then the page shows home underneath.
+  // Also settles the address on one spelling: /work/ and /work/x/ (what GitHub Pages
+  // redirects a folder to) become /work and /work/x, which is what canonical says.
+  React.useEffect(() => {
+    writeRoute(initial ? initial.page : 'home', initial ? initial.slug : null, true);
+  }, []);
+  React.useEffect(() => {
+    if (slug && !selectedProject && contentLoaded) {
+      setSlug(null); setPage('home'); writeRoute('home', null, true);
+    }
+  }, [slug, selectedProject, contentLoaded]);
+
+  React.useEffect(() => {
+    try { history.replaceState({ page: initial ? initial.page : 'home', slug: initial ? initial.slug : null }, ''); } catch {}
+    const onPop = () => {
+      const r = parseRoute(location.pathname) || { page: 'home', slug: null };
+      setPage(r.page);
+      setSlug(r.slug);
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
   }, []);
 
   // behavior:'instant' on both. Left off, scrollTo defers to the CSS scroll-behavior
@@ -2351,17 +2453,22 @@ function App() {
   // all six editions go through.
   const navigate = (p) => {
     setPage(p);
-    setSelectedProject(null);
+    setSlug(null);
+    writeRoute(p, null);
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
   const selectProject = (project) => {
-    setSelectedProject(project);
+    setSlug(project.id);
     setPage('project');
+    writeRoute('project', project.id);
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
-  const activePage = selectedProject ? 'work' : page;
+  // What the page shows while a slug is still waiting on Sanity: home.
+  const shownPage = page === 'project' && !selectedProject ? 'home' : page;
+
+  const activePage = selectedProject ? 'work' : shownPage;
 
   return (
     // Changing edition returns you to that edition's home, and clears any project
@@ -2375,7 +2482,7 @@ function App() {
     // you switched away — you would land on a page you never navigated to. Now the
     // six behave alike and there is no hidden position to restore.
     <ThemeProvider onEditionChange={() => navigate('home')}>
-      <AppShell page={page} selectedProject={selectedProject} activePage={activePage} navigate={navigate} selectProject={selectProject} />
+      <AppShell page={shownPage} selectedProject={selectedProject} activePage={activePage} navigate={navigate} selectProject={selectProject} />
     </ThemeProvider>
   );
 }
@@ -4327,11 +4434,13 @@ function VHero({ mobile, projects }) {
   );
 }
 
-function VRow({ p, i, mobile }) {
+function VRow({ p, i, mobile, lit }) {
   const [hov, setHov] = React.useState(false);
   const soon = p.public === false;      // not launched yet → shown faded as "coming soon"
   const clickable = !soon && !!p.href;  // only live projects with a URL open
-  const hot = hov && clickable;
+  // lit: this row is the project in the address bar (/work/<id>). Volt has no project
+  // page, so a shared project link lands on its row, drawn as if hovered.
+  const hot = (hov && clickable) || !!lit;
   const mono = { fontFamily: V_MONO, fontSize: '12px', letterSpacing: '0.04em' };
   const titleBlock = (
     <div style={{ transform: hot && !mobile ? 'translateX(10px)' : 'none', transition: 'transform 320ms cubic-bezier(0.2,0.7,0.2,1)' }}>
@@ -4397,6 +4506,7 @@ function VRow({ p, i, mobile }) {
   };
   const handlers = {
     className: 'v-row',
+    'data-v-id': p.id,
     onMouseEnter: () => setHov(true),
     onMouseLeave: () => setHov(false),
   };
@@ -4405,7 +4515,7 @@ function VRow({ p, i, mobile }) {
     : <div {...handlers} style={style}>{inner}</div>;
 }
 
-function VWork({ projects, mobile }) {
+function VWork({ projects, mobile, lit }) {
   return (
     <section id="v-work" style={vWrap(mobile, mobile ? '88px' : '140px')}>
       <div className="v-reveal" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: mobile ? '32px' : '48px' }}>
@@ -4413,7 +4523,7 @@ function VWork({ projects, mobile }) {
         <span style={{ fontFamily: V_MONO, fontSize: '12px', color: V_FAINT }}>{String(projects.length).padStart(2, '0')} projects</span>
       </div>
       <div>
-        {projects.map((p, i) => <VRow key={p.id} p={p} i={i} mobile={mobile} />)}
+        {projects.map((p, i) => <VRow key={p.id} p={p} i={i} mobile={mobile} lit={lit === p.id} />)}
         <div style={{ borderTop: '1px solid ' + V_LINEC }} />
       </div>
     </section>
@@ -4667,6 +4777,27 @@ function VoltApp(props) {
 
   const onTop = () => window.scrollTo({ top: 0, behavior: vReduced() ? 'auto' : 'smooth' });
 
+  // A project URL (/work/<id>) in Volt: there is no project page here, so bring that
+  // project's row to the middle of the screen and light it. Delayed a beat so the
+  // hero has its final height before the row is measured.
+  const lit = props.selectedProject ? props.selectedProject.id : null;
+  // Back/Forward onto the same project leaves `lit` unchanged while App scrolls to
+  // the top, so the row is found again on popstate too. That listener can fire for
+  // a pop that leaves this project, hence the check on the address before moving.
+  React.useEffect(() => {
+    if (!lit) return;
+    const timers = [];
+    const go = () => {
+      if (location.pathname.replace(/\/$/, '') !== '/work/' + lit) return;
+      const row = Array.from(document.querySelectorAll('.v-row')).find(el => el.getAttribute('data-v-id') === lit);
+      if (row) row.scrollIntoView({ behavior: 'instant', block: 'center' });
+    };
+    const onPop = () => timers.push(setTimeout(go, 50));
+    timers.push(setTimeout(go, 150));
+    window.addEventListener('popstate', onPop);
+    return () => { timers.forEach(clearTimeout); window.removeEventListener('popstate', onPop); };
+  }, [lit]);
+
   React.useEffect(() => {
     if (!gsapReady || vReduced()) return;
     const gsap = window.gsap;
@@ -4686,7 +4817,7 @@ function VoltApp(props) {
       <VParticles mobile={mobile} />
       <VFloatingChrome onTop={onTop} />
       <VHero mobile={mobile} projects={projects} />
-      <VWork projects={projects} mobile={mobile} />
+      <VWork projects={projects} mobile={mobile} lit={lit} />
       <VFootprint projects={projects} mobile={mobile} />
       <VBackground mobile={mobile} />
       <VContact mobile={mobile} />
@@ -4826,7 +4957,7 @@ const R_GRAIN = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
 let rFootagePromise = null;
 function rLoadFootage() {
   if (!rFootagePromise) {
-    rFootagePromise = fetch('footage/manifest.json')
+    rFootagePromise = fetch('/footage/manifest.json')
       .then(r => r.ok ? r.json() : {})
       .catch(() => ({}));
   }
@@ -4839,7 +4970,7 @@ function rLoadFootage() {
 let rCreditsPromise = null;
 function rLoadCredits() {
   if (!rCreditsPromise) {
-    rCreditsPromise = fetch('footage/credits.json')
+    rCreditsPromise = fetch('/footage/credits.json')
       .then(r => r.ok ? r.json() : {})
       .catch(() => ({}));
   }
@@ -4905,7 +5036,7 @@ function rStatus(project) {
 // A photograph wins; a project screenshot is the fallback; with neither, the plane
 // carries its generated field alone.
 function rMedia(footage, slot, screenshot) {
-  if (footage && footage[slot]) return { src: 'footage/' + footage[slot], kind: 'photo' };
+  if (footage && footage[slot]) return { src: '/footage/' + footage[slot], kind: 'photo' };
   if (screenshot) return { src: screenshot, kind: 'screenshot' };
   return null;
 }

@@ -4,6 +4,7 @@ const path = require('path');
 const babel = require('@babel/core');
 const footage = require('./tools/footage/manifest');
 const sanity = require('./tools/sanity-snapshot');
+const routes = require('./tools/routes');
 
 const babelConfig = {
   presets: [
@@ -29,6 +30,10 @@ let html = fs.readFileSync('index.html', 'utf-8').replace(/\r\n/g, '\n');
 // before step 1 compiles the main script out to app.js and takes the markers with it.
 // Non-fatal: if the CMS is unreachable the build ships the arrays already in the file.
 html = sanity.apply(html);
+
+// Read the projects now, while the PROJECTS markers are still in the page: step 1 moves
+// the whole main script out to app.js. Step 4 writes one page per project from these.
+const projects = routes.readProjects(html, sanity.span);
 
 // 0. Update lazy loader before compilation: skip Babel.transform since code is pre-compiled
 html = html.replace(
@@ -56,7 +61,9 @@ html = html.replace(
     }
     fs.writeFileSync(path.join('dist', file), code);
     console.log(`  → ${file}`);
-    return `<script src="${file}" defer></script>`;
+    // Root-absolute: the same HTML is served at /work/<id> (step 4), where a relative
+    // src would ask for /work/app.js and boot nothing.
+    return `<script src="/${file}" defer></script>`;
   }
 );
 
@@ -89,6 +96,11 @@ html = html.replace(
 fs.writeFileSync('dist/index.html', html);
 console.log('Written dist/index.html');
 
+// 4. A page per route (/work/<id>, /work, /tools, /about, /contact) plus 404.html, each
+// the same app with its own title, canonical and link-preview tags. See tools/routes.js.
+const routeUrls = routes.write(html, projects, 'dist');
+console.log(`Route pages: ${routeUrls.length} (+ 404.html)`);
+
 // Copy static assets
 const staticFiles = [
   'CNAME', 'robots.txt', 'sitemap.xml',
@@ -103,7 +115,13 @@ for (const f of staticFiles) {
     if (f === 'sitemap.xml') {
       // Stamp lastmod with today's date so it never goes stale between deploys
       const today = new Date().toISOString().slice(0, 10);
-      const sitemap = fs.readFileSync(f, 'utf-8').replace(/<lastmod>[\d-]+<\/lastmod>/g, `<lastmod>${today}</lastmod>`);
+      // and list every route page. Projects that are not live yet still get a page,
+      // but stay out of the sitemap until they launch.
+      const entries = routeUrls.filter(r => r.live).map(r =>
+        `  <url>\n    <loc>${r.url}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>${r.url.includes('/work/') ? '0.8' : '0.6'}</priority>\n  </url>\n`).join('');
+      const sitemap = fs.readFileSync(f, 'utf-8').replace(/\r\n/g, '\n')
+        .replace(/<lastmod>[\d-]+<\/lastmod>/g, `<lastmod>${today}</lastmod>`)
+        .replace('</urlset>', entries + '</urlset>');
       fs.writeFileSync(path.join('dist', f), sitemap);
     } else {
       fs.copyFileSync(f, path.join('dist', f));
