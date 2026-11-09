@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-08T16:38:10.039Z",
+  "generatedAt": "2026-11-09T17:52:59.763Z",
   "source": "claude-code-session-logs",
   "disclaimer": "All figures are a measured floor, not a total. Only Claude Code usage is counted, and only sessions this archive recorded before their logs were deleted. Work in other tools is not included.",
   "methodology": {
@@ -150,41 +150,41 @@
       "manualSources": [],
       "combined": null,
       "measured": {
-        "prompts": 712,
-        "assistantMessages": 7448,
-        "sessions": 18,
+        "prompts": 722,
+        "assistantMessages": 7560,
+        "sessions": 19,
         "sessionsRetainedFromDeletedLogs": 2,
-        "activeHours": 46.3,
-        "calendarDays": 45,
+        "activeHours": 46.7,
+        "calendarDays": 47,
         "firstSeen": "2026-06-12",
-        "lastSeen": "2026-11-06"
+        "lastSeen": "2026-11-09"
       },
       "tokens": {
-        "output": 5571205,
-        "input": 51162,
-        "cacheWrite": 59827324,
-        "cacheRead": 3286426573,
-        "total": 3351876264,
+        "output": 5613241,
+        "input": 51410,
+        "cacheWrite": 60376824,
+        "cacheRead": 3302217734,
+        "total": 3368259209,
         "cacheReadShare": 98
       },
       "work": {
-        "toolCalls": 6879,
+        "toolCalls": 6999,
         "edits": 753,
-        "bashCommands": 2733,
+        "bashCommands": 2785,
         "filesTouched": 322,
-        "branches": 121,
-        "prs": 121,
+        "branches": 122,
+        "prs": 124,
         "webSearches": 0,
         "compactions": 10,
-        "apiErrors": 12
+        "apiErrors": 14
       },
       "models": {
         "claude-opus-5": 2708518729,
         "claude-sonnet-5": 428881723,
         "claude-opus-4-8": 154467195,
         "claude-fable-5": 53456069,
+        "claude-opus-5-5": 18455867,
         "claude-sonnet-4-6": 2670570,
-        "claude-opus-5-5": 2072922,
         "claude-sonnet-5-5": 1809056,
         "<synthetic>": 0
       },
@@ -211,15 +211,15 @@
       },
       "emissions": {
         "gramsCO2e": {
-          "floor": 12115.4,
-          "midpoint": 152395.1,
-          "ceiling": 1201470.5
+          "floor": 12211.2,
+          "midpoint": 153352.1,
+          "ceiling": 1207775.9
         },
         "headline": {
-          "kgCO2e": 152.4,
-          "kmDriven": 1270,
-          "kettleBoils": 10160,
-          "phoneCharges": 84664
+          "kgCO2e": 153.4,
+          "kmDriven": 1278,
+          "kettleBoils": 10223,
+          "phoneCharges": 85196
         },
         "caveats": [
           "Range spans 99x between floor and ceiling; the variable is how cache reads are weighted.",
@@ -230,9 +230,9 @@
       "coverage": {
         "tool": "claude-code",
         "measuredFrom": "2026-06-12",
-        "measuredTo": "2026-11-06",
+        "measuredTo": "2026-11-09",
         "isFloor": true,
-        "sessionsMeasured": 18,
+        "sessionsMeasured": 19,
         "sessionsRetainedFromDeletedLogs": 2,
         "unmeasured": [
           "Sessions deleted before this archive first recorded them.",
@@ -240,7 +240,7 @@
           "Any work done outside an AI coding tool entirely."
         ],
         "firstCommitDate": "2026-04-20",
-        "totalCommits": 221,
+        "totalCommits": 224,
         "commitsBeforeMeasuredWindow": 73,
         "commitCoveragePct": 67
       }
@@ -456,36 +456,36 @@
       "manualSources": [],
       "combined": null,
       "measured": {
-        "prompts": 104,
-        "assistantMessages": 780,
-        "sessions": 2,
+        "prompts": 106,
+        "assistantMessages": 802,
+        "sessions": 3,
         "sessionsRetainedFromDeletedLogs": 0,
         "activeHours": 5.2,
-        "calendarDays": 2,
+        "calendarDays": 3,
         "firstSeen": "2026-11-07",
-        "lastSeen": "2026-11-08"
+        "lastSeen": "2026-11-09"
       },
       "tokens": {
-        "output": 578303,
-        "input": 1808,
-        "cacheWrite": 2064582,
-        "cacheRead": 182740186,
-        "total": 185384879,
-        "cacheReadShare": 98.6
+        "output": 593643,
+        "input": 1854,
+        "cacheWrite": 2291258,
+        "cacheRead": 185046551,
+        "total": 187933306,
+        "cacheReadShare": 98.5
       },
       "work": {
-        "toolCalls": 854,
+        "toolCalls": 876,
         "edits": 66,
-        "bashCommands": 470,
-        "filesTouched": 105,
+        "bashCommands": 489,
+        "filesTouched": 106,
         "branches": 2,
         "prs": 1,
         "webSearches": 0,
         "compactions": 6,
-        "apiErrors": 1
+        "apiErrors": 2
       },
       "models": {
-        "claude-opus-5-5": 185384879,
+        "claude-opus-5-5": 187933306,
         "<synthetic>": 0
       },
       "skills": {
@@ -501,15 +501,15 @@
       },
       "emissions": {
         "gramsCO2e": {
-          "floor": 1318.5,
-          "midpoint": 9244,
-          "ceiling": 71545
+          "floor": 1353.5,
+          "midpoint": 9474.3,
+          "ceiling": 72542.6
         },
         "headline": {
-          "kgCO2e": 9.2,
-          "kmDriven": 77,
-          "kettleBoils": 616,
-          "phoneCharges": 5136
+          "kgCO2e": 9.5,
+          "kmDriven": 79,
+          "kettleBoils": 632,
+          "phoneCharges": 5263
         },
         "caveats": [
           "Range spans 54x between floor and ceiling; the variable is how cache reads are weighted.",
@@ -520,9 +520,9 @@
       "coverage": {
         "tool": "claude-code",
         "measuredFrom": "2026-11-07",
-        "measuredTo": "2026-11-08",
+        "measuredTo": "2026-11-09",
         "isFloor": true,
-        "sessionsMeasured": 2,
+        "sessionsMeasured": 3,
         "sessionsRetainedFromDeletedLogs": 0,
         "unmeasured": [
           "Sessions deleted before this archive first recorded them.",

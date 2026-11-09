@@ -217,6 +217,8 @@ folds worktree directories back into their parent project. Directories whose
 working directory is not a git repo are reported under their folder name with
 no coverage percentage.
 
+A session that started in one project's folder but was really about another goes in `session-projects.json`: session id (the transcript file name) to the project folder it counts toward, by name (a sibling of the folder it started in) or absolute path. Claude Control Centre reads the same mapping from `sessionProjects` in its `config.json`, so both tools put the session in the same place.
+
 ---
 
 ## Suggested display
