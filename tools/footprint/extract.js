@@ -56,6 +56,11 @@ const ARCHIVE_LOCAL_PATH = path.join(__dirname, 'archive.local.json');
 // Committed, and only ever reported alongside the measured numbers — never
 // folded into the token, energy, or time totals.
 const MANUAL_SOURCES_PATH = path.join(__dirname, 'manual-sources.json');
+// A session that started in one project's folder but was about another: session
+// id -> the project folder it counts toward, by name (a sibling of the folder it
+// started in) or absolute path. Committed; holds only ids and folder names.
+const SESSION_PROJECTS_PATH = path.join(__dirname, 'session-projects.json');
+const SESSION_PROJECTS = (() => { try { return JSON.parse(fs.readFileSync(SESSION_PROJECTS_PATH, 'utf8')); } catch { return {}; } })();
 // Bumped to 3 when usage counting moved from per-line to per-message.id. An
 // entry written by an older version carries no `countedPerMessageId` flag and
 // its token totals are inflated — see --rebuild.
@@ -860,7 +865,12 @@ function collect(writeArchive, allowlist, rebuild) {
     for (const entry of fs.readdirSync(PROJECTS_DIR)) {
       const dirPath = path.join(PROJECTS_DIR, entry);
       for (const s of parseSessionsInDir(dirPath)) {
-        const identity = projectIdentity(s.cwd);
+        let identity = projectIdentity(s.cwd);
+        const assigned = SESSION_PROJECTS[s.sessionId];
+        if (assigned) {
+          const base = path.dirname((identity && identity.repo) || s.cwd || '.');
+          identity = projectIdentity(path.isAbsolute(assigned) ? assigned : path.join(base, assigned)) || identity;
+        }
         const prior = archive.sessions[s.sessionId];
         const next = toArchiveEntry(s, identity, nowIso);
         if (prior && prior.projectKey && (!identity || !identity.repo)) {
