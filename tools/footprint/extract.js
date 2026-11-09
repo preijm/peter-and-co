@@ -79,13 +79,18 @@ const ACTIVE_GAP_MS = 10 * 60 * 1000;
  * "what this cost me".
  */
 const PRICING = {
+  // Checked against platform.claude.com/docs/en/about-claude/pricing, 9 Nov 2026.
+  'claude-opus-5-5':   [4, 20, 5, 0.2],
   'claude-opus-5':     [5, 25, 6.25, 0.5],
   'claude-opus-4-8':   [5, 25, 6.25, 0.5],
   'claude-opus-4-7':   [5, 25, 6.25, 0.5],
   'claude-opus-4-6':   [5, 25, 6.25, 0.5],
-  'claude-sonnet-5':   [3, 15, 3.75, 0.3],
+  'claude-sonnet-5-5': [2, 10, 2.5, 0.1],
+  'claude-sonnet-5':   [2, 10, 2.5, 0.2],
   'claude-sonnet-4-6': [3, 15, 3.75, 0.3],
+  'claude-haiku-5-5':  [0.1, 0.5, 0.125, 0.01],
   'claude-haiku-4-5':  [1,  5, 1.25, 0.1],
+  'claude-fable-5-1':  [10, 50, 12.5, 0.25],
   'claude-fable-5':    [10, 50, 12.5, 1.0],
 };
 
@@ -633,7 +638,8 @@ function computeCost(byModel) {
   let total = 0;
   const unpriced = [];
   for (const [model, t] of Object.entries(byModel)) {
-    const p = PRICING[model];
+    // Dated ids (claude-haiku-4-5-20251001) price as their family.
+    const p = PRICING[model] || PRICING[model.replace(/-\d{8}$/, '')];
     if (!p) {
       if (model !== 'unknown' && model !== '<synthetic>') unpriced.push(model);
       continue;

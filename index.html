@@ -2116,7 +2116,7 @@ function AppShell({ page, selectedProject, activePage, navigate, selectProject }
     // line stays, because it is also just the right title for a single page.
     if (theme.appGlobal === 'VoltApp') { document.title = 'Peter & Co.'; return; }
     const titles = { home: 'Peter & Co.', work: 'Work · Peter & Co.', tools: 'Tools · Peter & Co.', about: 'About · Peter & Co.', contact: 'Contact · Peter & Co.' };
-    document.title = selectedProject ? `${selectedProject.title} · Peter & Co.` : (titles[page] || 'Peter & Co.');
+    document.title = selectedProject ? (selectedProject.title === 'Peter & Co.' ? 'Peter & Co. · this site' : `${selectedProject.title} · Peter & Co.`) : (titles[page] || 'Peter & Co.');
   }, [theme, page, selectedProject]);
 
   React.useEffect(() => {
