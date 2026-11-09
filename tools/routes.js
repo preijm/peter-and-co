@@ -91,7 +91,8 @@ function write(html, projects, outDir) {
     }
     const url = `${SITE}/work/${p.id}`;
     out(`work/${p.id}.html`, setHead(html, {
-      title: `${p.title} · Peter & Co.`,
+      // The site's own entry would read "Peter & Co. · Peter & Co."
+      title: p.title === 'Peter & Co.' ? 'Peter & Co. · this site' : `${p.title} · Peter & Co.`,
       // The one-line description says what the thing is; the tagline is a slogan
       // ("Coded from the couch.") that tells a stranger nothing on its own.
       description: p.description || p.tagline || PAGES.work.description,
