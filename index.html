@@ -511,6 +511,16 @@ function ThemeProvider({ children, onEditionChange }) {
       const moved = idx !== themeIdx;
       setThemeIdx(idx);
       try { localStorage.setItem('pco-theme', id); } catch {}
+      // ?theme= wins over the stored choice on load, and App carries the query along
+      // on every route change, so a stale one would undo this pick on the next reload.
+      // Rewritten in place, before onEditionChange pushes home with it.
+      try {
+        const q = new URLSearchParams(location.search);
+        if (q.has('theme') && q.get('theme') !== id) {
+          q.set('theme', id);
+          history.replaceState(history.state, '', location.pathname + '?' + q.toString() + location.hash);
+        }
+      } catch {}
       if (moved && onEditionChange) onEditionChange();
     }
   };
@@ -4771,13 +4781,21 @@ function VoltApp(props) {
   // project's row to the middle of the screen and light it. Delayed a beat so the
   // hero has its final height before the row is measured.
   const lit = props.selectedProject ? props.selectedProject.id : null;
+  // Back/Forward onto the same project leaves `lit` unchanged while App scrolls to
+  // the top, so the row is found again on popstate too. That listener can fire for
+  // a pop that leaves this project, hence the check on the address before moving.
   React.useEffect(() => {
     if (!lit) return;
-    const t = setTimeout(() => {
+    const timers = [];
+    const go = () => {
+      if (location.pathname.replace(/\/$/, '') !== '/work/' + lit) return;
       const row = Array.from(document.querySelectorAll('.v-row')).find(el => el.getAttribute('data-v-id') === lit);
       if (row) row.scrollIntoView({ behavior: 'instant', block: 'center' });
-    }, 150);
-    return () => clearTimeout(t);
+    };
+    const onPop = () => timers.push(setTimeout(go, 50));
+    timers.push(setTimeout(go, 150));
+    window.addEventListener('popstate', onPop);
+    return () => { timers.forEach(clearTimeout); window.removeEventListener('popstate', onPop); };
   }, [lit]);
 
   React.useEffect(() => {

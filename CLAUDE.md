@@ -55,6 +55,21 @@ contact page. Mobile keeps the classic bordered layouts.
 `build.js` copies these to `dist/` alongside the compiled HTML:
 `footage/`, `social-card.png`, `CNAME`, `themes/`, `robots.txt`, `sitemap.xml`, `google*.html`
 
+## URLs
+Every view has a real path: `/work/<project id>` (the Sanity slug), `/work`, `/tools`,
+`/about`, `/contact`. `App` routes on `location.pathname` (`parseRoute` / `writeRoute`)
+with pushState, so Back/Forward work, and it keeps the query string (`?theme=`) on every
+push. Volt, Grain and Prism are one page: a page path scrolls to its section
+(`SECTION_IDS`), and in Volt, which has no project view, a project path lights that
+project's row.
+
+`build.js` writes a page per route (`tools/routes.js`): `dist/work/<id>.html`,
+`work.html`, `tools.html`, `about.html` and `contact.html`, each the same app with its own
+`<title>`, canonical and og:/twitter: tags, plus `404.html` for any other path. The
+sitemap lists them all. Because the same HTML is served from nested paths, **asset
+URLs must be root-absolute** (`/footage/…`, not `footage/…`). Locally, `serve.json`
+rewrites the routes to `index.html`. To preview the build, run `npx serve dist`.
+
 It also regenerates `footage/manifest.json` from the contents of `footage/` before
 copying, so the Grain edition always sees the photographs that are actually there.
 
