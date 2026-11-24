@@ -1649,6 +1649,12 @@ const TOOL_CATEGORIES = [
 const visibleToolCategories = () =>
   TOOL_CATEGORIES.map(c => ({ ...c, tools: c.tools.filter(t => t.status !== 'retired') }));
 
+// The editions that keep retired tools on the page (Grain strikes them, Broadside fades
+// them) list them after the tools still in use, so a category leads with the live kit.
+// The sort is stable, so Sanity's order holds within each group.
+const retiredLastToolCategories = () =>
+  TOOL_CATEGORIES.map(c => ({ ...c, tools: [...c.tools].sort((a, b) => (a.status === 'retired') - (b.status === 'retired')) }));
+
 // ── Tools ──────────────────────────────────────────────────
 function Tools() {
   const categories = visibleToolCategories();
@@ -5545,7 +5551,7 @@ function RWork({ projects, footage, onSelect }) {
 // ── Tools ──────────────────────────────────────────────────
 // Ash hairlines only — the grid is implied through alignment, never drawn.
 function RTools({ mobile }) {
-  const cats = TOOL_CATEGORIES || [];
+  const cats = retiredLastToolCategories();
   return (
     <section id="r-tools" data-r-tone="light" style={{ background: R_PAPER, padding: R_EDGE, paddingTop: R_BREATH, paddingBottom: R_BREATH }}>
       <div className="r-in" style={{ maxWidth: '720px', marginBottom: 'clamp(48px, 9vw, 120px)' }}>
@@ -7248,7 +7254,7 @@ function BSBackground({ mobile }) {
 // columns. The tools are ordered by category and read as a sensible run either way, but
 // "build" / "infrastructure" / "craft" was the only thing naming the shelves.
 function BSTools({ mobile }) {
-  const cats = TOOL_CATEGORIES;
+  const cats = retiredLastToolCategories();
   return (
     <BSSection page id="bs-tools" mobile={mobile}>
       <div style={{
