@@ -147,6 +147,11 @@
   // manifest, so this can never preload a file that does not ship; an empty value
   // (no hero in footage/) means the plane falls back to its generated field.
   var HERO = 'hero.webp'; /* build:hero */
+  // A version for footage/manifest.json and credits.json, stamped by build.js from
+  // their contents. Both are fetched at runtime and the host caches them for ten
+  // minutes, so without it a visitor who loaded the page before a deploy keeps the old
+  // list and a new photograph falls back to its project's blurred screenshot.
+  window.FOOTAGE_V = ''; /* build:footage-v */
   if (active === 'grain-v1' && HERO) {
     var p = document.createElement('link');
     p.rel = 'preload'; p.as = 'image'; p.href = '/footage/' + HERO;
@@ -4981,7 +4986,7 @@ const R_GRAIN = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
 let rFootagePromise = null;
 function rLoadFootage() {
   if (!rFootagePromise) {
-    rFootagePromise = fetch('/footage/manifest.json')
+    rFootagePromise = fetch('/footage/manifest.json' + (window.FOOTAGE_V ? '?v=' + window.FOOTAGE_V : ''))
       .then(r => r.ok ? r.json() : {})
       .catch(() => ({}));
   }
@@ -4994,7 +4999,7 @@ function rLoadFootage() {
 let rCreditsPromise = null;
 function rLoadCredits() {
   if (!rCreditsPromise) {
-    rCreditsPromise = fetch('/footage/credits.json')
+    rCreditsPromise = fetch('/footage/credits.json' + (window.FOOTAGE_V ? '?v=' + window.FOOTAGE_V : ''))
       .then(r => r.ok ? r.json() : {})
       .catch(() => ({}));
   }

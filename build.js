@@ -85,6 +85,20 @@ html = html.replace(
   `var HERO = '${shots.hero || ''}'; /* build:hero */`
 );
 
+// 2c. Version the runtime footage fetches by their contents, so a deploy that adds a
+// photograph is never hidden behind a cached manifest.json.
+{
+  const v = crypto.createHash('sha256');
+  for (const f of ['manifest.json', 'credits.json']) {
+    const fp = path.join('footage', f);
+    if (fs.existsSync(fp)) v.update(fs.readFileSync(fp));
+  }
+  html = html.replace(
+    /window\.FOOTAGE_V = '[^']*'; \/\* build:footage-v \*\//,
+    `window.FOOTAGE_V = '${v.digest('hex').slice(0, 8)}'; /* build:footage-v */`
+  );
+}
+
 // 3. Remove Babel CDN script (no longer needed)
 html = html.replace(
   /<script src="https:\/\/unpkg\.com\/@babel\/standalone[^"]*"[^>]*><\/script>\n?/,
