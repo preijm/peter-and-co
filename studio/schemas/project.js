@@ -47,6 +47,10 @@ export default defineType({
       name: 'isPublic', title: 'Launched', type: 'boolean', initialValue: true,
       description: 'On = live. Off = the project reads as "soon": faded, no ↗ link — but its case study still opens. It does NOT hide anything; every project appears in the work list either way.',
     }),
+    defineField({
+      name: 'statusLine', title: 'Status line', type: 'string',
+      description: 'Optional. Replaces "In progress, not public yet" on the project page when there is no live link, e.g. "Colleagues only".',
+    }),
     defineField({name: 'accentDefault', title: 'Accent colour (default)', type: 'string', description: 'Hex, e.g. #22c55e'}),
     defineField({name: 'accentMondriaan', title: 'Accent colour (Mondriaan)', type: 'string', description: 'A primary: #d72027, #1d4ed8, #fcc60b'}),
     defineField({name: 'order', title: 'Sort order', type: 'number', initialValue: 0, description: 'Lower shows first'}),

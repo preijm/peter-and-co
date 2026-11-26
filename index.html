@@ -1387,6 +1387,7 @@ const PROJECTS = [
     tags: ['app', 'ai', 'office'],
     year: '2026',
     url: 'colleagues only',
+    statusLine: 'Colleagues only',
     accent: { default: '#60a5fa', 'mondriaan-v1': '#1d4ed8' },
     tagline: 'It\'s on the backlog.',
     detail: 'Colleagues ask me a lot of questions, and I\'d also like to get some work done. So I built a more efficient version of myself: a chat where "Peter" answers like a product owner. He gives real help on normal questions and a polite deflection the moment you ask for a feature. His status follows the clock, so he\'s usually in another meeting. Again.',
@@ -2240,7 +2241,7 @@ const sanityImg = (url, w) => {
   const q = `w=${w}&auto=format&q=75&fit=max${dpr > 1 ? `&dpr=${dpr}` : ''}`;
   return `${url}${url.includes('?') ? '&' : '?'}${q}`;
 };
-const Q_PROJECTS = `*[_type=="project"]|order(order asc){"id":slug.current,title,description,tagline,detail,tags,year,url,href,"screenshot":screenshot.asset->url,"screenshotBefore":screenshotBefore.asset->url,livePreview,role,stack,tools,featured,isPublic,repo,"accent":{"default":accentDefault,"mondriaan-v1":accentMondriaan}}`;
+const Q_PROJECTS = `*[_type=="project"]|order(order asc){"id":slug.current,title,description,tagline,detail,tags,year,url,href,"screenshot":screenshot.asset->url,"screenshotBefore":screenshotBefore.asset->url,livePreview,role,stack,tools,featured,isPublic,statusLine,repo,"accent":{"default":accentDefault,"mondriaan-v1":accentMondriaan}}`;
 const Q_TOOLS = `*[_type=="tool"]|order(order asc){name,"desc":description,category,status,highlight}`;
 
 function mapSanityProjects(docs) {
@@ -2258,6 +2259,7 @@ function mapSanityProjects(docs) {
     if (d.screenshotBefore) p.screenshotBefore = d.screenshotBefore;
     if (d.livePreview) p.livePreview = true;
     if (d.isPublic === false) p.public = false;
+    if (d.statusLine) p.statusLine = d.statusLine;
     return p;
   });
 }
@@ -5049,7 +5051,10 @@ function useFootage() {
 // Not every unpublished project is unfinished. Folio runs at folio.local — built and
 // in daily use, just never deployed — so saying "in progress" would be untrue. A
 // .local address is the signal, and the address itself is the more useful caption.
+// A project can also say it in its own words (Sanity's "Status line"): Ask Peter is
+// finished but only for colleagues, so "in progress" would be just as untrue.
 function rStatus(project) {
+  if (project.statusLine) return project.statusLine;
   const url = project.url || '';
   if (/\.local$/i.test(url)) return 'Runs locally at ' + url;
   return 'In progress, not public yet';
@@ -6538,7 +6543,7 @@ function PZProject({ project, projects, mobile, onSelect, onBack, onTop, openEdi
   const idx = projects.findIndex(p => p.id === project.id);
   const next = projects[(idx + 1) % projects.length];
   const live = project.public !== false && !!project.href;
-  const status = live ? 'Live' : (/\.local$/i.test(project.url || '') ? 'Runs locally at ' + project.url : 'In progress, not public yet');
+  const status = live ? 'Live' : project.statusLine ? project.statusLine : (/\.local$/i.test(project.url || '') ? 'Runs locally at ' + project.url : 'In progress, not public yet');
   const meta = [
     ['Year', project.year || '2026'],
     ['Kind', (project.tags && project.tags[0]) || 'Project'],
@@ -7508,7 +7513,7 @@ function BSProject({ project, projects, mobile, onSelect, onBack, openEditions, 
     ['year', p.year || '—'],
     ['stack', (p.stack || []).slice(0, 3).join(', ') || '—'],
     shipped ? ['site', p.url || '—']
-            : ['status', 'In progress, not public yet'],
+            : ['status', p.statusLine || 'In progress, not public yet'],
   ];
   return (
     <React.Fragment>
