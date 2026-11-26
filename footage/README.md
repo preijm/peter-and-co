@@ -25,6 +25,7 @@ Project ids are the slugs from Sanity. Currently:
 | `boer-transport` | Boer Transport |
 | `reijm-tuinaanleg` | Reijm Tuinaanleg |
 | `couch-launcher` | Couch Launcher |
+| `ask-peter` | Ask Peter |
 
 So `footage/boer-transport.jpg` becomes Boer Transport's plane. If you add a project in
 Sanity, its slug is its slot — no code change needed.
